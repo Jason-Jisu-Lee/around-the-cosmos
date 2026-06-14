@@ -65,6 +65,76 @@ body {
 #mute-btn:hover { color: var(--text-dim); border-color: var(--border2); }
 #mute-btn.muted { color: var(--text-faint); opacity: 0.45; }
 
+#settings-wrap { position: relative; display: inline-flex; align-items: center; margin-right: 6px; }
+
+#settings-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-faint);
+    border-radius: 2px;
+    padding: 4px 9px;
+    font-size: 13px;
+    line-height: 1;
+    cursor: pointer;
+    font-family: 'Segoe UI', sans-serif;
+    transition: color 0.15s, border-color 0.15s;
+}
+#settings-btn:hover { color: var(--text-dim); border-color: var(--border2); }
+
+#settings-panel {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: 226px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 14px 16px;
+    z-index: 100;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+}
+#settings-panel.open { display: block; }
+
+.settings-label {
+    font-size: 8px;
+    letter-spacing: 0.28em;
+    color: var(--text-faint);
+    font-family: 'Segoe UI', sans-serif;
+    border-bottom: 1px solid var(--border2);
+    padding-bottom: 5px;
+    margin-bottom: 12px;
+}
+
+.settings-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+.settings-row:last-child { margin-bottom: 0; }
+.settings-name {
+    font-size: 11px;
+    color: var(--text-dim);
+    font-family: 'Segoe UI', sans-serif;
+    width: 46px;
+    flex-shrink: 0;
+}
+.settings-row input[type=range] {
+    flex: 1;
+    accent-color: var(--accent);
+    cursor: pointer;
+    height: 2px;
+}
+.vol-val {
+    font-size: 10px;
+    color: var(--text-faint);
+    font-family: 'Segoe UI', sans-serif;
+    width: 32px;
+    text-align: right;
+    flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
+}
+
 #reset-btn {
     background: none;
     border: 1px solid var(--border);

@@ -12,6 +12,22 @@
             <div id="logo">LACUNA</div>
             <div id="header-right">
                 <button id="mute-btn">&#9834;</button>
+                <div id="settings-wrap">
+                    <button id="settings-btn">&#9881;</button>
+                    <div id="settings-panel">
+                        <div class="settings-label">SOUND</div>
+                        <div class="settings-row">
+                            <span class="settings-name">Music</span>
+                            <input type="range" id="vol-music" min="0" max="100" value="100">
+                            <span class="vol-val" id="vol-music-val">100%</span>
+                        </div>
+                        <div class="settings-row">
+                            <span class="settings-name">Effects</span>
+                            <input type="range" id="vol-sfx" min="0" max="100" value="100">
+                            <span class="vol-val" id="vol-sfx-val">100%</span>
+                        </div>
+                    </div>
+                </div>
                 <button id="reset-btn">RESET</button>
             </div>
         </header>
