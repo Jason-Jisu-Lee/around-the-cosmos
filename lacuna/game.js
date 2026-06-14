@@ -869,7 +869,7 @@ function loop(ts) {
     const dt = Math.min((ts - lastTs) / 1000, 0.1);
     lastTs = ts;
 
-    tick(dt);
+    tickWithDebug(dt);
 
     lastSave += dt;
     if (lastSave >= 20) { lastSave = 0; saveGame(); }
@@ -880,6 +880,59 @@ function loop(ts) {
     requestAnimationFrame(loop);
 }
 
+// ─── DEBUG PANEL (only active when URL contains ?debug) ──────────────────────
+
+let debugSpeedMult = 1;
+
+function initDebug() {
+    if (!location.search.includes('debug')) return;
+
+    const panel = document.createElement('div');
+    panel.id = 'debug-panel';
+    panel.style.cssText = `
+        position:fixed;bottom:16px;left:16px;z-index:9999;
+        background:rgba(10,10,20,0.92);border:1px solid rgba(106,223,208,0.4);
+        border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;
+        font:13px/1 'Segoe UI',sans-serif;color:#c8d0e8;min-width:180px;
+    `;
+    panel.innerHTML = `<div style="font-size:11px;letter-spacing:.1em;color:#6adfd0;margin-bottom:2px">DEBUG</div>`;
+
+    const btn = (label, fn) => {
+        const b = document.createElement('button');
+        b.textContent = label;
+        b.style.cssText = `background:rgba(106,223,208,0.12);border:1px solid rgba(106,223,208,0.3);
+            color:#c8d0e8;border-radius:4px;padding:4px 8px;cursor:pointer;font-size:12px;text-align:left;`;
+        b.onclick = fn;
+        panel.appendChild(b);
+    };
+
+    btn('+ ✦ 1K',    () => earn(1e3));
+    btn('+ ✦ 100K',  () => earn(1e5));
+    btn('+ ✦ 10M',   () => earn(1e7));
+    btn('+ ✸ 10',    () => { G.remnants += 10; buildPanels(); });
+    btn('+ ✸ 100',   () => { G.remnants += 100; buildPanels(); });
+    btn('Spawn Comet',() => { G.comet = null; G.cometTimer = 0; });
+
+    const speedRow = document.createElement('div');
+    speedRow.style.cssText = 'display:flex;align-items:center;gap:6px;margin-top:2px';
+    speedRow.innerHTML = `<span style="font-size:12px">Speed</span>`;
+    [1, 5, 20].forEach(n => {
+        const b = document.createElement('button');
+        b.textContent = `×${n}`;
+        b.style.cssText = `background:rgba(106,223,208,0.12);border:1px solid rgba(106,223,208,0.3);
+            color:#c8d0e8;border-radius:4px;padding:3px 7px;cursor:pointer;font-size:12px;`;
+        b.onclick = () => { debugSpeedMult = n; };
+        speedRow.appendChild(b);
+    });
+    panel.appendChild(speedRow);
+
+    document.body.appendChild(panel);
+}
+
+// Patch tick to respect debugSpeedMult
+const _tick = tick;
+function tickWithDebug(dt) { _tick(dt * debugSpeedMult); }
+
 // ─── INIT ────────────────────────────────────────────────────────────────────
 
 window.addEventListener('resize', resize);
@@ -889,6 +942,7 @@ document.getElementById('reset-btn').addEventListener('click', resetGame);
 loadGame();
 resize();
 buildPanels();
+initDebug();
 requestAnimationFrame(ts => {
     lastTs = ts;
     requestAnimationFrame(loop);
