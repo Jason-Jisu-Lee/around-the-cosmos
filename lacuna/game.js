@@ -245,6 +245,7 @@ function collapse() {
     G.income = 0;
 
     // Implosion-then-burst ceremony
+    SoundSystem.sfxCollapse();
     burst(CX, CY, 'rgba(90,70,110,', 90, 360);
     burst(CX, CY, 'rgba(100,80,50,', 50, 200);
     G.floatingTexts.push({
@@ -263,7 +264,7 @@ function buyRemnantUpgrade(u) {
     if (G.remnants < cost) return false;
     G.remnants -= cost;
     G.remnantUpgrades[u.id]++;
-    // Moonrise / memory take effect immediately where possible
+    SoundSystem.sfxBuy();
     saveGame();
     return true;
 }
@@ -509,6 +510,7 @@ function tick(dt) {
             earn(orbitPayout(p.idx), pos.x, pos.y - 18);
             G.orbitsCompleted++;
             p.pulse = 1;
+            SoundSystem.sfxOrbit();
         }
 
         if (p.cd > 0) p.cd = Math.max(0, p.cd - dt);
@@ -587,6 +589,7 @@ function catchComet() {
     const windfall = Math.max(25, G.income * 45) * upg('charm').bonus(lvl('charm')) * globalMult();
     earn(windfall, c.x, c.y - 20, true);
     G.cometsCaught++;
+    SoundSystem.sfxComet();
     burst(c.x, c.y, 'rgba(60,80,70,', 26, 180);
     G.comet = null;
     G.cometTimer = randCometGap(lvl('charm'));
@@ -615,11 +618,13 @@ function buyUpgrade(u) {
         G.planets.push(newPlanet(G.planets.length));
     }
     if (u.id === 'supernova') triggerSupernova();
+    else SoundSystem.sfxBuy();
     saveGame();
     return true;
 }
 
 function triggerSupernova() {
+    SoundSystem.sfxSupernova();
     burst(CX, CY, 'rgba(244,240,232,', 120, 420);
     burst(CX, CY, 'rgba(100,80,50,', 80, 260);
     if (!G.sawSupernova) {
@@ -652,6 +657,7 @@ canvas.addEventListener('click', e => {
                 * globalMult();
             earn(amount, x, y - 14);
             G.taps++;
+            SoundSystem.sfxTap();
             burst(x, y, 'rgba(100,80,50,', 5, 80);
         }
     }
@@ -924,6 +930,21 @@ const _tick = tick;
 function tickWithDebug(dt) { _tick(dt * debugSpeedMult); }
 
 // ─── INIT ────────────────────────────────────────────────────────────────────
+
+// Boot audio on first user gesture (browser autoplay policy)
+const _bootAudio = () => {
+    SoundSystem.boot();
+    SoundSystem.startMusic();
+    window.removeEventListener('click', _bootAudio);
+    window.removeEventListener('keydown', _bootAudio);
+};
+window.addEventListener('click', _bootAudio);
+window.addEventListener('keydown', _bootAudio);
+
+document.getElementById('mute-btn').addEventListener('click', () => {
+    const m = SoundSystem.toggleMute();
+    document.getElementById('mute-btn').classList.toggle('muted', m);
+});
 
 window.addEventListener('resize', resize);
 window.addEventListener('beforeunload', saveGame);

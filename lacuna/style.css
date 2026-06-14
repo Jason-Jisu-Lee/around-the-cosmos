@@ -50,6 +50,21 @@ body {
 
 #header-right { display: flex; justify-content: flex-end; }
 
+#mute-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-faint);
+    border-radius: 2px;
+    padding: 4px 10px;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: 'Segoe UI', sans-serif;
+    transition: color 0.15s, border-color 0.15s;
+    margin-right: 6px;
+}
+#mute-btn:hover { color: var(--text-dim); border-color: var(--border2); }
+#mute-btn.muted { color: var(--text-faint); opacity: 0.45; }
+
 #reset-btn {
     background: none;
     border: 1px solid var(--border);
