@@ -912,11 +912,12 @@ function initDebug() {
     btn('+ ✸ 10',    () => { G.remnants += 10; buildPanels(); });
     btn('+ ✸ 100',   () => { G.remnants += 100; buildPanels(); });
     btn('Spawn Comet',() => { G.comet = null; G.cometTimer = 0; });
+    btn('Reset',       () => { localStorage.removeItem(CFG.SAVE_KEY); G = createInitialState(); remnantSectionShown = false; buildPanels(); });
 
     const speedRow = document.createElement('div');
     speedRow.style.cssText = 'display:flex;align-items:center;gap:6px;margin-top:2px';
     speedRow.innerHTML = `<span style="font-size:12px">Speed</span>`;
-    [1, 5, 20].forEach(n => {
+    [1, 3, 5, 10, 20].forEach(n => {
         const b = document.createElement('button');
         b.textContent = `×${n}`;
         b.style.cssText = `background:rgba(106,223,208,0.12);border:1px solid rgba(106,223,208,0.3);
