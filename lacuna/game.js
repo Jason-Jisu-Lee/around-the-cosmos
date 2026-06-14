@@ -635,20 +635,26 @@ canvas.addEventListener('click', e => {
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
+    // Comet click (keep precise hit)
     if (G.comet) {
         const dx = G.comet.x - x, dy = G.comet.y - y;
         if (dx * dx + dy * dy < 48 * 48) { catchComet(); return; }
     }
 
-    let best = null, bestD = Infinity;
-    for (const p of G.planets) {
-        const pos = planetPos(p);
-        const dx = pos.x - x, dy = pos.y - y;
-        const d = Math.sqrt(dx * dx + dy * dy);
-        const hitR = PLANET_DEF[p.idx].radius + 16;
-        if (d < hitR && d < bestD) { best = p; bestD = d; }
+    // Orbit area tap: anywhere inside the outermost orbit ring
+    if (G.planets.length > 0) {
+        const dx = x - CX, dy = y - CY;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const outerR = orbitR(G.planets.length - 1);
+        if (dist <= outerR) {
+            const amount = PLANET_DEF[0].value
+                * upg('touch').yield(lvl('touch'))
+                * globalMult();
+            earn(amount, x, y - 14);
+            G.taps++;
+            burst(x, y, 'rgba(100,80,50,', 5, 80);
+        }
     }
-    if (best) tapPlanet(best);
 });
 
 document.getElementById('sn-close').addEventListener('click', () => {
