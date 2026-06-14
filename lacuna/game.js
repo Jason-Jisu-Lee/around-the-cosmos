@@ -28,9 +28,8 @@ for (let i = 0; i < CFG.MAX_PLANETS; i++) {
     });
 }
 const PLANET_COLORS = [
-    ['#cfe8ff', '#5a8fc0'], ['#ffe2b8', '#c08a40'], ['#ffc9b0', '#c05838'],
-    ['#d6f5c0', '#6aa050'], ['#e6ccff', '#8a5ac0'], ['#fff0b0', '#c0a040'],
-    ['#c0f0f0', '#4898a8'], ['#ffc8e0', '#b04878'],
+    '#4a6a8a', '#7a6040', '#7a4838', '#506840',
+    '#6a5070', '#7a6030', '#387070', '#7a4060',
 ];
 
 // ─── RUN UPGRADES (reset on collapse) ────────────────────────────────────────
@@ -246,8 +245,8 @@ function collapse() {
     G.income = 0;
 
     // Implosion-then-burst ceremony
-    burst(CX, CY, 'rgba(176,122,224,', 90, 360);
-    burst(CX, CY, 'rgba(245,201,106,', 50, 200);
+    burst(CX, CY, 'rgba(90,70,110,', 90, 360);
+    burst(CX, CY, 'rgba(100,80,50,', 50, 200);
     G.floatingTexts.push({
         x: CX, y: CY - 70, text: `+✸${gain}`,
         age: 0, maxAge: 2.2, size: 30,
@@ -314,15 +313,15 @@ function planetPos(p) {
 // ─── DRAWING ─────────────────────────────────────────────────────────────────
 
 function draw(t) {
-    ctx.fillStyle = '#06070d';
+    ctx.fillStyle = '#f4f0e8';
     ctx.fillRect(0, 0, W, H);
 
-    // Stars (twinkling)
+    // Stars (twinkling) — small dark ink dots
     for (const s of stars) {
         const a = s.a * (0.6 + 0.4 * Math.sin(t * s.tw + s.ph));
         ctx.beginPath();
         ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(216,222,240,${a})`;
+        ctx.fillStyle = `rgba(40,35,28,${a * 0.55})`;
         ctx.fill();
     }
 
@@ -330,7 +329,7 @@ function draw(t) {
     for (let i = 0; i < G.planets.length; i++) {
         ctx.beginPath();
         ctx.arc(CX, CY, orbitR(i), 0, Math.PI * 2);
-        ctx.strokeStyle = 'rgba(110,120,160,0.13)';
+        ctx.strokeStyle = 'rgba(100,90,80,0.18)';
         ctx.lineWidth = 1;
         ctx.stroke();
     }
@@ -338,47 +337,49 @@ function draw(t) {
         ctx.beginPath();
         ctx.arc(CX, CY, orbitR(G.planets.length), 0, Math.PI * 2);
         ctx.setLineDash([3, 9]);
-        ctx.strokeStyle = 'rgba(110,120,160,0.07)';
+        ctx.strokeStyle = 'rgba(100,90,80,0.08)';
         ctx.lineWidth = 1;
         ctx.stroke();
         ctx.setLineDash([]);
     }
 
-    // Sun — pulsing layered glow
+    // Sun — warm sepia glow + ink core
     const pulse = 1 + 0.04 * Math.sin(t * 1.8);
     const sunR = 26 * pulse;
     let g = ctx.createRadialGradient(CX, CY, 0, CX, CY, sunR * 4.2);
-    g.addColorStop(0, 'rgba(245,201,106,0.32)');
-    g.addColorStop(0.4, 'rgba(245,170,80,0.10)');
-    g.addColorStop(1, 'rgba(245,170,80,0)');
+    g.addColorStop(0, 'rgba(160,130,70,0.22)');
+    g.addColorStop(0.5, 'rgba(160,120,60,0.07)');
+    g.addColorStop(1, 'rgba(160,120,60,0)');
     ctx.beginPath();
     ctx.arc(CX, CY, sunR * 4.2, 0, Math.PI * 2);
     ctx.fillStyle = g;
     ctx.fill();
 
-    // Event Horizon — violet accretion ring behind the sun
+    // Event Horizon — dark ring behind the sun
     if (rlvl('horizon') > 0) {
         const hr = sunR * 1.9;
         const wob = 1 + 0.06 * Math.sin(t * 3.1);
         ctx.beginPath();
         ctx.arc(CX, CY, hr * wob, 0, Math.PI * 2);
-        ctx.strokeStyle = `rgba(176,122,224,${0.25 + 0.12 * Math.sin(t * 2.2)})`;
+        ctx.strokeStyle = `rgba(90,70,110,${0.2 + 0.1 * Math.sin(t * 2.2)})`;
         ctx.lineWidth = 3 + rlvl('horizon') * 0.4;
         ctx.stroke();
         ctx.beginPath();
         ctx.arc(CX, CY, hr * 1.25 * wob, 0, Math.PI * 2);
-        ctx.strokeStyle = 'rgba(176,122,224,0.10)';
+        ctx.strokeStyle = 'rgba(90,70,110,0.08)';
         ctx.lineWidth = 1.5;
         ctx.stroke();
     }
 
-    g = ctx.createRadialGradient(CX - sunR * 0.25, CY - sunR * 0.25, 0, CX, CY, sunR);
-    g.addColorStop(0, '#fff6dc');
-    g.addColorStop(0.55, '#f5c96a');
-    g.addColorStop(1, '#d08a30');
+    // Sun core — flat ink circle
     ctx.beginPath();
     ctx.arc(CX, CY, sunR, 0, Math.PI * 2);
-    ctx.fillStyle = g;
+    ctx.fillStyle = '#1a1a1a';
+    ctx.fill();
+    // subtle highlight
+    ctx.beginPath();
+    ctx.arc(CX - sunR * 0.28, CY - sunR * 0.28, sunR * 0.28, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(244,240,232,0.12)';
     ctx.fill();
 
     // Planets
@@ -386,12 +387,11 @@ function draw(t) {
         const def = PLANET_DEF[p.idx];
         const pos = planetPos(p);
         const r = orbitR(p.idx);
-        const [light, dark] = PLANET_COLORS[p.idx];
 
         // Motion trail
         ctx.beginPath();
         ctx.arc(CX, CY, r, p.angle - 0.55, p.angle);
-        ctx.strokeStyle = 'rgba(216,222,240,0.10)';
+        ctx.strokeStyle = 'rgba(40,35,28,0.08)';
         ctx.lineWidth = 2;
         ctx.stroke();
 
@@ -399,23 +399,17 @@ function draw(t) {
         if (p.pulse > 0) {
             ctx.beginPath();
             ctx.arc(pos.x, pos.y, def.radius + 6 + (1 - p.pulse) * 26, 0, Math.PI * 2);
-            ctx.strokeStyle = `rgba(245,201,106,${p.pulse * 0.7})`;
+            ctx.strokeStyle = `rgba(100,80,40,${p.pulse * 0.55})`;
             ctx.lineWidth = 2;
             ctx.stroke();
         }
 
-        // Planet body
-        const dim = p.cd > 0 ? 0.45 : 1;
+        // Planet body — flat ink fill, no gradient
+        const dim = p.cd > 0 ? 0.3 : 1;
         ctx.globalAlpha = dim;
-        const pg = ctx.createRadialGradient(
-            pos.x - def.radius * 0.4, pos.y - def.radius * 0.4, 0,
-            pos.x, pos.y, def.radius
-        );
-        pg.addColorStop(0, light);
-        pg.addColorStop(1, dark);
         ctx.beginPath();
         ctx.arc(pos.x, pos.y, def.radius, 0, Math.PI * 2);
-        ctx.fillStyle = pg;
+        ctx.fillStyle = PLANET_COLORS[p.idx];
         ctx.fill();
         ctx.globalAlpha = 1;
 
@@ -427,10 +421,7 @@ function draw(t) {
             const my = pos.y + Math.sin(ma) * mr;
             ctx.beginPath();
             ctx.arc(mx, my, 3, 0, Math.PI * 2);
-            const mg = ctx.createRadialGradient(mx - 1, my - 1, 0, mx, my, 3);
-            mg.addColorStop(0, '#e8e8f0');
-            mg.addColorStop(1, '#888898');
-            ctx.fillStyle = mg;
+            ctx.fillStyle = '#888878';
             ctx.fill();
         }
 
@@ -440,7 +431,7 @@ function draw(t) {
             const frac = 1 - p.cd / cdMax;
             ctx.beginPath();
             ctx.arc(pos.x, pos.y, def.radius + 5, -Math.PI / 2, -Math.PI / 2 + frac * Math.PI * 2);
-            ctx.strokeStyle = 'rgba(106,223,208,0.55)';
+            ctx.strokeStyle = 'rgba(80,90,70,0.55)';
             ctx.lineWidth = 2;
             ctx.stroke();
         }
@@ -452,20 +443,17 @@ function draw(t) {
         for (let i = 0; i < 14; i++) {
             const f = i / 14;
             ctx.beginPath();
-            ctx.arc(c.x - c.vx * f * 0.45, c.y - c.vy * f * 0.45, (1 - f) * 5, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(106,223,208,${(1 - f) * 0.30})`;
+            ctx.arc(c.x - c.vx * f * 0.45, c.y - c.vy * f * 0.45, (1 - f) * 4, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(60,80,70,${(1 - f) * 0.22})`;
             ctx.fill();
         }
-        const cg = ctx.createRadialGradient(c.x, c.y, 0, c.x, c.y, 9);
-        cg.addColorStop(0, '#eafffc');
-        cg.addColorStop(1, '#6adfd0');
         ctx.beginPath();
-        ctx.arc(c.x, c.y, 7, 0, Math.PI * 2);
-        ctx.fillStyle = cg;
+        ctx.arc(c.x, c.y, 6, 0, Math.PI * 2);
+        ctx.fillStyle = '#2a2a2a';
         ctx.fill();
         ctx.beginPath();
-        ctx.arc(c.x, c.y, 18 + 4 * Math.sin(t * 6), 0, Math.PI * 2);
-        ctx.strokeStyle = 'rgba(106,223,208,0.35)';
+        ctx.arc(c.x, c.y, 16 + 3 * Math.sin(t * 6), 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(60,80,70,0.28)';
         ctx.lineWidth = 1.5;
         ctx.stroke();
     }
@@ -486,7 +474,7 @@ function draw(t) {
         const a = 1 - ft.age / ft.maxAge;
         const pop = 0.7 + 0.3 * Math.min(1, ft.age * 8);
         ctx.font = `600 ${Math.round(ft.size * pop)}px 'Segoe UI', sans-serif`;
-        ctx.fillStyle = `rgba(245,201,106,${a})`;
+        ctx.fillStyle = `rgba(26,26,26,${a})`;
         ctx.fillText(ft.text, ft.x, ft.y);
     }
 }
@@ -604,7 +592,7 @@ function catchComet() {
     const windfall = Math.max(25, G.income * 45) * upg('charm').bonus(lvl('charm')) * globalMult();
     earn(windfall, c.x, c.y - 20, true);
     G.cometsCaught++;
-    burst(c.x, c.y, 'rgba(106,223,208,', 26, 180);
+    burst(c.x, c.y, 'rgba(60,80,70,', 26, 180);
     G.comet = null;
     G.cometTimer = randCometGap(lvl('charm'));
 }
@@ -617,7 +605,7 @@ function tapPlanet(p) {
     G.taps++;
     p.cd = upg('hands').cd(lvl('hands'));
     p.pulse = 1;
-    burst(pos.x, pos.y, 'rgba(245,201,106,', 10, 110);
+    burst(pos.x, pos.y, 'rgba(100,80,50,', 10, 110);
 }
 
 function buyUpgrade(u) {
@@ -637,8 +625,8 @@ function buyUpgrade(u) {
 }
 
 function triggerSupernova() {
-    burst(CX, CY, 'rgba(255,240,200,', 120, 420);
-    burst(CX, CY, 'rgba(245,201,106,', 80, 260);
+    burst(CX, CY, 'rgba(244,240,232,', 120, 420);
+    burst(CX, CY, 'rgba(100,80,50,', 80, 260);
     if (!G.sawSupernova) {
         G.sawSupernova = true;
         document.getElementById('supernova-overlay').classList.add('show');
