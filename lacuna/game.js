@@ -376,11 +376,6 @@ function draw(t) {
     ctx.arc(CX, CY, sunR, 0, Math.PI * 2);
     ctx.fillStyle = '#1a1a1a';
     ctx.fill();
-    // subtle highlight
-    ctx.beginPath();
-    ctx.arc(CX - sunR * 0.28, CY - sunR * 0.28, sunR * 0.28, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(244,240,232,0.12)';
-    ctx.fill();
 
     // Planets
     for (const p of G.planets) {
