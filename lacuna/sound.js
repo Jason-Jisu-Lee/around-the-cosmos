@@ -19,8 +19,8 @@ const SoundSystem = (() => {
         actx = new (window.AudioContext || window.webkitAudioContext)();
 
         master   = make(actx.createGain, 0.75);
-        musicBus = make(actx.createGain, 0.40); musicBus.connect(master);
-        sfxBus   = make(actx.createGain, 0.60); sfxBus.connect(master);
+        musicBus = make(actx.createGain, 0.56); musicBus.connect(master);
+        sfxBus   = make(actx.createGain, 0.81); sfxBus.connect(master);
         master.connect(actx.destination);
     }
 
@@ -214,12 +214,12 @@ const SoundSystem = (() => {
 
     function setMusicVolume(pct) {
         if (!actx) return;
-        musicBus.gain.setTargetAtTime(0.40 * pct / 100, actx.currentTime, 0.1);
+        musicBus.gain.setTargetAtTime(0.56 * pct / 100, actx.currentTime, 0.1);
     }
 
     function setSfxVolume(pct) {
         if (!actx) return;
-        sfxBus.gain.setTargetAtTime(0.60 * pct / 100, actx.currentTime, 0.1);
+        sfxBus.gain.setTargetAtTime(0.81 * pct / 100, actx.currentTime, 0.1);
     }
 
     function toggleMute() {
