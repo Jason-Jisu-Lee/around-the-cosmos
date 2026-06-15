@@ -11,11 +11,22 @@ Celestial idle/incremental game. Pure vanilla JS + Canvas. No build step, no fra
 - Tone: calm, meditative, slightly melancholy — "lacuna" means a gap or void
 
 ## File structure
-- `index.html` — shell + 3-column layout (left: stats, center: canvas, right: upgrades)
-- `style.css` — all styling (parchment/editorial theme: #f4f0e8 background, Georgia serif)
-- `game.js` — game logic: state, upgrades, rendering, save/load, input, debug
-- `sound.js` — procedural audio via Web Audio API (background music + SFX, no external files)
-- No npm, no bundler, no TypeScript — just open index.html in a browser
+Scripts load in this order — each file can reference globals from earlier files freely.
+
+| File | Contents |
+|---|---|
+| `index.html` | Shell, 3-column layout (left: stats, center: canvas, right: upgrades) |
+| `style.css` | All styling — parchment theme (#f4f0e8 bg, Georgia serif, flat shapes) |
+| `sound.js` | Web Audio API: procedural music + SFX, mute toggle, volume control |
+| `config.js` | CFG constants, PLANET_DEF, UPGRADES, REMNANT_UPGRADES (pure data) |
+| `state.js` | G object, createInitialState, formatters, upgrade accessors, earn, save/load |
+| `render.js` | canvas/ctx, resize, orbitR, planetPos, draw, burst |
+| `logic.js` | tick, spawnComet, catchComet, buyUpgrade, buyRemnantUpgrade, collapse, triggerSupernova |
+| `ui.js` | buildPanels, updateCards, updateUI, progressive unlock logic (upgradeVisible) |
+| `debug.js` | initDebug, tickWithDebug, Full View / Play View toggle |
+| `game.js` | Main loop, input handlers, settings, audio boot, init |
+
+No npm, no bundler, no TypeScript.
 
 **Update this file whenever:** a new file is added, a mechanic changes, upgrade trees grow, state fields are added, CFG constants change, or the save key bumps.
 
@@ -68,6 +79,12 @@ Does NOT appear in normal play.
 - All changes → commit and push to `refine/v.1`
 - Merge to `main` only after user explicitly confirms a feature is good
 - Remote: https://github.com/Jason-Jisu-Lee/lacuna.git
+
+## Progressive upgrade unlock
+- In **Play View** (default): only upgrades with `unlock: () => true` are shown. At game start this is ONLY Star Touch.
+- In **Full View** (debug toggle): all upgrades visible — snapshot of the full tree.
+- To unlock an upgrade at a milestone: set its `unlock` fn in `config.js`, e.g. `unlock: () => G.taps >= 5`
+- Singularity section (collapse + remnant upgrades) hidden until `runDust >= COLLAPSE_UNIT * 0.5`
 
 ## Vibe coding rules
 - Don't change CFG balance numbers or upgrade costs without being asked
