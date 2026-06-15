@@ -4,10 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lacuna</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
     <div id="app">
+        <div id="dust-hud">
+            <div id="dust-display"><span id="dust-icon">✦</span> <span id="dust-amount">0</span></div>
+            <div id="dust-rate">0 / s</div>
+        </div>
         <header id="header">
             <div id="logo">LACUNA</div>
             <div id="header-right">
@@ -38,20 +42,8 @@
             </div>
         </header>
         <main id="main">
-            <!-- Left column: currency + observatory -->
-            <aside id="left-col">
-                <div class="col-label">STARDUST</div>
-                <div id="dust-display">
-                    <span id="dust-icon">✦</span> <span id="dust-amount">0</span>
-                </div>
-                <div id="dust-rate">0 / s</div>
-                <div id="remnant-display" style="display:none">
-                    <div class="col-label" style="margin-top:20px">REMNANTS</div>
-                    <div id="remnant-big"><span id="remnant-icon">✸</span> <span id="remnant-amount">0</span></div>
-                </div>
-                <div class="col-label" style="margin-top:24px">OBSERVATORY</div>
-                <div id="stats-list"></div>
-            </aside>
+            <!-- Left column (reserved) -->
+            <aside id="left-col"></aside>
 
             <!-- Center: sky canvas -->
             <section id="sky-section">
@@ -60,28 +52,23 @@
 
             <!-- Right column: upgrades -->
             <aside id="right-col">
-                <div class="col-label">UPGRADES</div>
                 <div id="upgrades-list"></div>
             </aside>
         </main>
     </div>
 
-    <div id="supernova-overlay">
-        <div id="supernova-card">
-            <div id="sn-title">SUPERNOVA</div>
-            <div id="sn-text">Your star has bloomed into light itself.<br>
-            Everything it made now drifts outward, seeding new worlds.<br><br>
-            The lacuna remains, if you wish to stay.</div>
-            <button id="sn-close">KEEP ORBITING</button>
-        </div>
+    <!-- Draggable observatory panel — default bottom-left -->
+    <div id="observatory">
+        <div id="stats-list"></div>
     </div>
-    <script src="sound.js"></script>
-    <script src="config.js"></script>
-    <script src="state.js"></script>
-    <script src="render.js"></script>
-    <script src="logic.js"></script>
-    <script src="ui.js"></script>
-    <script src="debug.js"></script>
-    <script src="game.js"></script>
+
+    <script src="sound.js?v=3"></script>
+    <script src="config.js?v=3"></script>
+    <script src="state.js?v=3"></script>
+    <script src="render.js?v=3"></script>
+    <script src="logic.js?v=3"></script>
+    <script src="ui.js?v=3"></script>
+    <script src="debug.js?v=3"></script>
+    <script src="game.js?v=3"></script>
 </body>
 </html>
