@@ -26,6 +26,12 @@
                             <input type="range" id="vol-sfx" min="0" max="100" value="100">
                             <span class="vol-val" id="vol-sfx-val">100%</span>
                         </div>
+                        <div class="settings-label" style="margin-top:12px">MUSIC TRACK</div>
+                        <div id="track-row">
+                            <button class="track-btn active" data-track="0">Celestial</button>
+                            <button class="track-btn" data-track="1">Drift</button>
+                            <button class="track-btn" data-track="2">Wane</button>
+                        </div>
                     </div>
                 </div>
                 <button id="reset-btn">RESET</button>
@@ -50,7 +56,6 @@
             <!-- Center: sky canvas -->
             <section id="sky-section">
                 <canvas id="sky"></canvas>
-                <div id="hint">tap within the orbit · catch comets for a windfall</div>
             </section>
 
             <!-- Right column: upgrades -->

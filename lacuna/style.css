@@ -135,6 +135,23 @@ body {
     font-variant-numeric: tabular-nums;
 }
 
+#track-row { display: flex; gap: 5px; margin-top: 6px; }
+.track-btn {
+    flex: 1;
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-faint);
+    border-radius: 2px;
+    padding: 5px 2px;
+    font-size: 9px;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    font-family: 'Segoe UI', sans-serif;
+    transition: all 0.12s;
+}
+.track-btn:hover { color: var(--text-dim); border-color: var(--border2); }
+.track-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(122,104,72,0.06); }
+
 #reset-btn {
     background: none;
     border: 1px solid var(--border);

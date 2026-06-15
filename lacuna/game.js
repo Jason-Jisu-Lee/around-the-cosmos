@@ -34,15 +34,18 @@ function resetGame() {
 
 function loadSettings() {
     try {
-        const s  = JSON.parse(localStorage.getItem('lacuna_settings_v1') || '{}');
-        const mv = s.musicVol ?? 100;
-        const sv = s.sfxVol   ?? 100;
-        document.getElementById('vol-music').value               = mv;
-        document.getElementById('vol-sfx').value                 = sv;
-        document.getElementById('vol-music-val').textContent     = mv + '%';
-        document.getElementById('vol-sfx-val').textContent       = sv + '%';
-        return { mv, sv };
-    } catch (_) { return { mv: 100, sv: 100 }; }
+        const s     = JSON.parse(localStorage.getItem('lacuna_settings_v1') || '{}');
+        const mv    = s.musicVol ?? 100;
+        const sv    = s.sfxVol   ?? 100;
+        const track = s.track    ?? 0;
+        document.getElementById('vol-music').value           = mv;
+        document.getElementById('vol-sfx').value             = sv;
+        document.getElementById('vol-music-val').textContent = mv + '%';
+        document.getElementById('vol-sfx-val').textContent   = sv + '%';
+        document.querySelectorAll('.track-btn').forEach(b =>
+            b.classList.toggle('active', parseInt(b.dataset.track) === track));
+        return { mv, sv, track };
+    } catch (_) { return { mv: 100, sv: 100, track: 0 }; }
 }
 
 function saveSettings() {
@@ -50,12 +53,13 @@ function saveSettings() {
         localStorage.setItem('lacuna_settings_v1', JSON.stringify({
             musicVol: parseInt(document.getElementById('vol-music').value),
             sfxVol:   parseInt(document.getElementById('vol-sfx').value),
+            track:    SoundSystem.getTrack(),
         }));
     } catch (_) {}
 }
 
 function initSettings() {
-    const { mv, sv } = loadSettings();
+    const { mv, sv, track } = loadSettings();
 
     const settingsBtn   = document.getElementById('settings-btn');
     const settingsPanel = document.getElementById('settings-panel');
@@ -76,7 +80,16 @@ function initSettings() {
         saveSettings();
     });
 
-    return { mv, sv };
+    document.querySelectorAll('.track-btn').forEach(b => {
+        b.addEventListener('click', () => {
+            SoundSystem.setTrack(parseInt(b.dataset.track));
+            document.querySelectorAll('.track-btn').forEach(x => x.classList.remove('active'));
+            b.classList.add('active');
+            saveSettings();
+        });
+    });
+
+    return { mv, sv, track };
 }
 
 // ─── INPUT ───────────────────────────────────────────────────────────────────
@@ -111,9 +124,10 @@ document.getElementById('mute-btn').addEventListener('click', () => {
 
 // ─── AUDIO BOOT (first gesture — browser autoplay policy) ────────────────────
 
-let _savedVols = { mv: 100, sv: 100 };
+let _savedVols = { mv: 100, sv: 100, track: 0 };
 const _bootAudio = () => {
     SoundSystem.boot();
+    SoundSystem.loadTrack(_savedVols.track);
     SoundSystem.startMusic();
     SoundSystem.setMusicVolume(_savedVols.mv);
     SoundSystem.setSfxVolume(_savedVols.sv);
