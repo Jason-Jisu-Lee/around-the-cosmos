@@ -4,44 +4,76 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lacuna</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=4">
 </head>
 <body>
     <div id="app">
+        <div id="dust-hud">
+            <div id="dust-display"><span id="dust-icon">✦</span> <span id="dust-amount">0</span></div>
+            <div id="dust-rate">0 / s</div>
+        </div>
         <header id="header">
             <div id="logo">LACUNA</div>
-            <div id="header-center">
-                <div id="dust-display"><span id="dust-icon">✦</span> <span id="dust-amount">0</span>
-                    <span id="remnant-display" style="display:none"><span id="remnant-icon">✸</span> <span id="remnant-amount">0</span></span>
-                </div>
-                <div id="dust-rate">0 / s</div>
-            </div>
             <div id="header-right">
-                <button id="reset-btn" title="Reset save">RESET</button>
+                <button id="mute-btn">&#9834;</button>
+                <div id="settings-wrap">
+                    <button id="settings-btn">&#9881;</button>
+                    <div id="settings-panel">
+                        <div class="settings-label">SOUND</div>
+                        <div class="settings-row">
+                            <span class="settings-name">Music</span>
+                            <input type="range" id="vol-music" min="0" max="100" value="100">
+                            <span class="vol-val" id="vol-music-val">100%</span>
+                        </div>
+                        <div class="settings-row">
+                            <span class="settings-name">Effects</span>
+                            <input type="range" id="vol-sfx" min="0" max="100" value="100">
+                            <span class="vol-val" id="vol-sfx-val">100%</span>
+                        </div>
+                        <div class="settings-label" style="margin-top:12px">MUSIC TRACK</div>
+                        <div id="track-row">
+                            <button class="track-btn active" data-track="0">Celestial</button>
+                            <button class="track-btn" data-track="1">Drift</button>
+                            <button class="track-btn" data-track="2">Wane</button>
+                        </div>
+                    </div>
+                </div>
+                <button id="reset-btn">RESET</button>
             </div>
         </header>
         <main id="main">
+            <!-- Left column (reserved) -->
+            <aside id="left-col"></aside>
+
+            <!-- Center: sky canvas -->
             <section id="sky-section">
                 <canvas id="sky"></canvas>
-                <div id="hint">tap a planet to harvest it early · catch comets for a windfall</div>
             </section>
-            <aside id="panel">
-                <div class="panel-title">UPGRADES</div>
+
+            <!-- Right column: upgrades -->
+            <aside id="right-col">
+                <div id="upg-controls" style="display:none">
+                    <label id="show-completed-wrap">
+                        <input type="checkbox" id="show-completed"> Show completed
+                    </label>
+                </div>
                 <div id="upgrades-list"></div>
-                <div class="panel-title" style="margin-top:26px">OBSERVATORY</div>
-                <div id="stats-list"></div>
             </aside>
         </main>
     </div>
-    <div id="supernova-overlay">
-        <div id="supernova-card">
-            <div id="sn-title">SUPERNOVA</div>
-            <div id="sn-text">Your star has bloomed into light itself.<br>
-            Everything it made now drifts outward, seeding new worlds.<br><br>
-            The lacuna remains, if you wish to stay.</div>
-            <button id="sn-close">KEEP ORBITING</button>
-        </div>
+
+    <!-- Draggable observatory panel — default bottom-left -->
+    <div id="observatory">
+        <div id="stats-list"></div>
     </div>
-    <script src="game.js"></script>
+
+    <script src="sound.js?v=4"></script>
+    <script src="config.js?v=4"></script>
+    <script src="state.js?v=4"></script>
+    <script src="render.js?v=4"></script>
+    <script src="logic.js?v=4"></script>
+    <script src="ui.js?v=4"></script>
+    <script src="debug.js?v=4"></script>
+    <script src="game.js?v=4"></script>
 </body>
 </html>
