@@ -12,6 +12,7 @@ const SoundSystem = (() => {
     let loopStop = false;
     let orbitSfxCooldown = 0; // prevent orbit chime spam
     let currentTrack = 0;
+    let musicSession = null; // gain node that gates the current music loop — disconnect to silence all queued notes
 
     // ── init ─────────────────────────────────────────────────────────────────
 
@@ -57,7 +58,7 @@ const SoundSystem = (() => {
         }
         const conv = actx.createConvolver();
         conv.buffer = buf;
-        conv.connect(musicBus);
+        conv.connect(musicSession || musicBus);
         return conv;
     }
 
@@ -206,6 +207,13 @@ const SoundSystem = (() => {
 
     function startMusic() {
         if (!actx || loopHandle !== null) return;
+        // New session node — all music for this run routes through it.
+        // Disconnecting it instantly kills every queued oscillator.
+        musicSession = actx.createGain();
+        musicSession.gain.setValueAtTime(0, actx.currentTime);
+        musicSession.gain.linearRampToValueAtTime(1, actx.currentTime + 0.35);
+        musicSession.connect(musicBus);
+
         loopStop = false;
         let next = actx.currentTime + 0.4;
         const schedulers = [scheduleLoop, scheduleLoop2, scheduleLoop3];
@@ -222,6 +230,7 @@ const SoundSystem = (() => {
     function stopMusic() {
         loopStop = true;
         if (loopHandle) { clearTimeout(loopHandle); loopHandle = null; }
+        if (musicSession) { musicSession.disconnect(); musicSession = null; }
     }
 
     // ── SFX ───────────────────────────────────────────────────────────────────
@@ -292,21 +301,13 @@ const SoundSystem = (() => {
         sfxBus.gain.setTargetAtTime(0.81 * pct / 100, actx.currentTime, 0.1);
     }
 
-    // Set track silently (used on boot before music starts)
     function loadTrack(n) { currentTrack = Math.max(0, Math.min(2, n)); }
 
-    // Crossfade to a new track while running
     function setTrack(n) {
         currentTrack = Math.max(0, Math.min(2, n));
         if (!actx) return;
-        const vol = musicBus.gain.value;
-        stopMusic();
-        musicBus.gain.cancelScheduledValues(actx.currentTime);
-        musicBus.gain.setTargetAtTime(0, actx.currentTime, 0.15);
-        setTimeout(() => {
-            musicBus.gain.setTargetAtTime(vol || 0.56, actx.currentTime, 0.2);
-            startMusic();
-        }, 600);
+        stopMusic();            // disconnects musicSession, kills all queued notes
+        setTimeout(() => startMusic(), 200); // brief gap then fresh session
     }
 
     function getTrack() { return currentTrack; }
