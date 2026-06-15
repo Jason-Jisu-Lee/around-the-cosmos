@@ -26,21 +26,21 @@ const PLANET_COLORS = [
 // section: optional label → grouped under its own heading (else main list).
 const UPGRADES = [
     {
-        id: 'touch', name: 'Star Touch', maxLevel: 3,
+        id: 'touch', name: 'Star Touch', maxLevel: 3, section: 'ACTIONS',
         costs: [20, 100, 150],
         tapYield: [1, 2, 4, 6],
         desc: lvl => `Each click earns ${[1, 2, 4, 6][lvl]} ✦`,
         unlock: () => true, // always visible — the first thing the player sees
     },
     {
-        id: 'firstlight', name: 'First Light', maxLevel: 3,
+        id: 'firstlight', name: 'First Light', maxLevel: 3, section: 'PLANETS',
         costs: [30, 90, 250],
         mult: lvl => 1 + lvl, // innermost planet payout multiplier (×1 → ×4)
         desc: lvl => `Innermost planet payout ×${1 + lvl}`,
         unlock: () => lvl('touch') >= 1,
     },
     {
-        id: 'planet', name: 'New Planet', maxLevel: 7,
+        id: 'planet', name: 'New Planet', maxLevel: 7, section: 'PLANETS',
         costs: [200, 600, 7000, 40000, 240000, 1600000, 10000000],
         desc: lvl => `${lvl + 1} planet${lvl > 0 ? 's' : ''} in orbit`,
         unlock: () => lvl('touch') >= 2,
@@ -53,3 +53,6 @@ const UPGRADES = [
         unlock: () => G.cometsCaught >= 1,
     },
 ];
+
+// Display order of upgrade sections (new sections append here as the game grows).
+const SECTION_ORDER = ['ACTIONS', 'PLANETS', 'COMETS'];

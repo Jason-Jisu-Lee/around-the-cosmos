@@ -2,14 +2,23 @@
 
 let lastUITick     = 0;
 let lastVisibleSig = '';
+let showCompleted  = false;       // hide maxed upgrades unless toggled on
+const sectionOpen  = {};          // per-section accordion state; undefined = open by default
 const cardRefs     = [];
 
 function upgradeVisible(u) { return u.unlock ? u.unlock() : false; }
 
-// Fingerprint of which cards should currently show. Changes → panel rebuilds.
+// Whether a card actually renders: unlocked, and not maxed (unless showing completed).
+function isShown(u) {
+    if (!upgradeVisible(u)) return false;
+    const maxed = G.upgrades[u.id] >= u.maxLevel;
+    return !maxed || showCompleted;
+}
+
+// Fingerprint of the rendered card set. Changes → rebuild (unlock, max-out, toggle).
 function visibleSig() {
-    let s = '';
-    for (const u of UPGRADES) if (upgradeVisible(u)) s += u.id + ',';
+    let s = (showCompleted ? 'C' : '_') + '|';
+    for (const u of UPGRADES) if (isShown(u)) s += u.id + ',';
     return s;
 }
 
@@ -17,7 +26,7 @@ function makeCard(u) {
     const card = document.createElement('div');
     card.className = 'upgrade-card';
     card.innerHTML = `<div class="upg-top"><span class="upg-name">${u.name}</span><span class="upg-cost"></span></div><div class="upg-desc"></div>`;
-    card.addEventListener('click', () => { if (buyUpgrade(u)) updateCards(); });
+    card.addEventListener('click', () => { if (buyUpgrade(u)) buildPanels(); });
     cardRefs.push({ u, card, cost:card.querySelector('.upg-cost'), desc:card.querySelector('.upg-desc') });
     return card;
 }
@@ -26,21 +35,30 @@ function buildPanels() {
     const list = document.getElementById('upgrades-list');
     list.innerHTML = ''; cardRefs.length = 0;
 
-    // Main list — upgrades with no section
-    for (const u of UPGRADES) {
-        if (!u.section && upgradeVisible(u)) list.appendChild(makeCard(u));
-    }
+    for (const sec of SECTION_ORDER) {
+        const ups = UPGRADES.filter(u => u.section === sec && isShown(u));
+        if (!ups.length) continue;
 
-    // Sectioned upgrades — each distinct section gets its own heading
-    const sections = [];
-    for (const u of UPGRADES)
-        if (u.section && upgradeVisible(u) && !sections.includes(u.section)) sections.push(u.section);
-    for (const sec of sections) {
-        const title = document.createElement('div');
-        title.className = 'panel-title'; title.style.marginTop = '26px'; title.textContent = sec;
-        list.appendChild(title);
-        for (const u of UPGRADES)
-            if (u.section === sec && upgradeVisible(u)) list.appendChild(makeCard(u));
+        const open = sectionOpen[sec] !== false; // default open
+        const section = document.createElement('div');
+        section.className = 'acc' + (open ? ' open' : '');
+
+        const head = document.createElement('div');
+        head.className = 'acc-head';
+        head.innerHTML = `<span class="acc-label"><span class="acc-arrow">▸</span>${sec}</span><span class="acc-count">${ups.length}</span>`;
+        head.addEventListener('click', () => {
+            const nowOpen = !section.classList.contains('open');
+            section.classList.toggle('open', nowOpen);
+            sectionOpen[sec] = nowOpen;
+        });
+        section.appendChild(head);
+
+        const body = document.createElement('div');
+        body.className = 'acc-body';
+        for (const u of ups) body.appendChild(makeCard(u));
+        section.appendChild(body);
+
+        list.appendChild(section);
     }
 
     lastVisibleSig = visibleSig();
@@ -67,6 +85,10 @@ function updateUI(now) {
 
     document.getElementById('dust-amount').textContent = fmtNum(G.dust);
     document.getElementById('dust-rate').textContent   = fmtNum(G.income * 60) + ' / min';
+
+    // Show the "completed" toggle only once something has actually been maxed.
+    const anyMaxed = UPGRADES.some(u => upgradeVisible(u) && G.upgrades[u.id] >= u.maxLevel);
+    document.getElementById('upg-controls').style.display = anyMaxed ? '' : 'none';
 
     if (visibleSig() !== lastVisibleSig) buildPanels(); else updateCards();
 

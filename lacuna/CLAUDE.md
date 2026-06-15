@@ -47,8 +47,16 @@ No npm, no bundler, no TypeScript.
 | planet | New Planet | 7 | adds an orbit slot (costs [200,600,7000,…]) | after touch lvl ≥ 2 | main |
 | charm | Comet Charm | 3 | comet windfall ×(1+0.25·lvl) (costs [30,80,200]) | after 1st comet caught | COMETS |
 
-Upgrades may carry an optional `section` string; `buildPanels` renders main (no
-section) first, then each distinct section under its own `.panel-title` heading.
+Every upgrade carries a `section` string; `SECTION_ORDER` (config.js) sets display
+order. `buildPanels` renders each section as a **multi-open accordion** (`.acc`):
+all sections open by default, each independently collapsible (state in `sectionOpen`).
+A section with no shown cards is omitted.
+
+**Show completed:** maxed upgrades are hidden by default. A "Show completed" toggle
+(top-right of the panel, `#show-completed`) reveals them; it only appears once
+something has been maxed. `showCompleted` flag + `isShown(u)` drive this; the render
+fingerprint `visibleSig()` includes max-state and the toggle so the panel rebuilds
+when an upgrade maxes out or the toggle flips.
 
 Other mechanics:
 - **Orbit payout**: a planet pays `orbitPayout(idx)` when it crosses the **top of its orbit** (angle 3π/2, where sin = -1). Tracked per planet via `nextTop`. Base value is `3^idx`; `firstlight` multiplies the innermost planet (idx 0). Orbit speed fixed by `period`.

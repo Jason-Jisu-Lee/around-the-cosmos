@@ -110,6 +110,11 @@ function initDraggable(el) {
     });
 }
 
+document.getElementById('show-completed').addEventListener('change', e => {
+    showCompleted = e.target.checked;
+    buildPanels();
+});
+
 window.addEventListener('resize', resize);
 window.addEventListener('beforeunload', saveGame);
 document.getElementById('reset-btn').addEventListener('click', resetGame);
