@@ -32,7 +32,7 @@ Scripts load in this order — each file can reference globals from earlier file
 | `logic.js` | tick, spawnComet, catchComet, buyUpgrade |
 | `ui.js` | buildPanels, updateCards, updateUI (+ observatory stats), visibility-signature unlock logic |
 | `debug.js` | initDebug, tickWithDebug (speed mult), dust inject / spawn comet / reset |
-| `game.js` | Main loop, input handlers, settings, draggable, audio boot, init |
+| `game.js` | Main loop, input (click + hold-to-autoclick 2×/sec), settings, draggable, audio boot, init |
 
 No npm, no bundler, no TypeScript.
 
@@ -71,7 +71,8 @@ Other mechanics:
 - **Lacuna center**: drawn at radius **13** (was 26 — shrunk 50%, will grow later) with a faint warm haze.
 - **Observatory stats** (`#stats-list`, rebuilt each UI tick): Star Touch Value (always); **All Orbiters Payout** + **All Orbiters Payout / min** (only after the first orbiter); **Comet Value** (only after the first comet, `G.cometSeen`; hover shows the formula in a themed popup `.stat-pop`); **Time on Current Universe** (`universeTime`). The orbiter/comet rows reset naturally on prestige (planets cleared, `cometSeen`/`universeTime` reset later).
 - **No free orbiter**: game starts with `planets: []`; clicking is the only income until you buy a Dust Particle (count == `dust` level). The click handler always earns.
-- **Comet windfall**: every comet pays `10 × click value + (orbiter count × orbiterPayout())`, and sets `G.cometSeen`. (At the very start this is 10.) No charm factor while comet upgrades are disabled.
+- **Clicking**: clicking the canvas earns the Star Touch value (and catches a nearby comet within 48px). **Holding** the mouse button auto-clicks ~2×/sec (`holdTimer`/`canvasClick` in game.js; stops on mouseup/leave/blur).
+- **Comet windfall**: every comet pays `10 × click value + (orbiter count × orbiterPayout())`, and sets `G.cometSeen`. (At the very start this is 10.) No charm factor while comet upgrades are disabled. First comet appears ~14–20s in (then `COMET_MIN_GAP`–`COMET_MAX_GAP`, 25–55s).
 
 ## State object (G)
 Key fields: `dust`, `runDust`, `totalDust`, `orbitsCompleted`, `taps`, `cometsCaught`, `cometSeen` (caught a comet this universe → gates Comet Value stat), `gameTime`, `universeTime` (current-universe timer; reset on prestige later), `upgrades{touch,dust,dustpay,charm}`, `planets[]` (dust particles; each `{localPhase,localR,localSpin,pulse,shape}`; empty at start; rebuilt from `dust` level on load), `clump{angle,nextTop}` (the shared dust orbit), `comet`, `incomeWindow[]`, `income`

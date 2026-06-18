@@ -70,15 +70,29 @@ function initSettings() {
     return { mv, sv, track };
 }
 
-canvas.addEventListener('click', e => {
-    const rect=canvas.getBoundingClientRect(), x=e.clientX-rect.left, y=e.clientY-rect.top;
+function canvasClick(x, y) {
     if (G.comet) {
         const dx=G.comet.x-x, dy=G.comet.y-y;
         if (dx*dx+dy*dy < 48*48) { catchComet(); return; }
     }
     earn(upg('touch').tapYield[lvl('touch')], x, y-14);
     G.taps++; SoundSystem.sfxTap(); burst(x,y,'rgba(100,80,50,',5,80);
+}
+
+// Hold to auto-click twice per second; release stops it.
+let holdTimer = null, holdX = 0, holdY = 0;
+function canvasXY(e) { const r=canvas.getBoundingClientRect(); return [e.clientX-r.left, e.clientY-r.top]; }
+function stopHold() { if (holdTimer) { clearInterval(holdTimer); holdTimer = null; } }
+canvas.addEventListener('mousedown', e => {
+    [holdX, holdY] = canvasXY(e);
+    canvasClick(holdX, holdY);                                   // immediate click
+    stopHold();
+    holdTimer = setInterval(() => canvasClick(holdX, holdY), 500); // 2× / sec while held
 });
+canvas.addEventListener('mousemove', e => { if (holdTimer) [holdX, holdY] = canvasXY(e); });
+canvas.addEventListener('mouseleave', stopHold);
+window.addEventListener('mouseup', stopHold);
+window.addEventListener('blur', stopHold);
 
 document.getElementById('mute-btn').addEventListener('click', () => {
     const m=SoundSystem.toggleMute();

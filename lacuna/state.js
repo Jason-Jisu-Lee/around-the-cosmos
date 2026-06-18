@@ -9,7 +9,7 @@ function createInitialState() {
         upgrades: { touch:0, dust:0, dustpay:0, charm:0 },
         planets:  [],            // orbiters (dust particles); none at start
         clump:    newClump(),    // the shared orbit the dust clump travels as a group
-        comet:null, cometTimer:randCometGap(), cometSeen:false,
+        comet:null, cometTimer:14 + Math.random()*6, cometSeen:false, // first comet ~14-20s (earlier)
         particles:[], floatingTexts:[], incomeWindow:[], income:0,
     };
 }
@@ -22,7 +22,7 @@ function newOrbiter() {
     for (let k = 0; k < 7; k++) shape.push(0.6 + Math.random()*0.8);
     return {
         localPhase: Math.random()*Math.PI*2,
-        localR:     4 + Math.random()*4,
+        localR:     4 + Math.random()*6,   // little-circle radius within the clump (4–10px)
         localSpin:  (Math.random()<0.5?-1:1) * (0.6 + Math.random()*0.8),
         pulse:0, shape,
     };

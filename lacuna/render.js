@@ -36,7 +36,7 @@ function draw(t) {
     // Orbiters — a clump of small grey pebbles (dust particles). The clump orbits
     // Lacuna; each particle also circles its own little orbit within the clump.
     if (G.planets.length) {
-        const pebbleR = PLANET_DEF[0].radius / 3, cp = clumpPos();
+        const pebbleR = PLANET_DEF[0].radius / 3 + 2, cp = clumpPos();
         for (const o of G.planets) {
             const la = o.localPhase + t*o.localSpin;
             const px = cp.x + Math.cos(la)*o.localR, py = cp.y + Math.sin(la)*o.localR;
