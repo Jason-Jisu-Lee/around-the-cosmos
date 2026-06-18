@@ -5,14 +5,15 @@ Celestial idle/incremental game. Pure vanilla JS + Canvas. No build step, no fra
 ## What this game is
 - Planets orbit a central sun, paying stardust (✦) on each completed orbit
 - Click anywhere on the canvas to harvest stardust; catch comets for windfalls
-- Buy upgrades (Star Touch → New Planet) to grow output
+- No free planets — click to earn, then buy your first planet (New Planet)
 - Tone: calm, meditative, slightly melancholy — "lacuna" means a gap or void
 
-> **Current scope (being rebuilt step by step):** Only Star Touch + New Planet
-> upgrades and the comet windfall are live. Prestige (collapse/remnants/supernova),
-> the extra run upgrades (velocity/radiance/hands/charm), remnant upgrades, moons,
-> event horizon, tap-cooldown, and the debug "Full View" have been **removed**.
-> They'll be reintroduced deliberately, one feature at a time.
+> **Current scope (`refine/v.3` — minimal base, rebuilding step by step):** The game
+> starts with **0 planets** — clicking is the only income; you buy the first planet.
+> Live upgrades: **Star Touch** (2 levels, costs [10,50]) and **New Planet** (appears
+> after the first Star Touch, first costs 20), plus **Comet Charm** + the comet windfall.
+> First Light was removed — New Planet is the only planet upgrade. Prestige, remnants,
+> moons, evolution, etc. are all out; they'll be added back deliberately, one at a time.
 
 ## File structure
 Scripts load in this order — each file can reference globals from earlier files freely.
@@ -42,9 +43,8 @@ No npm, no bundler, no TypeScript.
 ## Upgrade tree (cost ✦)
 | id | Name | Levels | Effect | Unlock | Section |
 |---|---|---|---|---|---|
-| touch | Star Touch | 3 | each click earns tapYield[lvl] = [1,2,4,6] ✦ (costs [20,100,150]) | always | main |
-| firstlight | First Light | 3 | innermost planet payout ×(1+lvl) → up to ×4 (costs [30,90,250]) | after touch lvl ≥ 1 | main |
-| planet | New Planet | 7 | adds an orbit slot (costs [200,600,7000,…]) | after touch lvl ≥ 2 | main |
+| touch | Star Touch | 2 | each click earns tapYield[lvl] = [1,2,4] ✦ (costs [10,50]) | always | ACTIONS |
+| planet | New Planet | 7 | adds a planet; planets == this level (costs [20,600,7000,…]) | after touch lvl ≥ 1 | PLANETS |
 | charm | Comet Charm | 3 | comet windfall ×(1+0.25·lvl) (costs [30,80,200]) | after 1st comet caught | COMETS |
 
 Every upgrade carries a `section` string; `SECTION_ORDER` (config.js) sets display
@@ -59,11 +59,12 @@ fingerprint `visibleSig()` includes max-state and the toggle so the panel rebuil
 when an upgrade maxes out or the toggle flips.
 
 Other mechanics:
-- **Orbit payout**: a planet pays `orbitPayout(idx)` when it crosses the **top of its orbit** (angle 3π/2, where sin = -1). Tracked per planet via `nextTop`. Base value is `3^idx`; `firstlight` multiplies the innermost planet (idx 0). Orbit speed fixed by `period`.
+- **Orbit payout**: a planet pays `orbitPayout(idx)` when it crosses the **top of its orbit** (angle 3π/2, where sin = -1). Tracked per planet via `nextTop`. Payout is the base value `3^idx`. Orbit speed fixed by `period`.
+- **No free planet**: game starts with `planets: []`; clicking is the only income until you buy New Planet (planets == New Planet level). The click handler always earns (no "needs a planet" guard).
 - **Comet windfall**: the very first comet ever caught pays a flat **+10** (and unlocks Comet Charm). Every comet after pays `((sum of all planets' orbit payout) + 10 × click value) × charm bonus`.
 
 ## State object (G)
-Key fields: `dust`, `runDust`, `totalDust`, `orbitsCompleted`, `taps`, `cometsCaught`, `gameTime`, `upgrades{touch,firstlight,planet,charm}`, `planets[]` (each `{idx,angle,nextTop,pulse}`), `comet`, `incomeWindow[]`, `income`
+Key fields: `dust`, `runDust`, `totalDust`, `orbitsCompleted`, `taps`, `cometsCaught`, `gameTime`, `upgrades{touch,planet,charm}`, `planets[]` (each `{idx,angle,nextTop,pulse}`; empty at start), `comet`, `incomeWindow[]`, `income`
 
 ## Sound system (sound.js)
 - `SoundSystem.boot()` — call on first user gesture (already wired in game.js)

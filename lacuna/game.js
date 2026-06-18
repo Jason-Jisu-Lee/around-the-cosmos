@@ -76,10 +76,8 @@ canvas.addEventListener('click', e => {
         const dx=G.comet.x-x, dy=G.comet.y-y;
         if (dx*dx+dy*dy < 48*48) { catchComet(); return; }
     }
-    if (G.planets.length > 0) {
-        earn(upg('touch').tapYield[lvl('touch')], x, y-14);
-        G.taps++; SoundSystem.sfxTap(); burst(x,y,'rgba(100,80,50,',5,80);
-    }
+    earn(upg('touch').tapYield[lvl('touch')], x, y-14);
+    G.taps++; SoundSystem.sfxTap(); burst(x,y,'rgba(100,80,50,',5,80);
 });
 
 document.getElementById('mute-btn').addEventListener('click', () => {
