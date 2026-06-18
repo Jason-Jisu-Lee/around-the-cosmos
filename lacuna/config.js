@@ -34,14 +34,14 @@ const UPGRADES = [
     },
     {
         id: 'dust', name: 'Dust Particle', maxLevel: 3, section: 'ORBITERS',
-        costs: [100, 200, 500],
+        costs: [100, 500, 1500],
         desc: () => 'A dust particle orbiting the Lacuna · +5 payout',
         unlock: () => lvl('touch') >= 2, // appears after the second Star Touch
     },
     {
-        id: 'dustpay', name: 'Dust Particle Payout', maxLevel: 4, section: 'ORBITERS',
-        costs: [300, 1200, 4800, 19200],
-        mult: lvl => Math.pow(2, lvl),   // ×2 all dust particles per level (up to ×16)
+        id: 'dustpay', name: 'Dust Particle Payout', maxLevel: 5, section: 'ORBITERS',
+        costs: [300, 600, 1500, 3000, 6000],
+        mult: lvl => Math.pow(2, lvl),   // ×2 all dust particles per level (up to ×32)
         desc: () => "Doubles every dust particle's payout",
         unlock: () => lvl('dust') >= 1,  // after the first dust particle
     },
