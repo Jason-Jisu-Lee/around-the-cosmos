@@ -224,9 +224,9 @@ body {
 /* Comet Value row: formula popup on hover (may overlap other rows — that's fine) */
 .stat-comet { position: relative; cursor: help; }
 .stat-pop {
-    display: none; position: absolute; right: 0; bottom: calc(100% + 6px);
+    display: none; position: absolute; left: 0; bottom: calc(100% + 6px);
     background: #3c352b; color: #f4f0e8; font-size: 13px; line-height: 1.5;
-    padding: 10px 13px; white-space: nowrap; box-shadow: 0 4px 16px rgba(0,0,0,0.16);
+    padding: 10px 13px; max-width: 240px; white-space: normal; box-shadow: 0 4px 16px rgba(0,0,0,0.16);
     z-index: 200; pointer-events: none; letter-spacing: 0.02em;
 }
 .stat-pop b { color: #d8c8a4; font-weight: 600; }

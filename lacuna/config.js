@@ -40,14 +40,14 @@ const UPGRADES = [
     },
     {
         id: 'dustpay', name: 'Dust Particle Payout', maxLevel: 5, section: 'ORBITERS',
-        costs: [300, 600, 1500, 3000, 6000],
+        costs: [150, 600, 1500, 3000, 6000],
         mult: lvl => Math.pow(2, lvl),   // ×2 all dust particles per level (up to ×32)
         desc: () => "Doubles every dust particle's payout",
         unlock: () => lvl('dust') >= 1,  // after the first dust particle
     },
     {
         id: 'dustspd', name: 'Dust Particle Speed', maxLevel: 5, section: 'ORBITERS',
-        costs: [500, 1000, 2000, 4000, 8000],
+        costs: [200, 500, 1000, 2000, 4000],
         mult: lvl => 1 + 0.2 * lvl,      // multiplies the reduced (50%) base; ×2 at lvl 5 → original speed
         desc: () => '(×1.2 speed)',
         unlock: () => lvl('dust') >= 1,  // after the first dust particle

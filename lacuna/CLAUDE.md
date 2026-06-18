@@ -13,8 +13,8 @@ Celestial idle/incremental game. Pure vanilla JS + Canvas. No build step, no fra
 > **ACTIONS:** **Star Touch** (4 levels, costs [10,50,200,1000], click → 1/2/4/8/16).
 > **ORBITERS:** **Dust Particle** (after 2nd Star Touch; buy 3, costs [100,350,800], +10
 > payout each — all share one orbit) and **Dust Particle Payout** (×2 all dust particles,
-> 5 levels, costs [300,600,1500,3000,6000]) and **Dust Particle Speed** (clump orbit
-> starts at 50% speed; 5 levels restore it to 100%, costs [500,1000,2000,4000,8000]). **COMETS:** Comet Charm exists but is **disabled** (`unlock:()=>false`);
+> 5 levels, costs [150,600,1500,3000,6000]) and **Dust Particle Speed** (clump orbit
+> starts at 50% speed; 5 levels restore it to 100%, costs [200,500,1000,2000,4000]). **COMETS:** Comet Charm exists but is **disabled** (`unlock:()=>false`);
 > comets still pay windfalls. Prestige, remnants, moons, evolution, etc. are all out.
 > Earlier ideas removed: New Planet, per-planet Orbit Payout/Speed, the per-planet tab UI
 > (will return once there are >5 orbiters), First Light.
@@ -49,8 +49,8 @@ No npm, no bundler, no TypeScript.
 |---|---|---|---|---|---|
 | touch | Star Touch | 4 | each click earns tapYield[lvl] = [1,2,4,8,16] ✦ (costs [10,50,200,1000]) | always | ACTIONS |
 | dust | Dust Particle | 3 | adds an orbiter (dust particle, +10 payout); count == this level (costs [100,350,800]) | after touch lvl ≥ 2 | ORBITERS |
-| dustpay | Dust Particle Payout | 5 | ×2 every dust particle's payout per level → up to ×32 (`mult`=2^lvl, costs [300,600,1500,3000,6000]) | after dust lvl ≥ 1 | ORBITERS |
-| dustspd | Dust Particle Speed | 5 | clump orbit speed: base 50%, +0.2×base per lvl → original at lvl 5 (desc "(×1.2 speed)"; costs [500,1000,2000,4000,8000]) | after dust lvl ≥ 1 | ORBITERS |
+| dustpay | Dust Particle Payout | 5 | ×2 every dust particle's payout per level → up to ×32 (`mult`=2^lvl, costs [150,600,1500,3000,6000]) | after dust lvl ≥ 1 | ORBITERS |
+| dustspd | Dust Particle Speed | 5 | clump orbit speed: base 50%, +0.2×base per lvl → original at lvl 5 (desc "(×1.2 speed)"; costs [200,500,1000,2000,4000]) | after dust lvl ≥ 1 | ORBITERS |
 | charm | Comet Charm | 3 | comet windfall ×(1+0.25·lvl) (costs [30,80,200]) | **disabled** (`unlock:()=>false`) | COMETS |
 
 `SECTION_ORDER` = `['ACTIONS','ORBITERS','COMETS']`. `buildPanels` renders each section as a
