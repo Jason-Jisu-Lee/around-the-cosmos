@@ -79,6 +79,32 @@ function updateCards() {
     }
 }
 
+// Observatory stats: build the DOM once per layout (the set of rows shown), then
+// update values in place each tick — so the Comet hover popup doesn't flicker.
+let statsSig = '';
+let statEls  = {};
+function buildStats(showOrbiter, showComet) {
+    const list = document.getElementById('stats-list');
+    list.innerHTML = ''; statEls = {};
+    const mk = label => {
+        const row = document.createElement('div'); row.className = 'stat-row';
+        row.innerHTML = `<span class="stat-label">${label}</span><span class="stat-val"></span>`;
+        list.appendChild(row);
+        return row.querySelector('.stat-val');
+    };
+    statEls.touch = mk('Star Touch Value');
+    if (showOrbiter) statEls.orbiter = mk('All Orbiters Payout');
+    statEls.rate = mk('Stardust / min');
+    if (showComet) {
+        const row = document.createElement('div'); row.className = 'stat-row stat-comet';
+        row.innerHTML = `<span class="stat-label">Comet Value</span><span class="stat-val"></span><div class="stat-pop"></div>`;
+        list.appendChild(row);
+        statEls.comet = row.querySelector('.stat-val');
+        statEls.cometPop = row.querySelector('.stat-pop');
+    }
+    statEls.time = mk('Time on Current Universe');
+}
+
 function updateUI(now) {
     if (now - lastUITick < 150) return;
     lastUITick = now;
@@ -95,20 +121,19 @@ function updateUI(now) {
     // ---- Observatory stats ----
     const touchVal = upg('touch').tapYield[lvl('touch')];
     const orbiterCount = G.planets.length;
-    const orbiterSum   = orbiterCount * orbiterPayout();
-    const orbiterPerMin = orbiterSum * (60 / PLANET_DEF[0].period) * dustSpeed(); // actual orbits/min
+    const orbiterSum = orbiterCount * orbiterPayout();
     const cometVal = 10 * touchVal + orbiterSum;
-    const row = (l, v) => `<div class="stat-row"><span class="stat-label">${l}</span><span class="stat-val">${v}</span></div>`;
 
-    let html = row('Star Touch Value', '✦'+fmtNum(touchVal));
-    if (orbiterCount >= 1) {                                   // only after first orbiter
-        html += row('All Orbiters Payout', '✦'+fmtNum(orbiterSum));
-        html += row('All Orbiters Payout / min', '✦'+fmtNum(orbiterPerMin));
+    const showOrbiter = orbiterCount >= 1, showComet = G.cometSeen;
+    const sig = (showOrbiter ? 'O' : '') + (showComet ? 'C' : '');
+    if (sig !== statsSig) { buildStats(showOrbiter, showComet); statsSig = sig; }
+
+    statEls.touch.textContent = '✦' + fmtNum(touchVal);
+    if (statEls.orbiter) statEls.orbiter.textContent = '✦' + fmtNum(orbiterSum);
+    statEls.rate.textContent = '✦' + fmtNum(G.income * 60) + ' / min';
+    if (statEls.comet) {
+        statEls.comet.textContent = '✦' + fmtNum(cometVal);
+        statEls.cometPop.innerHTML = `Comet = 10 × click (${fmtNum(touchVal)}) + all orbiters payout (${fmtNum(orbiterSum)}) = <b>✦${fmtNum(cometVal)}</b>`;
     }
-    if (G.cometSeen) {                                         // only after first comet caught
-        html += `<div class="stat-row stat-comet"><span class="stat-label">Comet Value</span><span class="stat-val">✦${fmtNum(cometVal)}</span>`
-              + `<div class="stat-pop">Comet = 10 × click (${fmtNum(touchVal)}) + all orbiters payout (${fmtNum(orbiterSum)}) = <b>✦${fmtNum(cometVal)}</b></div></div>`;
-    }
-    html += row('Time on Current Universe', fmtTime(G.universeTime));
-    document.getElementById('stats-list').innerHTML = html;
+    statEls.time.textContent = fmtTime(G.universeTime);
 }
