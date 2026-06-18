@@ -11,9 +11,9 @@ Celestial idle/incremental game. Pure vanilla JS + Canvas. No build step, no fra
 > **Current scope (`refine/v.3` — minimal base, rebuilding step by step):** The game
 > starts with **0 orbiters** — clicking is the only income; you buy the first one.
 > **ACTIONS:** **Star Touch** (4 levels, costs [10,50,200,1000], click → 1/2/4/8/16).
-> **ORBITERS:** **Dust Particle** (buy 3, costs [50,150,500], +5 payout each — all share
-> one orbit) and **Dust Particle Payout** (×2 all dust particles, ✦100, after the first
-> dust particle). **COMETS:** Comet Charm exists but is **disabled** (`unlock:()=>false`);
+> **ORBITERS:** **Dust Particle** (after 2nd Star Touch; buy 3, costs [100,200,500], +5
+> payout each — all share one orbit) and **Dust Particle Payout** (×2 all dust particles,
+> ✦300, after the first dust particle). **COMETS:** Comet Charm exists but is **disabled** (`unlock:()=>false`);
 > comets still pay windfalls. Prestige, remnants, moons, evolution, etc. are all out.
 > Earlier ideas removed: New Planet, per-planet Orbit Payout/Speed, the per-planet tab UI
 > (will return once there are >5 orbiters), First Light.
@@ -47,8 +47,8 @@ No npm, no bundler, no TypeScript.
 | id | Name | Levels | Effect | Unlock | Section |
 |---|---|---|---|---|---|
 | touch | Star Touch | 4 | each click earns tapYield[lvl] = [1,2,4,8,16] ✦ (costs [10,50,200,1000]) | always | ACTIONS |
-| dust | Dust Particle | 3 | adds an orbiter (dust particle, +5 payout); count == this level (costs [50,150,500]) | after touch lvl ≥ 1 | ORBITERS |
-| dustpay | Dust Particle Payout | 1 | ×2 every dust particle's payout (`mult`=2^lvl, cost [100]) | after dust lvl ≥ 1 | ORBITERS |
+| dust | Dust Particle | 3 | adds an orbiter (dust particle, +5 payout); count == this level (costs [100,200,500]) | after touch lvl ≥ 2 | ORBITERS |
+| dustpay | Dust Particle Payout | 1 | ×2 every dust particle's payout (`mult`=2^lvl, cost [300]) | after dust lvl ≥ 1 | ORBITERS |
 | charm | Comet Charm | 3 | comet windfall ×(1+0.25·lvl) (costs [30,80,200]) | **disabled** (`unlock:()=>false`) | COMETS |
 
 `SECTION_ORDER` = `['ACTIONS','ORBITERS','COMETS']`. `buildPanels` renders each section as a
