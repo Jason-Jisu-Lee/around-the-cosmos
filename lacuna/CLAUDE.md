@@ -59,7 +59,7 @@ fingerprint `visibleSig()` includes max-state and the toggle so the panel rebuil
 when an upgrade maxes out or the toggle flips.
 
 Other mechanics:
-- **Orbit payout**: a planet pays `orbitPayout(idx)` when it crosses the **top of its orbit** (angle 3π/2, where sin = -1). Tracked per planet via `nextTop`. Payout is the base value `3^idx`. Orbit speed fixed by `period`.
+- **Orbit payout**: a planet pays `orbitPayout(idx)` when it crosses the **top of its orbit** (angle 3π/2, where sin = -1). Tracked per planet via `nextTop`. Payout is `3^idx`, except the **first planet (idx 0) pays a flat 5**. Orbit speed fixed by `period`.
 - **No free planet**: game starts with `planets: []`; clicking is the only income until you buy New Planet (planets == New Planet level). The click handler always earns (no "needs a planet" guard).
 - **Comet windfall**: the very first comet ever caught pays a flat **+10** (and unlocks Comet Charm). Every comet after pays `((sum of all planets' orbit payout) + 10 × click value) × charm bonus`.
 

@@ -44,6 +44,7 @@ function upg(id) { return UPGRADES.find(u => u.id === id); }
 function lvl(id) { return G.upgrades[id]; }
 
 function orbitPayout(idx) {
+    if (idx === 0) return 5;          // first planet pays a flat +5 per orbit
     return PLANET_DEF[idx].value;
 }
 
