@@ -5,9 +5,9 @@ let G = createInitialState();
 function createInitialState() {
     return {
         dust:0, runDust:0, totalDust:0,
-        orbitsCompleted:0, taps:0, cometsCaught:0, gameTime:0,
-        upgrades: { touch:0, firstlight:0, planet:0, charm:0 },
-        planets:  [newPlanet(0)],
+        orbitsCompleted:0, taps:0, cometsCaught:0, gameTime:0, universeTime:0,
+        upgrades: { touch:0, planet:0, charm:0 },
+        planets:  [],   // none at start — the first planet must be bought
         comet:null, cometTimer:randCometGap(),
         particles:[], floatingTexts:[], incomeWindow:[], income:0,
     };
@@ -19,7 +19,7 @@ function newPlanet(i) {
     const angle = Math.random()*Math.PI*2;
     let nextTop = 3*Math.PI/2;
     while (nextTop <= angle) nextTop += Math.PI*2;
-    return { idx:i, angle, nextTop, pulse:0 };
+    return { idx:i, angle, nextTop, pulse:0, seen:false, up:{ payout:0, speed:0 } };
 }
 
 function randCometGap() {
@@ -42,11 +42,13 @@ function fmtTime(secs) {
 
 function upg(id) { return UPGRADES.find(u => u.id === id); }
 function lvl(id) { return G.upgrades[id]; }
+function planetUpgDef(id) { return PLANET_UPGRADES.find(u => u.id === id); }
 
 function orbitPayout(idx) {
-    let v = PLANET_DEF[idx].value;
-    if (idx === 0) v *= upg('firstlight').mult(lvl('firstlight')); // First Light boosts innermost
-    return v;
+    const base = idx === 0 ? 5 : PLANET_DEF[idx].value;   // first planet pays a flat 5
+    const p = G.planets[idx];
+    const payoutLvl = p ? p.up.payout : 0;
+    return base * planetUpgDef('payout').mult(payoutLvl);  // ×Orbit Payout upgrade
 }
 
 function earn(amount, x, y, big) {
@@ -62,8 +64,9 @@ function saveGame() {
         localStorage.setItem(CFG.SAVE_KEY, JSON.stringify({
             dust:G.dust, runDust:G.runDust, totalDust:G.totalDust,
             orbitsCompleted:G.orbitsCompleted, taps:G.taps,
-            cometsCaught:G.cometsCaught, gameTime:G.gameTime,
+            cometsCaught:G.cometsCaught, gameTime:G.gameTime, universeTime:G.universeTime,
             upgrades:{...G.upgrades},
+            planetUp:G.planets.map(p => [p.up.payout, p.up.speed, p.seen?1:0]),
         }));
     } catch(_) {}
 }
@@ -77,9 +80,15 @@ function loadGame() {
         G.dust=def('dust',0); G.runDust=def('runDust',0); G.totalDust=def('totalDust',0);
         G.orbitsCompleted=def('orbitsCompleted',0); G.taps=def('taps',0);
         G.cometsCaught=def('cometsCaught',0); G.gameTime=def('gameTime',0);
-        G.upgrades = Object.assign({ touch:0, firstlight:0, planet:0, charm:0 }, d.upgrades);
+        G.universeTime=def('universeTime', G.gameTime); // current-universe timer (reset on prestige later)
+        G.upgrades = Object.assign({ touch:0, planet:0, charm:0 }, d.upgrades);
         G.planets = [];
-        const count = Math.min(CFG.MAX_PLANETS, G.upgrades.planet+1);
-        for (let i = 0; i < count; i++) G.planets.push(newPlanet(i));
+        const count = Math.min(CFG.MAX_PLANETS, G.upgrades.planet); // planets == New Planet level
+        const pu = d.planetUp || [];
+        for (let i = 0; i < count; i++) {
+            const p = newPlanet(i);
+            if (pu[i]) { p.up.payout = pu[i][0]||0; p.up.speed = pu[i][1]||0; p.seen = !!pu[i][2]; }
+            G.planets.push(p);
+        }
     } catch(_) {}
 }

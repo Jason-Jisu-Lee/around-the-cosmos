@@ -26,33 +26,43 @@ const PLANET_COLORS = [
 // section: optional label → grouped under its own heading (else main list).
 const UPGRADES = [
     {
-        id: 'touch', name: 'Star Touch', maxLevel: 3, section: 'ACTIONS',
-        costs: [20, 100, 150],
-        tapYield: [1, 2, 4, 6],
-        desc: lvl => `Each click earns ${[1, 2, 4, 6][lvl]} ✦`,
+        id: 'touch', name: 'Star Touch', maxLevel: 4, section: 'ACTIONS',
+        costs: [10, 50, 200, 1000],
+        tapYield: [1, 2, 4, 8, 16],
+        desc: lvl => `Each click earns ${[1, 2, 4, 8, 16][lvl]} ✦`,
         unlock: () => true, // always visible — the first thing the player sees
     },
     {
-        id: 'firstlight', name: 'First Light', maxLevel: 3, section: 'PLANETS',
-        costs: [30, 90, 250],
-        mult: lvl => 1 + lvl, // innermost planet payout multiplier (×1 → ×4)
-        desc: lvl => `Innermost planet payout ×${1 + lvl}`,
-        unlock: () => lvl('touch') >= 1,
-    },
-    {
         id: 'planet', name: 'New Planet', maxLevel: 7, section: 'PLANETS',
-        costs: [200, 600, 7000, 40000, 240000, 1600000, 10000000],
-        desc: lvl => `${lvl + 1} planet${lvl > 0 ? 's' : ''} in orbit`,
-        unlock: () => lvl('touch') >= 2,
+        costs: [30, 600, 7000, 40000, 240000, 1600000, 10000000],
+        desc: () => 'Adds a planet to orbit',
+        unlock: () => lvl('touch') >= 1, // appears after the first Star Touch
     },
     {
         id: 'charm', name: 'Comet Charm', maxLevel: 3, section: 'COMETS',
         costs: [30, 80, 200],
         bonus: lvl => 1 + 0.25 * lvl, // comet windfall multiplier
         desc: lvl => `Comet windfall ×${(1 + 0.25 * lvl).toFixed(2)}`,
-        unlock: () => G.cometsCaught >= 1,
+        unlock: () => false, // comet upgrades disabled for now — revisit later
     },
 ];
 
 // Display order of upgrade sections (new sections append here as the game grows).
 const SECTION_ORDER = ['ACTIONS', 'PLANETS', 'COMETS'];
+
+// Per-planet upgrades — every planet shares the same set (own levels each).
+// Shown in that planet's tab, not the main accordion. cost/mult take the level.
+const PLANET_UPGRADES = [
+    {
+        id: 'payout', name: 'Orbit Payout', maxLevel: 5,
+        cost: lvl => 100 * Math.pow(4, lvl),   // 100, 400, 1600, 6400, 25600
+        mult: lvl => Math.pow(2, lvl),         // ×2 per level
+        desc: () => "Doubles this planet's orbit payout",
+    },
+    {
+        id: 'speed', name: 'Orbit Speed', maxLevel: 5,
+        cost: lvl => 120 * Math.pow(4, lvl),   // 120, 480, 1920, 7680, 30720
+        mult: lvl => 1 + 0.25 * lvl,           // +25% orbit speed per level
+        desc: () => '+25% orbit speed for this planet',
+    },
+];

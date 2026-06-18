@@ -159,10 +159,31 @@ body {
 .acc-body { display: none; }
 .acc.open .acc-body { display: block; }
 
+/* Upgrade tabs: Main (accordion) + one per planet */
+#tab-bar { display: none; gap: 5px; margin-bottom: 14px; flex-wrap: wrap; }
+.tab-btn {
+    background: none; border: 1px solid var(--border); color: var(--text-faint);
+    border-radius: 2px; padding: 5px 12px; font-size: 11px; letter-spacing: 0.08em;
+    cursor: pointer; font-family: 'Segoe UI', sans-serif; transition: all 0.12s;
+}
+.tab-btn:hover  { color: var(--text-dim); border-color: var(--border2); }
+.tab-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(122,104,72,0.06); }
+@keyframes tabpulse {
+    0%, 100% { border-color: var(--border); color: var(--text-faint); background: none; }
+    50%      { border-color: var(--accent); color: var(--accent);     background: rgba(122,104,72,0.14); }
+}
+.tab-btn.new { animation: tabpulse 1.6s ease-in-out infinite; }
+#planet-tab { display: none; }
+.planet-tab-title {
+    font-size: 14px; color: var(--text); letter-spacing: 0.03em;
+    font-family: 'Optima','Candara','Century Gothic',sans-serif;
+    margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid var(--border2);
+}
+
 #observatory {
     position: fixed; bottom: 16px; left: 16px;
     background: rgba(244,240,232,0.92); padding: 14px 14px 10px;
-    z-index: 50; cursor: grab; min-width: 172px; user-select: none;
+    z-index: 50; cursor: grab; min-width: 232px; user-select: none;
     transition: background 0.15s;
 }
 #observatory::before {
@@ -216,9 +237,20 @@ body {
 }
 .upgrade-card:hover .upg-desc { display: block; }
 
-.stat-row { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid var(--border2); font-size: 11px; font-family: 'Segoe UI', sans-serif; }
-.stat-label { color: var(--text-dim); }
-.stat-val   { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
+.stat-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 5px 0; border-bottom: 1px solid var(--border2); font-size: 11px; font-family: 'Segoe UI', sans-serif; }
+.stat-label { color: var(--text-dim); flex: 1; }
+.stat-val   { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* Comet Value row: formula popup on hover (may overlap other rows — that's fine) */
+.stat-comet { position: relative; cursor: help; }
+.stat-pop {
+    display: none; position: absolute; right: 0; bottom: calc(100% + 6px);
+    background: var(--ink); color: var(--bg); font-size: 11px; line-height: 1.5;
+    padding: 9px 11px; white-space: nowrap; box-shadow: 0 6px 22px rgba(0,0,0,0.28);
+    z-index: 200; pointer-events: none; letter-spacing: 0.02em;
+}
+.stat-pop b { color: #e8dcc0; font-weight: 700; }
+.stat-comet:hover .stat-pop { display: block; }
 
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }

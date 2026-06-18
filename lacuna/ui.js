@@ -6,6 +6,10 @@ let showCompleted  = false;       // hide maxed upgrades unless toggled on
 const sectionOpen  = {};          // per-section accordion state; undefined = open by default
 const cardRefs     = [];
 
+let activeTab      = 'main';      // 'main' (accordion) or a planet index
+let lastTabSig     = '';          // planet count fingerprint → rebuild tab bar
+const planetCardRefs = [];
+
 function upgradeVisible(u) { return u.unlock ? u.unlock() : false; }
 
 // Whether a card actually renders: unlocked, and not maxed (unless showing completed).
@@ -79,6 +83,74 @@ function updateCards() {
     }
 }
 
+// ---- Tabs: Main (accordion) + one per planet ----
+function buildTabs() {
+    const bar = document.getElementById('tab-bar');
+    bar.innerHTML = '';
+    bar.style.display = G.planets.length ? 'flex' : 'none';  // no tabs until a planet exists
+
+    const tabs = [['main', 'Main']];
+    for (let i = 0; i < G.planets.length; i++) tabs.push([i, 'P' + (i + 1)]);
+
+    for (const [key, label] of tabs) {
+        const b = document.createElement('button');
+        let cls = 'tab-btn';
+        if (String(activeTab) === String(key)) cls += ' active';
+        if (key !== 'main' && !G.planets[key].seen) cls += ' new'; // pulse until viewed
+        b.className = cls;
+        b.textContent = label;
+        b.addEventListener('click', () => setActiveTab(key));
+        bar.appendChild(b);
+    }
+    lastTabSig = String(G.planets.length);
+}
+
+function setActiveTab(key) {
+    if (key !== 'main' && !G.planets[key]) key = 'main';
+    activeTab = key;
+    if (key !== 'main' && !G.planets[key].seen) { G.planets[key].seen = true; saveGame(); } // viewed → not new
+    const isMain = key === 'main';
+    document.getElementById('main-tab').style.display   = isMain ? 'block' : 'none';
+    document.getElementById('planet-tab').style.display = isMain ? 'none' : 'block';
+    buildTabs();
+    if (!isMain) buildPlanetTab(key);
+}
+
+function buildPlanetTab(idx) {
+    const panel = document.getElementById('planet-tab');
+    panel.innerHTML = ''; planetCardRefs.length = 0;
+    if (!G.planets[idx]) return;
+
+    const title = document.createElement('div');
+    title.className = 'planet-tab-title';
+    title.textContent = 'Planet ' + (idx + 1);
+    panel.appendChild(title);
+
+    for (const def of PLANET_UPGRADES) {
+        const card = document.createElement('div');
+        card.className = 'upgrade-card';
+        card.innerHTML = `<div class="upg-top"><span class="upg-name">${def.name}</span><span class="upg-cost"></span></div><div class="upg-desc"></div>`;
+        card.addEventListener('click', () => { if (buyPlanetUpgrade(idx, def.id)) buildPlanetTab(idx); });
+        panel.appendChild(card);
+        planetCardRefs.push({ def, pIdx: idx, card, cost: card.querySelector('.upg-cost'), desc: card.querySelector('.upg-desc') });
+    }
+    updatePlanetCards();
+}
+
+function updatePlanetCards() {
+    for (const ref of planetCardRefs) {
+        const p = G.planets[ref.pIdx]; if (!p) continue;
+        const l = p.up[ref.def.id];
+        const isMax = l >= ref.def.maxLevel;
+        const cost = isMax ? null : ref.def.cost(l);
+        ref.card.classList.toggle('is-maxed',    isMax);
+        ref.card.classList.toggle('can-afford', !isMax && G.dust >= cost);
+        ref.cost.textContent = isMax ? '—' : '✦' + fmtNum(cost);
+        ref.cost.classList.toggle('maxed', isMax);
+        ref.desc.textContent = ref.def.desc(l);
+    }
+}
+
 function updateUI(now) {
     if (now - lastUITick < 150) return;
     lastUITick = now;
@@ -86,18 +158,35 @@ function updateUI(now) {
     document.getElementById('dust-amount').textContent = fmtNum(G.dust);
     document.getElementById('dust-rate').textContent   = fmtNum(G.income * 60) + ' / min';
 
+    // Rebuild the tab bar when the planet count changes; keep active tab valid.
+    if (String(G.planets.length) !== lastTabSig) {
+        if (activeTab !== 'main' && !G.planets[activeTab]) setActiveTab('main');
+        else buildTabs();
+    }
+
     // Show the "completed" toggle only once something has actually been maxed.
     const anyMaxed = UPGRADES.some(u => upgradeVisible(u) && G.upgrades[u.id] >= u.maxLevel);
     document.getElementById('upg-controls').style.display = anyMaxed ? '' : 'none';
 
     if (visibleSig() !== lastVisibleSig) buildPanels(); else updateCards();
+    if (activeTab !== 'main') updatePlanetCards();
 
-    document.getElementById('stats-list').innerHTML = [
-        ['Total Stardust', '✦'+fmtNum(G.totalDust)],
-        ['Planets',        G.planets.length],
-        ['Orbits',         G.orbitsCompleted.toLocaleString()],
-        ['Taps',           G.taps.toLocaleString()],
-        ['Comets Caught',  G.cometsCaught],
-        ['Time',           fmtTime(G.gameTime)],
-    ].map(([l,v]) => `<div class="stat-row"><span class="stat-label">${l}</span><span class="stat-val">${v}</span></div>`).join('');
+    // ---- Observatory stats ----
+    const touchVal = upg('touch').tapYield[lvl('touch')];
+    let orbitSum = 0, orbitPerMin = 0;
+    for (const p of G.planets) {
+        const pay = orbitPayout(p.idx);
+        const period = PLANET_DEF[p.idx].period / planetUpgDef('speed').mult(p.up.speed);
+        orbitSum    += pay;
+        orbitPerMin += pay * (60 / period);
+    }
+    const cometVal = 10 * touchVal + orbitSum;
+    const row = (l, v) => `<div class="stat-row"><span class="stat-label">${l}</span><span class="stat-val">${v}</span></div>`;
+    document.getElementById('stats-list').innerHTML =
+        row('Star Touch Value', '✦'+fmtNum(touchVal)) +
+        row('All Planet Orbit Payout', '✦'+fmtNum(orbitSum)) +
+        `<div class="stat-row stat-comet"><span class="stat-label">Comet Value</span><span class="stat-val">✦${fmtNum(cometVal)}</span>` +
+            `<div class="stat-pop">Comet = 10 × click (${fmtNum(touchVal)}) + all orbit payout (${fmtNum(orbitSum)}) = <b>✦${fmtNum(cometVal)}</b></div></div>` +
+        row('All Planet Orbit Payout / min', '✦'+fmtNum(orbitPerMin)) +
+        row('Time on Current Universe', fmtTime(G.universeTime));
 }

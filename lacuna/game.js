@@ -16,7 +16,7 @@ function loop(ts) {
 function resetGame() {
     if (!confirm('Reset all progress?')) return;
     localStorage.removeItem(CFG.SAVE_KEY);
-    G = createInitialState(); buildPanels();
+    G = createInitialState(); buildPanels(); setActiveTab('main');
 }
 
 function loadSettings() {
@@ -76,10 +76,14 @@ canvas.addEventListener('click', e => {
         const dx=G.comet.x-x, dy=G.comet.y-y;
         if (dx*dx+dy*dy < 48*48) { catchComet(); return; }
     }
-    if (G.planets.length > 0) {
-        earn(upg('touch').tapYield[lvl('touch')], x, y-14);
-        G.taps++; SoundSystem.sfxTap(); burst(x,y,'rgba(100,80,50,',5,80);
+    // Click a planet to open its upgrade tab (no tap earned on that click).
+    for (let i=0; i<G.planets.length; i++) {
+        const pos=planetPos(G.planets[i]), dx=pos.x-x, dy=pos.y-y;
+        const r=PLANET_DEF[G.planets[i].idx].radius+10;
+        if (dx*dx+dy*dy < r*r) { setActiveTab(i); return; }
     }
+    earn(upg('touch').tapYield[lvl('touch')], x, y-14);
+    G.taps++; SoundSystem.sfxTap(); burst(x,y,'rgba(100,80,50,',5,80);
 });
 
 document.getElementById('mute-btn').addEventListener('click', () => {

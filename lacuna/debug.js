@@ -25,8 +25,11 @@ function initDebug() {
     btn('+ ✦ 100',    () => earn(100));
     btn('+ ✦ 1K',     () => earn(1e3));
     btn('+ ✦ 10K',    () => earn(1e4));
+    btn('+ ✦ 100K',   () => earn(1e5));
+    btn('+ ✦ 1M',     () => earn(1e6));
+    btn('+ ✦ 10M',    () => earn(1e7));
     btn('Spawn Comet', () => { G.comet=null; G.cometTimer=0; });
-    btn('Reset',       () => { localStorage.removeItem(CFG.SAVE_KEY); G=createInitialState(); buildPanels(); });
+    btn('Reset',       () => { localStorage.removeItem(CFG.SAVE_KEY); G=createInitialState(); buildPanels(); setActiveTab('main'); });
 
     const speedRow = document.createElement('div');
     speedRow.style.cssText = 'display:flex;align-items:center;gap:6px;margin-top:2px';

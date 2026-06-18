@@ -36,7 +36,7 @@ function draw(t) {
         ctx.beginPath(); ctx.arc(CX,CY,orbitR(i),0,Math.PI*2);
         ctx.strokeStyle='rgba(100,90,80,0.18)'; ctx.lineWidth=1; ctx.stroke();
     }
-    if (G.planets.length < CFG.MAX_PLANETS) {
+    if (G.planets.length < CFG.MAX_PLANETS && lvl('planet') < upg('planet').maxLevel) {
         ctx.beginPath(); ctx.arc(CX,CY,orbitR(G.planets.length),0,Math.PI*2);
         ctx.setLineDash([3,9]); ctx.strokeStyle='rgba(100,90,80,0.08)'; ctx.lineWidth=1; ctx.stroke();
         ctx.setLineDash([]);
