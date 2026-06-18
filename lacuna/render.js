@@ -36,19 +36,20 @@ function draw(t) {
     // Orbiters — a clump of small grey pebbles (dust particles). The clump orbits
     // Lacuna; each particle also circles its own little orbit within the clump.
     if (G.planets.length) {
-        const pebbleR = PLANET_DEF[0].radius / 3 + 2, cp = clumpPos();
+        const cp = clumpPos();
         for (const o of G.planets) {
             const la = o.localPhase + t*o.localSpin;
             const px = cp.x + Math.cos(la)*o.localR, py = cp.y + Math.sin(la)*o.localR;
+            const pr = o.size;
             if (o.pulse > 0) {
-                ctx.beginPath(); ctx.arc(px,py,pebbleR+3+(1-o.pulse)*12,0,Math.PI*2);
+                ctx.beginPath(); ctx.arc(px,py,pr+3+(1-o.pulse)*12,0,Math.PI*2);
                 ctx.strokeStyle=`rgba(100,90,80,${o.pulse*0.45})`; ctx.lineWidth=1.5; ctx.stroke();
             }
             ctx.save();
             ctx.translate(px,py); ctx.rotate(la*1.5);
             ctx.beginPath();
             for (let k=0; k<o.shape.length; k++) {
-                const a=(k/o.shape.length)*Math.PI*2, r=pebbleR*o.shape[k];
+                const a=(k/o.shape.length)*Math.PI*2, r=pr*o.shape[k];
                 k ? ctx.lineTo(Math.cos(a)*r, Math.sin(a)*r) : ctx.moveTo(Math.cos(a)*r, Math.sin(a)*r);
             }
             ctx.closePath(); ctx.fillStyle='#8a8782'; ctx.fill();

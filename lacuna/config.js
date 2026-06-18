@@ -39,9 +39,9 @@ const UPGRADES = [
         unlock: () => lvl('touch') >= 2, // appears after the second Star Touch
     },
     {
-        id: 'dustpay', name: 'Dust Particle Payout', maxLevel: 1, section: 'ORBITERS',
-        costs: [300],
-        mult: lvl => Math.pow(2, lvl),   // ×2 all dust particles per level
+        id: 'dustpay', name: 'Dust Particle Payout', maxLevel: 4, section: 'ORBITERS',
+        costs: [300, 1200, 4800, 19200],
+        mult: lvl => Math.pow(2, lvl),   // ×2 all dust particles per level (up to ×16)
         desc: () => "Doubles every dust particle's payout",
         unlock: () => lvl('dust') >= 1,  // after the first dust particle
     },

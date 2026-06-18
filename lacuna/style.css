@@ -161,7 +161,7 @@ body {
 
 
 #observatory {
-    position: fixed; bottom: calc(16px + 5vh); left: calc(16px + 5vw);
+    position: fixed; top: calc(16px + 3vh); left: calc(16px + 3vw);
     background: rgba(244,240,232,0.92); padding: 16px 16px 12px;
     z-index: 50; cursor: grab; min-width: 262px; user-select: none;
     transition: background 0.15s;

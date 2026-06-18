@@ -24,6 +24,7 @@ function newOrbiter() {
         localPhase: Math.random()*Math.PI*2,
         localR:     4 + Math.random()*6,   // little-circle radius within the clump (4–10px)
         localSpin:  (Math.random()<0.5?-1:1) * (0.6 + Math.random()*0.8),
+        size:       5 + Math.random()*7,   // this pebble's own radius (5–12px)
         pulse:0, shape,
     };
 }
