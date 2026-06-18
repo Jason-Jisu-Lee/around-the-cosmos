@@ -132,7 +132,7 @@ function updateUI(now) {
     statEls.touch.textContent = '✦' + fmtNum(touchVal);
     if (statEls.orbiter) {
         statEls.orbiter.textContent = '✦' + fmtNum(orbiterSum);
-        statEls.orbiterPop.innerHTML = `${orbiterCount} × (10 base × ${fmtMult(payMult)} payout) = <b>✦${fmtNum(orbiterSum)}</b>`;
+        statEls.orbiterPop.innerHTML = `${orbiterCount} dust × 10 × ${payMult}× = <b>✦${fmtNum(orbiterSum)}</b>`;
     }
     statEls.rate.textContent = '✦' + fmtNum(G.income * 60) + ' / min';
     if (statEls.comet) {
