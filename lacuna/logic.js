@@ -5,7 +5,7 @@ function tick(dt) {
 
     for (const p of G.planets) {
         const def = PLANET_DEF[p.idx];
-        const w   = (Math.PI*2 / def.period);
+        const w   = (Math.PI*2 / def.period) * planetUpgDef('speed').mult(p.up.speed);
         p.angle += w*dt;
         if (p.angle >= p.nextTop) {        // crossed the top of the orbit → pay out
             p.nextTop += Math.PI*2;
@@ -81,5 +81,18 @@ function buyUpgrade(u) {
     if (G.dust < cost) return false;
     G.dust -= cost; G.upgrades[u.id]++;
     if (u.id === 'planet') G.planets.push(newPlanet(G.planets.length));
+    SoundSystem.sfxBuy(); saveGame(); return true;
+}
+
+// Buy a per-planet upgrade (Orbit Payout / Orbit Speed) for a specific planet.
+function buyPlanetUpgrade(pIdx, upId) {
+    const p = G.planets[pIdx];
+    if (!p) return false;
+    const def = planetUpgDef(upId);
+    const l = p.up[upId];
+    if (l >= def.maxLevel) return false;
+    const cost = def.cost(l);
+    if (G.dust < cost) return false;
+    G.dust -= cost; p.up[upId]++;
     SoundSystem.sfxBuy(); saveGame(); return true;
 }

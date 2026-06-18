@@ -159,6 +159,22 @@ body {
 .acc-body { display: none; }
 .acc.open .acc-body { display: block; }
 
+/* Upgrade tabs: Main (accordion) + one per planet */
+#tab-bar { display: none; gap: 5px; margin-bottom: 14px; flex-wrap: wrap; }
+.tab-btn {
+    background: none; border: 1px solid var(--border); color: var(--text-faint);
+    border-radius: 2px; padding: 5px 12px; font-size: 11px; letter-spacing: 0.08em;
+    cursor: pointer; font-family: 'Segoe UI', sans-serif; transition: all 0.12s;
+}
+.tab-btn:hover  { color: var(--text-dim); border-color: var(--border2); }
+.tab-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(122,104,72,0.06); }
+#planet-tab { display: none; }
+.planet-tab-title {
+    font-size: 14px; color: var(--text); letter-spacing: 0.03em;
+    font-family: 'Optima','Candara','Century Gothic',sans-serif;
+    margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid var(--border2);
+}
+
 #observatory {
     position: fixed; bottom: 16px; left: 16px;
     background: rgba(244,240,232,0.92); padding: 14px 14px 10px;

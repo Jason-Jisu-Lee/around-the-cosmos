@@ -19,7 +19,7 @@ function newPlanet(i) {
     const angle = Math.random()*Math.PI*2;
     let nextTop = 3*Math.PI/2;
     while (nextTop <= angle) nextTop += Math.PI*2;
-    return { idx:i, angle, nextTop, pulse:0 };
+    return { idx:i, angle, nextTop, pulse:0, up:{ payout:0, speed:0 } };
 }
 
 function randCometGap() {
@@ -42,10 +42,13 @@ function fmtTime(secs) {
 
 function upg(id) { return UPGRADES.find(u => u.id === id); }
 function lvl(id) { return G.upgrades[id]; }
+function planetUpgDef(id) { return PLANET_UPGRADES.find(u => u.id === id); }
 
 function orbitPayout(idx) {
-    if (idx === 0) return 5;          // first planet pays a flat +5 per orbit
-    return PLANET_DEF[idx].value;
+    const base = idx === 0 ? 5 : PLANET_DEF[idx].value;   // first planet pays a flat 5
+    const p = G.planets[idx];
+    const payoutLvl = p ? p.up.payout : 0;
+    return base * planetUpgDef('payout').mult(payoutLvl);  // ×Orbit Payout upgrade
 }
 
 function earn(amount, x, y, big) {
@@ -63,6 +66,7 @@ function saveGame() {
             orbitsCompleted:G.orbitsCompleted, taps:G.taps,
             cometsCaught:G.cometsCaught, gameTime:G.gameTime,
             upgrades:{...G.upgrades},
+            planetUp:G.planets.map(p => [p.up.payout, p.up.speed]),
         }));
     } catch(_) {}
 }
@@ -79,6 +83,11 @@ function loadGame() {
         G.upgrades = Object.assign({ touch:0, planet:0, charm:0 }, d.upgrades);
         G.planets = [];
         const count = Math.min(CFG.MAX_PLANETS, G.upgrades.planet); // planets == New Planet level
-        for (let i = 0; i < count; i++) G.planets.push(newPlanet(i));
+        const pu = d.planetUp || [];
+        for (let i = 0; i < count; i++) {
+            const p = newPlanet(i);
+            if (pu[i]) { p.up.payout = pu[i][0]||0; p.up.speed = pu[i][1]||0; }
+            G.planets.push(p);
+        }
     } catch(_) {}
 }
