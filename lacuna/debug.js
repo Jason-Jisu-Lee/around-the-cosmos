@@ -29,7 +29,7 @@ function initDebug() {
     btn('+ ✦ 1M',     () => earn(1e6));
     btn('+ ✦ 10M',    () => earn(1e7));
     btn('Spawn Comet', () => { G.comet=null; G.cometTimer=0; });
-    btn('Reset',       () => { localStorage.removeItem(CFG.SAVE_KEY); G=createInitialState(); buildPanels(); setActiveTab('main'); });
+    btn('Reset',       () => { localStorage.removeItem(CFG.SAVE_KEY); G=createInitialState(); buildPanels(); });
 
     const speedRow = document.createElement('div');
     speedRow.style.cssText = 'display:flex;align-items:center;gap:6px;margin-top:2px';

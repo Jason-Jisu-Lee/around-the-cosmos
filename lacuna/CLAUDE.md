@@ -12,8 +12,9 @@ Celestial idle/incremental game. Pure vanilla JS + Canvas. No build step, no fra
 > starts with **0 planets** — clicking is the only income; you buy the first planet.
 > **Global upgrades** (main accordion tab): **Star Touch** (4 levels, costs [10,50,200,1000],
 > click → 1/2/4/8/16) and **New Planet** (after first Star Touch, first costs 30).
-> **Per-planet upgrades** (one tab per planet): **Orbit Payout** (×2/lvl) and **Orbit
-> Speed** (+25%/lvl), both available the moment a planet is bought.
+> **Per-planet upgrades** (in the PLANETS accordion section, one set per planet):
+> **Orbit Payout** (×2/lvl) and **Orbit Speed** (+25%/lvl), available the moment a
+> planet is bought. (Tabbed per-planet UI deferred until there are >5 planets.)
 > **Comet Charm is disabled for now** (`unlock: () => false`); comets still pay windfalls.
 > First Light removed. Prestige, remnants, moons, evolution, etc. are all out.
 
@@ -29,7 +30,7 @@ Scripts load in this order — each file can reference globals from earlier file
 | `state.js` | G object, createInitialState, formatters, upg/lvl/planetUpgDef accessors, orbitPayout, earn, save/load |
 | `render.js` | canvas/ctx, resize, orbitR, planetPos, draw, burst |
 | `logic.js` | tick, spawnComet, catchComet, buyUpgrade, buyPlanetUpgrade |
-| `ui.js` | buildPanels, tabs (buildTabs/setActiveTab/buildPlanetTab), updateUI, visibility-signature unlock logic |
+| `ui.js` | buildPanels (global + per-planet cards), updateCards, updateUI, visibility-signature unlock logic |
 | `debug.js` | initDebug, tickWithDebug (speed mult), dust inject / spawn comet / reset |
 | `game.js` | Main loop, input handlers, settings, draggable, audio boot, init |
 
@@ -63,13 +64,13 @@ order. `buildPanels` renders each section as a **multi-open accordion** (`.acc`)
 all sections open by default, each independently collapsible (state in `sectionOpen`).
 A section with no shown cards is omitted.
 
-**Tabs:** the right panel is tabbed — `[Main]` (the accordion of global upgrades) plus one
-`[P1] [P2]…` tab per planet (`PLANET_UPGRADES` for that planet). The tab bar is hidden
-until the first planet exists. Switch via tab button or by **clicking a planet in the
-orbit** (`setActiveTab` from the canvas click handler). `activeTab` = `'main'` or a planet
-index; `buildTabs`/`buildPlanetTab` in ui.js. A planet tab **pulses** (`.tab-btn.new`,
-`tabpulse` keyframes) until it's been opened once — tracked by `p.seen` (persisted in the
-`planetUp` save tuple `[payout, speed, seen]`). Eventually a dropdown when planets get many.
+**Per-planet upgrades in the accordion:** `PLANET_UPGRADES` cards render inside the
+**PLANETS** section of the main accordion, one set per planet (the card label gets a
+`· P{n}` suffix once there's more than one planet). Levels are stored per planet in
+`p.up{payout,speed}` and bought via `buyPlanetUpgrade(pIdx, id)`. `cardRefs` entries carry
+a `kind` (`'global'` | `'planet'`); `visibleSig()` includes planet count + per-planet
+max-state so the panel rebuilds on buy/unlock. A dedicated **tabbed** per-planet UI is
+deferred until there are >5 planets.
 
 **Show completed:** maxed upgrades are hidden by default. A "Show completed" toggle
 (top-right of the panel, `#show-completed`) reveals them; it only appears once
@@ -84,7 +85,7 @@ Other mechanics:
 - **Comet windfall**: every comet pays `10 × click value + (sum of all planets' orbit payout)`. (At the very start — touch lvl 0, no planets — this is 10, same as the old flat first-comet bonus.) No charm factor while comet upgrades are disabled.
 
 ## State object (G)
-Key fields: `dust`, `runDust`, `totalDust`, `orbitsCompleted`, `taps`, `cometsCaught`, `gameTime`, `universeTime` (current-universe timer; reset on prestige later), `upgrades{touch,planet,charm}`, `planets[]` (each `{idx,angle,nextTop,pulse,seen,up:{payout,speed}}`; empty at start; `up` levels + `seen` persisted via `planetUp` in the save), `comet`, `incomeWindow[]`, `income`
+Key fields: `dust`, `runDust`, `totalDust`, `orbitsCompleted`, `taps`, `cometsCaught`, `gameTime`, `universeTime` (current-universe timer; reset on prestige later), `upgrades{touch,planet,charm}`, `planets[]` (each `{idx,angle,nextTop,pulse,up:{payout,speed}}`; empty at start; `up` levels persisted via `planetUp` in the save), `comet`, `incomeWindow[]`, `income`
 
 ## Sound system (sound.js)
 - `SoundSystem.boot()` — call on first user gesture (already wired in game.js)
