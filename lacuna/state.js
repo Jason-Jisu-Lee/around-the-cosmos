@@ -6,20 +6,23 @@ function createInitialState() {
     return {
         dust:0, runDust:0, totalDust:0,
         orbitsCompleted:0, taps:0, cometsCaught:0, gameTime:0, universeTime:0,
-        upgrades: { touch:0, planet:0, charm:0 },
-        planets:  [],   // none at start — the first planet must be bought
-        comet:null, cometTimer:randCometGap(),
+        upgrades: { touch:0, dust:0, dustpay:0, charm:0 },
+        planets:  [],            // orbiters (dust particles); none at start
+        comet:null, cometTimer:randCometGap(), cometSeen:false,
         particles:[], floatingTexts:[], incomeWindow:[], income:0,
     };
 }
 
-// Planets pay out when they cross the top of their orbit (angle 3π/2, where sin = -1).
-// nextTop tracks the upcoming top-crossing angle.
-function newPlanet(i) {
+// Orbiters pay out when they cross the top of their orbit (angle 3π/2, where sin = -1).
+// nextTop tracks the upcoming top-crossing angle. Dust particles all share ring 0.
+// `shape` is a set of jittered radii → an irregular pebble silhouette.
+function newOrbiter() {
     const angle = Math.random()*Math.PI*2;
     let nextTop = 3*Math.PI/2;
     while (nextTop <= angle) nextTop += Math.PI*2;
-    return { idx:i, angle, nextTop, pulse:0, up:{ payout:0, speed:0 } };
+    const shape = [];
+    for (let k = 0; k < 7; k++) shape.push(0.6 + Math.random()*0.8);
+    return { ring:0, angle, nextTop, pulse:0, shape };
 }
 
 function randCometGap() {
@@ -42,14 +45,9 @@ function fmtTime(secs) {
 
 function upg(id) { return UPGRADES.find(u => u.id === id); }
 function lvl(id) { return G.upgrades[id]; }
-function planetUpgDef(id) { return PLANET_UPGRADES.find(u => u.id === id); }
 
-function orbitPayout(idx) {
-    const base = idx === 0 ? 5 : PLANET_DEF[idx].value;   // first planet pays a flat 5
-    const p = G.planets[idx];
-    const payoutLvl = p ? p.up.payout : 0;
-    return base * planetUpgDef('payout').mult(payoutLvl);  // ×Orbit Payout upgrade
-}
+// Every dust particle pays a flat 5, doubled by Dust Particle Payout.
+function orbiterPayout() { return 5 * upg('dustpay').mult(lvl('dustpay')); }
 
 function earn(amount, x, y, big) {
     G.dust += amount; G.runDust += amount; G.totalDust += amount;
@@ -65,8 +63,8 @@ function saveGame() {
             dust:G.dust, runDust:G.runDust, totalDust:G.totalDust,
             orbitsCompleted:G.orbitsCompleted, taps:G.taps,
             cometsCaught:G.cometsCaught, gameTime:G.gameTime, universeTime:G.universeTime,
+            cometSeen:G.cometSeen,
             upgrades:{...G.upgrades},
-            planetUp:G.planets.map(p => [p.up.payout, p.up.speed]),
         }));
     } catch(_) {}
 }
@@ -81,14 +79,10 @@ function loadGame() {
         G.orbitsCompleted=def('orbitsCompleted',0); G.taps=def('taps',0);
         G.cometsCaught=def('cometsCaught',0); G.gameTime=def('gameTime',0);
         G.universeTime=def('universeTime', G.gameTime); // current-universe timer (reset on prestige later)
-        G.upgrades = Object.assign({ touch:0, planet:0, charm:0 }, d.upgrades);
+        G.upgrades = Object.assign({ touch:0, dust:0, dustpay:0, charm:0 }, d.upgrades);
+        G.cometSeen = def('cometSeen', G.cometsCaught > 0);
         G.planets = [];
-        const count = Math.min(CFG.MAX_PLANETS, G.upgrades.planet); // planets == New Planet level
-        const pu = d.planetUp || [];
-        for (let i = 0; i < count; i++) {
-            const p = newPlanet(i);
-            if (pu[i]) { p.up.payout = pu[i][0]||0; p.up.speed = pu[i][1]||0; }
-            G.planets.push(p);
-        }
+        const count = Math.min(3, G.upgrades.dust); // one orbiter per Dust Particle level
+        for (let i = 0; i < count; i++) G.planets.push(newOrbiter());
     } catch(_) {}
 }

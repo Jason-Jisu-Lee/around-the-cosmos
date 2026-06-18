@@ -33,10 +33,17 @@ const UPGRADES = [
         unlock: () => true, // always visible — the first thing the player sees
     },
     {
-        id: 'planet', name: 'New Planet', maxLevel: 7, section: 'PLANETS',
-        costs: [30, 600, 7000, 40000, 240000, 1600000, 10000000],
-        desc: () => 'Adds a planet to orbit',
+        id: 'dust', name: 'Dust Particle', maxLevel: 3, section: 'ORBITERS',
+        costs: [50, 150, 500],
+        desc: () => 'A dust particle orbiting the Lacuna · +5 payout',
         unlock: () => lvl('touch') >= 1, // appears after the first Star Touch
+    },
+    {
+        id: 'dustpay', name: 'Dust Particle Payout', maxLevel: 1, section: 'ORBITERS',
+        costs: [100],
+        mult: lvl => Math.pow(2, lvl),   // ×2 all dust particles per level
+        desc: () => "Doubles every dust particle's payout",
+        unlock: () => lvl('dust') >= 1,  // after the first dust particle
     },
     {
         id: 'charm', name: 'Comet Charm', maxLevel: 3, section: 'COMETS',
@@ -48,21 +55,4 @@ const UPGRADES = [
 ];
 
 // Display order of upgrade sections (new sections append here as the game grows).
-const SECTION_ORDER = ['ACTIONS', 'PLANETS', 'COMETS'];
-
-// Per-planet upgrades — every planet shares the same set (own levels each).
-// Shown in that planet's tab, not the main accordion. cost/mult take the level.
-const PLANET_UPGRADES = [
-    {
-        id: 'payout', name: 'Orbit Payout', maxLevel: 5,
-        cost: lvl => 100 * Math.pow(4, lvl),   // 100, 400, 1600, 6400, 25600
-        mult: lvl => Math.pow(2, lvl),         // ×2 per level
-        desc: () => "Doubles this planet's orbit payout",
-    },
-    {
-        id: 'speed', name: 'Orbit Speed', maxLevel: 5,
-        cost: lvl => 120 * Math.pow(4, lvl),   // 120, 480, 1920, 7680, 30720
-        mult: lvl => 1 + 0.25 * lvl,           // +25% orbit speed per level
-        desc: () => '+25% orbit speed for this planet',
-    },
-];
+const SECTION_ORDER = ['ACTIONS', 'ORBITERS', 'COMETS'];

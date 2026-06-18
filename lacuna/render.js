@@ -20,7 +20,7 @@ function resize() {
 }
 
 function orbitR(i) { return MAXR*(i+1.9)/(CFG.MAX_PLANETS+1.9); }
-function planetPos(p) { const r=orbitR(p.idx); return { x:CX+Math.cos(p.angle)*r, y:CY+Math.sin(p.angle)*r }; }
+function planetPos(o) { const r=orbitR(o.ring); return { x:CX+Math.cos(o.angle)*r, y:CY+Math.sin(o.angle)*r }; }
 
 function draw(t) {
     ctx.fillStyle = '#f4f0e8';
@@ -32,33 +32,37 @@ function draw(t) {
         ctx.fill();
     }
 
-    for (let i=0; i<G.planets.length; i++) {
-        ctx.beginPath(); ctx.arc(CX,CY,orbitR(i),0,Math.PI*2);
+    // Dust-particle orbit ring (ring 0), shown once any orbiter exists.
+    if (G.planets.length) {
+        ctx.beginPath(); ctx.arc(CX,CY,orbitR(0),0,Math.PI*2);
         ctx.strokeStyle='rgba(100,90,80,0.18)'; ctx.lineWidth=1; ctx.stroke();
     }
-    if (G.planets.length < CFG.MAX_PLANETS && lvl('planet') < upg('planet').maxLevel) {
-        ctx.beginPath(); ctx.arc(CX,CY,orbitR(G.planets.length),0,Math.PI*2);
-        ctx.setLineDash([3,9]); ctx.strokeStyle='rgba(100,90,80,0.08)'; ctx.lineWidth=1; ctx.stroke();
-        ctx.setLineDash([]);
-    }
 
-    const pulse=1+0.04*Math.sin(t*1.8), sunR=26*pulse;
+    const pulse=1+0.04*Math.sin(t*1.8), sunR=13*pulse;
     const g = ctx.createRadialGradient(CX,CY,0,CX,CY,sunR*4.2);
     g.addColorStop(0,'rgba(160,130,70,0.22)'); g.addColorStop(0.5,'rgba(160,120,60,0.07)'); g.addColorStop(1,'rgba(160,120,60,0)');
     ctx.beginPath(); ctx.arc(CX,CY,sunR*4.2,0,Math.PI*2); ctx.fillStyle=g; ctx.fill();
 
     ctx.beginPath(); ctx.arc(CX,CY,sunR,0,Math.PI*2); ctx.fillStyle='#1a1a1a'; ctx.fill();
 
-    for (const p of G.planets) {
-        const def=PLANET_DEF[p.idx], pos=planetPos(p), r=orbitR(p.idx);
-        ctx.beginPath(); ctx.arc(CX,CY,r,p.angle-0.55,p.angle);
-        ctx.strokeStyle='rgba(40,35,28,0.08)'; ctx.lineWidth=2; ctx.stroke();
-        if (p.pulse > 0) {
-            ctx.beginPath(); ctx.arc(pos.x,pos.y,def.radius+6+(1-p.pulse)*26,0,Math.PI*2);
-            ctx.strokeStyle=`rgba(100,80,40,${p.pulse*0.55})`; ctx.lineWidth=2; ctx.stroke();
+    // Orbiters — small grey irregular pebbles (dust particles), 1/3 the old planet size.
+    const pebbleR = PLANET_DEF[0].radius / 3;
+    for (const o of G.planets) {
+        const pos=planetPos(o);
+        if (o.pulse > 0) {
+            ctx.beginPath(); ctx.arc(pos.x,pos.y,pebbleR+4+(1-o.pulse)*16,0,Math.PI*2);
+            ctx.strokeStyle=`rgba(100,90,80,${o.pulse*0.5})`; ctx.lineWidth=1.5; ctx.stroke();
         }
-        ctx.beginPath(); ctx.arc(pos.x,pos.y,def.radius,0,Math.PI*2);
-        ctx.fillStyle=PLANET_COLORS[p.idx]; ctx.fill();
+        ctx.save();
+        ctx.translate(pos.x,pos.y); ctx.rotate(o.angle*1.3);
+        ctx.beginPath();
+        for (let k=0; k<o.shape.length; k++) {
+            const a=(k/o.shape.length)*Math.PI*2, r=pebbleR*o.shape[k];
+            const px=Math.cos(a)*r, py=Math.sin(a)*r;
+            k ? ctx.lineTo(px,py) : ctx.moveTo(px,py);
+        }
+        ctx.closePath(); ctx.fillStyle='#8a8782'; ctx.fill();
+        ctx.restore();
     }
 
     if (G.comet) {

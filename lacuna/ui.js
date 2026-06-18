@@ -15,20 +15,10 @@ function isShown(u) {
     return !maxed || showCompleted;
 }
 
-// Per-planet upgrade visible: not maxed (unless showing completed).
-function isPlanetShown(p, def) {
-    const maxed = p.up[def.id] >= def.maxLevel;
-    return !maxed || showCompleted;
-}
-
-// Fingerprint of the rendered card set. Changes → rebuild (unlock, max-out, toggle, planet count).
+// Fingerprint of the rendered card set. Changes → rebuild (unlock, max-out, toggle).
 function visibleSig() {
     let s = (showCompleted ? 'C' : '_') + '|';
     for (const u of UPGRADES) if (isShown(u)) s += u.id + ',';
-    s += '|P' + G.planets.length + ':';
-    for (let i = 0; i < G.planets.length; i++)
-        for (const def of PLANET_UPGRADES)
-            if (isPlanetShown(G.planets[i], def)) s += i + def.id + ',';
     return s;
 }
 
@@ -37,18 +27,7 @@ function makeCard(u) {
     card.className = 'upgrade-card';
     card.innerHTML = `<div class="upg-top"><span class="upg-name">${u.name}</span><span class="upg-cost"></span></div><div class="upg-desc"></div>`;
     card.addEventListener('click', () => { if (buyUpgrade(u)) buildPanels(); });
-    cardRefs.push({ kind:'global', u, card, cost:card.querySelector('.upg-cost'), desc:card.querySelector('.upg-desc') });
-    return card;
-}
-
-// Per-planet upgrade card (Orbit Payout / Orbit Speed), shown in the PLANETS section.
-function makePlanetCard(def, pIdx) {
-    const card = document.createElement('div');
-    card.className = 'upgrade-card';
-    const label = def.name + (G.planets.length > 1 ? ` · P${pIdx+1}` : '');
-    card.innerHTML = `<div class="upg-top"><span class="upg-name">${label}</span><span class="upg-cost"></span></div><div class="upg-desc"></div>`;
-    card.addEventListener('click', () => { if (buyPlanetUpgrade(pIdx, def.id)) buildPanels(); });
-    cardRefs.push({ kind:'planet', def, pIdx, card, cost:card.querySelector('.upg-cost'), desc:card.querySelector('.upg-desc') });
+    cardRefs.push({ u, card, cost:card.querySelector('.upg-cost'), desc:card.querySelector('.upg-desc') });
     return card;
 }
 
@@ -58,16 +37,7 @@ function buildPanels() {
 
     for (const sec of SECTION_ORDER) {
         const ups = UPGRADES.filter(u => u.section === sec && isShown(u));
-
-        // Per-planet upgrades (one set per planet) live in the PLANETS section.
-        const planetCards = [];
-        if (sec === 'PLANETS') {
-            for (let i = 0; i < G.planets.length; i++)
-                for (const def of PLANET_UPGRADES)
-                    if (isPlanetShown(G.planets[i], def)) planetCards.push([def, i]);
-        }
-        const count = ups.length + planetCards.length;
-        if (!count) continue;
+        if (!ups.length) continue;
 
         const open = sectionOpen[sec] !== false; // default open
         const section = document.createElement('div');
@@ -75,7 +45,7 @@ function buildPanels() {
 
         const head = document.createElement('div');
         head.className = 'acc-head';
-        head.innerHTML = `<span class="acc-label"><span class="acc-arrow">▸</span>${sec}</span><span class="acc-count">${count}</span>`;
+        head.innerHTML = `<span class="acc-label"><span class="acc-arrow">▸</span>${sec}</span><span class="acc-count">${ups.length}</span>`;
         head.addEventListener('click', () => {
             const nowOpen = !section.classList.contains('open');
             section.classList.toggle('open', nowOpen);
@@ -86,7 +56,6 @@ function buildPanels() {
         const body = document.createElement('div');
         body.className = 'acc-body';
         for (const u of ups) body.appendChild(makeCard(u));
-        for (const [def, i] of planetCards) body.appendChild(makePlanetCard(def, i));
         section.appendChild(body);
 
         list.appendChild(section);
@@ -98,24 +67,15 @@ function buildPanels() {
 
 function updateCards() {
     for (const ref of cardRefs) {
-        let l, isMax, cost, descText;
-        if (ref.kind === 'planet') {
-            const p = G.planets[ref.pIdx]; if (!p) continue;
-            l = p.up[ref.def.id];
-            isMax = l >= ref.def.maxLevel;
-            cost  = isMax ? null : ref.def.cost(l);
-            descText = ref.def.desc(l);
-        } else {
-            l = G.upgrades[ref.u.id];
-            isMax = l >= ref.u.maxLevel;
-            cost  = isMax ? null : ref.u.costs[l];
-            descText = ref.u.desc(l);
-        }
+        const u = ref.u;
+        const l = G.upgrades[u.id];
+        const isMax = l >= u.maxLevel;
+        const cost = isMax ? null : u.costs[l];
         ref.card.classList.toggle('is-maxed',    isMax);
         ref.card.classList.toggle('can-afford', !isMax && G.dust >= cost);
         ref.cost.textContent = isMax ? '—' : '✦' + fmtNum(cost);
         ref.cost.classList.toggle('maxed', isMax);
-        ref.desc.textContent = descText;
+        ref.desc.textContent = u.desc(l);
     }
 }
 
@@ -127,28 +87,28 @@ function updateUI(now) {
     document.getElementById('dust-rate').textContent   = fmtNum(G.income * 60) + ' / min';
 
     // Show the "completed" toggle only once something has actually been maxed.
-    const anyMaxed = UPGRADES.some(u => upgradeVisible(u) && G.upgrades[u.id] >= u.maxLevel)
-        || G.planets.some(p => PLANET_UPGRADES.some(def => p.up[def.id] >= def.maxLevel));
+    const anyMaxed = UPGRADES.some(u => upgradeVisible(u) && G.upgrades[u.id] >= u.maxLevel);
     document.getElementById('upg-controls').style.display = anyMaxed ? '' : 'none';
 
     if (visibleSig() !== lastVisibleSig) buildPanels(); else updateCards();
 
     // ---- Observatory stats ----
     const touchVal = upg('touch').tapYield[lvl('touch')];
-    let orbitSum = 0, orbitPerMin = 0;
-    for (const p of G.planets) {
-        const pay = orbitPayout(p.idx);
-        const period = PLANET_DEF[p.idx].period / planetUpgDef('speed').mult(p.up.speed);
-        orbitSum    += pay;
-        orbitPerMin += pay * (60 / period);
-    }
-    const cometVal = 10 * touchVal + orbitSum;
+    const orbiterCount = G.planets.length;
+    const orbiterSum   = orbiterCount * orbiterPayout();
+    const orbiterPerMin = orbiterSum * (60 / PLANET_DEF[0].period); // ring-0 orbits per minute
+    const cometVal = 10 * touchVal + orbiterSum;
     const row = (l, v) => `<div class="stat-row"><span class="stat-label">${l}</span><span class="stat-val">${v}</span></div>`;
-    document.getElementById('stats-list').innerHTML =
-        row('Star Touch Value', '✦'+fmtNum(touchVal)) +
-        row('All Planet Orbit Payout', '✦'+fmtNum(orbitSum)) +
-        `<div class="stat-row stat-comet"><span class="stat-label">Comet Value</span><span class="stat-val">✦${fmtNum(cometVal)}</span>` +
-            `<div class="stat-pop">Comet = 10 × click (${fmtNum(touchVal)}) + all orbit payout (${fmtNum(orbitSum)}) = <b>✦${fmtNum(cometVal)}</b></div></div>` +
-        row('All Planet Orbit Payout / min', '✦'+fmtNum(orbitPerMin)) +
-        row('Time on Current Universe', fmtTime(G.universeTime));
+
+    let html = row('Star Touch Value', '✦'+fmtNum(touchVal));
+    if (orbiterCount >= 1) {                                   // only after first orbiter
+        html += row('All Orbiters Payout', '✦'+fmtNum(orbiterSum));
+        html += row('All Orbiters Payout / min', '✦'+fmtNum(orbiterPerMin));
+    }
+    if (G.cometSeen) {                                         // only after first comet caught
+        html += `<div class="stat-row stat-comet"><span class="stat-label">Comet Value</span><span class="stat-val">✦${fmtNum(cometVal)}</span>`
+              + `<div class="stat-pop">Comet = 10 × click (${fmtNum(touchVal)}) + all orbiters payout (${fmtNum(orbiterSum)}) = <b>✦${fmtNum(cometVal)}</b></div></div>`;
+    }
+    html += row('Time on Current Universe', fmtTime(G.universeTime));
+    document.getElementById('stats-list').innerHTML = html;
 }

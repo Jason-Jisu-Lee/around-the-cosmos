@@ -4,19 +4,18 @@ function tick(dt) {
     G.gameTime += dt;
     G.universeTime += dt;
 
-    for (const p of G.planets) {
-        const def = PLANET_DEF[p.idx];
-        const w   = (Math.PI*2 / def.period) * planetUpgDef('speed').mult(p.up.speed);
-        p.angle += w*dt;
-        if (p.angle >= p.nextTop) {        // crossed the top of the orbit → pay out
-            p.nextTop += Math.PI*2;
-            const pos = planetPos(p);
-            earn(orbitPayout(p.idx), pos.x, pos.y-18);
-            G.orbitsCompleted++; p.pulse = 1;
+    for (const o of G.planets) {
+        const w = Math.PI*2 / PLANET_DEF[o.ring].period;
+        o.angle += w*dt;
+        if (o.angle >= o.nextTop) {        // crossed the top of the orbit → pay out
+            o.nextTop += Math.PI*2;
+            const pos = planetPos(o);
+            earn(orbiterPayout(), pos.x, pos.y-12);
+            G.orbitsCompleted++; o.pulse = 1;
             SoundSystem.sfxOrbit();
         }
-        if (p.angle > Math.PI*2) { p.angle -= Math.PI*2; p.nextTop -= Math.PI*2; }
-        if (p.pulse > 0) p.pulse = Math.max(0, p.pulse-dt*2.2);
+        if (o.angle > Math.PI*2) { o.angle -= Math.PI*2; o.nextTop -= Math.PI*2; }
+        if (o.pulse > 0) o.pulse = Math.max(0, o.pulse-dt*2.2);
     }
 
     if (G.comet) {
@@ -60,12 +59,11 @@ function spawnComet() {
 
 function catchComet() {
     const c = G.comet;
-    // Windfall = 10 clicks' worth + every planet's orbit payout combined.
-    let combined = 0;
-    for (const p of G.planets) combined += orbitPayout(p.idx);
+    // Windfall = 10 clicks' worth + every orbiter's payout combined.
+    const combined = G.planets.length * orbiterPayout();
     const windfall = 10 * upg('touch').tapYield[lvl('touch')] + combined;
     earn(windfall, c.x, c.y-20, true);
-    G.cometsCaught++; SoundSystem.sfxComet();
+    G.cometsCaught++; G.cometSeen = true; SoundSystem.sfxComet();
     burst(c.x, c.y, 'rgba(60,80,70,', 26, 180);
     G.comet = null; G.cometTimer = randCometGap();
 }
@@ -76,19 +74,6 @@ function buyUpgrade(u) {
     const cost = u.costs[l];
     if (G.dust < cost) return false;
     G.dust -= cost; G.upgrades[u.id]++;
-    if (u.id === 'planet') G.planets.push(newPlanet(G.planets.length));
-    SoundSystem.sfxBuy(); saveGame(); return true;
-}
-
-// Buy a per-planet upgrade (Orbit Payout / Orbit Speed) for a specific planet.
-function buyPlanetUpgrade(pIdx, upId) {
-    const p = G.planets[pIdx];
-    if (!p) return false;
-    const def = planetUpgDef(upId);
-    const l = p.up[upId];
-    if (l >= def.maxLevel) return false;
-    const cost = def.cost(l);
-    if (G.dust < cost) return false;
-    G.dust -= cost; p.up[upId]++;
+    if (u.id === 'dust') G.planets.push(newOrbiter());
     SoundSystem.sfxBuy(); saveGame(); return true;
 }

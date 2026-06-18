@@ -162,14 +162,14 @@ body {
 
 #observatory {
     position: fixed; bottom: 16px; left: 16px;
-    background: rgba(244,240,232,0.92); padding: 14px 14px 10px;
-    z-index: 50; cursor: grab; min-width: 232px; user-select: none;
+    background: rgba(244,240,232,0.92); padding: 20px 20px 14px;
+    z-index: 50; cursor: grab; min-width: 325px; user-select: none;
     transition: background 0.15s;
 }
 #observatory::before {
     content: ''; display: block;
-    width: 26px; height: 3px; border-radius: 2px;
-    background: transparent; margin: 0 auto 9px;
+    width: 36px; height: 4px; border-radius: 2px;
+    background: transparent; margin: 0 auto 13px;
     transition: background 0.15s;
 }
 #observatory:hover { background: rgba(244,240,232,0.98); }
@@ -217,7 +217,7 @@ body {
 }
 .upgrade-card:hover .upg-desc { display: block; }
 
-.stat-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 5px 0; border-bottom: 1px solid var(--border2); font-size: 11px; font-family: 'Segoe UI', sans-serif; }
+.stat-row { display: flex; justify-content: space-between; align-items: baseline; gap: 17px; padding: 7px 0; border-bottom: 1px solid var(--border2); font-size: 15px; font-family: 'Segoe UI', sans-serif; }
 .stat-label { color: var(--text-dim); flex: 1; }
 .stat-val   { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
 
@@ -225,8 +225,8 @@ body {
 .stat-comet { position: relative; cursor: help; }
 .stat-pop {
     display: none; position: absolute; right: 0; bottom: calc(100% + 6px);
-    background: var(--ink); color: var(--bg); font-size: 11px; line-height: 1.5;
-    padding: 9px 11px; white-space: nowrap; box-shadow: 0 6px 22px rgba(0,0,0,0.28);
+    background: var(--ink); color: var(--bg); font-size: 15px; line-height: 1.5;
+    padding: 13px 15px; white-space: nowrap; box-shadow: 0 6px 22px rgba(0,0,0,0.28);
     z-index: 200; pointer-events: none; letter-spacing: 0.02em;
 }
 .stat-pop b { color: #e8dcc0; font-weight: 700; }
