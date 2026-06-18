@@ -57,8 +57,8 @@ function fmtTime(secs) {
 function upg(id) { return UPGRADES.find(u => u.id === id); }
 function lvl(id) { return G.upgrades[id]; }
 
-// Every dust particle pays a flat 5, doubled by Dust Particle Payout.
-function orbiterPayout() { return 5 * upg('dustpay').mult(lvl('dustpay')); }
+// Every dust particle pays a flat 10, doubled by Dust Particle Payout.
+function orbiterPayout() { return 10 * upg('dustpay').mult(lvl('dustpay')); }
 
 // Clump orbit speed factor: base 50%, restored to 100% by Dust Particle Speed (lvl 5).
 function dustSpeed() { return 0.5 * upg('dustspd').mult(lvl('dustspd')); }

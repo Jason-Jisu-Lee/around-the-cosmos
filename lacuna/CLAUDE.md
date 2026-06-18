@@ -11,7 +11,7 @@ Celestial idle/incremental game. Pure vanilla JS + Canvas. No build step, no fra
 > **Current scope (`refine/v.3` — minimal base, rebuilding step by step):** The game
 > starts with **0 orbiters** — clicking is the only income; you buy the first one.
 > **ACTIONS:** **Star Touch** (4 levels, costs [10,50,200,1000], click → 1/2/4/8/16).
-> **ORBITERS:** **Dust Particle** (after 2nd Star Touch; buy 3, costs [100,500,1500], +5
+> **ORBITERS:** **Dust Particle** (after 2nd Star Touch; buy 3, costs [100,350,800], +10
 > payout each — all share one orbit) and **Dust Particle Payout** (×2 all dust particles,
 > 5 levels, costs [300,600,1500,3000,6000]) and **Dust Particle Speed** (clump orbit
 > starts at 50% speed; 5 levels restore it to 100%, costs [500,1000,2000,4000,8000]). **COMETS:** Comet Charm exists but is **disabled** (`unlock:()=>false`);
@@ -48,7 +48,7 @@ No npm, no bundler, no TypeScript.
 | id | Name | Levels | Effect | Unlock | Section |
 |---|---|---|---|---|---|
 | touch | Star Touch | 4 | each click earns tapYield[lvl] = [1,2,4,8,16] ✦ (costs [10,50,200,1000]) | always | ACTIONS |
-| dust | Dust Particle | 3 | adds an orbiter (dust particle, +5 payout); count == this level (costs [100,500,1500]) | after touch lvl ≥ 2 | ORBITERS |
+| dust | Dust Particle | 3 | adds an orbiter (dust particle, +10 payout); count == this level (costs [100,350,800]) | after touch lvl ≥ 2 | ORBITERS |
 | dustpay | Dust Particle Payout | 5 | ×2 every dust particle's payout per level → up to ×32 (`mult`=2^lvl, costs [300,600,1500,3000,6000]) | after dust lvl ≥ 1 | ORBITERS |
 | dustspd | Dust Particle Speed | 5 | clump orbit speed: base 50%, +0.2×base per lvl → original at lvl 5 (desc "(×1.2 speed)"; costs [500,1000,2000,4000,8000]) | after dust lvl ≥ 1 | ORBITERS |
 | charm | Comet Charm | 3 | comet windfall ×(1+0.25·lvl) (costs [30,80,200]) | **disabled** (`unlock:()=>false`) | COMETS |
@@ -69,7 +69,7 @@ fingerprint `visibleSig()` includes max-state and the toggle so the panel rebuil
 when an upgrade maxes out or the toggle flips.
 
 Other mechanics:
-- **Orbiters / payout**: `G.planets[]` holds dust particles, each `{localPhase,localR,localSpin,pulse,shape}`. They travel as a **clump** along one shared orbit `G.clump{angle,nextTop}` (ring 0, base period `PLANET_DEF[0].period` = 6s). Clump angular speed = `(2π/period) × dustSpeed()`, where `dustSpeed()` = `0.5 × dustspd.mult(lvl)` — base **50%**, restored to 100% at Dust Particle Speed lvl 5. Each particle also circles its own little orbit *within* the clump (`localPhase + t·localSpin` around `localR`, 5–12px). When the clump crosses the **top**, every particle pays `orbiterPayout()` = `5 × dustpay.mult(lvl)` (one combined `earn`). Rendered as small grey **irregular pebbles** (radius `PLANET_DEF[0].radius/3 + 2`) via each particle's `shape`. Background is clear (no stars).
+- **Orbiters / payout**: `G.planets[]` holds dust particles, each `{localPhase,localR,localSpin,pulse,shape}`. They travel as a **clump** along one shared orbit `G.clump{angle,nextTop}` (ring 0, base period `PLANET_DEF[0].period` = 6s). Clump angular speed = `(2π/period) × dustSpeed()`, where `dustSpeed()` = `0.5 × dustspd.mult(lvl)` — base **50%**, restored to 100% at Dust Particle Speed lvl 5. Each particle also circles its own little orbit *within* the clump (`localPhase + t·localSpin` around `localR`, 5–12px). When the clump crosses the **top**, every particle pays `orbiterPayout()` = `10 × dustpay.mult(lvl)` (one combined `earn`). Rendered as small grey **irregular pebbles** (radius `PLANET_DEF[0].radius/3 + 2`) via each particle's `shape`. Background is clear (no stars).
 - **Lacuna center**: drawn at radius **13** (was 26 — shrunk 50%, will grow later) with a faint warm haze.
 - **Observatory stats** (`#stats-list`): Star Touch Value (always); **All Orbiters Payout** (after first orbiter); **Stardust / min** (always, `G.income × 60`); **Comet Value** (after first comet, `G.cometSeen`; hover shows the formula in a soft themed popup `.stat-pop`); **Time on Current Universe** (`universeTime`). The DOM is built once per **row layout** (`buildStats`, keyed by `statsSig`) and values are updated in place each tick — so the hover popup doesn't flicker. Rows reset with the universe on prestige.
 - **No free orbiter**: game starts with `planets: []`; clicking is the only income until you buy a Dust Particle (count == `dust` level). The click handler always earns.
