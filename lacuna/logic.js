@@ -6,7 +6,7 @@ function tick(dt) {
 
     // The dust clump orbits as a group; all particles pay when the clump crosses the top.
     if (G.planets.length) {
-        const w = Math.PI*2 / PLANET_DEF[0].period;
+        const w = (Math.PI*2 / PLANET_DEF[0].period) * dustSpeed();
         G.clump.angle += w*dt;
         if (G.clump.angle >= G.clump.nextTop) {
             G.clump.nextTop += Math.PI*2;

@@ -6,7 +6,7 @@ function createInitialState() {
     return {
         dust:0, runDust:0, totalDust:0,
         orbitsCompleted:0, taps:0, cometsCaught:0, gameTime:0, universeTime:0,
-        upgrades: { touch:0, dust:0, dustpay:0, charm:0 },
+        upgrades: { touch:0, dust:0, dustpay:0, dustspd:0, charm:0 },
         planets:  [],            // orbiters (dust particles); none at start
         clump:    newClump(),    // the shared orbit the dust clump travels as a group
         comet:null, cometTimer:14 + Math.random()*6, cometSeen:false, // first comet ~14-20s (earlier)
@@ -22,9 +22,8 @@ function newOrbiter() {
     for (let k = 0; k < 7; k++) shape.push(0.6 + Math.random()*0.8);
     return {
         localPhase: Math.random()*Math.PI*2,
-        localR:     4 + Math.random()*6,   // little-circle radius within the clump (4–10px)
+        localR:     5 + Math.random()*7,   // inner-orbit radius within the clump (5–12px)
         localSpin:  (Math.random()<0.5?-1:1) * (0.6 + Math.random()*0.8),
-        size:       5 + Math.random()*7,   // this pebble's own radius (5–12px)
         pulse:0, shape,
     };
 }
@@ -61,6 +60,9 @@ function lvl(id) { return G.upgrades[id]; }
 // Every dust particle pays a flat 5, doubled by Dust Particle Payout.
 function orbiterPayout() { return 5 * upg('dustpay').mult(lvl('dustpay')); }
 
+// Clump orbit speed factor: base 50%, restored to 100% by Dust Particle Speed (lvl 5).
+function dustSpeed() { return 0.5 * upg('dustspd').mult(lvl('dustspd')); }
+
 function earn(amount, x, y, big) {
     G.dust += amount; G.runDust += amount; G.totalDust += amount;
     G.incomeWindow.push({ t:G.gameTime, v:amount });
@@ -91,7 +93,7 @@ function loadGame() {
         G.orbitsCompleted=def('orbitsCompleted',0); G.taps=def('taps',0);
         G.cometsCaught=def('cometsCaught',0); G.gameTime=def('gameTime',0);
         G.universeTime=def('universeTime', G.gameTime); // current-universe timer (reset on prestige later)
-        G.upgrades = Object.assign({ touch:0, dust:0, dustpay:0, charm:0 }, d.upgrades);
+        G.upgrades = Object.assign({ touch:0, dust:0, dustpay:0, dustspd:0, charm:0 }, d.upgrades);
         G.cometSeen = def('cometSeen', G.cometsCaught > 0);
         G.planets = [];
         const count = Math.min(3, G.upgrades.dust); // one orbiter per Dust Particle level

@@ -96,7 +96,7 @@ function updateUI(now) {
     const touchVal = upg('touch').tapYield[lvl('touch')];
     const orbiterCount = G.planets.length;
     const orbiterSum   = orbiterCount * orbiterPayout();
-    const orbiterPerMin = orbiterSum * (60 / PLANET_DEF[0].period); // ring-0 orbits per minute
+    const orbiterPerMin = orbiterSum * (60 / PLANET_DEF[0].period) * dustSpeed(); // actual orbits/min
     const cometVal = 10 * touchVal + orbiterSum;
     const row = (l, v) => `<div class="stat-row"><span class="stat-label">${l}</span><span class="stat-val">${v}</span></div>`;
 

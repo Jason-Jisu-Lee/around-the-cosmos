@@ -46,6 +46,13 @@ const UPGRADES = [
         unlock: () => lvl('dust') >= 1,  // after the first dust particle
     },
     {
+        id: 'dustspd', name: 'Dust Particle Speed', maxLevel: 5, section: 'ORBITERS',
+        costs: [500, 1000, 2000, 4000, 8000],
+        mult: lvl => 1 + 0.2 * lvl,      // multiplies the reduced (50%) base; ×2 at lvl 5 → original speed
+        desc: () => '(×1.2 speed)',
+        unlock: () => lvl('dust') >= 1,  // after the first dust particle
+    },
+    {
         id: 'charm', name: 'Comet Charm', maxLevel: 3, section: 'COMETS',
         costs: [30, 80, 200],
         bonus: lvl => 1 + 0.25 * lvl, // comet windfall multiplier
