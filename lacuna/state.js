@@ -8,21 +8,32 @@ function createInitialState() {
         orbitsCompleted:0, taps:0, cometsCaught:0, gameTime:0, universeTime:0,
         upgrades: { touch:0, dust:0, dustpay:0, charm:0 },
         planets:  [],            // orbiters (dust particles); none at start
+        clump:    newClump(),    // the shared orbit the dust clump travels as a group
         comet:null, cometTimer:randCometGap(), cometSeen:false,
         particles:[], floatingTexts:[], incomeWindow:[], income:0,
     };
 }
 
-// Orbiters pay out when they cross the top of their orbit (angle 3π/2, where sin = -1).
-// nextTop tracks the upcoming top-crossing angle. Dust particles all share ring 0.
+// A dust particle: part of a clump that orbits Lacuna together. Each particle also
+// circles its own little orbit within the clump (localPhase/localR/localSpin).
 // `shape` is a set of jittered radii → an irregular pebble silhouette.
 function newOrbiter() {
+    const shape = [];
+    for (let k = 0; k < 7; k++) shape.push(0.6 + Math.random()*0.8);
+    return {
+        localPhase: Math.random()*Math.PI*2,
+        localR:     4 + Math.random()*4,
+        localSpin:  (Math.random()<0.5?-1:1) * (0.6 + Math.random()*0.8),
+        pulse:0, shape,
+    };
+}
+
+// The dust clump's shared orbit around Lacuna (ring 0). Pays when it crosses the top.
+function newClump() {
     const angle = Math.random()*Math.PI*2;
     let nextTop = 3*Math.PI/2;
     while (nextTop <= angle) nextTop += Math.PI*2;
-    const shape = [];
-    for (let k = 0; k < 7; k++) shape.push(0.6 + Math.random()*0.8);
-    return { ring:0, angle, nextTop, pulse:0, shape };
+    return { angle, nextTop };
 }
 
 function randCometGap() {

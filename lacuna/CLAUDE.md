@@ -28,7 +28,7 @@ Scripts load in this order — each file can reference globals from earlier file
 | `sound.js` | Web Audio API: procedural music (3 tracks) + SFX, mute toggle, volume control |
 | `config.js` | CFG constants, PLANET_DEF (ring radii/periods), PLANET_COLORS, UPGRADES, SECTION_ORDER |
 | `state.js` | G object, createInitialState, formatters, upg/lvl accessors, orbiterPayout, newOrbiter, earn, save/load |
-| `render.js` | canvas/ctx, resize, orbitR, planetPos, draw (Lacuna + dust pebbles), burst |
+| `render.js` | canvas/ctx, resize, orbitR, clumpPos, draw (clear bg, Lacuna + dust clump), burst |
 | `logic.js` | tick, spawnComet, catchComet, buyUpgrade |
 | `ui.js` | buildPanels, updateCards, updateUI (+ observatory stats), visibility-signature unlock logic |
 | `debug.js` | initDebug, tickWithDebug (speed mult), dust inject / spawn comet / reset |
@@ -67,14 +67,14 @@ fingerprint `visibleSig()` includes max-state and the toggle so the panel rebuil
 when an upgrade maxes out or the toggle flips.
 
 Other mechanics:
-- **Orbiters / payout**: `G.planets[]` holds orbiters (dust particles), each `{ring,angle,nextTop,pulse,shape}`, all in ring 0. An orbiter pays `orbiterPayout()` = `5 × dustpay.mult(lvl)` (flat 5 × Dust Particle Payout) when it crosses the **top** of its orbit (`nextTop`). Ring-0 period is `PLANET_DEF[0].period` (6s); no speed upgrade. Rendered as small grey **irregular pebbles** (1/3 the old planet size) via each orbiter's `shape`.
+- **Orbiters / payout**: `G.planets[]` holds dust particles, each `{localPhase,localR,localSpin,pulse,shape}`. They travel as a **clump** along one shared orbit `G.clump{angle,nextTop}` (ring 0, period `PLANET_DEF[0].period` = 6s), and each particle also circles its own little orbit *within* the clump (`localPhase + t·localSpin` around `localR`). When the clump crosses the **top**, every particle pays `orbiterPayout()` = `5 × dustpay.mult(lvl)` (one combined `earn`). Rendered as small grey **irregular pebbles** (1/3 the old planet size) via each particle's `shape`. Background is clear (no stars).
 - **Lacuna center**: drawn at radius **13** (was 26 — shrunk 50%, will grow later) with a faint warm haze.
 - **Observatory stats** (`#stats-list`, rebuilt each UI tick): Star Touch Value (always); **All Orbiters Payout** + **All Orbiters Payout / min** (only after the first orbiter); **Comet Value** (only after the first comet, `G.cometSeen`; hover shows the formula in a themed popup `.stat-pop`); **Time on Current Universe** (`universeTime`). The orbiter/comet rows reset naturally on prestige (planets cleared, `cometSeen`/`universeTime` reset later).
 - **No free orbiter**: game starts with `planets: []`; clicking is the only income until you buy a Dust Particle (count == `dust` level). The click handler always earns.
 - **Comet windfall**: every comet pays `10 × click value + (orbiter count × orbiterPayout())`, and sets `G.cometSeen`. (At the very start this is 10.) No charm factor while comet upgrades are disabled.
 
 ## State object (G)
-Key fields: `dust`, `runDust`, `totalDust`, `orbitsCompleted`, `taps`, `cometsCaught`, `cometSeen` (caught a comet this universe → gates Comet Value stat), `gameTime`, `universeTime` (current-universe timer; reset on prestige later), `upgrades{touch,dust,dustpay,charm}`, `planets[]` (orbiters; each `{ring,angle,nextTop,pulse,shape}`; empty at start; rebuilt from `dust` level on load), `comet`, `incomeWindow[]`, `income`
+Key fields: `dust`, `runDust`, `totalDust`, `orbitsCompleted`, `taps`, `cometsCaught`, `cometSeen` (caught a comet this universe → gates Comet Value stat), `gameTime`, `universeTime` (current-universe timer; reset on prestige later), `upgrades{touch,dust,dustpay,charm}`, `planets[]` (dust particles; each `{localPhase,localR,localSpin,pulse,shape}`; empty at start; rebuilt from `dust` level on load), `clump{angle,nextTop}` (the shared dust orbit), `comet`, `incomeWindow[]`, `income`
 
 ## Sound system (sound.js)
 - `SoundSystem.boot()` — call on first user gesture (already wired in game.js)

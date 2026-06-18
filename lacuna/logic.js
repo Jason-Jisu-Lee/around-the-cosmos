@@ -4,19 +4,21 @@ function tick(dt) {
     G.gameTime += dt;
     G.universeTime += dt;
 
-    for (const o of G.planets) {
-        const w = Math.PI*2 / PLANET_DEF[o.ring].period;
-        o.angle += w*dt;
-        if (o.angle >= o.nextTop) {        // crossed the top of the orbit → pay out
-            o.nextTop += Math.PI*2;
-            const pos = planetPos(o);
-            earn(orbiterPayout(), pos.x, pos.y-12);
-            G.orbitsCompleted++; o.pulse = 1;
+    // The dust clump orbits as a group; all particles pay when the clump crosses the top.
+    if (G.planets.length) {
+        const w = Math.PI*2 / PLANET_DEF[0].period;
+        G.clump.angle += w*dt;
+        if (G.clump.angle >= G.clump.nextTop) {
+            G.clump.nextTop += Math.PI*2;
+            const pos = clumpPos();
+            earn(G.planets.length * orbiterPayout(), pos.x, pos.y-12);
+            G.orbitsCompleted++;
+            for (const o of G.planets) o.pulse = 1;
             SoundSystem.sfxOrbit();
         }
-        if (o.angle > Math.PI*2) { o.angle -= Math.PI*2; o.nextTop -= Math.PI*2; }
-        if (o.pulse > 0) o.pulse = Math.max(0, o.pulse-dt*2.2);
+        if (G.clump.angle > Math.PI*2) { G.clump.angle -= Math.PI*2; G.clump.nextTop -= Math.PI*2; }
     }
+    for (const o of G.planets) if (o.pulse > 0) o.pulse = Math.max(0, o.pulse-dt*2.2);
 
     if (G.comet) {
         const c = G.comet;
