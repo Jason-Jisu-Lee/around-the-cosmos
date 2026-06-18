@@ -81,7 +81,7 @@ function updateCards() {
 
 // Observatory stats: build the DOM once per layout (the set of rows shown), then
 // update values in place each tick — so the Comet hover popup doesn't flicker.
-let statsSig = '';
+let statsSig = null;   // null (not '') so the first updateUI always builds the stats DOM
 let statEls  = {};
 function buildStats(showOrbiter, showComet) {
     const list = document.getElementById('stats-list');
