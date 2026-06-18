@@ -221,16 +221,16 @@ body {
 .stat-label { color: var(--text-dim); flex: 1; }
 .stat-val   { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
 
-/* Comet Value row: formula popup on hover (may overlap other rows — that's fine) */
-.stat-comet { position: relative; cursor: help; }
+/* Stat rows with a formula popup on hover (single line, extends right) */
+.stat-pop-row { position: relative; cursor: help; }
 .stat-pop {
     display: none; position: absolute; left: 0; bottom: calc(100% + 6px);
-    background: #3c352b; color: #f4f0e8; font-size: 13px; line-height: 1.5;
-    padding: 10px 13px; max-width: 240px; white-space: normal; box-shadow: 0 4px 16px rgba(0,0,0,0.16);
+    background: #3c352b; color: #f4f0e8; font-size: 13px; line-height: 1.4;
+    padding: 9px 14px; white-space: nowrap; box-shadow: 0 4px 16px rgba(0,0,0,0.16);
     z-index: 200; pointer-events: none; letter-spacing: 0.02em;
 }
 .stat-pop b { color: #d8c8a4; font-weight: 600; }
-.stat-comet:hover .stat-pop { display: block; }
+.stat-pop-row:hover .stat-pop { display: block; }
 
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }

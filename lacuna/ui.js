@@ -92,16 +92,16 @@ function buildStats(showOrbiter, showComet) {
         list.appendChild(row);
         return row.querySelector('.stat-val');
     };
-    statEls.touch = mk('Star Touch Value');
-    if (showOrbiter) statEls.orbiter = mk('All Orbiters Payout');
-    statEls.rate = mk('Stardust / min');
-    if (showComet) {
-        const row = document.createElement('div'); row.className = 'stat-row stat-comet';
-        row.innerHTML = `<span class="stat-label">Comet Value</span><span class="stat-val"></span><div class="stat-pop"></div>`;
+    const mkPop = label => {
+        const row = document.createElement('div'); row.className = 'stat-row stat-pop-row';
+        row.innerHTML = `<span class="stat-label">${label}</span><span class="stat-val"></span><div class="stat-pop"></div>`;
         list.appendChild(row);
-        statEls.comet = row.querySelector('.stat-val');
-        statEls.cometPop = row.querySelector('.stat-pop');
-    }
+        return { val: row.querySelector('.stat-val'), pop: row.querySelector('.stat-pop') };
+    };
+    statEls.touch = mk('Star Touch Value');
+    if (showOrbiter) { const r = mkPop('All Orbiters Payout'); statEls.orbiter = r.val; statEls.orbiterPop = r.pop; }
+    statEls.rate = mk('Stardust / min');
+    if (showComet)   { const r = mkPop('Comet Value');         statEls.comet   = r.val; statEls.cometPop   = r.pop; }
     statEls.time = mk('Time on Current Universe');
 }
 
@@ -128,12 +128,16 @@ function updateUI(now) {
     const sig = (showOrbiter ? 'O' : '') + (showComet ? 'C' : '');
     if (sig !== statsSig) { buildStats(showOrbiter, showComet); statsSig = sig; }
 
+    const payMult = upg('dustpay').mult(lvl('dustpay'));
     statEls.touch.textContent = '✦' + fmtNum(touchVal);
-    if (statEls.orbiter) statEls.orbiter.textContent = '✦' + fmtNum(orbiterSum);
+    if (statEls.orbiter) {
+        statEls.orbiter.textContent = '✦' + fmtNum(orbiterSum);
+        statEls.orbiterPop.innerHTML = `${orbiterCount} × (10 base × ${fmtMult(payMult)} payout) = <b>✦${fmtNum(orbiterSum)}</b>`;
+    }
     statEls.rate.textContent = '✦' + fmtNum(G.income * 60) + ' / min';
     if (statEls.comet) {
         statEls.comet.textContent = '✦' + fmtNum(cometVal);
-        statEls.cometPop.innerHTML = `Comet = 10 × click (${fmtNum(touchVal)}) + all orbiters payout (${fmtNum(orbiterSum)}) = <b>✦${fmtNum(cometVal)}</b>`;
+        statEls.cometPop.innerHTML = `10 × click (${fmtNum(touchVal)}) + orbiters (${fmtNum(orbiterSum)}) = <b>✦${fmtNum(cometVal)}</b>`;
     }
     statEls.time.textContent = fmtTime(G.universeTime);
 }

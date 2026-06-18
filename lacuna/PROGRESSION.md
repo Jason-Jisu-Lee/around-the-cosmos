@@ -97,7 +97,7 @@ Card shows **"(×1.2 speed)"** on every level.
 | Stat | Shows | Appears |
 |---|---|---|
 | Star Touch Value | ✦ per click | always |
-| All Orbiters Payout | combined payout of all dust particles per orbit | after first dust particle |
+| All Orbiters Payout | combined payout of all dust particles per orbit (hover → formula) | after first dust particle |
 | Stardust / min | live total income rate (rolling 5 s average) | always |
 | Comet Value | what the next comet pays (hover → formula) | after first comet caught |
 | Time on Current Universe | run timer (resets on prestige, later) | always |
