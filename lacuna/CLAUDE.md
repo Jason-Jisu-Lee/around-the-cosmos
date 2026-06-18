@@ -79,11 +79,12 @@ when an upgrade maxes out or the toggle flips.
 
 Other mechanics:
 - **Orbit payout**: a planet pays `orbitPayout(idx)` when it crosses the **top of its orbit** (angle 3π/2, where sin = -1). Tracked per planet via `nextTop`. Base is `3^idx`, except the **first planet (idx 0) is a flat 5**, then ×`Orbit Payout` (2^lvl, per planet). Orbit angular speed = base `2π/period` × `Orbit Speed` (1+0.25·lvl, per planet).
+- **Observatory stats** (`#stats-list`, rebuilt each UI tick): Star Touch Value, All Planet Orbit Payout (combined per-orbit), Comet Value (hover shows the formula in a themed popup `.stat-pop` that may overlap rows), All Planet Orbit Payout / min, Time on Current Universe (`universeTime`).
 - **No free planet**: game starts with `planets: []`; clicking is the only income until you buy New Planet (planets == New Planet level). The click handler always earns (no "needs a planet" guard).
 - **Comet windfall**: every comet pays `10 × click value + (sum of all planets' orbit payout)`. (At the very start — touch lvl 0, no planets — this is 10, same as the old flat first-comet bonus.) No charm factor while comet upgrades are disabled.
 
 ## State object (G)
-Key fields: `dust`, `runDust`, `totalDust`, `orbitsCompleted`, `taps`, `cometsCaught`, `gameTime`, `upgrades{touch,planet,charm}`, `planets[]` (each `{idx,angle,nextTop,pulse,seen,up:{payout,speed}}`; empty at start; `up` levels + `seen` persisted via `planetUp` in the save), `comet`, `incomeWindow[]`, `income`
+Key fields: `dust`, `runDust`, `totalDust`, `orbitsCompleted`, `taps`, `cometsCaught`, `gameTime`, `universeTime` (current-universe timer; reset on prestige later), `upgrades{touch,planet,charm}`, `planets[]` (each `{idx,angle,nextTop,pulse,seen,up:{payout,speed}}`; empty at start; `up` levels + `seen` persisted via `planetUp` in the save), `comet`, `incomeWindow[]`, `income`
 
 ## Sound system (sound.js)
 - `SoundSystem.boot()` — call on first user gesture (already wired in game.js)

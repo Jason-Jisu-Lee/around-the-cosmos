@@ -171,12 +171,22 @@ function updateUI(now) {
     if (visibleSig() !== lastVisibleSig) buildPanels(); else updateCards();
     if (activeTab !== 'main') updatePlanetCards();
 
-    document.getElementById('stats-list').innerHTML = [
-        ['Total Stardust', '✦'+fmtNum(G.totalDust)],
-        ['Planets',        G.planets.length],
-        ['Orbits',         G.orbitsCompleted.toLocaleString()],
-        ['Taps',           G.taps.toLocaleString()],
-        ['Comets Caught',  G.cometsCaught],
-        ['Time',           fmtTime(G.gameTime)],
-    ].map(([l,v]) => `<div class="stat-row"><span class="stat-label">${l}</span><span class="stat-val">${v}</span></div>`).join('');
+    // ---- Observatory stats ----
+    const touchVal = upg('touch').tapYield[lvl('touch')];
+    let orbitSum = 0, orbitPerMin = 0;
+    for (const p of G.planets) {
+        const pay = orbitPayout(p.idx);
+        const period = PLANET_DEF[p.idx].period / planetUpgDef('speed').mult(p.up.speed);
+        orbitSum    += pay;
+        orbitPerMin += pay * (60 / period);
+    }
+    const cometVal = 10 * touchVal + orbitSum;
+    const row = (l, v) => `<div class="stat-row"><span class="stat-label">${l}</span><span class="stat-val">${v}</span></div>`;
+    document.getElementById('stats-list').innerHTML =
+        row('Star Touch Value', '✦'+fmtNum(touchVal)) +
+        row('All Planet Orbit Payout', '✦'+fmtNum(orbitSum)) +
+        `<div class="stat-row stat-comet"><span class="stat-label">Comet Value</span><span class="stat-val">✦${fmtNum(cometVal)}</span>` +
+            `<div class="stat-pop">Comet = 10 × click (${fmtNum(touchVal)}) + all orbit payout (${fmtNum(orbitSum)}) = <b>✦${fmtNum(cometVal)}</b></div></div>` +
+        row('All Planet Orbit Payout / min', '✦'+fmtNum(orbitPerMin)) +
+        row('Time on Current Universe', fmtTime(G.universeTime));
 }

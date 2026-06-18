@@ -2,6 +2,7 @@
 
 function tick(dt) {
     G.gameTime += dt;
+    G.universeTime += dt;
 
     for (const p of G.planets) {
         const def = PLANET_DEF[p.idx];

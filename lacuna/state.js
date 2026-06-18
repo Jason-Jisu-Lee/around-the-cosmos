@@ -5,7 +5,7 @@ let G = createInitialState();
 function createInitialState() {
     return {
         dust:0, runDust:0, totalDust:0,
-        orbitsCompleted:0, taps:0, cometsCaught:0, gameTime:0,
+        orbitsCompleted:0, taps:0, cometsCaught:0, gameTime:0, universeTime:0,
         upgrades: { touch:0, planet:0, charm:0 },
         planets:  [],   // none at start — the first planet must be bought
         comet:null, cometTimer:randCometGap(),
@@ -64,7 +64,7 @@ function saveGame() {
         localStorage.setItem(CFG.SAVE_KEY, JSON.stringify({
             dust:G.dust, runDust:G.runDust, totalDust:G.totalDust,
             orbitsCompleted:G.orbitsCompleted, taps:G.taps,
-            cometsCaught:G.cometsCaught, gameTime:G.gameTime,
+            cometsCaught:G.cometsCaught, gameTime:G.gameTime, universeTime:G.universeTime,
             upgrades:{...G.upgrades},
             planetUp:G.planets.map(p => [p.up.payout, p.up.speed, p.seen?1:0]),
         }));
@@ -80,6 +80,7 @@ function loadGame() {
         G.dust=def('dust',0); G.runDust=def('runDust',0); G.totalDust=def('totalDust',0);
         G.orbitsCompleted=def('orbitsCompleted',0); G.taps=def('taps',0);
         G.cometsCaught=def('cometsCaught',0); G.gameTime=def('gameTime',0);
+        G.universeTime=def('universeTime', G.gameTime); // current-universe timer (reset on prestige later)
         G.upgrades = Object.assign({ touch:0, planet:0, charm:0 }, d.upgrades);
         G.planets = [];
         const count = Math.min(CFG.MAX_PLANETS, G.upgrades.planet); // planets == New Planet level
