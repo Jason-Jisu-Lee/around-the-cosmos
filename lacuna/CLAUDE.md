@@ -11,7 +11,7 @@ Celestial idle/incremental game. Pure vanilla JS + Canvas. No build step, no fra
 > **Current scope (`refine/v.3` — minimal base, rebuilding step by step):** The game
 > starts with **0 planets** — clicking is the only income; you buy the first planet.
 > **Global upgrades** (main accordion tab): **Star Touch** (4 levels, costs [10,50,200,1000],
-> click → 1/2/4/8/16) and **New Planet** (after first Star Touch, first costs 20).
+> click → 1/2/4/8/16) and **New Planet** (after first Star Touch, first costs 30).
 > **Per-planet upgrades** (one tab per planet): **Orbit Payout** (×2/lvl) and **Orbit
 > Speed** (+25%/lvl), both available the moment a planet is bought.
 > **Comet Charm is disabled for now** (`unlock: () => false`); comets still pay windfalls.
@@ -49,7 +49,7 @@ No npm, no bundler, no TypeScript.
 | id | Name | Levels | Effect | Unlock | Section |
 |---|---|---|---|---|---|
 | touch | Star Touch | 4 | each click earns tapYield[lvl] = [1,2,4,8,16] ✦ (costs [10,50,200,1000]) | always | ACTIONS |
-| planet | New Planet | 7 | adds a planet; planets == this level (costs [20,600,7000,…]) | after touch lvl ≥ 1 | PLANETS |
+| planet | New Planet | 7 | adds a planet; planets == this level (costs [30,600,7000,…]) | after touch lvl ≥ 1 | PLANETS |
 | charm | Comet Charm | 3 | comet windfall ×(1+0.25·lvl) (costs [30,80,200]) | **disabled** (`unlock:()=>false`) | COMETS |
 
 **Per-planet upgrades** (`PLANET_UPGRADES`, shown in each planet's tab; levels stored per planet in `p.up`):
@@ -67,7 +67,9 @@ A section with no shown cards is omitted.
 `[P1] [P2]…` tab per planet (`PLANET_UPGRADES` for that planet). The tab bar is hidden
 until the first planet exists. Switch via tab button or by **clicking a planet in the
 orbit** (`setActiveTab` from the canvas click handler). `activeTab` = `'main'` or a planet
-index; `buildTabs`/`buildPlanetTab` in ui.js. Eventually a dropdown when planets get many.
+index; `buildTabs`/`buildPlanetTab` in ui.js. A planet tab **pulses** (`.tab-btn.new`,
+`tabpulse` keyframes) until it's been opened once — tracked by `p.seen` (persisted in the
+`planetUp` save tuple `[payout, speed, seen]`). Eventually a dropdown when planets get many.
 
 **Show completed:** maxed upgrades are hidden by default. A "Show completed" toggle
 (top-right of the panel, `#show-completed`) reveals them; it only appears once
@@ -78,10 +80,10 @@ when an upgrade maxes out or the toggle flips.
 Other mechanics:
 - **Orbit payout**: a planet pays `orbitPayout(idx)` when it crosses the **top of its orbit** (angle 3π/2, where sin = -1). Tracked per planet via `nextTop`. Base is `3^idx`, except the **first planet (idx 0) is a flat 5**, then ×`Orbit Payout` (2^lvl, per planet). Orbit angular speed = base `2π/period` × `Orbit Speed` (1+0.25·lvl, per planet).
 - **No free planet**: game starts with `planets: []`; clicking is the only income until you buy New Planet (planets == New Planet level). The click handler always earns (no "needs a planet" guard).
-- **Comet windfall**: the very first comet ever caught pays a flat **+10**. Every comet after pays `((sum of all planets' orbit payout) + 10 × click value) × charm bonus` (charm bonus is ×1 while Comet Charm is disabled).
+- **Comet windfall**: every comet pays `10 × click value + (sum of all planets' orbit payout)`. (At the very start — touch lvl 0, no planets — this is 10, same as the old flat first-comet bonus.) No charm factor while comet upgrades are disabled.
 
 ## State object (G)
-Key fields: `dust`, `runDust`, `totalDust`, `orbitsCompleted`, `taps`, `cometsCaught`, `gameTime`, `upgrades{touch,planet,charm}`, `planets[]` (each `{idx,angle,nextTop,pulse,up:{payout,speed}}`; empty at start; `up` levels persisted via `planetUp` in the save), `comet`, `incomeWindow[]`, `income`
+Key fields: `dust`, `runDust`, `totalDust`, `orbitsCompleted`, `taps`, `cometsCaught`, `gameTime`, `upgrades{touch,planet,charm}`, `planets[]` (each `{idx,angle,nextTop,pulse,seen,up:{payout,speed}}`; empty at start; `up` levels + `seen` persisted via `planetUp` in the save), `comet`, `incomeWindow[]`, `income`
 
 ## Sound system (sound.js)
 - `SoundSystem.boot()` — call on first user gesture (already wired in game.js)

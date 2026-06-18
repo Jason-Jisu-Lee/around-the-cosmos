@@ -34,7 +34,7 @@ const UPGRADES = [
     },
     {
         id: 'planet', name: 'New Planet', maxLevel: 7, section: 'PLANETS',
-        costs: [20, 600, 7000, 40000, 240000, 1600000, 10000000],
+        costs: [30, 600, 7000, 40000, 240000, 1600000, 10000000],
         desc: () => 'Adds a planet to orbit',
         unlock: () => lvl('touch') >= 1, // appears after the first Star Touch
     },

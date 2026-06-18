@@ -94,7 +94,10 @@ function buildTabs() {
 
     for (const [key, label] of tabs) {
         const b = document.createElement('button');
-        b.className = 'tab-btn' + (String(activeTab) === String(key) ? ' active' : '');
+        let cls = 'tab-btn';
+        if (String(activeTab) === String(key)) cls += ' active';
+        if (key !== 'main' && !G.planets[key].seen) cls += ' new'; // pulse until viewed
+        b.className = cls;
         b.textContent = label;
         b.addEventListener('click', () => setActiveTab(key));
         bar.appendChild(b);
@@ -105,9 +108,10 @@ function buildTabs() {
 function setActiveTab(key) {
     if (key !== 'main' && !G.planets[key]) key = 'main';
     activeTab = key;
+    if (key !== 'main' && !G.planets[key].seen) { G.planets[key].seen = true; saveGame(); } // viewed → not new
     const isMain = key === 'main';
-    document.getElementById('main-tab').style.display   = isMain ? '' : 'none';
-    document.getElementById('planet-tab').style.display = isMain ? 'none' : '';
+    document.getElementById('main-tab').style.display   = isMain ? 'block' : 'none';
+    document.getElementById('planet-tab').style.display = isMain ? 'none' : 'block';
     buildTabs();
     if (!isMain) buildPlanetTab(key);
 }

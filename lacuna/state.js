@@ -19,7 +19,7 @@ function newPlanet(i) {
     const angle = Math.random()*Math.PI*2;
     let nextTop = 3*Math.PI/2;
     while (nextTop <= angle) nextTop += Math.PI*2;
-    return { idx:i, angle, nextTop, pulse:0, up:{ payout:0, speed:0 } };
+    return { idx:i, angle, nextTop, pulse:0, seen:false, up:{ payout:0, speed:0 } };
 }
 
 function randCometGap() {
@@ -66,7 +66,7 @@ function saveGame() {
             orbitsCompleted:G.orbitsCompleted, taps:G.taps,
             cometsCaught:G.cometsCaught, gameTime:G.gameTime,
             upgrades:{...G.upgrades},
-            planetUp:G.planets.map(p => [p.up.payout, p.up.speed]),
+            planetUp:G.planets.map(p => [p.up.payout, p.up.speed, p.seen?1:0]),
         }));
     } catch(_) {}
 }
@@ -86,7 +86,7 @@ function loadGame() {
         const pu = d.planetUp || [];
         for (let i = 0; i < count; i++) {
             const p = newPlanet(i);
-            if (pu[i]) { p.up.payout = pu[i][0]||0; p.up.speed = pu[i][1]||0; }
+            if (pu[i]) { p.up.payout = pu[i][0]||0; p.up.speed = pu[i][1]||0; p.seen = !!pu[i][2]; }
             G.planets.push(p);
         }
     } catch(_) {}

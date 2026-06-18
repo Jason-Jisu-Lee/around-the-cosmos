@@ -59,15 +59,10 @@ function spawnComet() {
 
 function catchComet() {
     const c = G.comet;
-    let windfall;
-    if (G.cometsCaught === 0) {
-        windfall = 10; // the very first comet always pays a flat +10 (and unlocks Comet Charm)
-    } else {
-        let combined = 0;
-        for (const p of G.planets) combined += orbitPayout(p.idx);
-        const clickVal = upg('touch').tapYield[lvl('touch')];
-        windfall = (combined + 10 * clickVal) * upg('charm').bonus(lvl('charm'));
-    }
+    // Windfall = 10 clicks' worth + every planet's orbit payout combined.
+    let combined = 0;
+    for (const p of G.planets) combined += orbitPayout(p.idx);
+    const windfall = 10 * upg('touch').tapYield[lvl('touch')] + combined;
     earn(windfall, c.x, c.y-20, true);
     G.cometsCaught++; SoundSystem.sfxComet();
     burst(c.x, c.y, 'rgba(60,80,70,', 26, 180);

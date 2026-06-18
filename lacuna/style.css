@@ -168,6 +168,11 @@ body {
 }
 .tab-btn:hover  { color: var(--text-dim); border-color: var(--border2); }
 .tab-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(122,104,72,0.06); }
+@keyframes tabpulse {
+    0%, 100% { border-color: var(--border); color: var(--text-faint); background: none; }
+    50%      { border-color: var(--accent); color: var(--accent);     background: rgba(122,104,72,0.14); }
+}
+.tab-btn.new { animation: tabpulse 1.6s ease-in-out infinite; }
 #planet-tab { display: none; }
 .planet-tab-title {
     font-size: 14px; color: var(--text); letter-spacing: 0.03em;
