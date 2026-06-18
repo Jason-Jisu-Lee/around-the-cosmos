@@ -9,7 +9,7 @@ function createInitialState() {
         upgrades: { touch:0, dust:0, dustpay:0, dustspd:0, charm:0 },
         planets:  [],            // orbiters (dust particles); none at start
         clump:    newClump(),    // the shared orbit the dust clump travels as a group
-        comet:null, cometTimer:14 + Math.random()*6, cometSeen:false, // first comet ~14-20s (earlier)
+        comet:null, cometTimer:7 + Math.random()*6, cometSeen:false, // first comet ~7-13s
         particles:[], floatingTexts:[], incomeWindow:[], income:0,
     };
 }

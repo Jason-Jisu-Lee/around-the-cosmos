@@ -1,0 +1,99 @@
+Lacuna — Mechanics Overview (v3)
+
+Core Concept
+Incremental idle game, primarily active. The player orbits planets around a central evolving object — the Lacuna — accumulating stardust. The center evolves through stages, culminating in a black hole prestige event. Active play accelerates everything. Passive play is viable but softly capped.
+
+Resources
+
+Stardust — primary currency. Buys planets and upgrades.
+Dark Matter — prestige currency. Earned during the black hole consumption event.
+
+
+Stardust Generation (3 Sources)
+
+Cosmic drift — center emits a tiny passive trickle from game start. Enough to purchase Planet 1 within ~45 seconds without any input.
+Planets — each completed orbit pays out: planet base value × center pull multiplier
+Comets — periodic objects crossing the screen. Tap to collect a stardust burst. Primary active mechanic — reactive, never a grind.
+
+
+Active vs. Passive Balance — Comet Multiplier
+
+A persistent Comet Multiplier applies to all comet payouts
+Starts at 1.0×, caps at 2.0×
+Decays slowly over ~20 minutes of inactivity back to 1.0×
+Any single comet tap reactivates it to full immediately
+Passive players earn base rate. Active players earn base + multiplier
+Forgiving by design — returning players recover instantly on first tap
+
+
+Planet System
+
+Planets orbit the center in a circular arrangement
+Each orbit completion triggers a stardust payout
+Payout formula: planet base value × center pull multiplier
+Cap at 10 planets
+Planet 1 is purchased with early cosmic drift stardust at ~45 seconds — first meaningful player action
+Planets can be individually upgraded for higher base value
+
+
+Center Object — The Lacuna
+Evolves automatically. No player decision required. Each transition is a visual event + pull multiplier increase.
+StageFormTrigger1Drifting RockGame start2MoonFirst planets accumulate3PlanetStardust threshold4Neutron StarFirst prestige5Black HoleLate prestige threshold
+Pull value — the center's core stat. Visible multiplier shown on the center object (e.g. Gravitational Pull: 1.5×). Every planet orbit payout is multiplied by this value. Higher stage = higher pull. Upgrades can increase it further.
+
+Prestige — Black Hole Consumption Event
+Triggers when black hole reaches critical mass.
+
+Black hole pulls all orbiting planets inward one by one (visual sequence)
+Each absorbed planet yields dark matter proportional to its upgrade level
+Center resets to drifting rock — full arc re-experienced, compressed
+All multipliers stack and carry over
+Rock → black hole cycle is meaningfully faster each run
+Demo ends at black hole stage — further evolution is post-demo content
+
+
+Upgrade Categories (4 Pillars)
+1. Actions
+
+Tap/click-based upgrades. Increases stardust from manual interaction.
+2. Comets
+
+Affects comet frequency, burst size, and multiplier behavior.
+3. Planets
+
+Orbit payout increases, planet base value, new planet slot unlocks.
+4. Lacuna (locked until first prestige)
+
+Gravity and pull upgrades exclusively. Unlocking this signals that prestige changed something meaningful.
+Example Lacuna upgrades:
+
+Gravitational Field I/II/III — flat pull multiplier increases
+Event Horizon — more dark matter per planet consumed at prestige
+Tidal Force — comet payouts scale with current pull value
+
+
+Solar Events
+Periodic events that temporarily spike activity. First fires at ~10 minutes. Rotate every 7–9 minutes randomly after that. Duration ~18 seconds each. Rewards are modest — noticeable but never strong enough to feel mandatory.
+EventEffectTypeStardust SurgeAll orbit payouts doubled for durationPassive benefitComet StormMultiple comets cross simultaneouslyActive bonusGravitational PulseTap center during window for small permanent pull bonusActive onlyVoid RiftDark crack appears — tap to earn dark matter fragmentActive onlyResonance WaveAll mid-orbit planets instantly complete and pay outPassive benefitRogue PlanetDrifting planet — tap to capture for bonus stardust, gone if ignoredActive bonus
+Balance rule: alternate between passive benefits and active-only rewards. Passives always feel included. Actives always feel ahead.
+
+Early Game Flow
+TimeEvent0sRock drifts. Cosmic drift begins accumulating~20sFirst comet passes — tap for burst~45sEnough stardust to purchase Planet 1 — orbit loop begins~60s+Orbit income exceeds drift, drift becomes background noise~10minFirst solar event firesOngoingSolar events every 7–9 min, varied pool
+
+Design Constraints
+
+Systems can be complex. Understanding must be immediate and intuitive
+Clicking is always optional — reactive, never a grind
+No upgrade paths that feel like permanent sacrifice
+Passive play is valid but softly capped — extended offline time should not trigger prestige or skip stages
+Active play is the intended mode — always faster, always more rewarding
+Prestige resets feel like acceleration, not punishment
+
+
+Deferred / Post-Demo
+
+Automation of upgrade purchasing post-prestige
+Prestige automation presets
+Evolution beyond black hole stage
+Center object upgrade tree post-black hole
+Nebula zones / additional regions
