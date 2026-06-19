@@ -232,24 +232,31 @@ body {
 .stat-pop b { color: #d8c8a4; font-weight: 600; }
 .stat-pop-row:hover .stat-pop { display: block; }
 
-/* Canvas hover tooltip — Lacuna / orbiter cosmic info */
+/* Cosmic info card — pinned in the center of the sky, dismissed with × / Escape */
 #cosmo-tip {
     display: none; position: absolute; z-index: 80;
     background: #2c2620; color: #f4f0e8;
-    padding: 11px 14px; min-width: 186px;
-    font-family: 'Segoe UI', sans-serif; font-size: 12px; line-height: 1.5;
-    box-shadow: 0 6px 22px rgba(0,0,0,0.28); pointer-events: none;
+    padding: 16px 20px 15px; min-width: 218px; max-width: 280px;
+    font-family: 'Segoe UI', sans-serif; font-size: 13px; line-height: 1.55;
+    box-shadow: 0 12px 44px rgba(0,0,0,0.36); pointer-events: auto;
     letter-spacing: 0.02em;
 }
-.tip-title {
-    font-family: 'Optima','Candara','Century Gothic',sans-serif; font-size: 14px;
-    color: #e8dcc0; margin-bottom: 7px; letter-spacing: 0.06em;
-    border-bottom: 1px solid rgba(216,200,164,0.25); padding-bottom: 5px;
+.cosmo-close {
+    position: absolute; top: 7px; right: 8px;
+    background: none; border: none; color: #9a9486; cursor: pointer;
+    font-size: 20px; line-height: 1; padding: 2px 7px;
+    font-family: 'Segoe UI', sans-serif; transition: color 0.12s;
 }
-.tip-row { display: flex; justify-content: space-between; gap: 18px; padding: 1.5px 0; }
+.cosmo-close:hover { color: #f4f0e8; }
+.cosmo-title {
+    font-family: 'Optima','Candara','Century Gothic',sans-serif; font-size: 15px;
+    color: #e8dcc0; margin-bottom: 9px; padding: 0 20px 6px 0; letter-spacing: 0.06em;
+    border-bottom: 1px solid rgba(216,200,164,0.25);
+}
+.tip-row { display: flex; justify-content: space-between; gap: 18px; padding: 2px 0; }
 .tip-l   { color: #b8b0a2; }
 .tip-v   { color: #f4f0e8; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.tip-note { margin-top: 7px; font-size: 11px; font-style: italic; color: #9a9486; line-height: 1.45; max-width: 212px; }
+.tip-note { margin-top: 10px; font-size: 12px; font-style: italic; color: #b0a894; line-height: 1.5; }
 
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }

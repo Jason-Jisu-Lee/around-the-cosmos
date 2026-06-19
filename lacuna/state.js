@@ -79,6 +79,13 @@ function sig3(n) {
     const f = Math.pow(10, 2 - mag);
     return (Math.round(n*f)/f).toString();
 }
+// Compact display: whole number when ≥100, otherwise ≤2 decimals (trailing zeros dropped).
+// Pair with a chosen unit so values read cleanly (e.g. 8.39 cm/s², 142 m/s).
+function fmtNice(n) {
+    if (!isFinite(n)) return '∞';
+    if (Math.abs(n) >= 100) return Math.round(n).toString();
+    return (Math.round(n*100)/100).toString();
+}
 // Scientific notation with 3 sig figs and unicode superscript (e.g. 1.81 × 10¹⁹).
 function fmtSci(n) {
     if (n === 0) return '0';

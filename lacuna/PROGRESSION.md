@@ -108,26 +108,28 @@ Card shows **"×1.2 orbit speed per level (additive +20%). Starts at 100%, max 2
 - The small dark center everything orbits. Currently static (will evolve through stages later — see `asd.txt` for the long-term v3 plan).
 - Dust particles clump on **one orbit ring** around it; more orbiter types / rings come later.
 
-## Cosmic hover info (tooltips)
-Hover anything on the canvas to read its real-ish physical stats (all capped at 3 significant figures). These derive from a small physics model (`PHYS` in `config.js`) so the upcoming **science-based upgrades** can grow them.
+## Cosmic info card
+Hover the Lacuna or a dust particle and an info card opens **pinned in the center of the sky** (it doesn't follow the cursor — hover once, then read at your leisure). Close it with the **× button** or **Escape**. All values come from a small physics model (`PHYS` in `config.js`) so the upcoming **science-based upgrades** can grow them; numbers are kept clean (≤2 decimals, sensible units).
 
-**Hover the Lacuna (center):**
+**The Lacuna (center):**
 | Stat | Base value |
 |---|---|
 | Diameter | 240 km |
 | Mass | 1.81 × 10¹⁹ kg |
-| Surface gravity | 0.0839 m/s² (≈ 0.00855 g) |
-| Escape velocity | 0.142 km/s |
+| Surface gravity | 8.39 cm/s² |
+| Escape velocity | 142 m/s |
 | Density | 2.5 g/cm³ |
 
-**Hover a dust particle (the clump):**
+Plus a one-sentence flavor line introducing the Lacuna as the protagonist.
+
+**A dust particle (the clump):**
 | Stat | Value |
 |---|---|
 | Orbit payout | ✦ per orbit (= `orbiterPayout()`) |
 | Orbital speed | ~77.7 m/s at base; **scales with Dust Particle Speed** (up to ~155 m/s) |
-| Orbits / hour | ~0.223 at base; scales with Speed (up to ~0.445) |
+| Orbits / hour | ~0.22 at base; scales with Speed (up to ~0.45) |
 
-> The orbiter's speed and orbits/hour are tied to the **Dust Particle Speed** upgrade — buying it visibly increases both, so the cosmic readout reflects the actual mechanic.
+> The orbiter's speed and orbits/hour are tied to the **Dust Particle Speed** upgrade — buying it visibly increases both, so the cosmic readout reflects the actual mechanic. Each card also carries a one-sentence flavor description.
 
 ---
 
