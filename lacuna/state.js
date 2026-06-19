@@ -6,9 +6,11 @@ function createInitialState() {
     return {
         dust:0, runDust:0, totalDust:0,
         orbitsCompleted:0, taps:0, cometsCaught:0, gameTime:0, universeTime:0,
-        upgrades: { touch:0, dust:0, dustpay:0, dustspd:0, charm:0 },
+        upgrades: { touch:0, dust:0, dustpay:0, dustspd:0, asteroid:0, astpay:0, astspd:0, charm:0 },
         planets:  [],            // orbiters (dust particles); none at start
         clump:    newClump(),    // the shared orbit the dust clump travels as a group
+        asteroids: [],           // orbiters (asteroids, ring 1); none at start
+        asteroidClump: newClump(),// the shared orbit the asteroid clump travels as a group
         comet:null, cometTimer:7 + Math.random()*6, cometSeen:false, // first comet ~7-13s
         particles:[], floatingTexts:[], incomeWindow:[], income:0,
     };
@@ -24,6 +26,18 @@ function newOrbiter() {
         localPhase: Math.random()*Math.PI*2,
         localR:     5 + Math.random()*7,   // inner-orbit radius within the clump (5–12px)
         localSpin:  (Math.random()<0.5?-1:1) * (0.6 + Math.random()*0.8),
+        pulse:0, shape,
+    };
+}
+
+// An asteroid: like a dust particle but bigger, on a wider/slower orbit (ring 1).
+function newAsteroid() {
+    const shape = [];
+    for (let k = 0; k < 8; k++) shape.push(0.6 + Math.random()*0.8);
+    return {
+        localPhase: Math.random()*Math.PI*2,
+        localR:     8 + Math.random()*8,   // inner-orbit radius within the clump (8–16px)
+        localSpin:  (Math.random()<0.5?-1:1) * (0.5 + Math.random()*0.7),
         pulse:0, shape,
     };
 }
@@ -59,9 +73,12 @@ function lvl(id) { return G.upgrades[id]; }
 
 // Every dust particle pays a flat 10, doubled by Dust Particle Payout.
 function orbiterPayout() { return 10 * upg('dustpay').mult(lvl('dustpay')); }
+// Every asteroid pays a flat 100 (10× a dust particle), doubled by Asteroid Payout.
+function asteroidPayout() { return 100 * upg('astpay').mult(lvl('astpay')); }
 
 // Clump orbit speed factor: base 100%, +20% per Speed level (additive), max 200% at lvl 5.
-function dustSpeed() { return upg('dustspd').mult(lvl('dustspd')); }
+function dustSpeed()     { return upg('dustspd').mult(lvl('dustspd')); }
+function asteroidSpeed() { return upg('astspd').mult(lvl('astspd')); }
 
 // ---- Cosmic-flavor physics (tooltip values; everything derives from PHYS) ----
 function lacunaMass()     { const r = PHYS.lacunaRadius; return PHYS.lacunaDensity * (4/3)*Math.PI * r*r*r; } // kg
@@ -70,6 +87,8 @@ function lacunaEscapeVel(){ return Math.sqrt(2 * PHYS.G * lacunaMass() / PHYS.la
 function orbiterBaseVel() { return Math.sqrt(PHYS.G * lacunaMass() / PHYS.orbitRadius); }                      // m/s (circular)
 function orbiterVel()     { return orbiterBaseVel() * dustSpeed(); }                                           // scaled by Speed upgrade
 function orbiterOrbitsPerHour() { return orbiterVel() / (2*Math.PI*PHYS.orbitRadius) * 3600; }
+function asteroidVel()    { return Math.sqrt(PHYS.G * lacunaMass() / PHYS.asteroidOrbitRadius) * asteroidSpeed(); }
+function asteroidOrbitsPerHour() { return asteroidVel() / (2*Math.PI*PHYS.asteroidOrbitRadius) * 3600; }
 
 // Round to 3 significant figures, plain decimal string (e.g. 0.0839, 142, 2.5).
 function sig3(n) {
@@ -126,10 +145,13 @@ function loadGame() {
         G.orbitsCompleted=def('orbitsCompleted',0); G.taps=def('taps',0);
         G.cometsCaught=def('cometsCaught',0); G.gameTime=def('gameTime',0);
         G.universeTime=def('universeTime', G.gameTime); // current-universe timer (reset on prestige later)
-        G.upgrades = Object.assign({ touch:0, dust:0, dustpay:0, dustspd:0, charm:0 }, d.upgrades);
+        G.upgrades = Object.assign({ touch:0, dust:0, dustpay:0, dustspd:0, asteroid:0, astpay:0, astspd:0, charm:0 }, d.upgrades);
         G.cometSeen = def('cometSeen', G.cometsCaught > 0);
         G.planets = [];
-        const count = Math.min(3, G.upgrades.dust); // one orbiter per Dust Particle level
+        const count = Math.min(4, G.upgrades.dust); // one dust particle per Dust Particle level
         for (let i = 0; i < count; i++) G.planets.push(newOrbiter());
+        G.asteroids = [];
+        const acount = Math.min(4, G.upgrades.asteroid); // one asteroid per Asteroid level
+        for (let i = 0; i < acount; i++) G.asteroids.push(newAsteroid());
     } catch(_) {}
 }

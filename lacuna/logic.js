@@ -20,6 +20,22 @@ function tick(dt) {
     }
     for (const o of G.planets) if (o.pulse > 0) o.pulse = Math.max(0, o.pulse-dt*2.2);
 
+    // The asteroid clump orbits on the wider ring 1; pays when it crosses the top.
+    if (G.asteroids.length) {
+        const w = (Math.PI*2 / PLANET_DEF[1].period) * asteroidSpeed();
+        G.asteroidClump.angle += w*dt;
+        if (G.asteroidClump.angle >= G.asteroidClump.nextTop) {
+            G.asteroidClump.nextTop += Math.PI*2;
+            const pos = asteroidClumpPos();
+            earn(G.asteroids.length * asteroidPayout(), pos.x, pos.y-12);
+            G.orbitsCompleted++;
+            for (const o of G.asteroids) o.pulse = 1;
+            SoundSystem.sfxOrbit();
+        }
+        if (G.asteroidClump.angle > Math.PI*2) { G.asteroidClump.angle -= Math.PI*2; G.asteroidClump.nextTop -= Math.PI*2; }
+    }
+    for (const o of G.asteroids) if (o.pulse > 0) o.pulse = Math.max(0, o.pulse-dt*2.2);
+
     if (G.comet) {
         const c = G.comet;
         c.x += c.vx*dt; c.y += c.vy*dt; c.life -= dt;
@@ -61,9 +77,9 @@ function spawnComet() {
 
 function catchComet() {
     const c = G.comet;
-    // Windfall = 10 clicks' worth + every orbiter's payout combined.
-    const combined = G.planets.length * orbiterPayout();
-    const windfall = 10 * upg('touch').tapYield[lvl('touch')] + combined;
+    // Windfall = 10 clicks' worth + 1.25 × every orbiter's payout combined (dust + asteroids).
+    const combined = G.planets.length * orbiterPayout() + G.asteroids.length * asteroidPayout();
+    const windfall = 10 * upg('touch').tapYield[lvl('touch')] + 1.25 * combined;
     earn(windfall, c.x, c.y-20, true);
     G.cometsCaught++; G.cometSeen = true; SoundSystem.sfxComet();
     burst(c.x, c.y, 'rgba(60,80,70,', 26, 180);
@@ -76,11 +92,18 @@ function buyUpgrade(u) {
     const cost = u.costs[l];
     if (G.dust < cost) return false;
     G.dust -= cost; G.upgrades[u.id]++;
-    if (u.id === 'dust') G.planets.push(newOrbiter());
+    if (u.id === 'dust')     G.planets.push(newOrbiter());
+    if (u.id === 'asteroid') G.asteroids.push(newAsteroid());
     if (['dust', 'dustpay', 'dustspd'].includes(u.id)) {
         const pos = clumpPos();
         const label = u.id === 'dust' ? '+1 Dust Particle'
                     : u.id === 'dustpay' ? '×2 Payout'
+                    : '×1.2 Speed';
+        G.floatingTexts.push({ x:pos.x, y:pos.y-20, text:label, age:0, maxAge:1.8, size:15 });
+    } else if (['asteroid', 'astpay', 'astspd'].includes(u.id)) {
+        const pos = G.asteroids.length ? asteroidClumpPos() : clumpPos();
+        const label = u.id === 'asteroid' ? '+1 Asteroid'
+                    : u.id === 'astpay' ? '×2 Payout'
                     : '×1.2 Speed';
         G.floatingTexts.push({ x:pos.x, y:pos.y-20, text:label, age:0, maxAge:1.8, size:15 });
     }

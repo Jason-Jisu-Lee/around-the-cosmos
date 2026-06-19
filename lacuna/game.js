@@ -112,15 +112,17 @@ const cosmoCard = document.getElementById('cosmo-card');  // click — pinned ce
 let cosmoMx = 0, cosmoMy = 0, cosmoOver = false;
 let pinnedTarget = null;    // 'lacuna' | 'orbiter' | null — centered card open via click
 
-const TITLES = { lacuna: 'The Lacuna', orbiter: 'Dust Particle' };
+const TITLES = { lacuna: 'The Lacuna', orbiter: 'Dust Particle', asteroid: 'Asteroid' };
 const DESCS = {
     lacuna:  'A small absence at the heart of everything — patient, hollow, and quietly gathering a universe back together.',
     orbiter: "The first speck stubborn enough to answer the Lacuna's pull, tracing patient circles and paying a little stardust each time it passes.",
+    asteroid: 'A wandering chunk of old rock, heavier and slower than the dust, but paying out far more each time it lumbers past.',
 };
 
 function cosmoTargetAt(x, y) {
     if (Math.hypot(x-CX, y-CY) < 22) return 'lacuna';
-    if (G.planets.length && Math.hypot(x-clumpPos().x, y-clumpPos().y) < 46) return 'orbiter';
+    if (G.planets.length && Math.hypot(x-clumpPos().x, y-clumpPos().y) < 35) return 'orbiter';
+    if (G.asteroids.length && Math.hypot(x-asteroidClumpPos().x, y-asteroidClumpPos().y) < 40) return 'asteroid';
     return null;
 }
 
@@ -132,6 +134,11 @@ function cosmoRows(target) {
              + tipRow('Surface gravity', fmtNice(lacunaGravity()/9.81*100) + '% of Earth')
              + tipRow('Escape velocity', fmtNice(lacunaEscapeVel()) + ' m/s')
              + tipRow('Density',         fmtNice(PHYS.lacunaDensity/1000) + ' g/cm³');
+    }
+    if (target === 'asteroid') {
+        return tipRow('Orbit payout',  '✦' + fmtNum(asteroidPayout()))
+             + tipRow('Orbital speed', fmtNice(asteroidVel()) + ' m/s')
+             + tipRow('Orbits / hour', fmtNice(asteroidOrbitsPerHour()));
     }
     return tipRow('Orbit payout',  '✦' + fmtNum(orbiterPayout()))
          + tipRow('Orbital speed', fmtNice(orbiterVel()) + ' m/s')

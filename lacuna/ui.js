@@ -120,24 +120,28 @@ function updateUI(now) {
 
     // ---- Observatory stats ----
     const touchVal = upg('touch').tapYield[lvl('touch')];
-    const orbiterCount = G.planets.length;
-    const orbiterSum = orbiterCount * orbiterPayout();
-    const cometVal = 10 * touchVal + orbiterSum;
+    const dustSum  = G.planets.length   * orbiterPayout();
+    const astSum   = G.asteroids.length * asteroidPayout();
+    const orbiterSum = dustSum + astSum;
+    const totalOrbiters = G.planets.length + G.asteroids.length;
+    const cometVal = 10 * touchVal + 1.25 * orbiterSum;
 
-    const showOrbiter = orbiterCount >= 1, showComet = G.cometSeen;
+    const showOrbiter = totalOrbiters >= 1, showComet = G.cometSeen;
     const sig = (showOrbiter ? 'O' : '') + (showComet ? 'C' : '');
     if (sig !== statsSig) { buildStats(showOrbiter, showComet); statsSig = sig; }
 
-    const payMult = upg('dustpay').mult(lvl('dustpay'));
     statEls.touch.textContent = '✦' + fmtNum(touchVal);
     if (statEls.orbiter) {
         statEls.orbiter.textContent = '✦' + fmtNum(orbiterSum);
-        statEls.orbiterPop.innerHTML = `${orbiterCount} dust × 10 × ${payMult}× = <b>✦${fmtNum(orbiterSum)}</b>`;
+        let pop = `${G.planets.length} dust × ${fmtNum(orbiterPayout())}`;
+        if (G.asteroids.length) pop += ` + ${G.asteroids.length} ast × ${fmtNum(asteroidPayout())}`;
+        pop += ` = <b>✦${fmtNum(orbiterSum)}</b>`;
+        statEls.orbiterPop.innerHTML = pop;
     }
     statEls.rate.textContent = '✦' + fmtNum(G.income * 60) + ' / min';
     if (statEls.comet) {
         statEls.comet.textContent = '✦' + fmtNum(cometVal);
-        statEls.cometPop.innerHTML = `10 × click (${fmtNum(touchVal)}) + orbiters (${fmtNum(orbiterSum)}) = <b>✦${fmtNum(cometVal)}</b>`;
+        statEls.cometPop.innerHTML = `10 × click (${fmtNum(touchVal)}) + 1.25 × orbiters (${fmtNum(orbiterSum)}) = <b>✦${fmtNum(cometVal)}</b>`;
     }
     statEls.time.textContent = fmtTime(G.universeTime);
 }

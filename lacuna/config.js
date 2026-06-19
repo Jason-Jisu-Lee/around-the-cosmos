@@ -27,10 +27,11 @@ const PLANET_COLORS = [
 // these with real formulas, so future science-based upgrades can scale them.
 // All displayed values are capped at 3 significant figures.
 const PHYS = {
-    G:             6.674e-11, // gravitational constant (m³ kg⁻¹ s⁻²)
-    lacunaRadius:  120e3,     // m — 120 km, a small dark body (will grow with upgrades)
-    lacunaDensity: 2500,      // kg/m³ — rocky (2.50 g/cm³)
-    orbitRadius:   200e3,     // m — the dust clump's real orbital radius (200 km)
+    G:                  6.674e-11, // gravitational constant (m³ kg⁻¹ s⁻²)
+    lacunaRadius:       120e3,     // m — 120 km, a small dark body (will grow with upgrades)
+    lacunaDensity:      2500,      // kg/m³ — rocky (2.50 g/cm³)
+    orbitRadius:        200e3,     // m — the dust clump's real orbital radius (200 km, ring 0)
+    asteroidOrbitRadius:400e3,     // m — the asteroid clump's wider orbit (400 km, ring 1)
 };
 
 // unlock: fn → card is visible when fn() returns true.
@@ -44,8 +45,8 @@ const UPGRADES = [
         unlock: () => true, // always visible — the first thing the player sees
     },
     {
-        id: 'dust', name: 'Dust Particle', maxLevel: 3, section: 'ORBITERS',
-        costs: [100, 350, 800],
+        id: 'dust', name: 'Dust Particle', maxLevel: 4, section: 'ORBITERS',
+        costs: [100, 350, 800, 1500],
         desc: () => 'A dust particle orbiting the Lacuna · +10 payout',
         unlock: () => lvl('touch') >= 2, // appears after the second Star Touch
     },
@@ -62,6 +63,26 @@ const UPGRADES = [
         mult: lvl => 1 + 0.2 * lvl,      // multiplies the reduced (50%) base; ×2 at lvl 5 → original speed
         desc: () => '×1.2 orbit speed per level (additive +20%). Starts at 100%, max 200%.',
         unlock: () => lvl('dust') >= 1,  // after the first dust particle
+    },
+    {
+        id: 'asteroid', name: 'Asteroid', maxLevel: 4, section: 'ORBITERS',
+        costs: [1000, 3500, 8000, 15000],   // ~10× dust particle — a lot pricier
+        desc: () => 'A rocky asteroid on a wider orbit · +100 payout',
+        unlock: () => lvl('dust') >= 2,      // after the second dust particle
+    },
+    {
+        id: 'astpay', name: 'Asteroid Payout', maxLevel: 5, section: 'ORBITERS',
+        costs: [1500, 6000, 15000, 30000, 60000], // dust payout ratios × 10
+        mult: lvl => Math.pow(2, lvl),       // ×2 every asteroid's payout per level (up to ×32)
+        desc: () => "Doubles every asteroid's payout",
+        unlock: () => lvl('asteroid') >= 1,
+    },
+    {
+        id: 'astspd', name: 'Asteroid Speed', maxLevel: 5, section: 'ORBITERS',
+        costs: [2000, 5000, 10000, 20000, 40000], // dust speed ratios × 10
+        mult: lvl => 1 + 0.2 * lvl,          // base 100%, +20% additive per lvl → 200% at lvl 5
+        desc: () => '×1.2 orbit speed per level (additive +20%). Starts at 100%, max 200%.',
+        unlock: () => lvl('asteroid') >= 1,
     },
     {
         id: 'charm', name: 'Comet Charm', maxLevel: 3, section: 'COMETS',

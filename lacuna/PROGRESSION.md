@@ -23,7 +23,9 @@ Click the Lacuna (center) to earn **stardust (✦)** → buy **Star Touch** to e
 | Star Touch ×1 | buy (✦10) | Click now earns **2**. |
 | Star Touch ×2 | buy (✦50) | Click earns **4**. → **Dust Particle** upgrade appears. |
 | First Dust Particle | buy (✦100) | Your first **orbiter** appears, paying **10 ✦** per orbit. Unlocks **Dust Particle Payout** + **Dust Particle Speed**, and the **All Orbiters Payout** stat. |
-| … | … | Buy more dust particles (max 3), pump payout/speed, keep catching comets. |
+| 2nd Dust Particle | buy (✦350) | A second dust particle joins the clump → unlocks the **Asteroid** orbiter. |
+| First Asteroid | buy (✦1,000) | A bigger, slower **asteroid** appears on a wider orbit, paying **100 ✦** per orbit. Unlocks **Asteroid Payout** + **Asteroid Speed**. |
+| … | … | Buy more dust particles (max 4) and asteroids (max 4), pump payout/speed, keep catching comets. |
 
 ---
 
@@ -44,14 +46,15 @@ Click the Lacuna (center) to earn **stardust (✦)** → buy **Star Touch** to e
 
 ### ORBITERS
 
-**Dust Particle** — *unlocks after Star Touch lvl 2* · max **3**
-Each one is a small grey pebble orbiting the Lacuna as part of a shared **clump**.
+**Dust Particle** — *unlocks after Star Touch lvl 2* · max **4**
+Each one is a small grey pebble orbiting the Lacuna as part of a shared **clump** (ring 0).
 Every dust particle pays **10 ✦ per orbit** (before multipliers).
 | Bought | Cost ✦ | Total dust particles |
 |---|---|---|
 | 1st | 100 | 1 |
 | 2nd | 350 | 2 |
 | 3rd | 800 | 3 |
+| 4th | 1,500 | 4 |
 
 **Dust Particle Payout** — *unlocks after the first dust particle* · max **5**
 Multiplies **every** dust particle's payout. Non-effect-stacking with count (it's a global ×).
@@ -79,6 +82,30 @@ Card shows **"×1.2 orbit speed per level (additive +20%). Starts at 100%, max 2
 
 > Faster orbit = the clump crosses the top more often = more payouts per minute.
 
+**Asteroid** — *unlocks after the 2nd dust particle* · max **4**
+A bigger rocky-brown body on a **wider, slower orbit** (ring 1, its own clump). Much pricier
+than dust, but pays **100 ✦ per orbit** each (before multipliers) — 10× a dust particle.
+| Bought | Cost ✦ | Total asteroids |
+|---|---|---|
+| 1st | 1,000 | 1 |
+| 2nd | 3,500 | 2 |
+| 3rd | 8,000 | 3 |
+| 4th | 15,000 | 4 |
+
+**Asteroid Payout** — *unlocks after the first asteroid* · max **5** — ×2 every asteroid's payout per level.
+| Level | 1 | 2 | 3 | 4 | 5 |
+|---|---|---|---|---|---|
+| Cost ✦ | 1,500 | 6,000 | 15,000 | 30,000 | 60,000 |
+| Multiplier | ×2 | ×4 | ×8 | ×16 | ×32 |
+
+**Asteroid Speed** — *unlocks after the first asteroid* · max **5** — +20% orbit speed per level (100% → 200%).
+| Level | 1 | 2 | 3 | 4 | 5 |
+|---|---|---|---|---|---|
+| Cost ✦ | 2,000 | 5,000 | 10,000 | 20,000 | 40,000 |
+| Speed | 120% | 140% | 160% | 180% | 200% |
+
+> Asteroid Payout/Speed mirror the dust upgrades' shape, scaled ~10× to match the asteroid's price.
+
 ### COMETS
 
 **Comet Charm** — *currently disabled* (will return later). Comets still pay windfalls without it.
@@ -88,8 +115,9 @@ Card shows **"×1.2 orbit speed per level (additive +20%). Starts at 100%, max 2
 ## Comets
 - First appears **~7–13 s** in; afterward every **25–55 s** (`COMET_MIN_GAP`–`COMET_MAX_GAP`).
 - On screen for **8 s** (`COMET_LIFE`); tap within ~48px to catch.
-- **Windfall = (10 × click value) + (every dust particle's payout combined).**
-  - Example: click value 4, three particles at ×2 payout → `10×4 + 3×(10×2)` = 40 + 60 = **100 ✦**.
+- **Windfall = (10 × click value) + 1.25 × (every orbiter's payout combined).**
+  - Combined orbiter payout = `dust × dustPayout + asteroids × asteroidPayout`.
+  - Example: click value 4, three dust particles at ×2 payout → `10×4 + 1.25×(3×20)` = 40 + 75 = **115 ✦**.
 
 ---
 
@@ -122,14 +150,21 @@ Card shows **"×1.2 orbit speed per level (additive +20%). Starts at 100%, max 2
 
 Plus a one-sentence flavor line introducing the Lacuna as the protagonist.
 
-**A dust particle (the clump):**
+**A dust particle (ring 0):**
 | Stat | Value |
 |---|---|
 | Orbit payout | ✦ per orbit (= `orbiterPayout()`) |
 | Orbital speed | ~77.7 m/s at base; **scales with Dust Particle Speed** (up to ~155 m/s) |
 | Orbits / hour | ~0.22 at base; scales with Speed (up to ~0.45) |
 
-> The orbiter's speed and orbits/hour are tied to the **Dust Particle Speed** upgrade — buying it visibly increases both, so the cosmic readout reflects the actual mechanic. Each card also carries a one-sentence flavor description.
+**An asteroid (ring 1):**
+| Stat | Value |
+|---|---|
+| Orbit payout | ✦ per orbit (= `asteroidPayout()`, base 100) |
+| Orbital speed | ~54.9 m/s at base; **scales with Asteroid Speed** (up to ~110 m/s) |
+| Orbits / hour | ~0.08 at base; scales with Speed |
+
+> Each orbiter's speed and orbits/hour are tied to its Speed upgrade — buying it visibly increases both, so the cosmic readout reflects the actual mechanic. Every card also carries a one-sentence flavor description.
 
 ---
 
