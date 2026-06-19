@@ -28,7 +28,7 @@ Scripts load in this order — each file can reference globals from earlier file
 
 | File | Contents |
 |---|---|
-| `index.html` | Shell, header (centered stardust HUD), 3-column layout (left reserved, center canvas, right upgrades), floating draggable observatory |
+| `index.html` | Shell, header (game title **"AROUND THE COSMOS"** in `#logo`; centered stardust HUD), 3-column layout (left reserved, center canvas, right upgrades), floating draggable observatory |
 | `style.css` | All styling — parchment theme (#f4f0e8 bg, Georgia serif, flat shapes) |
 | `sound.js` | Web Audio API: procedural music (3 tracks) + SFX, mute toggle, volume control |
 | `config.js` | CFG constants, PLANET_DEF (ring radii/periods), PLANET_COLORS, **PHYS** (cosmic-flavor physical model), UPGRADES, SECTION_ORDER |
@@ -82,7 +82,7 @@ when an upgrade maxes out or the toggle flips.
 Other mechanics:
 - **Orbiters / payout**: two clumps, rendered by the shared `drawClump()` helper (render.js).
   - **Dust** — `G.planets[]`, each `{localPhase,localR,localSpin,pulse,shape}`, travel as a clump on `G.clump{angle,nextTop}` (ring 0, period `PLANET_DEF[0].period`=6s). Speed = `(2π/period)×dustSpeed()`, `dustSpeed()`=`dustspd.mult(lvl)`=`1+0.2×lvl` (100%→200%). On top-cross each pays `orbiterPayout()` = `10 × dustpay.mult(lvl)`. Small grey pebbles (radius `PLANET_DEF[0].radius/3+2`), local orbit 5–12px.
-  - **Asteroids** — `G.asteroids[]` (same shape fields), clump on `G.asteroidClump` (ring 1, period `PLANET_DEF[1].period`=9.5s). Speed = `asteroidSpeed()`=`astspd.mult(lvl)`. On top-cross each pays `asteroidPayout()` = `100 × astpay.mult(lvl)`. Bigger rocky-brown pebbles (`#7a6a55`, radius `PLANET_DEF[1].radius/3+4`), local orbit 8–16px.
+  - **Asteroids** — `G.asteroids[]` (shape fields + a `motes` array), clump on `G.asteroidClump` (ring 1, period `PLANET_DEF[1].period`=9.5s). Speed = `asteroidSpeed()`=`astspd.mult(lvl)`. On top-cross each pays `asteroidPayout()` = `100 × astpay.mult(lvl)`. Bigger rocky-brown pebbles (`#7a6a55`, radius `(PLANET_DEF[1].radius/3+4)×1.5` — 50% larger than the original asteroid size), local orbit 8–16px. Each asteroid carries 6 decorative **motes** — tiny specks that drift around it at all times (drawn in `drawClump` when `o.motes` exists; much smaller than a dust orbiter).
   - Background is clear (no stars).
 - **Lacuna center**: drawn at radius **13** (was 26 — shrunk 50%, will grow later) with a faint warm haze.
 - **Cosmic info** (two elements, both built in `game.js`): targets are the **Lacuna** (within 22px of center), the **dust clump** (within 35px of `clumpPos()`), and the **asteroid clump** (within 40px of `asteroidClumpPos()`), via `cosmoTargetAt(x,y)`. The asteroid card shows Orbit payout / Orbital speed / Orbits-per-hour from `asteroidPayout()`/`asteroidVel()` (orbit radius `PHYS.asteroidOrbitRadius`=400 km).

@@ -31,14 +31,22 @@ function newOrbiter() {
 }
 
 // An asteroid: like a dust particle but bigger, on a wider/slower orbit (ring 1).
+// `motes` are tiny specks that constantly drift around it (decorative dust halo).
 function newAsteroid() {
     const shape = [];
     for (let k = 0; k < 8; k++) shape.push(0.6 + Math.random()*0.8);
+    const motes = [];
+    for (let m = 0; m < 6; m++) motes.push({
+        dist:  1.4 + Math.random()*1.4,                     // × pebble radius from its center
+        phase: Math.random()*Math.PI*2,
+        spin:  (Math.random()<0.5?-1:1) * (0.5 + Math.random()*1.1),
+        size:  0.6 + Math.random()*0.9,                     // much smaller than a dust orbiter
+    });
     return {
         localPhase: Math.random()*Math.PI*2,
         localR:     8 + Math.random()*8,   // inner-orbit radius within the clump (8–16px)
         localSpin:  (Math.random()<0.5?-1:1) * (0.5 + Math.random()*0.7),
-        pulse:0, shape,
+        pulse:0, shape, motes,
     };
 }
 

@@ -36,6 +36,16 @@ function drawClump(list, cp, pr, color, t) {
         }
         ctx.closePath(); ctx.fillStyle=color; ctx.fill();
         ctx.restore();
+
+        // Tiny dust motes drifting around the body (asteroids only).
+        if (o.motes) {
+            for (const mte of o.motes) {
+                const ma = mte.phase + t*mte.spin;
+                const mx = px + Math.cos(ma)*pr*mte.dist, my = py + Math.sin(ma)*pr*mte.dist;
+                ctx.beginPath(); ctx.arc(mx,my,mte.size,0,Math.PI*2);
+                ctx.fillStyle='rgba(138,135,130,0.5)'; ctx.fill();
+            }
+        }
     }
 }
 
@@ -63,8 +73,8 @@ function draw(t) {
     // Orbiters — clumps of small irregular pebbles. Each clump orbits Lacuna; each
     // pebble also circles its own little orbit within the clump. Dust = small grey
     // pebbles (ring 0); asteroids = bigger rocky-brown pebbles (ring 1).
-    if (G.planets.length)   drawClump(G.planets,   clumpPos(),         PLANET_DEF[0].radius/3 + 2, '#8a8782', t);
-    if (G.asteroids.length) drawClump(G.asteroids, asteroidClumpPos(), PLANET_DEF[1].radius/3 + 4, '#7a6a55', t);
+    if (G.planets.length)   drawClump(G.planets,   clumpPos(),         PLANET_DEF[0].radius/3 + 2,        '#8a8782', t);
+    if (G.asteroids.length) drawClump(G.asteroids, asteroidClumpPos(), (PLANET_DEF[1].radius/3 + 4)*1.5, '#7a6a55', t); // 50% bigger
 
     if (G.comet) {
         const c=G.comet;
