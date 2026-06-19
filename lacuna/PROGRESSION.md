@@ -66,16 +66,16 @@ Multiplies **every** dust particle's payout. Non-effect-stacking with count (it'
 > So one dust particle pays `10 × (payout multiplier)`; three particles pay `3 × 10 × mult`.
 
 **Dust Particle Speed** — *unlocks after the first dust particle* · max **5**
-The clump's orbit starts at **50 %** speed; each level brings it back toward original.
-Card shows **"(×1.2 speed)"** on every level.
+Each level adds **+20% orbit speed (additive)**. Starts at 100%, maxes at 200%.
+Card shows **"×1.2 orbit speed per level (additive +20%). Starts at 100%, max 200%."**
 | Level | Cost ✦ | Orbit speed |
 |---|---|---|
-| (base) | — | 50 % |
-| 1 | 200 | 60 % |
-| 2 | 500 | 70 % |
-| 3 | 1,000 | 80 % |
-| 4 | 2,000 | 90 % |
-| 5 | 4,000 | 100 % (original) |
+| (base) | — | 100 % |
+| 1 | 200 | 120 % |
+| 2 | 500 | 140 % |
+| 3 | 1,000 | 160 % |
+| 4 | 2,000 | 180 % |
+| 5 | 4,000 | 200 % |
 
 > Faster orbit = the clump crosses the top more often = more payouts per minute.
 

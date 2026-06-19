@@ -60,8 +60,8 @@ function lvl(id) { return G.upgrades[id]; }
 // Every dust particle pays a flat 10, doubled by Dust Particle Payout.
 function orbiterPayout() { return 10 * upg('dustpay').mult(lvl('dustpay')); }
 
-// Clump orbit speed factor: base 50%, restored to 100% by Dust Particle Speed (lvl 5).
-function dustSpeed() { return 0.5 * upg('dustspd').mult(lvl('dustspd')); }
+// Clump orbit speed factor: base 100%, +20% per Speed level (additive), max 200% at lvl 5.
+function dustSpeed() { return upg('dustspd').mult(lvl('dustspd')); }
 
 function earn(amount, x, y, big) {
     G.dust += amount; G.runDust += amount; G.totalDust += amount;
