@@ -77,5 +77,12 @@ function buyUpgrade(u) {
     if (G.dust < cost) return false;
     G.dust -= cost; G.upgrades[u.id]++;
     if (u.id === 'dust') G.planets.push(newOrbiter());
+    if (['dust', 'dustpay', 'dustspd'].includes(u.id)) {
+        const pos = clumpPos();
+        const label = u.id === 'dust' ? '+1 Dust Particle'
+                    : u.id === 'dustpay' ? '×2 Payout'
+                    : '×1.2 Speed';
+        G.floatingTexts.push({ x:pos.x, y:pos.y-20, text:label, age:0, maxAge:1.8, size:15 });
+    }
     SoundSystem.sfxBuy(); saveGame(); return true;
 }

@@ -49,7 +49,7 @@ const UPGRADES = [
         id: 'dustspd', name: 'Dust Particle Speed', maxLevel: 5, section: 'ORBITERS',
         costs: [200, 500, 1000, 2000, 4000],
         mult: lvl => 1 + 0.2 * lvl,      // multiplies the reduced (50%) base; ×2 at lvl 5 → original speed
-        desc: () => '(×1.2 speed)',
+        desc: () => 'Adds +10% orbit speed per level (additive). Orbit starts at 50%, maxes at 100%.',
         unlock: () => lvl('dust') >= 1,  // after the first dust particle
     },
     {
