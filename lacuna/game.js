@@ -86,6 +86,10 @@ function canvasXY(e) { const r=canvas.getBoundingClientRect(); return [e.clientX
 function stopHold() { if (holdTimer) { clearInterval(holdTimer); holdTimer = null; } }
 canvas.addEventListener('mousedown', e => {
     [holdX, holdY] = canvasXY(e);
+    // Clicking a body opens its pinned info card (no harvest), unless a comet is there.
+    const cometNear = G.comet && ((G.comet.x-holdX)**2 + (G.comet.y-holdY)**2 < 48*48);
+    const tgt = cosmoTargetAt(holdX, holdY);
+    if (tgt && !cometNear) { openCosmoCard(tgt); return; }
     canvasClick(holdX, holdY);                                   // immediate click
     stopHold();
     holdTimer = setInterval(() => canvasClick(holdX, holdY), 500); // 2× / sec while held
@@ -98,70 +102,83 @@ canvas.addEventListener('mouseleave', () => { stopHold(); cosmoOver = false; });
 window.addEventListener('mouseup', stopHold);
 window.addEventListener('blur', stopHold);
 
-// ---- Cosmic info card (Lacuna + dust particles) ----
-// Hovering a target opens its card pinned in the CENTER of the sky; the card is
-// sticky (stays put after the cursor leaves, so you don't have to chase it) and is
-// dismissed with the × button or Escape. Hovering the card itself pauses detection
-// so the open card never flips while you reach for ×.
-const cosmoTip = document.getElementById('cosmo-tip');
+// ---- Cosmic info: hover tooltip (follows cursor) + click-to-pin card (centered) ----
+// Hover a body → a small tooltip follows the cursor (quick glance, like before).
+// Click a body → its full card opens pinned in the CENTER of the sky, sticky,
+// dismissed with the × button or Escape. Clicking a body opens its card instead
+// of harvesting (comets still take click priority).
+const cosmoTip  = document.getElementById('cosmo-tip');   // hover — follows cursor
+const cosmoCard = document.getElementById('cosmo-card');  // click — pinned center
 let cosmoMx = 0, cosmoMy = 0, cosmoOver = false;
-let openTarget = null;      // 'lacuna' | 'orbiter' | null — card currently shown
-let dismissedTarget = null; // ×-closed target; won't reopen until the cursor leaves it
+let pinnedTarget = null;    // 'lacuna' | 'orbiter' | null — centered card open via click
 
-const LACUNA_DESC  = 'A small absence at the heart of everything — patient, hollow, and quietly gathering a universe back together.';
-const ORBITER_DESC = "The first speck stubborn enough to answer the Lacuna's pull, tracing patient circles and paying a little stardust each time it passes.";
+const TITLES = { lacuna: 'The Lacuna', orbiter: 'Dust Particle' };
+const DESCS = {
+    lacuna:  'A small absence at the heart of everything — patient, hollow, and quietly gathering a universe back together.',
+    orbiter: "The first speck stubborn enough to answer the Lacuna's pull, tracing patient circles and paying a little stardust each time it passes.",
+};
+
+function cosmoTargetAt(x, y) {
+    if (Math.hypot(x-CX, y-CY) < 22) return 'lacuna';
+    if (G.planets.length && Math.hypot(x-clumpPos().x, y-clumpPos().y) < 46) return 'orbiter';
+    return null;
+}
 
 function tipRow(l, v) { return `<div class="tip-row"><span class="tip-l">${l}</span><span class="tip-v">${v}</span></div>`; }
-function cosmoCard(title, body, note) {
-    return `<button class="cosmo-close" aria-label="Close">×</button>`
-        + `<div class="cosmo-title">${title}</div>` + body
-        + `<div class="tip-note">${note}</div>`;
+function cosmoRows(target) {
+    if (target === 'lacuna') {
+        return tipRow('Diameter',        fmtNice(2*PHYS.lacunaRadius/1000) + ' km')
+             + tipRow('Mass',            fmtSci(lacunaMass()) + ' kg')
+             + tipRow('Surface gravity', fmtNice(lacunaGravity()/9.81*100) + '% of Earth')
+             + tipRow('Escape velocity', fmtNice(lacunaEscapeVel()) + ' m/s')
+             + tipRow('Density',         fmtNice(PHYS.lacunaDensity/1000) + ' g/cm³');
+    }
+    return tipRow('Orbit payout',  '✦' + fmtNum(orbiterPayout()))
+         + tipRow('Orbital speed', fmtNice(orbiterVel()) + ' m/s')
+         + tipRow('Orbits / hour', fmtNice(orbiterOrbitsPerHour()));
 }
-function lacunaCardHTML() {
-    return cosmoCard('The Lacuna',
-          tipRow('Diameter',        fmtNice(2*PHYS.lacunaRadius/1000) + ' km')
-        + tipRow('Mass',            fmtSci(lacunaMass()) + ' kg')
-        + tipRow('Surface gravity', fmtNice(lacunaGravity()*100) + ' cm/s²')
-        + tipRow('Escape velocity', fmtNice(lacunaEscapeVel()) + ' m/s')
-        + tipRow('Density',         fmtNice(PHYS.lacunaDensity/1000) + ' g/cm³'),
-        LACUNA_DESC);
-}
-function orbiterCardHTML() {
-    return cosmoCard('Dust Particle',
-          tipRow('Orbit payout',  '✦' + fmtNum(orbiterPayout()))
-        + tipRow('Orbital speed', fmtNice(orbiterVel()) + ' m/s')
-        + tipRow('Orbits / hour', fmtNice(orbiterOrbitsPerHour())),
-        ORBITER_DESC);
+function cosmoBody(target, withClose) {
+    return (withClose ? `<button class="cosmo-close" aria-label="Close">×</button>` : '')
+        + `<div class="cosmo-title">${TITLES[target]}</div>`
+        + cosmoRows(target)
+        + `<div class="tip-note">${DESCS[target]}</div>`;
 }
 
-function closeCosmoCard() {
-    dismissedTarget = openTarget;   // don't reopen until the cursor leaves this target
-    openTarget = null;
-    cosmoTip.style.display = 'none';
-}
+function openCosmoCard(target) { pinnedTarget = target; cosmoTip.style.display = 'none'; }
+function closeCosmoCard()      { pinnedTarget = null; cosmoCard.style.display = 'none'; }
 
 function updateCosmoTip() {
-    let over = null;
-    if (cosmoOver) {
-        if (Math.hypot(cosmoMx-CX, cosmoMy-CY) < 22) over = 'lacuna';
-        else if (G.planets.length && Math.hypot(cosmoMx-clumpPos().x, cosmoMy-clumpPos().y) < 46) over = 'orbiter';
-    }
-    canvas.style.cursor = over ? 'help' : 'default';
-    if (over !== dismissedTarget) dismissedTarget = null; // left it → allow reopen
-    if (over && over !== dismissedTarget) openTarget = over; // hover opens; sticky otherwise
+    const over = cosmoOver ? cosmoTargetAt(cosmoMx, cosmoMy) : null;
+    canvas.style.cursor = over ? 'pointer' : 'default';
 
-    if (!openTarget) { cosmoTip.style.display = 'none'; return; }
-    const html = openTarget === 'lacuna' ? lacunaCardHTML() : orbiterCardHTML();
-    if (cosmoTip._html !== html) { cosmoTip.innerHTML = html; cosmoTip._html = html; }
-    cosmoTip.style.display = 'block';
-    cosmoTip.style.left = Math.round((W - cosmoTip.offsetWidth)/2) + 'px';  // pin center
-    cosmoTip.style.top  = Math.round((H - cosmoTip.offsetHeight)/2) + 'px';
+    // hover tooltip — follows the cursor; hidden while a card is pinned
+    if (over && !pinnedTarget) {
+        const html = cosmoBody(over, false);
+        if (cosmoTip._html !== html) { cosmoTip.innerHTML = html; cosmoTip._html = html; }
+        cosmoTip.style.display = 'block';
+        const pad = 16, tw = cosmoTip.offsetWidth, th = cosmoTip.offsetHeight;
+        let lx = cosmoMx + pad, ly = cosmoMy + pad;
+        if (lx + tw > W) lx = cosmoMx - pad - tw;
+        if (ly + th > H) ly = cosmoMy - pad - th;
+        cosmoTip.style.left = Math.max(0, lx) + 'px';
+        cosmoTip.style.top  = Math.max(0, ly) + 'px';
+    } else {
+        cosmoTip.style.display = 'none';
+    }
+
+    // pinned card — centered, sticky until × / Escape
+    if (pinnedTarget) {
+        const html = cosmoBody(pinnedTarget, true);
+        if (cosmoCard._html !== html) { cosmoCard.innerHTML = html; cosmoCard._html = html; }
+        cosmoCard.style.display = 'block';
+        cosmoCard.style.left = Math.round((W - cosmoCard.offsetWidth)/2) + 'px';
+        cosmoCard.style.top  = Math.round((H - cosmoCard.offsetHeight)/2) + 'px';
+    } else {
+        cosmoCard.style.display = 'none';
+    }
 }
 
-// Hovering the card pauses hit-detection so the open card doesn't switch while
-// you move toward the × button.
-cosmoTip.addEventListener('mouseenter', () => { cosmoOver = false; });
-cosmoTip.addEventListener('click', e => {
+cosmoCard.addEventListener('click', e => {
     if (e.target.closest('.cosmo-close')) { e.stopPropagation(); closeCosmoCard(); }
 });
 window.addEventListener('keydown', e => { if (e.key === 'Escape') closeCosmoCard(); });

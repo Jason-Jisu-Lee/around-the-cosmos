@@ -108,15 +108,15 @@ Card shows **"×1.2 orbit speed per level (additive +20%). Starts at 100%, max 2
 - The small dark center everything orbits. Currently static (will evolve through stages later — see `asd.txt` for the long-term v3 plan).
 - Dust particles clump on **one orbit ring** around it; more orbiter types / rings come later.
 
-## Cosmic info card
-Hover the Lacuna or a dust particle and an info card opens **pinned in the center of the sky** (it doesn't follow the cursor — hover once, then read at your leisure). Close it with the **× button** or **Escape**. All values come from a small physics model (`PHYS` in `config.js`) so the upcoming **science-based upgrades** can grow them; numbers are kept clean (≤2 decimals, sensible units).
+## Cosmic info
+**Hover** the Lacuna or a dust particle for a quick tooltip that follows your cursor. **Click** it to pin the full card in the **center of the sky** — it stays put so you can read it, and closes with the **× button** or **Escape**. (Clicking a body opens its card instead of harvesting; comets are still caught on click.) All values come from a small physics model (`PHYS` in `config.js`) so the upcoming **science-based upgrades** can grow them; numbers are kept clean (≤2 decimals, intuitive units).
 
 **The Lacuna (center):**
 | Stat | Base value |
 |---|---|
 | Diameter | 240 km |
 | Mass | 1.81 × 10¹⁹ kg |
-| Surface gravity | 8.39 cm/s² |
+| Surface gravity | 0.85% of Earth |
 | Escape velocity | 142 m/s |
 | Density | 2.5 g/cm³ |
 

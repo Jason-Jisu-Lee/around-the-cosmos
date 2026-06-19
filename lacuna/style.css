@@ -232,31 +232,38 @@ body {
 .stat-pop b { color: #d8c8a4; font-weight: 600; }
 .stat-pop-row:hover .stat-pop { display: block; }
 
-/* Cosmic info card — pinned in the center of the sky, dismissed with × / Escape */
-#cosmo-tip {
+/* Cosmic info — hover tooltip (#cosmo-tip, follows cursor) + click card (#cosmo-card, pinned center) */
+#cosmo-tip, #cosmo-card {
     display: none; position: absolute; z-index: 80;
-    background: #2c2620; color: #f4f0e8;
-    padding: 16px 20px 15px; min-width: 218px; max-width: 280px;
-    font-family: 'Segoe UI', sans-serif; font-size: 13px; line-height: 1.55;
-    box-shadow: 0 12px 44px rgba(0,0,0,0.36); pointer-events: auto;
-    letter-spacing: 0.02em;
+    color: #f4f0e8; font-family: 'Segoe UI', sans-serif; line-height: 1.55; letter-spacing: 0.02em;
+}
+#cosmo-tip {
+    background: rgba(44,38,32,0.96); padding: 13px 16px; min-width: 200px; max-width: 270px;
+    font-size: 12.5px; box-shadow: 0 6px 22px rgba(0,0,0,0.28); pointer-events: none;
+}
+#cosmo-card {
+    background: rgba(44,38,32,0.92); padding: 20px 26px 19px; min-width: 252px; max-width: 300px;
+    font-size: 13.5px; box-shadow: 0 14px 50px rgba(0,0,0,0.4); pointer-events: auto;
 }
 .cosmo-close {
-    position: absolute; top: 7px; right: 8px;
+    position: absolute; top: 8px; right: 9px;
     background: none; border: none; color: #9a9486; cursor: pointer;
-    font-size: 20px; line-height: 1; padding: 2px 7px;
+    font-size: 21px; line-height: 1; padding: 2px 7px;
     font-family: 'Segoe UI', sans-serif; transition: color 0.12s;
 }
 .cosmo-close:hover { color: #f4f0e8; }
 .cosmo-title {
-    font-family: 'Optima','Candara','Century Gothic',sans-serif; font-size: 15px;
+    font-family: 'Optima','Candara','Century Gothic',sans-serif;
     color: #e8dcc0; margin-bottom: 9px; padding: 0 20px 6px 0; letter-spacing: 0.06em;
     border-bottom: 1px solid rgba(216,200,164,0.25);
 }
+#cosmo-tip  .cosmo-title { font-size: 14px; }
+#cosmo-card .cosmo-title { font-size: 16px; }
 .tip-row { display: flex; justify-content: space-between; gap: 18px; padding: 2px 0; }
 .tip-l   { color: #b8b0a2; }
 .tip-v   { color: #f4f0e8; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .tip-note { margin-top: 10px; font-size: 12px; font-style: italic; color: #b0a894; line-height: 1.5; }
+#cosmo-card .tip-note { font-size: 12.5px; margin-top: 11px; }
 
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
