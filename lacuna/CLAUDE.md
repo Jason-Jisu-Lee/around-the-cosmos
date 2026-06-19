@@ -35,8 +35,9 @@ Scripts load in this order — each file can reference globals from earlier file
 | `style.css` | All styling — parchment theme (#f4f0e8 bg, Georgia serif, flat shapes) |
 | `sound.js` | Web Audio API: procedural music (3 tracks) + SFX, mute toggle, volume control |
 | `config.js` | CFG constants, PLANET_DEF (ring radii/periods), PLANET_COLORS, **ASTEROID_COMP** (composition tiers), **PHYS** (cosmic-flavor physical model), UPGRADES, SECTION_ORDER |
-| `state.js` | G object, createInitialState, factories (`newOrbiter`/`newAsteroid`/`newClump`), formatters (`fmtNum`/`fmtTime`/`sig3`/`fmtNice`/`fmtSci`), upg/lvl accessors, **Lacuna physics** (`lacunaMass`/`lacunaGravity`/`lacunaEscapeVel`), earn, save/load |
-| `orbiters.js` | **One component per orbiter type** (`ORBITERS` registry + `ORBITER_BY_ID`): each entry's title, **flavor description (edit here)**, `list()`/`clumpPos()`/`hoverR`, and info-card `rows()`. Also the orbiter payout/speed/velocity accessors (`orbiterPayout`/`asteroidPayout`/`asteroidColor`/`dustSpeed`/`asteroidSpeed`/`orbiterVel`/`asteroidVel`/…) and the `tipRow` helper. |
+| `state.js` | G object, createInitialState, `newClump`, formatters (`fmtNum`/`fmtTime`/`sig3`/`fmtNice`/`fmtSci`), upg/lvl accessors, **Lacuna physics** (`lacunaMass`/`lacunaGravity`/`lacunaEscapeVel`), earn, save/load. (Orbiter bodies/payout/speed live in `orbiters/`.) |
+| `orbiters/registry.js` | `ORBITERS` array + `ORBITER_BY_ID`, `registerOrbiter(def)`, and the shared `tipRow` helper. |
+| `orbiters/dust.js`, `orbiters/asteroid.js` | **One self-contained component per orbiter type.** Each holds its body factory, payout/speed/velocity accessors, **flavor description (edit here)**, render appearance (`color`/`pebbleR`/`ring`), `list`/`clump`/`clumpPos`, info-card `rows()`, and buy-`labels`, then calls `registerOrbiter(...)`. Add an orbiter = add a file here (+ its upgrades in config.js + a body array in state.js). |
 | `render.js` | canvas/ctx, resize, orbitR, clumpPos, draw (clear bg, Lacuna + dust clump), burst |
 | `logic.js` | tick, spawnComet, catchComet, buyUpgrade |
 | `ui.js` | buildPanels, updateCards, updateUI (+ observatory stats), visibility-signature unlock logic |
@@ -77,6 +78,14 @@ collapsible (state in `sectionOpen`). A section with no shown cards is omitted.
 > **count** upgrade — up to 4); the asteroid is a **single body** on its own clump on ring 1
 > (wider/slower, `PLANET_DEF[1]`). All future orbiters are single bodies too. Each type has its
 > own global Payout (×2/lvl) and Speed upgrade. The asteroid's unique upgrade is **Composition** (`astcomp`).
+>
+> **Component architecture:** each orbiter is a self-contained component in `orbiters/` that calls
+> `registerOrbiter(...)`. `logic.js` (tick / orbit payout / buy-adds-body + float label), `render.js`
+> (orbit rings + clumps), `ui.js` (combined All-Orbiters-Payout), `state.js` `loadGame` (rebuild bodies
+> from levels), and the cosmic info cards all **iterate `ORBITERS`** — so adding an orbiter means adding
+> a file in `orbiters/` (+ its upgrades in config.js + a body array/clump in state.js), not editing the
+> engine. Each component exposes `list/clump/clumpPos/ring/hoverR/color/pebbleR/payout/speed/make/count/
+> bodyUpgrade/rows/labels` (see `orbiters/registry.js` header).
 
 **Show completed:** maxed upgrades are hidden by default. A "Show completed" toggle
 (top-right of the panel, `#show-completed`) reveals them; it only appears once

@@ -69,14 +69,10 @@ function draw(t) {
     ctx.fillStyle = '#f4f0e8';
     ctx.fillRect(0,0,W,H);
 
-    // Orbit rings — dust on ring 0, asteroids on the wider ring 1.
-    if (G.planets.length) {
-        ctx.beginPath(); ctx.arc(CX,CY,orbitR(0),0,Math.PI*2);
-        ctx.strokeStyle='rgba(100,90,80,0.18)'; ctx.lineWidth=1; ctx.stroke();
-    }
-    if (G.asteroids.length) {
-        ctx.beginPath(); ctx.arc(CX,CY,orbitR(1),0,Math.PI*2);
-        ctx.strokeStyle='rgba(100,90,80,0.16)'; ctx.lineWidth=1; ctx.stroke();
+    // Orbit rings — one per orbiter type that has bodies (ring index from the component).
+    for (const o of ORBITERS) if (o.list().length) {
+        ctx.beginPath(); ctx.arc(CX,CY,orbitR(o.ring),0,Math.PI*2);
+        ctx.strokeStyle='rgba(100,90,80,0.17)'; ctx.lineWidth=1; ctx.stroke();
     }
 
     const pulse=1+0.04*Math.sin(t*1.8), sunR=13*pulse;
@@ -87,10 +83,9 @@ function draw(t) {
     ctx.beginPath(); ctx.arc(CX,CY,sunR,0,Math.PI*2); ctx.fillStyle='#1a1a1a'; ctx.fill();
 
     // Orbiters — clumps of small irregular pebbles. Each clump orbits Lacuna; each
-    // pebble also circles its own little orbit within the clump. Dust = small grey
-    // pebbles (ring 0); asteroids = bigger rocky-brown pebbles (ring 1).
-    if (G.planets.length)   drawClump(G.planets,   clumpPos(),         PLANET_DEF[0].radius/3 + 2,        '#8a8782', t);
-    if (G.asteroids.length) drawClump(G.asteroids, asteroidClumpPos(), (PLANET_DEF[1].radius/3 + 4)*1.5, asteroidColor(), t); // 50% bigger; color = composition tier
+    // pebble also circles its own little orbit within the clump. Appearance (color,
+    // size) comes from the component (orbiters/*).
+    for (const o of ORBITERS) if (o.list().length) drawClump(o.list(), o.clumpPos(), o.pebbleR(), o.color(), t);
 
     if (G.comet) {
         const c=G.comet;

@@ -16,41 +16,10 @@ function createInitialState() {
     };
 }
 
-// A dust particle: part of a clump that orbits Lacuna together. Each particle also
-// circles its own little orbit within the clump (localPhase/localR/localSpin).
-// `shape` is a set of jittered radii → an irregular pebble silhouette.
-function newOrbiter() {
-    const shape = [];
-    for (let k = 0; k < 7; k++) shape.push(0.6 + Math.random()*0.8);
-    return {
-        localPhase: Math.random()*Math.PI*2,
-        localR:     5 + Math.random()*7,   // inner-orbit radius within the clump (5–12px)
-        localSpin:  (Math.random()<0.5?-1:1) * (0.6 + Math.random()*0.8),
-        pulse:0, shape,
-    };
-}
+// Orbiter bodies (dust particles, asteroids, …) are created by their own component
+// files in orbiters/ — see each `make()`. State only holds the arrays + clumps below.
 
-// An asteroid: like a dust particle but bigger, on a wider/slower orbit (ring 1).
-// `motes` are tiny specks that constantly drift around it (decorative dust halo).
-function newAsteroid() {
-    const shape = [];
-    for (let k = 0; k < 8; k++) shape.push(0.6 + Math.random()*0.8);
-    const motes = [];
-    for (let m = 0; m < 6; m++) motes.push({
-        dist:  1.4 + Math.random()*1.4,                     // × pebble radius from its center
-        phase: Math.random()*Math.PI*2,
-        spin:  (Math.random()<0.5?-1:1) * (0.5 + Math.random()*1.1),
-        size:  0.6 + Math.random()*0.9,                     // much smaller than a dust orbiter
-    });
-    return {
-        localPhase: Math.random()*Math.PI*2,
-        localR:     8 + Math.random()*8,   // inner-orbit radius within the clump (8–16px)
-        localSpin:  (Math.random()<0.5?-1:1) * (0.5 + Math.random()*0.7),
-        pulse:0, shape, motes,
-    };
-}
-
-// The dust clump's shared orbit around Lacuna (ring 0). Pays when it crosses the top.
+// A shared orbit a clump travels as a group. Pays when it crosses the top.
 function newClump() {
     const angle = Math.random()*Math.PI*2;
     let nextTop = 3*Math.PI/2;
@@ -141,10 +110,12 @@ function loadGame() {
         G.universeTime=def('universeTime', G.gameTime); // current-universe timer (reset on prestige later)
         G.upgrades = Object.assign({ touch:0, dust:0, dustpay:0, dustspd:0, asteroid:0, astpay:0, astspd:0, astcomp:0, charm:0 }, d.upgrades);
         G.cometSeen = def('cometSeen', G.cometsCaught > 0);
-        G.planets = [];
-        const count = Math.min(4, G.upgrades.dust); // one dust particle per Dust Particle level
-        for (let i = 0; i < count; i++) G.planets.push(newOrbiter());
-        G.asteroids = [];
-        if (G.upgrades.asteroid >= 1) G.asteroids.push(newAsteroid()); // single body, not a count
+        // Rebuild each orbiter's bodies from its upgrade level (see orbiters/*).
+        for (const o of ORBITERS) {
+            const arr = o.list();
+            arr.length = 0;
+            const n = o.count();
+            for (let i = 0; i < n; i++) arr.push(o.make());
+        }
     } catch(_) {}
 }
