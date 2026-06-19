@@ -3,6 +3,7 @@
 const canvas = document.getElementById('sky');
 const ctx    = canvas.getContext('2d');
 let W=0, H=0, CX=0, CY=0, MAXR=0;
+const COMET_HOVER_R = 40;   // hovering within this of the comet shows the targeting reticle
 
 function resize() {
     const dpr = window.devicePixelRatio || 1;
@@ -49,6 +50,21 @@ function drawClump(list, cp, pr, color, t) {
     }
 }
 
+// Targeting reticle — a square drawn only at its corners (tactical-crosshair brackets),
+// gently pulsing. Used to mark the comet on hover.
+function drawReticle(x, y, t) {
+    const s = 16 + Math.sin(t*4)*1.3;   // half-size (corner offset), gentle pulse
+    const a = 6;                        // bracket arm length
+    ctx.strokeStyle = 'rgba(60,80,70,0.85)';
+    ctx.lineWidth = 1.5;
+    for (const [sx, sy] of [[-1,-1],[1,-1],[1,1],[-1,1]]) {
+        const cx = x + sx*s, cy = y + sy*s;
+        ctx.beginPath();
+        ctx.moveTo(cx - sx*a, cy); ctx.lineTo(cx, cy); ctx.lineTo(cx, cy - sy*a);
+        ctx.stroke();
+    }
+}
+
 function draw(t) {
     ctx.fillStyle = '#f4f0e8';
     ctx.fillRect(0,0,W,H);
@@ -86,6 +102,8 @@ function draw(t) {
         ctx.beginPath(); ctx.arc(c.x,c.y,6,0,Math.PI*2); ctx.fillStyle='#2a2a2a'; ctx.fill();
         ctx.beginPath(); ctx.arc(c.x,c.y,16+3*Math.sin(t*6),0,Math.PI*2);
         ctx.strokeStyle='rgba(60,80,70,0.28)'; ctx.lineWidth=1.5; ctx.stroke();
+        // Targeting reticle when the cursor is over the comet (cosmoMx/cosmoOver from game.js).
+        if (cosmoOver && Math.hypot(cosmoMx-c.x, cosmoMy-c.y) < COMET_HOVER_R) drawReticle(c.x, c.y, t);
     }
 
     for (const pt of G.particles) {

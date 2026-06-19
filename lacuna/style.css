@@ -259,6 +259,11 @@ body {
 }
 #cosmo-tip  .cosmo-title { font-size: 14px; }
 #cosmo-card .cosmo-title { font-size: 16px; }
+/* Comet hover label — just the word, no rows/border */
+.cosmo-solo {
+    font-family: 'Optima','Candara','Century Gothic',sans-serif; font-size: 14px;
+    color: #e8dcc0; letter-spacing: 0.06em;
+}
 .tip-row { display: flex; justify-content: space-between; gap: 18px; padding: 2px 0; }
 .tip-l   { color: #b8b0a2; }
 .tip-v   { color: #f4f0e8; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }

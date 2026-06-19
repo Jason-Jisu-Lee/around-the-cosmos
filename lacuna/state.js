@@ -79,28 +79,10 @@ function fmtTime(secs) {
 function upg(id) { return UPGRADES.find(u => u.id === id); }
 function lvl(id) { return G.upgrades[id]; }
 
-// Every dust particle pays a flat 20, doubled by Dust Particle Payout.
-function orbiterPayout() { return 20 * upg('dustpay').mult(lvl('dustpay')); }
-// The asteroid pays a flat 80, doubled by Asteroid Payout and scaled by Composition tier.
-function asteroidPayout() { return 80 * upg('astpay').mult(lvl('astpay')) * ASTEROID_COMP.mult[lvl('astcomp')]; }
-function asteroidColor()  { return ASTEROID_COMP.colors[lvl('astcomp')]; }
-
-// Clump orbit speed factor. The Dust Particle Speed upgrade itself runs 100%→200%
-// (`mult`=1+0.2·lvl); a flat ×1.2 base-speed bump multiplies it, so dust orbits 20% faster
-// at every level without changing the upgrade's own range.
-function dustSpeed()     { return 1.2 * upg('dustspd').mult(lvl('dustspd')); }
-// Asteroid: base 100%, +20% per Speed level (additive), max 200% at lvl 5.
-function asteroidSpeed() { return upg('astspd').mult(lvl('astspd')); }
-
-// ---- Cosmic-flavor physics (tooltip values; everything derives from PHYS) ----
+// ---- Cosmic-flavor Lacuna physics (orbiter payout/speed/velocity live in orbiters.js) ----
 function lacunaMass()     { const r = PHYS.lacunaRadius; return PHYS.lacunaDensity * (4/3)*Math.PI * r*r*r; } // kg
 function lacunaGravity()  { return PHYS.G * lacunaMass() / (PHYS.lacunaRadius*PHYS.lacunaRadius); }            // m/s²
 function lacunaEscapeVel(){ return Math.sqrt(2 * PHYS.G * lacunaMass() / PHYS.lacunaRadius); }                 // m/s
-function orbiterBaseVel() { return Math.sqrt(PHYS.G * lacunaMass() / PHYS.orbitRadius); }                      // m/s (circular)
-function orbiterVel()     { return orbiterBaseVel() * dustSpeed(); }                                           // scaled by Speed upgrade
-function orbiterOrbitsPerHour() { return orbiterVel() / (2*Math.PI*PHYS.orbitRadius) * 3600; }
-function asteroidVel()    { return Math.sqrt(PHYS.G * lacunaMass() / PHYS.asteroidOrbitRadius) * asteroidSpeed(); }
-function asteroidOrbitsPerHour() { return asteroidVel() / (2*Math.PI*PHYS.asteroidOrbitRadius) * 3600; }
 
 // Round to 3 significant figures, plain decimal string (e.g. 0.0839, 142, 2.5).
 function sig3(n) {

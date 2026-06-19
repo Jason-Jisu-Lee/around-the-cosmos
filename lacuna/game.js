@@ -103,56 +103,46 @@ window.addEventListener('mouseup', stopHold);
 window.addEventListener('blur', stopHold);
 
 // ---- Cosmic info: hover tooltip (follows cursor) + click-to-pin card (centered) ----
-// Hover a body → a small tooltip follows the cursor (quick glance, like before).
-// Click a body → its full card opens pinned in the CENTER of the sky, sticky,
-// dismissed with the × button or Escape. Clicking a body opens its card instead
-// of harvesting (comets still take click priority).
+// Hover a body → a small tooltip follows the cursor. Click a body → its full card
+// opens pinned in the CENTER of the sky, sticky, dismissed with × / Escape. The comet
+// is hover-only (a targeting reticle + "Comet" label); clicking it catches it.
+// Orbiter names / descriptions / card rows live in orbiters.js (one component each).
 const cosmoTip  = document.getElementById('cosmo-tip');   // hover — follows cursor
 const cosmoCard = document.getElementById('cosmo-card');  // click — pinned center
 let cosmoMx = 0, cosmoMy = 0, cosmoOver = false;
-let pinnedTarget = null;    // 'lacuna' | 'orbiter' | null — centered card open via click
+let pinnedTarget = null;    // orbiter id | 'lacuna' | null — centered card open via click
 
-const TITLES = { lacuna: 'The Lacuna', orbiter: 'Dust Particle', asteroid: 'Asteroid' };
-const DESCS = {
-    lacuna:  'A small absence at the heart of everything — patient, hollow, and quietly gathering a universe back together.',
-    orbiter: "The first speck stubborn enough to answer the Lacuna's pull, tracing patient circles and paying a little stardust each time it passes.",
-    asteroid: 'A wandering chunk of old rock, heavier and slower than the dust, but paying out far more each time it lumbers past.',
-};
+const LACUNA_DESC = 'A small absence at the heart of everything — patient, hollow, and quietly gathering a universe back together.';
 
+// Returns 'comet' | 'lacuna' | an orbiter id | null.
 function cosmoTargetAt(x, y) {
+    if (G.comet && Math.hypot(x-G.comet.x, y-G.comet.y) < COMET_HOVER_R) return 'comet';
     if (Math.hypot(x-CX, y-CY) < 22) return 'lacuna';
-    if (G.planets.length && Math.hypot(x-clumpPos().x, y-clumpPos().y) < 35) return 'orbiter';
-    if (G.asteroids.length && Math.hypot(x-asteroidClumpPos().x, y-asteroidClumpPos().y) < 40) return 'asteroid';
+    for (const o of ORBITERS) {
+        if (o.list().length && Math.hypot(x-o.clumpPos().x, y-o.clumpPos().y) < o.hoverR) return o.id;
+    }
     return null;
 }
 
-function tipRow(l, v) { return `<div class="tip-row"><span class="tip-l">${l}</span><span class="tip-v">${v}</span></div>`; }
-function cosmoRows(target) {
-    if (target === 'lacuna') {
-        return tipRow('Diameter',        fmtNice(2*PHYS.lacunaRadius/1000) + ' km')
-             + tipRow('Mass',            fmtSci(lacunaMass()) + ' kg')
-             + tipRow('Surface gravity', fmtNice(lacunaGravity()/9.81*100) + '% of Earth')
-             + tipRow('Escape velocity', fmtNice(lacunaEscapeVel()) + ' m/s')
-             + tipRow('Density',         fmtNice(PHYS.lacunaDensity/1000) + ' g/cm³');
-    }
-    if (target === 'asteroid') {
-        return tipRow('Composition',   ASTEROID_COMP.names[lvl('astcomp')])
-             + tipRow('Orbit payout',  '✦' + fmtNum(asteroidPayout()))
-             + tipRow('Orbital speed', fmtNice(asteroidVel()) + ' m/s')
-             + tipRow('Orbits / hour', fmtNice(asteroidOrbitsPerHour()));
-    }
-    return tipRow('Orbit payout',  '✦' + fmtNum(orbiterPayout()))
-         + tipRow('Orbital speed', fmtNice(orbiterVel()) + ' m/s')
-         + tipRow('Orbits / hour', fmtNice(orbiterOrbitsPerHour()));
+function lacunaRows() {
+    return tipRow('Diameter',        fmtNice(2*PHYS.lacunaRadius/1000) + ' km')
+         + tipRow('Mass',            fmtSci(lacunaMass()) + ' kg')
+         + tipRow('Surface gravity', fmtNice(lacunaGravity()/9.81*100) + '% of Earth')
+         + tipRow('Escape velocity', fmtNice(lacunaEscapeVel()) + ' m/s')
+         + tipRow('Density',         fmtNice(PHYS.lacunaDensity/1000) + ' g/cm³');
 }
 function cosmoBody(target, withClose) {
+    if (target === 'comet') return `<div class="cosmo-solo">Comet</div>`;
+    const title = target === 'lacuna' ? 'The Lacuna' : ORBITER_BY_ID[target].title;
+    const rows  = target === 'lacuna' ? lacunaRows()  : ORBITER_BY_ID[target].rows();
+    const desc  = target === 'lacuna' ? LACUNA_DESC   : ORBITER_BY_ID[target].desc;
     return (withClose ? `<button class="cosmo-close" aria-label="Close">×</button>` : '')
-        + `<div class="cosmo-title">${TITLES[target]}</div>`
-        + cosmoRows(target)
-        + `<div class="tip-note">${DESCS[target]}</div>`;
+        + `<div class="cosmo-title">${title}</div>` + rows
+        + `<div class="tip-note">${desc}</div>`;
 }
 
-function openCosmoCard(target) { pinnedTarget = target; cosmoTip.style.display = 'none'; }
+// The comet is never pinned (clicking it catches it instead).
+function openCosmoCard(target) { if (target === 'comet') return; pinnedTarget = target; cosmoTip.style.display = 'none'; }
 function closeCosmoCard()      { pinnedTarget = null; cosmoCard.style.display = 'none'; }
 
 function updateCosmoTip() {

@@ -121,7 +121,7 @@ Reforge the single asteroid into denser/richer material: each tier **recolors** 
 
 ## Comets
 - First appears **~7–13 s** in; afterward every **25–55 s** (`COMET_MIN_GAP`–`COMET_MAX_GAP`).
-- On screen for **8 s** (`COMET_LIFE`); tap within ~48px to catch.
+- On screen for **8 s** (`COMET_LIFE`); tap within ~48px to catch. Hovering it shows a **targeting reticle** and a "Comet" label.
 - **Windfall = (10 × click value) + 1.25 × (every orbiter's payout combined).**
   - Combined orbiter payout = `dust × dustPayout + asteroids × asteroidPayout`.
   - Example: click value 4, three dust particles at ×2 payout (20 base) → `10×4 + 1.25×(3×40)` = 40 + 150 = **190 ✦**.
