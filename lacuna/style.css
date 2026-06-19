@@ -242,8 +242,8 @@ body {
     font-size: 12.5px; box-shadow: 0 6px 22px rgba(0,0,0,0.28); pointer-events: none;
 }
 #cosmo-card {
-    background: rgba(44,38,32,0.92); padding: 20px 26px 19px; min-width: 252px; max-width: 300px;
-    font-size: 13.5px; box-shadow: 0 14px 50px rgba(0,0,0,0.4); pointer-events: auto;
+    background: rgba(44,38,32,0.90); padding: 23px 30px 22px; min-width: 290px; max-width: 345px;
+    font-size: 15.5px; box-shadow: 0 14px 50px rgba(0,0,0,0.4); pointer-events: auto;
 }
 .cosmo-close {
     position: absolute; top: 8px; right: 9px;
