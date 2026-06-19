@@ -108,6 +108,27 @@ Card shows **"×1.2 orbit speed per level (additive +20%). Starts at 100%, max 2
 - The small dark center everything orbits. Currently static (will evolve through stages later — see `asd.txt` for the long-term v3 plan).
 - Dust particles clump on **one orbit ring** around it; more orbiter types / rings come later.
 
+## Cosmic hover info (tooltips)
+Hover anything on the canvas to read its real-ish physical stats (all capped at 3 significant figures). These derive from a small physics model (`PHYS` in `config.js`) so the upcoming **science-based upgrades** can grow them.
+
+**Hover the Lacuna (center):**
+| Stat | Base value |
+|---|---|
+| Diameter | 240 km |
+| Mass | 1.81 × 10¹⁹ kg |
+| Surface gravity | 0.0839 m/s² (≈ 0.00855 g) |
+| Escape velocity | 0.142 km/s |
+| Density | 2.5 g/cm³ |
+
+**Hover a dust particle (the clump):**
+| Stat | Value |
+|---|---|
+| Orbit payout | ✦ per orbit (= `orbiterPayout()`) |
+| Orbital speed | ~77.7 m/s at base; **scales with Dust Particle Speed** (up to ~155 m/s) |
+| Orbits / hour | ~0.223 at base; scales with Speed (up to ~0.445) |
+
+> The orbiter's speed and orbits/hour are tied to the **Dust Particle Speed** upgrade — buying it visibly increases both, so the cosmic readout reflects the actual mechanic.
+
 ---
 
 ## Not in yet (planned)

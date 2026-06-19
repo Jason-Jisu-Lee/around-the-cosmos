@@ -22,6 +22,17 @@ const PLANET_COLORS = [
     '#6a5070', '#7a6030', '#387070', '#7a4060',
 ];
 
+// Cosmic-flavor physical model (for hover tooltips). Lacuna is a small dark rocky
+// body; everything else (gravity, escape velocity, orbital speed) is derived from
+// these with real formulas, so future science-based upgrades can scale them.
+// All displayed values are capped at 3 significant figures.
+const PHYS = {
+    G:             6.674e-11, // gravitational constant (m³ kg⁻¹ s⁻²)
+    lacunaRadius:  120e3,     // m — 120 km, a small dark body (will grow with upgrades)
+    lacunaDensity: 2500,      // kg/m³ — rocky (2.50 g/cm³)
+    orbitRadius:   200e3,     // m — the dust clump's real orbital radius (200 km)
+};
+
 // unlock: fn → card is visible when fn() returns true.
 // section: optional label → grouped under its own heading (else main list).
 const UPGRADES = [

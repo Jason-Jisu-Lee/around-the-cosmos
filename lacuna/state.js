@@ -63,6 +63,32 @@ function orbiterPayout() { return 10 * upg('dustpay').mult(lvl('dustpay')); }
 // Clump orbit speed factor: base 100%, +20% per Speed level (additive), max 200% at lvl 5.
 function dustSpeed() { return upg('dustspd').mult(lvl('dustspd')); }
 
+// ---- Cosmic-flavor physics (tooltip values; everything derives from PHYS) ----
+function lacunaMass()     { const r = PHYS.lacunaRadius; return PHYS.lacunaDensity * (4/3)*Math.PI * r*r*r; } // kg
+function lacunaGravity()  { return PHYS.G * lacunaMass() / (PHYS.lacunaRadius*PHYS.lacunaRadius); }            // m/s²
+function lacunaEscapeVel(){ return Math.sqrt(2 * PHYS.G * lacunaMass() / PHYS.lacunaRadius); }                 // m/s
+function orbiterBaseVel() { return Math.sqrt(PHYS.G * lacunaMass() / PHYS.orbitRadius); }                      // m/s (circular)
+function orbiterVel()     { return orbiterBaseVel() * dustSpeed(); }                                           // scaled by Speed upgrade
+function orbiterOrbitsPerHour() { return orbiterVel() / (2*Math.PI*PHYS.orbitRadius) * 3600; }
+
+// Round to 3 significant figures, plain decimal string (e.g. 0.0839, 142, 2.5).
+function sig3(n) {
+    if (n === 0) return '0';
+    if (!isFinite(n)) return '∞';
+    const mag = Math.floor(Math.log10(Math.abs(n)));
+    const f = Math.pow(10, 2 - mag);
+    return (Math.round(n*f)/f).toString();
+}
+// Scientific notation with 3 sig figs and unicode superscript (e.g. 1.81 × 10¹⁹).
+function fmtSci(n) {
+    if (n === 0) return '0';
+    const exp  = Math.floor(Math.log10(Math.abs(n)));
+    const mant = Math.round(n / Math.pow(10, exp) * 100) / 100;
+    const sup  = '⁰¹²³⁴⁵⁶⁷⁸⁹';
+    const digits = Math.abs(exp).toString().split('').map(d => sup[+d]).join('');
+    return `${mant} × 10${exp < 0 ? '⁻' : ''}${digits}`;
+}
+
 function earn(amount, x, y, big) {
     G.dust += amount; G.runDust += amount; G.totalDust += amount;
     G.incomeWindow.push({ t:G.gameTime, v:amount });

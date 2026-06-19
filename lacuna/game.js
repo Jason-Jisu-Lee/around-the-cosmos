@@ -10,6 +10,7 @@ function loop(ts) {
     if (lastSave >= 20) { lastSave=0; saveGame(); }
     draw(ts/1000);
     updateUI(ts);
+    updateCosmoTip();
     requestAnimationFrame(loop);
 }
 
@@ -89,10 +90,58 @@ canvas.addEventListener('mousedown', e => {
     stopHold();
     holdTimer = setInterval(() => canvasClick(holdX, holdY), 500); // 2× / sec while held
 });
-canvas.addEventListener('mousemove', e => { if (holdTimer) [holdX, holdY] = canvasXY(e); });
-canvas.addEventListener('mouseleave', stopHold);
+canvas.addEventListener('mousemove', e => {
+    [cosmoMx, cosmoMy] = canvasXY(e); cosmoOver = true;
+    if (holdTimer) [holdX, holdY] = [cosmoMx, cosmoMy];
+});
+canvas.addEventListener('mouseleave', () => { stopHold(); cosmoOver = false; });
 window.addEventListener('mouseup', stopHold);
 window.addEventListener('blur', stopHold);
+
+// ---- Cosmic hover tooltip (Lacuna + dust particles) ----
+const cosmoTip = document.getElementById('cosmo-tip');
+let cosmoMx = 0, cosmoMy = 0, cosmoOver = false;
+
+function tipRow(l, v) { return `<div class="tip-row"><span class="tip-l">${l}</span><span class="tip-v">${v}</span></div>`; }
+
+function lacunaTipHTML() {
+    return `<div class="tip-title">The Lacuna</div>`
+        + tipRow('Diameter',        sig3(2*PHYS.lacunaRadius/1000) + ' km')
+        + tipRow('Mass',            fmtSci(lacunaMass()) + ' kg')
+        + tipRow('Surface gravity', sig3(lacunaGravity()) + ' m/s²')
+        + tipRow('Escape velocity', sig3(lacunaEscapeVel()/1000) + ' km/s')
+        + tipRow('Density',         sig3(PHYS.lacunaDensity/1000) + ' g/cm³')
+        + `<div class="tip-note">Only ${sig3(lacunaGravity()/9.81)} g at the surface — a dropped pebble barely falls.</div>`;
+}
+function orbiterTipHTML() {
+    return `<div class="tip-title">Dust Particle</div>`
+        + tipRow('Orbit payout',  '✦' + fmtNum(orbiterPayout()))
+        + tipRow('Orbital speed', sig3(orbiterVel()) + ' m/s')
+        + tipRow('Orbits / hour', sig3(orbiterOrbitsPerHour()));
+}
+
+function updateCosmoTip() {
+    let html = null;
+    if (cosmoOver) {
+        if (Math.hypot(cosmoMx-CX, cosmoMy-CY) < 22) {
+            html = lacunaTipHTML();
+        } else if (G.planets.length) {
+            const cp = clumpPos();
+            if (Math.hypot(cosmoMx-cp.x, cosmoMy-cp.y) < 24) html = orbiterTipHTML();
+        }
+    }
+    if (!html) { cosmoTip.style.display = 'none'; canvas.style.cursor = 'default'; return; }
+    if (cosmoTip._html !== html) { cosmoTip.innerHTML = html; cosmoTip._html = html; }
+    cosmoTip.style.display = 'block';
+    canvas.style.cursor = 'help';
+    // position near cursor, flipping away from the right / bottom edge
+    const pad = 16, tw = cosmoTip.offsetWidth, th = cosmoTip.offsetHeight;
+    let lx = cosmoMx + pad, ly = cosmoMy + pad;
+    if (lx + tw > W) lx = cosmoMx - pad - tw;
+    if (ly + th > H) ly = cosmoMy - pad - th;
+    cosmoTip.style.left = Math.max(0, lx) + 'px';
+    cosmoTip.style.top  = Math.max(0, ly) + 'px';
+}
 
 document.getElementById('mute-btn').addEventListener('click', () => {
     const m=SoundSystem.toggleMute();

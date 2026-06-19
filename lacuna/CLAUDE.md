@@ -27,13 +27,13 @@ Scripts load in this order — each file can reference globals from earlier file
 | `index.html` | Shell, header (centered stardust HUD), 3-column layout (left reserved, center canvas, right upgrades), floating draggable observatory |
 | `style.css` | All styling — parchment theme (#f4f0e8 bg, Georgia serif, flat shapes) |
 | `sound.js` | Web Audio API: procedural music (3 tracks) + SFX, mute toggle, volume control |
-| `config.js` | CFG constants, PLANET_DEF (ring radii/periods), PLANET_COLORS, UPGRADES, SECTION_ORDER |
-| `state.js` | G object, createInitialState, formatters, upg/lvl accessors, orbiterPayout, newOrbiter, earn, save/load |
+| `config.js` | CFG constants, PLANET_DEF (ring radii/periods), PLANET_COLORS, **PHYS** (cosmic-flavor physical model), UPGRADES, SECTION_ORDER |
+| `state.js` | G object, createInitialState, formatters (`fmtNum`/`fmtTime`/`sig3`/`fmtSci`), upg/lvl accessors, orbiterPayout, **cosmic physics helpers** (`lacunaMass`/`lacunaGravity`/`lacunaEscapeVel`/`orbiterVel`/`orbiterOrbitsPerHour`), newOrbiter, earn, save/load |
 | `render.js` | canvas/ctx, resize, orbitR, clumpPos, draw (clear bg, Lacuna + dust clump), burst |
 | `logic.js` | tick, spawnComet, catchComet, buyUpgrade |
 | `ui.js` | buildPanels, updateCards, updateUI (+ observatory stats), visibility-signature unlock logic |
 | `debug.js` | initDebug, tickWithDebug (speed mult), dust inject / spawn comet / reset |
-| `game.js` | Main loop, input (click + hold-to-autoclick 2×/sec), settings, draggable, audio boot, init |
+| `game.js` | Main loop, input (click + hold-to-autoclick 2×/sec), **cosmic hover tooltip** (`updateCosmoTip`), settings, draggable, audio boot, init |
 
 No npm, no bundler, no TypeScript.
 
@@ -75,6 +75,7 @@ when an upgrade maxes out or the toggle flips.
 Other mechanics:
 - **Orbiters / payout**: `G.planets[]` holds dust particles, each `{localPhase,localR,localSpin,pulse,shape}`. They travel as a **clump** along one shared orbit `G.clump{angle,nextTop}` (ring 0, base period `PLANET_DEF[0].period` = 6s). Clump angular speed = `(2π/period) × dustSpeed()`, where `dustSpeed()` = `dustspd.mult(lvl)` = `1 + 0.2×lvl` — base **100%**, up to **200%** at Dust Particle Speed lvl 5. Each particle also circles its own little orbit *within* the clump (`localPhase + t·localSpin` around `localR`, 5–12px). When the clump crosses the **top**, every particle pays `orbiterPayout()` = `10 × dustpay.mult(lvl)` (one combined `earn`). Rendered as small grey **irregular pebbles** (radius `PLANET_DEF[0].radius/3 + 2`) via each particle's `shape`. Background is clear (no stars).
 - **Lacuna center**: drawn at radius **13** (was 26 — shrunk 50%, will grow later) with a faint warm haze.
+- **Cosmic hover tooltips** (`#cosmo-tip`, built in `game.js`): hovering the **Lacuna** (within 22px of center) shows Diameter / Mass / Surface gravity / Escape velocity / Density + a fun gravity-vs-Earth note; hovering the **dust clump** (within 24px of `clumpPos()`) shows Orbit payout / Orbital speed / Orbits-per-hour. All numbers derive from `PHYS` in config.js via the `state.js` physics helpers and are formatted to **3 sig figs** (`sig3`, `fmtSci`). Orbital speed and orbits/hour **scale with the Dust Particle Speed upgrade** (via `dustSpeed()`), so buying Speed visibly raises them. The tooltip follows the cursor (flips off the right/bottom edge), is re-hit-tested every frame (so a moving clump leaves/enters under a static cursor), and only rewrites innerHTML when its content changes (`cosmoTip._html` cache). Base model: Lacuna r=120 km, ρ=2.50 g/cm³ → M≈1.81×10¹⁹ kg, g≈0.0839 m/s², v_esc≈0.142 km/s; orbiter at r=200 km → v≈77.7 m/s, ≈0.223 orbits/hr (at base speed). Future science-based upgrades scale `PHYS` and everything recomputes.
 - **Observatory stats** (`#stats-list`): Star Touch Value (always); **All Orbiters Payout** (after first orbiter); **Stardust / min** (always, `G.income × 60`); **Comet Value** (after first comet, `G.cometSeen`); both All Orbiters Payout and Comet Value rows (`.stat-pop-row`) show a single-line formula popup (`.stat-pop`) on hover; **Time on Current Universe** (`universeTime`). The DOM is built once per **row layout** (`buildStats`, keyed by `statsSig`) and values are updated in place each tick — so the hover popup doesn't flicker. Rows reset with the universe on prestige.
 - **No free orbiter**: game starts with `planets: []`; clicking is the only income until you buy a Dust Particle (count == `dust` level). The click handler always earns.
 - **Clicking**: clicking the canvas earns the Star Touch value (and catches a nearby comet within 48px). **Holding** the mouse button auto-clicks ~2×/sec (`holdTimer`/`canvasClick` in game.js; stops on mouseup/leave/blur).
