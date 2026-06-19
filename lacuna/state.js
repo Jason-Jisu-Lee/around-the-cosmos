@@ -85,8 +85,10 @@ function orbiterPayout() { return 20 * upg('dustpay').mult(lvl('dustpay')); }
 function asteroidPayout() { return 80 * upg('astpay').mult(lvl('astpay')) * ASTEROID_COMP.mult[lvl('astcomp')]; }
 function asteroidColor()  { return ASTEROID_COMP.colors[lvl('astcomp')]; }
 
-// Clump orbit speed factor. Dust: base 120% (a 20% bump), +20% per Speed level → 220% at lvl 5.
-function dustSpeed()     { return 0.2 + upg('dustspd').mult(lvl('dustspd')); }
+// Clump orbit speed factor. The Dust Particle Speed upgrade itself runs 100%→200%
+// (`mult`=1+0.2·lvl); a flat ×1.2 base-speed bump multiplies it, so dust orbits 20% faster
+// at every level without changing the upgrade's own range.
+function dustSpeed()     { return 1.2 * upg('dustspd').mult(lvl('dustspd')); }
 // Asteroid: base 100%, +20% per Speed level (additive), max 200% at lvl 5.
 function asteroidSpeed() { return upg('astspd').mult(lvl('astspd')); }
 

@@ -13,8 +13,9 @@ Celestial idle/incremental game. Pure vanilla JS + Canvas. No build step, no fra
 > **ACTIONS:** **Star Touch** (4 levels, costs [10,50,200,1000], click → 1/2/4/8/16).
 > **ORBITERS:** **Dust Particle** (after 2nd Star Touch; buy 4, costs [100,350,800,1500], +20
 > payout each — all share one orbit on ring 0) and **Dust Particle Payout** (×2 all dust particles,
-> 5 levels, costs [150,600,1500,3000,6000]) and **Dust Particle Speed** (clump orbit
-> starts at 120% speed — a 20% base bump; +20% per level up to 220% at lvl 5, costs [200,500,1000,2000,4000]).
+> 5 levels, costs [150,600,1500,3000,6000]) and **Dust Particle Speed** (the upgrade
+> itself runs 100%→200%; a flat **×1.2 base-speed bump** multiplies it, so dust actually orbits
+> 120%→240%, costs [200,500,1000,2000,4000]).
 > Then **Asteroid** (after 2nd dust particle; a **single body**, one-time cost 1000, +80 payout,
 > own clump on the wider ring 1, with drifting dust motes around it) with **Asteroid Payout** (×2,
 > 5 levels, costs [1500,6000,15000,30000,60000]), **Asteroid Speed** (same shape as dust speed,
@@ -60,7 +61,7 @@ full upgrade structure (levels, costs, effects, unlock order). Keep it in sync w
 | touch | Star Touch | 4 | each click earns tapYield[lvl] = [1,2,4,8,16] ✦ (costs [10,50,200,1000]) | always | ACTIONS |
 | dust | Dust Particle | 4 | adds a dust orbiter (+20 payout, ring 0); count == this level (costs [100,350,800,1500]) | after touch lvl ≥ 2 | ORBITERS |
 | dustpay | Dust Particle Payout | 5 | ×2 every dust particle's payout per level → up to ×32 (`mult`=2^lvl, costs [150,600,1500,3000,6000]) | after dust lvl ≥ 1 | ORBITERS |
-| dustspd | Dust Particle Speed | 5 | dust clump speed: base **120%** (`dustSpeed()`=0.2+mult), +20% additive per lvl → 220% at lvl 5 (`mult`=1+0.2×lvl, costs [200,500,1000,2000,4000]) | after dust lvl ≥ 1 | ORBITERS |
+| dustspd | Dust Particle Speed | 5 | upgrade runs 100%→200% (`mult`=1+0.2×lvl); a flat **×1.2 base bump** multiplies it → `dustSpeed()`=1.2×mult, effective 120%→240% (costs [200,500,1000,2000,4000]) | after dust lvl ≥ 1 | ORBITERS |
 | asteroid | Asteroid | 1 | a single asteroid orbiter (+80 payout, own clump on ring 1); one-time buy (cost [1000]) | after dust lvl ≥ 2 | ORBITERS |
 | astpay | Asteroid Payout | 5 | ×2 every asteroid's payout per level → up to ×32 (`mult`=2^lvl, costs [1500,6000,15000,30000,60000]) | after asteroid lvl ≥ 1 | ORBITERS |
 | astspd | Asteroid Speed | 5 | asteroid clump speed: base 100%, +20% additive per lvl → 200% (`mult`=1+0.2×lvl, costs [2000,5000,10000,20000,40000]) | after asteroid lvl ≥ 1 | ORBITERS |
@@ -84,7 +85,7 @@ when an upgrade maxes out or the toggle flips.
 
 Other mechanics:
 - **Orbiters / payout**: two clumps, rendered by the shared `drawClump()` helper (render.js).
-  - **Dust** — `G.planets[]`, each `{localPhase,localR,localSpin,pulse,shape}`, travel as a clump on `G.clump{angle,nextTop}` (ring 0, period `PLANET_DEF[0].period`=6s). Speed = `(2π/period)×dustSpeed()`, `dustSpeed()`=`0.2+dustspd.mult(lvl)`=`1.2+0.2×lvl` (**120%→220%**; the +0.2 is a 20% base bump). On top-cross each pays `orbiterPayout()` = `20 × dustpay.mult(lvl)`. Small grey pebbles (radius `PLANET_DEF[0].radius/3+2`), local orbit 5–12px.
+  - **Dust** — `G.planets[]`, each `{localPhase,localR,localSpin,pulse,shape}`, travel as a clump on `G.clump{angle,nextTop}` (ring 0, period `PLANET_DEF[0].period`=6s). Speed = `(2π/period)×dustSpeed()`, `dustSpeed()`=`1.2×dustspd.mult(lvl)` — the upgrade runs 100%→200% and a flat **×1.2 base bump** multiplies it (effective **120%→240%**). On top-cross each pays `orbiterPayout()` = `20 × dustpay.mult(lvl)`. Small grey pebbles (radius `PLANET_DEF[0].radius/3+2`), local orbit 5–12px.
   - **Asteroid** (single body) — `G.asteroids[]` (shape fields + a `motes` array), clump on `G.asteroidClump` (ring 1, period `PLANET_DEF[1].period`=9.5s). Speed = `asteroidSpeed()`=`astspd.mult(lvl)`. On top-cross pays `asteroidPayout()` = `80 × astpay.mult(lvl) × ASTEROID_COMP.mult[lvl(astcomp)]`. Bigger pebble, radius `(PLANET_DEF[1].radius/3+4)×1.5` (50% larger), local orbit 8–16px; **color = `asteroidColor()` = the current Composition tier** (`ASTEROID_COMP.colors`, Rock keeps `#7a6a55`). Carries 6 decorative **motes** — tiny specks that drift around it at all times (drawn in `drawClump` when `o.motes` exists; much smaller than a dust orbiter).
   - Background is clear (no stars).
 - **Lacuna center**: drawn at radius **13** (was 26 — shrunk 50%, will grow later) with a faint warm haze.

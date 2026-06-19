@@ -69,15 +69,16 @@ Multiplies **every** dust particle's payout. Non-effect-stacking with count (it'
 > So one dust particle pays `20 × (payout multiplier)`; three particles pay `3 × 20 × mult`.
 
 **Dust Particle Speed** — *unlocks after the first dust particle* · max **5**
-The dust clump starts at **120%** (a 20% base bump); each level adds **+20% (additive)**, maxing at 220%.
-| Level | Cost ✦ | Orbit speed |
-|---|---|---|
-| (base) | — | 120 % |
-| 1 | 200 | 140 % |
-| 2 | 500 | 160 % |
-| 3 | 1,000 | 180 % |
-| 4 | 2,000 | 200 % |
-| 5 | 4,000 | 220 % |
+The upgrade itself runs **100% → 200%** (+20% per level). On top of that, dust has a flat
+**×1.2 base-speed bump**, so the *actual* orbit speed is 1.2× the values below — i.e. **120% → 240%**.
+| Level | Cost ✦ | Upgrade | Actual (×1.2) |
+|---|---|---|---|
+| (base) | — | 100 % | 120 % |
+| 1 | 200 | 120 % | 144 % |
+| 2 | 500 | 140 % | 168 % |
+| 3 | 1,000 | 160 % | 192 % |
+| 4 | 2,000 | 180 % | 216 % |
+| 5 | 4,000 | 200 % | 240 % |
 
 > Faster orbit = the clump crosses the top more often = more payouts per minute.
 
@@ -160,7 +161,7 @@ Plus a one-sentence flavor line introducing the Lacuna as the protagonist.
 | Stat | Value |
 |---|---|
 | Orbit payout | ✦ per orbit (= `orbiterPayout()`, base 20) |
-| Orbital speed | ~93 m/s at base (120%); **scales with Dust Particle Speed** (up to ~171 m/s) |
+| Orbital speed | ~93 m/s at base (120%); **scales with Dust Particle Speed** (up to ~186 m/s at 240%) |
 | Orbits / hour | ~0.27 at base; scales with Speed |
 
 **An asteroid (ring 1):**
