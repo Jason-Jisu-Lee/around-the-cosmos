@@ -23,9 +23,9 @@ Click the Lacuna (center) to earn **stardust (✦)** → buy **Star Touch** to e
 | Star Touch ×1 | buy (✦10) | Click now earns **2**. |
 | Star Touch ×2 | buy (✦50) | Click earns **4**. → **Dust Particle** upgrade appears. |
 | First Dust Particle | buy (✦100) | Your first **orbiter** appears, paying **10 ✦** per orbit. Unlocks **Dust Particle Payout** + **Dust Particle Speed**, and the **All Orbiters Payout** stat. |
-| 2nd Dust Particle | buy (✦350) | A second dust particle joins the clump → unlocks the **Asteroid** orbiter. |
-| First Asteroid | buy (✦1,000) | A bigger, slower **asteroid** appears on a wider orbit, paying **100 ✦** per orbit. Unlocks **Asteroid Payout** + **Asteroid Speed**. |
-| … | … | Buy more dust particles (max 4) and asteroids (max 4), pump payout/speed, keep catching comets. |
+| 2nd Dust Particle | buy (✦350) | A second dust particle joins the clump → unlocks the **Asteroid** (a single body). |
+| The Asteroid | buy (✦1,000) | A single bigger, slower **asteroid** appears on a wider orbit, paying **100 ✦** per orbit. Unlocks **Asteroid Payout** + **Asteroid Speed**. |
+| … | … | Buy more dust particles (max 4), pump payout/speed on both, keep catching comets. |
 
 ---
 
@@ -82,15 +82,11 @@ Card shows **"×1.2 orbit speed per level (additive +20%). Starts at 100%, max 2
 
 > Faster orbit = the clump crosses the top more often = more payouts per minute.
 
-**Asteroid** — *unlocks after the 2nd dust particle* · max **4**
-A bigger rocky-brown body on a **wider, slower orbit** (ring 1, its own clump). Much pricier
-than dust, but pays **100 ✦ per orbit** each (before multipliers) — 10× a dust particle.
-| Bought | Cost ✦ | Total asteroids |
-|---|---|---|
-| 1st | 1,000 | 1 |
-| 2nd | 3,500 | 2 |
-| 3rd | 8,000 | 3 |
-| 4th | 15,000 | 4 |
+**Asteroid** — *unlocks after the 2nd dust particle* · **single body** (one-time buy, ✦1,000)
+A bigger rocky-brown body on a **wider, slower orbit** (ring 1, its own clump), with tiny dust
+motes drifting around it. Pays **100 ✦ per orbit** (before multipliers) — 10× a dust particle.
+**Unlike dust particles, the asteroid is not a count upgrade** — there's only ever one. Its
+identity comes from a unique asteroid-specific upgrade (TBD; brainstorming).
 
 **Asteroid Payout** — *unlocks after the first asteroid* · max **5** — ×2 every asteroid's payout per level.
 | Level | 1 | 2 | 3 | 4 | 5 |

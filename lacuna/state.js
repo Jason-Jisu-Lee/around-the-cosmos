@@ -159,7 +159,6 @@ function loadGame() {
         const count = Math.min(4, G.upgrades.dust); // one dust particle per Dust Particle level
         for (let i = 0; i < count; i++) G.planets.push(newOrbiter());
         G.asteroids = [];
-        const acount = Math.min(4, G.upgrades.asteroid); // one asteroid per Asteroid level
-        for (let i = 0; i < acount; i++) G.asteroids.push(newAsteroid());
+        if (G.upgrades.asteroid >= 1) G.asteroids.push(newAsteroid()); // single body, not a count
     } catch(_) {}
 }

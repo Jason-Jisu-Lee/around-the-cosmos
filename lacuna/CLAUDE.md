@@ -15,10 +15,11 @@ Celestial idle/incremental game. Pure vanilla JS + Canvas. No build step, no fra
 > payout each — all share one orbit on ring 0) and **Dust Particle Payout** (×2 all dust particles,
 > 5 levels, costs [150,600,1500,3000,6000]) and **Dust Particle Speed** (clump orbit
 > starts at 100% speed; each level adds +20% (×1.2), up to 200% at lvl 5, costs [200,500,1000,2000,4000]).
-> Then **Asteroid** (after 2nd dust particle; buy 4, costs [1000,3500,8000,15000] — ~10× pricier,
-> +100 payout each, own clump on the wider ring 1) with **Asteroid Payout** (×2, 5 levels, costs
-> [1500,6000,15000,30000,60000]) and **Asteroid Speed** (same shape as dust speed, costs
-> [2000,5000,10000,20000,40000]). **COMETS:** Comet Charm exists but is **disabled** (`unlock:()=>false`);
+> Then **Asteroid** (after 2nd dust particle; a **single body**, one-time cost 1000, +100 payout,
+> own clump on the wider ring 1, with drifting dust motes around it) with **Asteroid Payout** (×2,
+> 5 levels, costs [1500,6000,15000,30000,60000]) and **Asteroid Speed** (same shape as dust speed,
+> costs [2000,5000,10000,20000,40000]). **Only dust particles use a count upgrade**; all other
+> orbiters are single bodies. A unique asteroid-specific upgrade (its identity lever) is **TBD**. **COMETS:** Comet Charm exists but is **disabled** (`unlock:()=>false`);
 > comets still pay windfalls. Prestige, remnants, moons, evolution, etc. are all out.
 > Earlier ideas removed: New Planet, per-planet Orbit Payout/Speed, the per-planet tab UI
 > (will return once there are >5 orbiters), First Light.
@@ -59,7 +60,7 @@ full upgrade structure (levels, costs, effects, unlock order). Keep it in sync w
 | dust | Dust Particle | 4 | adds a dust orbiter (+10 payout, ring 0); count == this level (costs [100,350,800,1500]) | after touch lvl ≥ 2 | ORBITERS |
 | dustpay | Dust Particle Payout | 5 | ×2 every dust particle's payout per level → up to ×32 (`mult`=2^lvl, costs [150,600,1500,3000,6000]) | after dust lvl ≥ 1 | ORBITERS |
 | dustspd | Dust Particle Speed | 5 | clump orbit speed: base 100%, +20% additive per lvl → 200% at lvl 5 (`mult`=1+0.2×lvl, costs [200,500,1000,2000,4000]) | after dust lvl ≥ 1 | ORBITERS |
-| asteroid | Asteroid | 4 | adds an asteroid orbiter (+100 payout, own clump on ring 1); count == this level (costs [1000,3500,8000,15000]) | after dust lvl ≥ 2 | ORBITERS |
+| asteroid | Asteroid | 1 | a single asteroid orbiter (+100 payout, own clump on ring 1); one-time buy (cost [1000]) | after dust lvl ≥ 2 | ORBITERS |
 | astpay | Asteroid Payout | 5 | ×2 every asteroid's payout per level → up to ×32 (`mult`=2^lvl, costs [1500,6000,15000,30000,60000]) | after asteroid lvl ≥ 1 | ORBITERS |
 | astspd | Asteroid Speed | 5 | asteroid clump speed: base 100%, +20% additive per lvl → 200% (`mult`=1+0.2×lvl, costs [2000,5000,10000,20000,40000]) | after asteroid lvl ≥ 1 | ORBITERS |
 | charm | Comet Charm | 3 | comet windfall ×(1+0.25·lvl) (costs [30,80,200]) | **disabled** (`unlock:()=>false`) | COMETS |
@@ -68,10 +69,10 @@ full upgrade structure (levels, costs, effects, unlock order). Keep it in sync w
 **multi-open accordion** (`.acc`): all sections open by default, each independently
 collapsible (state in `sectionOpen`). A section with no shown cards is omitted.
 
-> **Orbiters note:** dust particles share **one clump on ring 0**; asteroids share a
-> **separate clump on ring 1** (wider/slower, `PLANET_DEF[1]`). Each type has its own
-> global Payout (×2/lvl) and Speed upgrade. With dust(4) + asteroids(4) the game can now
-> reach 8 orbiters — the deferred **tabbed per-orbiter UI** (>5 orbiters) is getting closer.
+> **Orbiters note:** dust particles share **one clump on ring 0** (the only orbiter with a
+> **count** upgrade — up to 4); the asteroid is a **single body** on its own clump on ring 1
+> (wider/slower, `PLANET_DEF[1]`). All future orbiters are single bodies too. Each type has its
+> own global Payout (×2/lvl) and Speed upgrade. A unique asteroid-specific upgrade is TBD.
 
 **Show completed:** maxed upgrades are hidden by default. A "Show completed" toggle
 (top-right of the panel, `#show-completed`) reveals them; it only appears once

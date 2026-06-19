@@ -65,9 +65,9 @@ const UPGRADES = [
         unlock: () => lvl('dust') >= 1,  // after the first dust particle
     },
     {
-        id: 'asteroid', name: 'Asteroid', maxLevel: 4, section: 'ORBITERS',
-        costs: [1000, 3500, 8000, 15000],   // ~10× dust particle — a lot pricier
-        desc: () => 'A rocky asteroid on a wider orbit · +100 payout',
+        id: 'asteroid', name: 'Asteroid', maxLevel: 1, section: 'ORBITERS',
+        costs: [1000],                       // a single body — NOT a count upgrade (dust only)
+        desc: () => 'A single rocky asteroid on a wider orbit · +100 payout',
         unlock: () => lvl('dust') >= 2,      // after the second dust particle
     },
     {

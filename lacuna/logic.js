@@ -102,7 +102,7 @@ function buyUpgrade(u) {
         G.floatingTexts.push({ x:pos.x, y:pos.y-20, text:label, age:0, maxAge:1.8, size:15 });
     } else if (['asteroid', 'astpay', 'astspd'].includes(u.id)) {
         const pos = G.asteroids.length ? asteroidClumpPos() : clumpPos();
-        const label = u.id === 'asteroid' ? '+1 Asteroid'
+        const label = u.id === 'asteroid' ? 'Asteroid'
                     : u.id === 'astpay' ? '×2 Payout'
                     : '×1.2 Speed';
         G.floatingTexts.push({ x:pos.x, y:pos.y-20, text:label, age:0, maxAge:1.8, size:15 });
