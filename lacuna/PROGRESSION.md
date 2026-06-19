@@ -48,7 +48,7 @@ Click the Lacuna (center) to earn **stardust (✦)** → buy **Star Touch** to e
 
 **Dust Particle** — *unlocks after Star Touch lvl 2* · max **4**
 Each one is a small grey pebble orbiting the Lacuna as part of a shared **clump** (ring 0).
-Every dust particle pays **10 ✦ per orbit** (before multipliers).
+Every dust particle pays **20 ✦ per orbit** (before multipliers).
 | Bought | Cost ✦ | Total dust particles |
 |---|---|---|
 | 1st | 100 | 1 |
@@ -66,27 +66,26 @@ Multiplies **every** dust particle's payout. Non-effect-stacking with count (it'
 | 4 | 3,000 | ×16 |
 | 5 | 6,000 | ×32 |
 
-> So one dust particle pays `10 × (payout multiplier)`; three particles pay `3 × 10 × mult`.
+> So one dust particle pays `20 × (payout multiplier)`; three particles pay `3 × 20 × mult`.
 
 **Dust Particle Speed** — *unlocks after the first dust particle* · max **5**
-Each level adds **+20% orbit speed (additive)**. Starts at 100%, maxes at 200%.
-Card shows **"×1.2 orbit speed per level (additive +20%). Starts at 100%, max 200%."**
+The dust clump starts at **120%** (a 20% base bump); each level adds **+20% (additive)**, maxing at 220%.
 | Level | Cost ✦ | Orbit speed |
 |---|---|---|
-| (base) | — | 100 % |
-| 1 | 200 | 120 % |
-| 2 | 500 | 140 % |
-| 3 | 1,000 | 160 % |
-| 4 | 2,000 | 180 % |
-| 5 | 4,000 | 200 % |
+| (base) | — | 120 % |
+| 1 | 200 | 140 % |
+| 2 | 500 | 160 % |
+| 3 | 1,000 | 180 % |
+| 4 | 2,000 | 200 % |
+| 5 | 4,000 | 220 % |
 
 > Faster orbit = the clump crosses the top more often = more payouts per minute.
 
 **Asteroid** — *unlocks after the 2nd dust particle* · **single body** (one-time buy, ✦1,000)
 A bigger rocky-brown body on a **wider, slower orbit** (ring 1, its own clump), with tiny dust
-motes drifting around it. Pays **100 ✦ per orbit** (before multipliers) — 10× a dust particle.
+motes drifting around it. Pays **80 ✦ per orbit** (before multipliers).
 **Unlike dust particles, the asteroid is not a count upgrade** — there's only ever one. Its
-identity comes from a unique asteroid-specific upgrade (TBD; brainstorming).
+identity comes from its unique **Asteroid Composition** upgrade (below).
 
 **Asteroid Payout** — *unlocks after the first asteroid* · max **5** — ×2 every asteroid's payout per level.
 | Level | 1 | 2 | 3 | 4 | 5 |
@@ -102,6 +101,17 @@ identity comes from a unique asteroid-specific upgrade (TBD; brainstorming).
 
 > Asteroid Payout/Speed mirror the dust upgrades' shape, scaled ~10× to match the asteroid's price.
 
+**Asteroid Composition** — *unlocks after the asteroid* · max **3** — the asteroid's **unique** upgrade.
+Reforge the single asteroid into denser/richer material: each tier **recolors** it and **multiplies its payout**.
+| Tier | Material | Color | Payout × | Cost to reach ✦ |
+|---|---|---|---|---|
+| 0 (base) | Rock | grey-brown | ×1 | — |
+| 1 | Iron | steel grey | ×1.5 | 3,000 |
+| 2 | Gold | gold | ×2.5 | 9,000 |
+| 3 | Ice | pale blue | ×4 | 25,000 |
+
+> Composition stacks with Asteroid Payout: `asteroidPayout = 80 × payoutMult × compMult`.
+
 ### COMETS
 
 **Comet Charm** — *currently disabled* (will return later). Comets still pay windfalls without it.
@@ -113,7 +123,7 @@ identity comes from a unique asteroid-specific upgrade (TBD; brainstorming).
 - On screen for **8 s** (`COMET_LIFE`); tap within ~48px to catch.
 - **Windfall = (10 × click value) + 1.25 × (every orbiter's payout combined).**
   - Combined orbiter payout = `dust × dustPayout + asteroids × asteroidPayout`.
-  - Example: click value 4, three dust particles at ×2 payout → `10×4 + 1.25×(3×20)` = 40 + 75 = **115 ✦**.
+  - Example: click value 4, three dust particles at ×2 payout (20 base) → `10×4 + 1.25×(3×40)` = 40 + 150 = **190 ✦**.
 
 ---
 
@@ -149,14 +159,15 @@ Plus a one-sentence flavor line introducing the Lacuna as the protagonist.
 **A dust particle (ring 0):**
 | Stat | Value |
 |---|---|
-| Orbit payout | ✦ per orbit (= `orbiterPayout()`) |
-| Orbital speed | ~77.7 m/s at base; **scales with Dust Particle Speed** (up to ~155 m/s) |
-| Orbits / hour | ~0.22 at base; scales with Speed (up to ~0.45) |
+| Orbit payout | ✦ per orbit (= `orbiterPayout()`, base 20) |
+| Orbital speed | ~93 m/s at base (120%); **scales with Dust Particle Speed** (up to ~171 m/s) |
+| Orbits / hour | ~0.27 at base; scales with Speed |
 
 **An asteroid (ring 1):**
 | Stat | Value |
 |---|---|
-| Orbit payout | ✦ per orbit (= `asteroidPayout()`, base 100) |
+| Composition | current material tier (Rock / Iron / Gold / Ice) |
+| Orbit payout | ✦ per orbit (= `asteroidPayout()`, base 80 × composition ×) |
 | Orbital speed | ~54.9 m/s at base; **scales with Asteroid Speed** (up to ~110 m/s) |
 | Orbits / hour | ~0.08 at base; scales with Speed |
 

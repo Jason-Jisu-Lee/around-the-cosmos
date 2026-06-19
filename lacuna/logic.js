@@ -100,11 +100,12 @@ function buyUpgrade(u) {
                     : u.id === 'dustpay' ? '×2 Payout'
                     : '×1.2 Speed';
         G.floatingTexts.push({ x:pos.x, y:pos.y-20, text:label, age:0, maxAge:1.8, size:15 });
-    } else if (['asteroid', 'astpay', 'astspd'].includes(u.id)) {
+    } else if (['asteroid', 'astpay', 'astspd', 'astcomp'].includes(u.id)) {
         const pos = G.asteroids.length ? asteroidClumpPos() : clumpPos();
         const label = u.id === 'asteroid' ? 'Asteroid'
                     : u.id === 'astpay' ? '×2 Payout'
-                    : '×1.2 Speed';
+                    : u.id === 'astspd' ? '×1.2 Speed'
+                    : ASTEROID_COMP.names[G.upgrades.astcomp]; // composition: new tier name
         G.floatingTexts.push({ x:pos.x, y:pos.y-20, text:label, age:0, maxAge:1.8, size:15 });
     }
     SoundSystem.sfxBuy(); saveGame(); return true;

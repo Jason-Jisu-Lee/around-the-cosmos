@@ -74,7 +74,7 @@ function draw(t) {
     // pebble also circles its own little orbit within the clump. Dust = small grey
     // pebbles (ring 0); asteroids = bigger rocky-brown pebbles (ring 1).
     if (G.planets.length)   drawClump(G.planets,   clumpPos(),         PLANET_DEF[0].radius/3 + 2,        '#8a8782', t);
-    if (G.asteroids.length) drawClump(G.asteroids, asteroidClumpPos(), (PLANET_DEF[1].radius/3 + 4)*1.5, '#7a6a55', t); // 50% bigger
+    if (G.asteroids.length) drawClump(G.asteroids, asteroidClumpPos(), (PLANET_DEF[1].radius/3 + 4)*1.5, asteroidColor(), t); // 50% bigger; color = composition tier
 
     if (G.comet) {
         const c=G.comet;

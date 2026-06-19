@@ -22,6 +22,14 @@ const PLANET_COLORS = [
     '#6a5070', '#7a6030', '#387070', '#7a4060',
 ];
 
+// Asteroid Composition tiers — the asteroid's unique upgrade. Each tier recolors the
+// asteroid and multiplies its payout (denser/richer material = more stardust).
+const ASTEROID_COMP = {
+    names:  ['Rock', 'Iron', 'Gold', 'Ice'],
+    colors: ['#7a6a55', '#8c8f96', '#b8923a', '#a8c6d6'], // Rock keeps the original color
+    mult:   [1, 1.5, 2.5, 4],                              // payout × per tier
+};
+
 // Cosmic-flavor physical model (for hover tooltips). Lacuna is a small dark rocky
 // body; everything else (gravity, escape velocity, orbital speed) is derived from
 // these with real formulas, so future science-based upgrades can scale them.
@@ -47,7 +55,7 @@ const UPGRADES = [
     {
         id: 'dust', name: 'Dust Particle', maxLevel: 4, section: 'ORBITERS',
         costs: [100, 350, 800, 1500],
-        desc: () => 'A dust particle orbiting the Lacuna · +10 payout',
+        desc: () => 'A dust particle orbiting the Lacuna · +20 payout',
         unlock: () => lvl('touch') >= 2, // appears after the second Star Touch
     },
     {
@@ -61,13 +69,13 @@ const UPGRADES = [
         id: 'dustspd', name: 'Dust Particle Speed', maxLevel: 5, section: 'ORBITERS',
         costs: [200, 500, 1000, 2000, 4000],
         mult: lvl => 1 + 0.2 * lvl,      // multiplies the reduced (50%) base; ×2 at lvl 5 → original speed
-        desc: () => '×1.2 orbit speed per level (additive +20%). Starts at 100%, max 200%.',
+        desc: () => '+20% orbit speed per level (additive). Dust starts at 120%, max 220%.',
         unlock: () => lvl('dust') >= 1,  // after the first dust particle
     },
     {
         id: 'asteroid', name: 'Asteroid', maxLevel: 1, section: 'ORBITERS',
         costs: [1000],                       // a single body — NOT a count upgrade (dust only)
-        desc: () => 'A single rocky asteroid on a wider orbit · +100 payout',
+        desc: () => 'A single rocky asteroid on a wider orbit · +80 payout',
         unlock: () => lvl('dust') >= 2,      // after the second dust particle
     },
     {
@@ -83,6 +91,15 @@ const UPGRADES = [
         mult: lvl => 1 + 0.2 * lvl,          // base 100%, +20% additive per lvl → 200% at lvl 5
         desc: () => '×1.2 orbit speed per level (additive +20%). Starts at 100%, max 200%.',
         unlock: () => lvl('asteroid') >= 1,
+    },
+    {
+        id: 'astcomp', name: 'Asteroid Composition', maxLevel: 3, section: 'ORBITERS',
+        costs: [3000, 9000, 25000],          // reforge the single asteroid into richer material
+        mult: lvl => ASTEROID_COMP.mult[lvl], // payout × for the current tier
+        desc: l => l >= 3
+            ? `Composition: ${ASTEROID_COMP.names[3]} · payout ×${ASTEROID_COMP.mult[3]}`
+            : `Reforge ${ASTEROID_COMP.names[l]} → ${ASTEROID_COMP.names[l+1]} · asteroid payout ×${ASTEROID_COMP.mult[l+1]}`,
+        unlock: () => lvl('asteroid') >= 1,  // the asteroid's unique upgrade
     },
     {
         id: 'charm', name: 'Comet Charm', maxLevel: 3, section: 'COMETS',

@@ -11,15 +11,16 @@ Celestial idle/incremental game. Pure vanilla JS + Canvas. No build step, no fra
 > **Current scope (`refine/v.3` — minimal base, rebuilding step by step):** The game
 > starts with **0 orbiters** — clicking is the only income; you buy the first one.
 > **ACTIONS:** **Star Touch** (4 levels, costs [10,50,200,1000], click → 1/2/4/8/16).
-> **ORBITERS:** **Dust Particle** (after 2nd Star Touch; buy 4, costs [100,350,800,1500], +10
+> **ORBITERS:** **Dust Particle** (after 2nd Star Touch; buy 4, costs [100,350,800,1500], +20
 > payout each — all share one orbit on ring 0) and **Dust Particle Payout** (×2 all dust particles,
 > 5 levels, costs [150,600,1500,3000,6000]) and **Dust Particle Speed** (clump orbit
-> starts at 100% speed; each level adds +20% (×1.2), up to 200% at lvl 5, costs [200,500,1000,2000,4000]).
-> Then **Asteroid** (after 2nd dust particle; a **single body**, one-time cost 1000, +100 payout,
+> starts at 120% speed — a 20% base bump; +20% per level up to 220% at lvl 5, costs [200,500,1000,2000,4000]).
+> Then **Asteroid** (after 2nd dust particle; a **single body**, one-time cost 1000, +80 payout,
 > own clump on the wider ring 1, with drifting dust motes around it) with **Asteroid Payout** (×2,
-> 5 levels, costs [1500,6000,15000,30000,60000]) and **Asteroid Speed** (same shape as dust speed,
-> costs [2000,5000,10000,20000,40000]). **Only dust particles use a count upgrade**; all other
-> orbiters are single bodies. A unique asteroid-specific upgrade (its identity lever) is **TBD**. **COMETS:** Comet Charm exists but is **disabled** (`unlock:()=>false`);
+> 5 levels, costs [1500,6000,15000,30000,60000]), **Asteroid Speed** (same shape as dust speed,
+> costs [2000,5000,10000,20000,40000]), and its unique **Asteroid Composition** (3 tiers: Rock→Iron→Gold→Ice,
+> recolors the asteroid + payout ×[1,1.5,2.5,4], costs [3000,9000,25000]). **Only dust particles use a
+> count upgrade**; all other orbiters are single bodies. **COMETS:** Comet Charm exists but is **disabled** (`unlock:()=>false`);
 > comets still pay windfalls. Prestige, remnants, moons, evolution, etc. are all out.
 > Earlier ideas removed: New Planet, per-planet Orbit Payout/Speed, the per-planet tab UI
 > (will return once there are >5 orbiters), First Light.
@@ -57,12 +58,13 @@ full upgrade structure (levels, costs, effects, unlock order). Keep it in sync w
 | id | Name | Levels | Effect | Unlock | Section |
 |---|---|---|---|---|---|
 | touch | Star Touch | 4 | each click earns tapYield[lvl] = [1,2,4,8,16] ✦ (costs [10,50,200,1000]) | always | ACTIONS |
-| dust | Dust Particle | 4 | adds a dust orbiter (+10 payout, ring 0); count == this level (costs [100,350,800,1500]) | after touch lvl ≥ 2 | ORBITERS |
+| dust | Dust Particle | 4 | adds a dust orbiter (+20 payout, ring 0); count == this level (costs [100,350,800,1500]) | after touch lvl ≥ 2 | ORBITERS |
 | dustpay | Dust Particle Payout | 5 | ×2 every dust particle's payout per level → up to ×32 (`mult`=2^lvl, costs [150,600,1500,3000,6000]) | after dust lvl ≥ 1 | ORBITERS |
-| dustspd | Dust Particle Speed | 5 | clump orbit speed: base 100%, +20% additive per lvl → 200% at lvl 5 (`mult`=1+0.2×lvl, costs [200,500,1000,2000,4000]) | after dust lvl ≥ 1 | ORBITERS |
-| asteroid | Asteroid | 1 | a single asteroid orbiter (+100 payout, own clump on ring 1); one-time buy (cost [1000]) | after dust lvl ≥ 2 | ORBITERS |
+| dustspd | Dust Particle Speed | 5 | dust clump speed: base **120%** (`dustSpeed()`=0.2+mult), +20% additive per lvl → 220% at lvl 5 (`mult`=1+0.2×lvl, costs [200,500,1000,2000,4000]) | after dust lvl ≥ 1 | ORBITERS |
+| asteroid | Asteroid | 1 | a single asteroid orbiter (+80 payout, own clump on ring 1); one-time buy (cost [1000]) | after dust lvl ≥ 2 | ORBITERS |
 | astpay | Asteroid Payout | 5 | ×2 every asteroid's payout per level → up to ×32 (`mult`=2^lvl, costs [1500,6000,15000,30000,60000]) | after asteroid lvl ≥ 1 | ORBITERS |
 | astspd | Asteroid Speed | 5 | asteroid clump speed: base 100%, +20% additive per lvl → 200% (`mult`=1+0.2×lvl, costs [2000,5000,10000,20000,40000]) | after asteroid lvl ≥ 1 | ORBITERS |
+| astcomp | Asteroid Composition | 3 | **unique asteroid upgrade**: reforge Rock→Iron→Gold→Ice; recolors the asteroid (`ASTEROID_COMP.colors`) and ×payout [1,1.5,2.5,4] (costs [3000,9000,25000]) | after asteroid lvl ≥ 1 | ORBITERS |
 | charm | Comet Charm | 3 | comet windfall ×(1+0.25·lvl) (costs [30,80,200]) | **disabled** (`unlock:()=>false`) | COMETS |
 
 `SECTION_ORDER` = `['ACTIONS','ORBITERS','COMETS']`. `buildPanels` renders each section as a
@@ -72,7 +74,7 @@ collapsible (state in `sectionOpen`). A section with no shown cards is omitted.
 > **Orbiters note:** dust particles share **one clump on ring 0** (the only orbiter with a
 > **count** upgrade — up to 4); the asteroid is a **single body** on its own clump on ring 1
 > (wider/slower, `PLANET_DEF[1]`). All future orbiters are single bodies too. Each type has its
-> own global Payout (×2/lvl) and Speed upgrade. A unique asteroid-specific upgrade is TBD.
+> own global Payout (×2/lvl) and Speed upgrade. The asteroid's unique upgrade is **Composition** (`astcomp`).
 
 **Show completed:** maxed upgrades are hidden by default. A "Show completed" toggle
 (top-right of the panel, `#show-completed`) reveals them; it only appears once
@@ -82,11 +84,11 @@ when an upgrade maxes out or the toggle flips.
 
 Other mechanics:
 - **Orbiters / payout**: two clumps, rendered by the shared `drawClump()` helper (render.js).
-  - **Dust** — `G.planets[]`, each `{localPhase,localR,localSpin,pulse,shape}`, travel as a clump on `G.clump{angle,nextTop}` (ring 0, period `PLANET_DEF[0].period`=6s). Speed = `(2π/period)×dustSpeed()`, `dustSpeed()`=`dustspd.mult(lvl)`=`1+0.2×lvl` (100%→200%). On top-cross each pays `orbiterPayout()` = `10 × dustpay.mult(lvl)`. Small grey pebbles (radius `PLANET_DEF[0].radius/3+2`), local orbit 5–12px.
-  - **Asteroids** — `G.asteroids[]` (shape fields + a `motes` array), clump on `G.asteroidClump` (ring 1, period `PLANET_DEF[1].period`=9.5s). Speed = `asteroidSpeed()`=`astspd.mult(lvl)`. On top-cross each pays `asteroidPayout()` = `100 × astpay.mult(lvl)`. Bigger rocky-brown pebbles (`#7a6a55`, radius `(PLANET_DEF[1].radius/3+4)×1.5` — 50% larger than the original asteroid size), local orbit 8–16px. Each asteroid carries 6 decorative **motes** — tiny specks that drift around it at all times (drawn in `drawClump` when `o.motes` exists; much smaller than a dust orbiter).
+  - **Dust** — `G.planets[]`, each `{localPhase,localR,localSpin,pulse,shape}`, travel as a clump on `G.clump{angle,nextTop}` (ring 0, period `PLANET_DEF[0].period`=6s). Speed = `(2π/period)×dustSpeed()`, `dustSpeed()`=`0.2+dustspd.mult(lvl)`=`1.2+0.2×lvl` (**120%→220%**; the +0.2 is a 20% base bump). On top-cross each pays `orbiterPayout()` = `20 × dustpay.mult(lvl)`. Small grey pebbles (radius `PLANET_DEF[0].radius/3+2`), local orbit 5–12px.
+  - **Asteroid** (single body) — `G.asteroids[]` (shape fields + a `motes` array), clump on `G.asteroidClump` (ring 1, period `PLANET_DEF[1].period`=9.5s). Speed = `asteroidSpeed()`=`astspd.mult(lvl)`. On top-cross pays `asteroidPayout()` = `80 × astpay.mult(lvl) × ASTEROID_COMP.mult[lvl(astcomp)]`. Bigger pebble, radius `(PLANET_DEF[1].radius/3+4)×1.5` (50% larger), local orbit 8–16px; **color = `asteroidColor()` = the current Composition tier** (`ASTEROID_COMP.colors`, Rock keeps `#7a6a55`). Carries 6 decorative **motes** — tiny specks that drift around it at all times (drawn in `drawClump` when `o.motes` exists; much smaller than a dust orbiter).
   - Background is clear (no stars).
 - **Lacuna center**: drawn at radius **13** (was 26 — shrunk 50%, will grow later) with a faint warm haze.
-- **Cosmic info** (two elements, both built in `game.js`): targets are the **Lacuna** (within 22px of center), the **dust clump** (within 35px of `clumpPos()`), and the **asteroid clump** (within 40px of `asteroidClumpPos()`), via `cosmoTargetAt(x,y)`. The asteroid card shows Orbit payout / Orbital speed / Orbits-per-hour from `asteroidPayout()`/`asteroidVel()` (orbit radius `PHYS.asteroidOrbitRadius`=400 km).
+- **Cosmic info** (two elements, both built in `game.js`): targets are the **Lacuna** (within 22px of center), the **dust clump** (within 35px of `clumpPos()`), and the **asteroid clump** (within 40px of `asteroidClumpPos()`), via `cosmoTargetAt(x,y)`. The asteroid card shows Composition (tier name) / Orbit payout / Orbital speed / Orbits-per-hour from `asteroidPayout()`/`asteroidVel()` (orbit radius `PHYS.asteroidOrbitRadius`=400 km).
   - **Hover → `#cosmo-tip`:** a small tooltip that **follows the cursor** (flips off the right/bottom edge), `pointer-events:none`, transient (hides on mouse-out). Hidden whenever a card is pinned.
   - **Click → `#cosmo-card`:** clicking a body opens its full card **pinned in the center of the sky**, `pointer-events:auto`, **sticky** (stays until dismissed) with a **× button** (top-right) / **Escape** (`closeCosmoCard`). Clicking a body opens the card *instead of harvesting* (`mousedown` returns early on a target hit); **comets keep click priority** (a comet within 48px is caught first). The card is slightly bigger and slightly transparent (rgba bg).
   - **Content** (`cosmoBody`/`cosmoRows`, shared by both): **Lacuna** — Diameter / Mass / Surface gravity / Escape velocity / Density + one-sentence flavor line; **Dust Particle** — Orbit payout / Orbital speed / Orbits-per-hour + flavor line. Titles/descs in the `TITLES`/`DESCS` maps.
@@ -97,7 +99,7 @@ Other mechanics:
 - **Comet windfall**: every comet pays `10 × click value + 1.25 × (combined orbiter payout)`, where combined = `planets.length×orbiterPayout() + asteroids.length×asteroidPayout()`; sets `G.cometSeen`. (At the very start this is 10.) No charm factor while comet upgrades are disabled. First comet appears ~7–13s in (then `COMET_MIN_GAP`–`COMET_MAX_GAP`, 25–55s).
 
 ## State object (G)
-Key fields: `dust`, `runDust`, `totalDust`, `orbitsCompleted`, `taps`, `cometsCaught`, `cometSeen` (caught a comet this universe → gates Comet Value stat), `gameTime`, `universeTime` (current-universe timer; reset on prestige later), `upgrades{touch,dust,dustpay,dustspd,asteroid,astpay,astspd,charm}`, `planets[]` (dust particles, ring 0) + `asteroids[]` (asteroids, ring 1) — each orbiter `{localPhase,localR,localSpin,pulse,shape}`, empty at start, rebuilt from `dust`/`asteroid` levels on load, `clump{angle,nextTop}` + `asteroidClump{angle,nextTop}` (the two shared orbits), `comet`, `incomeWindow[]`, `income`
+Key fields: `dust`, `runDust`, `totalDust`, `orbitsCompleted`, `taps`, `cometsCaught`, `cometSeen` (caught a comet this universe → gates Comet Value stat), `gameTime`, `universeTime` (current-universe timer; reset on prestige later), `upgrades{touch,dust,dustpay,dustspd,asteroid,astpay,astspd,astcomp,charm}`, `planets[]` (dust particles, ring 0) + `asteroids[]` (asteroids, ring 1) — each orbiter `{localPhase,localR,localSpin,pulse,shape}`, empty at start, rebuilt from `dust`/`asteroid` levels on load, `clump{angle,nextTop}` + `asteroidClump{angle,nextTop}` (the two shared orbits), `comet`, `incomeWindow[]`, `income`
 
 ## Sound system (sound.js)
 - `SoundSystem.boot()` — call on first user gesture (already wired in game.js)

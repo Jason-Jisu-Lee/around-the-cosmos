@@ -136,7 +136,8 @@ function cosmoRows(target) {
              + tipRow('Density',         fmtNice(PHYS.lacunaDensity/1000) + ' g/cm³');
     }
     if (target === 'asteroid') {
-        return tipRow('Orbit payout',  '✦' + fmtNum(asteroidPayout()))
+        return tipRow('Composition',   ASTEROID_COMP.names[lvl('astcomp')])
+             + tipRow('Orbit payout',  '✦' + fmtNum(asteroidPayout()))
              + tipRow('Orbital speed', fmtNice(asteroidVel()) + ' m/s')
              + tipRow('Orbits / hour', fmtNice(asteroidOrbitsPerHour()));
     }

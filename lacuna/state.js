@@ -6,7 +6,7 @@ function createInitialState() {
     return {
         dust:0, runDust:0, totalDust:0,
         orbitsCompleted:0, taps:0, cometsCaught:0, gameTime:0, universeTime:0,
-        upgrades: { touch:0, dust:0, dustpay:0, dustspd:0, asteroid:0, astpay:0, astspd:0, charm:0 },
+        upgrades: { touch:0, dust:0, dustpay:0, dustspd:0, asteroid:0, astpay:0, astspd:0, astcomp:0, charm:0 },
         planets:  [],            // orbiters (dust particles); none at start
         clump:    newClump(),    // the shared orbit the dust clump travels as a group
         asteroids: [],           // orbiters (asteroids, ring 1); none at start
@@ -79,13 +79,15 @@ function fmtTime(secs) {
 function upg(id) { return UPGRADES.find(u => u.id === id); }
 function lvl(id) { return G.upgrades[id]; }
 
-// Every dust particle pays a flat 10, doubled by Dust Particle Payout.
-function orbiterPayout() { return 10 * upg('dustpay').mult(lvl('dustpay')); }
-// Every asteroid pays a flat 100 (10× a dust particle), doubled by Asteroid Payout.
-function asteroidPayout() { return 100 * upg('astpay').mult(lvl('astpay')); }
+// Every dust particle pays a flat 20, doubled by Dust Particle Payout.
+function orbiterPayout() { return 20 * upg('dustpay').mult(lvl('dustpay')); }
+// The asteroid pays a flat 80, doubled by Asteroid Payout and scaled by Composition tier.
+function asteroidPayout() { return 80 * upg('astpay').mult(lvl('astpay')) * ASTEROID_COMP.mult[lvl('astcomp')]; }
+function asteroidColor()  { return ASTEROID_COMP.colors[lvl('astcomp')]; }
 
-// Clump orbit speed factor: base 100%, +20% per Speed level (additive), max 200% at lvl 5.
-function dustSpeed()     { return upg('dustspd').mult(lvl('dustspd')); }
+// Clump orbit speed factor. Dust: base 120% (a 20% bump), +20% per Speed level → 220% at lvl 5.
+function dustSpeed()     { return 0.2 + upg('dustspd').mult(lvl('dustspd')); }
+// Asteroid: base 100%, +20% per Speed level (additive), max 200% at lvl 5.
 function asteroidSpeed() { return upg('astspd').mult(lvl('astspd')); }
 
 // ---- Cosmic-flavor physics (tooltip values; everything derives from PHYS) ----
@@ -153,7 +155,7 @@ function loadGame() {
         G.orbitsCompleted=def('orbitsCompleted',0); G.taps=def('taps',0);
         G.cometsCaught=def('cometsCaught',0); G.gameTime=def('gameTime',0);
         G.universeTime=def('universeTime', G.gameTime); // current-universe timer (reset on prestige later)
-        G.upgrades = Object.assign({ touch:0, dust:0, dustpay:0, dustspd:0, asteroid:0, astpay:0, astspd:0, charm:0 }, d.upgrades);
+        G.upgrades = Object.assign({ touch:0, dust:0, dustpay:0, dustspd:0, asteroid:0, astpay:0, astspd:0, astcomp:0, charm:0 }, d.upgrades);
         G.cometSeen = def('cometSeen', G.cometsCaught > 0);
         G.planets = [];
         const count = Math.min(4, G.upgrades.dust); // one dust particle per Dust Particle level
