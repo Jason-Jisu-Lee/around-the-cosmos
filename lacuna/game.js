@@ -127,7 +127,7 @@ function updateCosmoTip() {
             html = lacunaTipHTML();
         } else if (G.planets.length) {
             const cp = clumpPos();
-            if (Math.hypot(cosmoMx-cp.x, cosmoMy-cp.y) < 24) html = orbiterTipHTML();
+            if (Math.hypot(cosmoMx-cp.x, cosmoMy-cp.y) < 46) html = orbiterTipHTML();
         }
     }
     if (!html) { cosmoTip.style.display = 'none'; canvas.style.cursor = 'default'; return; }
