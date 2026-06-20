@@ -12,19 +12,14 @@ const CFG = {
     COMET_LIFE:    8,
 };
 
+// Per-ring orbit geometry (radius + period). Orbiters reference PLANET_DEF[ring].
 const PLANET_DEF = [];
 for (let i = 0; i < CFG.MAX_PLANETS; i++) {
     PLANET_DEF.push({
-        value:  Math.pow(3, i),
         period: 6 + 3.5 * i,
         radius: 7 + i * 1.4,
     });
 }
-
-const PLANET_COLORS = [
-    '#4a6a8a', '#7a6040', '#7a4838', '#506840',
-    '#6a5070', '#7a6030', '#387070', '#7a4060',
-];
 
 // Cosmic-flavor physical model (for hover tooltips). Lacuna is a small dark rocky
 // body; everything else (gravity, escape velocity, orbital speed) is derived from

@@ -80,10 +80,23 @@ function draw(t) {
     // even at max — barely perceptible). No glow by default.
     const reso = lvl('resonance');
     if (reso > 0) {
-        const a = 0.09 + 0.04 * (reso - 1);   // center alpha: 0.09 (lvl1) → 0.21 (lvl4) — slightly more obvious
-        const g = ctx.createRadialGradient(CX,CY,0,CX,CY,sunR*4.6);
-        g.addColorStop(0,`rgba(160,130,70,${a})`); g.addColorStop(0.5,`rgba(160,120,60,${a*0.42})`); g.addColorStop(1,'rgba(160,120,60,0)');
-        ctx.beginPath(); ctx.arc(CX,CY,sunR*4.6,0,Math.PI*2); ctx.fillStyle=g; ctx.fill();
+        const a = 0.09 + 0.04 * (reso - 1);   // center alpha: 0.09 (lvl1) → 0.21 (lvl4)
+        const R = sunR * 5.6;                  // wider radius than before
+        // Several soft blobs at gently drifting offsets overlap into an irregular, living
+        // glow — avoids the too-perfect AI circle. (dx, dy, radius-scale, alpha-scale)
+        const blobs = [
+            [0, 0, 1.0, 1.0],
+            [Math.cos(t*0.37)*sunR*0.8,     Math.sin(t*0.31)*sunR*0.7,  0.72, 0.6],
+            [Math.cos(t*0.23+2.1)*sunR*0.7, Math.sin(t*0.41+1.3)*sunR*0.85, 0.58, 0.5],
+        ];
+        for (const [dx,dy,rs,ms] of blobs) {
+            const cx=CX+dx, cy=CY+dy, r=R*rs;
+            const g = ctx.createRadialGradient(cx,cy,0,cx,cy,r);
+            g.addColorStop(0,`rgba(160,130,70,${a*ms})`);
+            g.addColorStop(0.55,`rgba(160,120,60,${a*ms*0.4})`);
+            g.addColorStop(1,'rgba(160,120,60,0)');
+            ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.fillStyle=g; ctx.fill();
+        }
     }
 
     ctx.beginPath(); ctx.arc(CX,CY,sunR,0,Math.PI*2); ctx.fillStyle='#1a1a1a'; ctx.fill();

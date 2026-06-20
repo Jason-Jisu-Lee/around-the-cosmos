@@ -39,10 +39,6 @@ function tick(dt) {
         ft.age+=dt; ft.y -= dt*30;
         if (ft.age >= ft.maxAge) G.floatingTexts.splice(i,1);
     }
-
-    const cutoff = G.gameTime - 5;
-    while (G.incomeWindow.length && G.incomeWindow[0].t < cutoff) G.incomeWindow.shift();
-    G.income = G.incomeWindow.reduce((s,x) => s+x.v, 0) / 5;
 }
 
 function buyUpgrade(u) {
