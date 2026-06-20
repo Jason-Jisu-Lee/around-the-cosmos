@@ -6,7 +6,7 @@ function createInitialState() {
     return {
         dust:0, runDust:0, totalDust:0,
         orbitsCompleted:0, taps:0, cometsCaught:0, gameTime:0, universeTime:0,
-        upgrades: { touch:0, grasp:0, dust:0, dustpay:0, dustspd:0, asteroid:0, astpay:0, astspd:0, astcomp:0, charm:0 },
+        upgrades: { touch:0, grasp:0, gravpull:0, dust:0, dustpay:0, dustspd:0, asteroid:0, astpay:0, astspd:0, astcomp:0, resonance:0, charm:0 },
         planets:  [],            // orbiters (dust particles); none at start
         clump:    newClump(),    // the shared orbit the dust clump travels as a group
         asteroids: [],           // orbiters (asteroids, ring 1); none at start
@@ -29,7 +29,8 @@ function newClump() {
 
 function fmtNum(n) {
     if (!isFinite(n)) return '∞';
-    if (n < 1000) return Math.round(n).toString();   // whole numbers — never a decimal
+    // Under 10,000: write the whole number out, comma-grouped (9000 → "9,000"). 10k+ abbreviates.
+    if (n < 10000) return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
     if (n < 1e6)  return (n/1e3).toFixed(2)+'K';
     if (n < 1e9)  return (n/1e6).toFixed(2)+'M';
     if (n < 1e12) return (n/1e9).toFixed(2)+'B';
@@ -44,8 +45,13 @@ function fmtTime(secs) {
 function upg(id) { return UPGRADES.find(u => u.id === id); }
 function lvl(id) { return G.upgrades[id]; }
 
-// Stardust earned per click: base Star Touch value + Star Grasp (+2 per level).
-function clickValue() { return upg('touch').tapYield[lvl('touch')] + 2 * lvl('grasp'); }
+// Stardust earned per click: Star Touch + Star Grasp (+2/lvl) + Gravitational Pull
+// (each level adds +1% of total orbiter payout to the click). Rounded → whole stardust.
+function clickValue() {
+    const base = upg('touch').tapYield[lvl('touch')] + 2 * lvl('grasp');
+    const pull = 0.01 * lvl('gravpull') * orbiterPayoutSum();
+    return Math.round(base + pull);
+}
 
 // ---- Cosmic-flavor Lacuna physics (orbiter payout/speed/velocity live in orbiters.js) ----
 function lacunaMass()     { const r = PHYS.lacunaRadius; return PHYS.lacunaDensity * (4/3)*Math.PI * r*r*r; } // kg
@@ -107,7 +113,7 @@ function loadGame() {
         G.orbitsCompleted=def('orbitsCompleted',0); G.taps=def('taps',0);
         G.cometsCaught=def('cometsCaught',0); G.gameTime=def('gameTime',0);
         G.universeTime=def('universeTime', G.gameTime); // current-universe timer (reset on prestige later)
-        G.upgrades = Object.assign({ touch:0, grasp:0, dust:0, dustpay:0, dustspd:0, asteroid:0, astpay:0, astspd:0, astcomp:0, charm:0 }, d.upgrades);
+        G.upgrades = Object.assign({ touch:0, grasp:0, gravpull:0, dust:0, dustpay:0, dustspd:0, asteroid:0, astpay:0, astspd:0, astcomp:0, resonance:0, charm:0 }, d.upgrades);
         G.cometSeen = def('cometSeen', G.cometsCaught > 0);
         // Rebuild each orbiter's bodies from its upgrade level (see orbiters/*).
         for (const o of ORBITERS) {

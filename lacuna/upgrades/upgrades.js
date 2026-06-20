@@ -22,6 +22,13 @@ const UPGRADES = [
         unlock: () => lvl('touch') >= 5,                 // after the 5th Star Touch
     },
     {
+        id: 'gravpull', name: 'Gravitational Pull', maxLevel: 2, section: 'ACTIONS',
+        costs: [5000, 20000],
+        // Each level adds +1% of total orbiter payout to every click (applied in clickValue()).
+        desc: () => `+1% of all orbiter payout to each click, per level · click now earns ${fmtNum(clickValue())} ✦`,
+        unlock: () => lvl('grasp') >= 3,                 // after Star Grasp is maxed
+    },
+    {
         id: 'dust', name: 'Dust Particle', maxLevel: 5, section: 'ORBITERS',
         costs: [100, 500, 1200, 2500, 4000],
         desc: () => 'A dust particle orbiting the Lacuna · +10 base payout',
@@ -66,6 +73,13 @@ const UPGRADES = [
             ? `Composition: ${ASTEROID_COMP.names[3]} · payout ×${ASTEROID_COMP.mult[3]}`
             : `Reforge ${ASTEROID_COMP.names[l]} → ${ASTEROID_COMP.names[l+1]} · asteroid payout ×${ASTEROID_COMP.mult[l+1]}`,
         unlock: () => lvl('asteroid') >= 1,              // the asteroid's unique upgrade
+    },
+    {
+        id: 'resonance', name: 'Resonance', maxLevel: 4, section: 'ORBITERS',
+        costs: [5000, 10000, 18000, 30000],
+        // +25% to every orbiter's payout per level (additive, ×1.25 → ×2). Also lights the Lacuna's glow.
+        desc: () => '+25% to every orbiter’s payout, per level (additive). The Lacuna begins to glow.',
+        unlock: () => lvl('asteroid') >= 1,              // mid-game: once both orbiter types are running
     },
     {
         id: 'charm', name: 'Comet Charm', maxLevel: 3, section: 'COMETS',

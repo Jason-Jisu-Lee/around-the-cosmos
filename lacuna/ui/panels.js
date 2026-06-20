@@ -28,8 +28,8 @@ function visibleSig() {
 function makeCard(u) {
     const card = document.createElement('div');
     card.className = 'upgrade-card';
-    card.innerHTML = `<div class="upg-top"><span class="upg-name">${u.name}</span>`
-        + `<span class="upg-meta"><span class="upg-cost"></span><span class="upg-level"></span></span></div>`
+    card.innerHTML = `<div class="upg-top"><span class="upg-name">${u.name}</span><span class="upg-cost"></span></div>`
+        + `<span class="upg-level"></span>`     // pinned in the card's bottom-right corner (CSS)
         + `<div class="upg-desc"></div>`;
     card.addEventListener('click', () => { if (buyUpgrade(u)) buildPanels(); });
     cardRefs.push({ u, card,
@@ -83,8 +83,8 @@ function updateCards() {
         ref.card.classList.toggle('can-afford', !isMax && G.dust >= cost);
         ref.cost.textContent = isMax ? '—' : '✦' + fmtNum(cost);
         ref.cost.classList.toggle('maxed', isMax);
-        // Level shown on the card face, small, under the cost (e.g. "1 / 5").
-        ref.level.textContent = isMax ? `MAX · ${u.maxLevel} / ${u.maxLevel}` : `${l} / ${u.maxLevel}`;
+        // Level shown small in the card's bottom-right corner (e.g. "1 / 5").
+        ref.level.textContent = `${l} / ${u.maxLevel}`;
         ref.desc.textContent = u.desc(l);
     }
 }

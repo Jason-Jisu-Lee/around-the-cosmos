@@ -130,7 +130,7 @@ body {
 #sky-section { flex: 1; position: relative; min-width: 0; }
 #sky { display: block; width: 100%; height: 100%; cursor: default; }
 
-#right-col { width: 256px; flex-shrink: 0; padding: 22px 16px 80px; overflow-y: auto; }
+#right-col { width: 308px; flex-shrink: 0; padding: 22px 16px 80px; overflow-y: auto; }
 
 /* "Show completed" toggle */
 #upg-controls { display: flex; justify-content: flex-end; margin-bottom: 12px; }
@@ -177,8 +177,10 @@ body {
 
 .upgrade-card {
     position: relative;
+    display: flex; align-items: center;          /* vertically centre the name|cost row */
     background: var(--surface2); border: 1px solid var(--border);
-    padding: 18px 18px; margin-bottom: 9px; cursor: pointer;
+    padding: 16px 18px 24px;                     /* extra bottom room for the corner level */
+    margin-bottom: 9px; cursor: pointer;
     transition: border-color 0.12s, background 0.12s;
 }
 .upgrade-card:hover:not(.is-maxed) { background: #f8f6f0; }
@@ -189,12 +191,12 @@ body {
    popup is readable (opacity<1 otherwise traps the popup in a faded stacking context). */
 .upgrade-card.is-maxed:hover { opacity: 1; z-index: 300; }
 
-.upg-top  { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2px; }
+.upg-top  { display: flex; justify-content: space-between; align-items: baseline; width: 100%; gap: 10px; }
 .upg-name { font-size: 15px; font-weight: 400; color: var(--text); font-family: 'Optima','Candara','Century Gothic',sans-serif; letter-spacing: 0.02em; }
-.upg-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 1px; flex-shrink: 0; }
-.upg-cost { font-size: 15px; color: var(--ink); font-weight: 700; font-family: 'Segoe UI', sans-serif; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.upg-cost { font-size: 15px; color: var(--ink); font-weight: 700; font-family: 'Segoe UI', sans-serif; font-variant-numeric: tabular-nums; flex-shrink: 0; }
 .upg-cost.maxed { color: var(--text-faint); font-weight: 400; }
-.upg-level { font-size: 10px; color: var(--text-faint); font-family: 'Segoe UI', sans-serif; font-variant-numeric: tabular-nums; letter-spacing: 0.06em; }
+/* Level: small, tucked into the card's bottom-right corner (out of flow). */
+.upg-level { position: absolute; right: 16px; bottom: 8px; font-size: 9px; color: var(--text-faint); font-family: 'Segoe UI', sans-serif; font-variant-numeric: tabular-nums; letter-spacing: 0.08em; }
 
 /* Description floats as a popup below the card — never affects layout */
 .upg-desc {

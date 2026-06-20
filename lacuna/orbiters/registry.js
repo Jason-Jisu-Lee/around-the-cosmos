@@ -27,3 +27,11 @@ function registerOrbiter(def) { ORBITERS.push(def); ORBITER_BY_ID[def.id] = def;
 
 // Shared helper: one label/value row in a cosmic info card.
 function tipRow(l, v) { return `<div class="tip-row"><span class="tip-l">${l}</span><span class="tip-v">${v}</span></div>`; }
+
+// Resonance: a global ×payout multiplier on EVERY orbiter, +0.25 per level (×1 → ×2 at lvl 4).
+// Each orbiter's payout() applies this, so it lifts dust, asteroids, comet windfalls, and the
+// Gravitational Pull click bonus together. Also drives the Lacuna glow (render.js).
+function resonanceMult() { return 1 + 0.25 * lvl('resonance'); }
+
+// Combined payout of every orbiter currently in play (count × payout, summed over types).
+function orbiterPayoutSum() { let s = 0; for (const o of ORBITERS) s += o.list().length * o.payout(); return s; }

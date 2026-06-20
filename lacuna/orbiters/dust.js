@@ -17,8 +17,9 @@ function newDustParticle() {
     };
 }
 
-// Payout: base 10 per particle, +10 per Dust Particle Payout level (additive).
-function orbiterPayout() { return 10 + 10 * lvl('dustpay'); }
+// Payout: base 10 per particle, +10 per Dust Particle Payout level (additive), × Resonance.
+// Rounded so Resonance's ×1.25 / ×1.75 never leave a fractional payout.
+function orbiterPayout() { return Math.round((10 + 10 * lvl('dustpay')) * resonanceMult()); }
 // Speed: the upgrade runs 100%→200% (mult=1+0.2·lvl). No base-speed bump.
 function dustSpeed()     { return upg('dustspd').mult(lvl('dustspd')); }
 // Cosmic orbital velocity (ring 0 radius + Lacuna mass), scaled by speed.

@@ -32,9 +32,9 @@ function newAsteroidBody() {
     };
 }
 
-// Payout: base 50, +50 per Asteroid Payout level (additive), then × the Composition tier.
-// Rounded so the ×1.25 / ×1.75 tiers never leave a fractional payout.
-function asteroidPayout() { return Math.round((50 + 50 * lvl('astpay')) * ASTEROID_COMP.mult[lvl('astcomp')]); }
+// Payout: base 50, +50 per Asteroid Payout level (additive), × Composition tier, × Resonance.
+// Rounded so the fractional multipliers never leave a fractional payout.
+function asteroidPayout() { return Math.round((50 + 50 * lvl('astpay')) * ASTEROID_COMP.mult[lvl('astcomp')] * resonanceMult()); }
 function asteroidColor()  { return ASTEROID_COMP.colors[lvl('astcomp')]; }
 function asteroidSpeed()  { return upg('astspd').mult(lvl('astspd')); }
 function asteroidVel()           { return Math.sqrt(PHYS.G * lacunaMass() / PHYS.asteroidOrbitRadius) * asteroidSpeed(); }

@@ -25,8 +25,9 @@ Click the Lacuna (center) to earn **stardust (✦)** → buy **Star Touch** to e
 | First Dust Particle | buy (✦100) | Your first **orbiter** appears, paying **10 ✦** per orbit. Unlocks **Dust Particle Payout** + **Dust Particle Speed**, and the **All Orbiters Payout** stat. |
 | 2nd Dust Particle | buy (✦500) | A second dust particle joins the clump → unlocks the **Asteroid** (a single body). |
 | Star Touch ×5 | buy (✦400) | → **Star Grasp** appears in ACTIONS (a stronger per-click upgrade). |
-| The Asteroid | buy (✦1,500) | A single bigger, slower **asteroid** appears on a wider orbit, paying **50 ✦** per orbit. Unlocks **Asteroid Payout**, **Asteroid Speed**, **Asteroid Composition**. |
-| … | … | Buy more dust particles (max 5), pump payout/speed on both, keep catching comets. |
+| The Asteroid | buy (✦1,500) | A single bigger, slower **asteroid** appears on a wider orbit, paying **50 ✦** per orbit. Unlocks **Asteroid Payout**, **Asteroid Speed**, **Asteroid Composition**, and **Resonance**. |
+| Star Grasp maxed | buy (lvl 3) | → **Gravitational Pull** appears in ACTIONS (clicks scale with orbiter payout). |
+| … | … | Buy more dust particles (max 5), pump payout/speed, grab **Resonance** (lights the glow), keep catching comets. |
 
 ---
 
@@ -56,8 +57,16 @@ Click the Lacuna (center) to earn **stardust (✦)** → buy **Star Touch** to e
 | 2 | 1,000 | +4 |
 | 3 | 1,500 | +6 |
 
-> Total click value = Star Touch value + 2 × Star Grasp level (`clickValue()`). A new ACTIONS
-> upgrade is planned to appear once Star Grasp is maxed (TBD).
+> Total click value = Star Touch value + 2 × Star Grasp level (+ Gravitational Pull, below), via `clickValue()`.
+
+**Gravitational Pull** — *unlocks after Star Grasp is maxed* · max **2** · each level adds **+1% of total orbiter payout to every click**
+| Level | Cost ✦ | Click bonus |
+|---|---|---|
+| 1 | 5,000 | +1% of all orbiter payout |
+| 2 | 20,000 | +2% of all orbiter payout |
+
+> Ties active clicking to your idle income — the more your orbiters pay, the more each click is worth.
+> Combos with **Resonance** (which raises orbiter payout, so it raises this bonus too).
 
 ### ORBITERS
 
@@ -125,8 +134,19 @@ Reforge the single asteroid into denser/richer material: each tier **recolors** 
 | 2 | Gold | gold | ×1.5 | 8,000 |
 | 3 | Ice | pale blue | ×1.75 | 18,000 |
 
-> Composition is the one asteroid **multiplier**: `asteroidPayout = round((50 + 50×payoutLvl) × compMult)`.
-> Rounded so the ×1.25 / ×1.75 tiers never leave a fractional stardust amount.
+> Composition is the one asteroid **multiplier**: `asteroidPayout = round((50 + 50×payoutLvl) × compMult × resonanceMult)`.
+> Rounded so the fractional multipliers never leave a fractional stardust amount.
+
+**Resonance** — *unlocks after the asteroid* · max **4** · **global** payout multiplier on **every** orbiter
+Adds **+25% per level (additive)** to all orbiter payout — ×1.25 → ×2 at level 4 — and is the only thing
+that lights the **Lacuna's glow** (off by default; brightens marginally per level, but stays *very* faint
+even at max). Combos with Gravitational Pull.
+| Level | Cost ✦ | All orbiter payout |
+|---|---|---|
+| 1 | 5,000 | ×1.25 |
+| 2 | 10,000 | ×1.5 |
+| 3 | 18,000 | ×1.75 |
+| 4 | 30,000 | ×2 |
 
 ### COMETS
 
