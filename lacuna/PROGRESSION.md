@@ -26,8 +26,7 @@ Click the Lacuna (center) to earn **stardust (✦)** → buy **Star Touch** to e
 | 2nd Dust Particle | buy (✦500) | A second dust particle joins the clump → unlocks the **Asteroid** (a single body). |
 | Star Touch ×5 | buy (✦400) | → **Star Grasp** appears in MAIN (a stronger per-click upgrade). |
 | The Asteroid | buy (✦1,500) | A single bigger, slower **asteroid** appears on a wider orbit, paying **50 ✦** per orbit. Unlocks **Asteroid Payout**, **Asteroid Speed**, **Asteroid Composition**. |
-| Star Grasp maxed | buy (lvl 3) | → **Gravitational Pull** appears in MAIN (clicks scale with orbiter payout). |
-| Star Touch + Grav Pull maxed | — | → **Resonance** appears in MAIN (global orbit payout boost; lights the Lacuna glow). |
+| Star Grasp maxed | buy (lvl 3) | → **Gravitational Pull** and **Resonance** both appear in MAIN (clicks scale with orbiter payout; Resonance is a global orbit payout boost that lights the Lacuna glow). |
 | … | … | Buy more dust particles (max 5), pump payout/speed, grab **Resonance**, keep catching comets. |
 
 ---
@@ -72,7 +71,7 @@ Click the Lacuna (center) to earn **stardust (✦)** → buy **Star Touch** to e
 > Ties active clicking to your idle income — the more your orbiters pay, the more each click is worth.
 > Combos with **Resonance** (which raises orbiter payout, so it raises this bonus too).
 
-**Resonance** — *unlocks after Star Touch **and** Gravitational Pull are both maxed* · max **4** · **global** payout multiplier on **every** orbiter
+**Resonance** — *unlocks after Star Grasp is maxed (appears alongside Gravitational Pull)* · max **4** · **global** payout multiplier on **every** orbiter
 Adds **+25% per level (additive)** to all orbiter payout — ×1.25 → ×2 at level 4 — and is the only thing
 that lights the **Lacuna's glow** (off by default; brightens marginally per level, but stays *very* faint
 even at max). Combos with Gravitational Pull.

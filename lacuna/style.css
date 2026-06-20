@@ -189,10 +189,25 @@ body {
 .upgrade-card:hover:not(.is-maxed) { background: #f8f6f0; }
 .upgrade-card.can-afford { border-color: var(--accent-dim); }
 .upgrade-card.can-afford:hover { border-color: var(--accent); }
-.upgrade-card.is-maxed { opacity: 0.3; cursor: default; }
-/* On hover a maxed card un-dims and lifts above siblings so its description
-   popup is readable (opacity<1 otherwise traps the popup in a faded stacking context). */
-.upgrade-card.is-maxed:hover { opacity: 1; z-index: 300; }
+/* Completed: stay greyed (even on hover). We dim only the FACE (.upg-top/.upg-level),
+   NOT the card — so the description popup keeps full opacity and isn't trapped in a
+   faded stacking context behind sibling cards. */
+.upgrade-card.is-maxed { cursor: default; background: #f6f4ee; border-color: var(--border2); }
+.upgrade-card.is-maxed .upg-top,
+.upgrade-card.is-maxed .upg-level { opacity: 0.34; }
+
+/* Newly-unlocked card: a brief left-to-right highlight sweep (clipped to the card via
+   background-position, so it doesn't bleed onto neighbours). */
+.upgrade-card.upg-new::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background-image: linear-gradient(90deg, transparent 0%, rgba(168,128,52,0.55) 50%, transparent 100%);
+    background-size: 200% 100%; background-repeat: no-repeat;
+    animation: upg-sweep 0.85s ease-out forwards;
+}
+@keyframes upg-sweep {
+    from { background-position: 150% 0; }   /* band off the left edge */
+    to   { background-position: -50% 0; }    /* sweeps across → off the right edge */
+}
 
 .upg-top  { display: flex; justify-content: space-between; align-items: baseline; width: 100%; gap: 10px; }
 .upg-name { font-size: 15px; font-weight: 400; color: var(--text); font-family: 'Optima','Candara','Century Gothic',sans-serif; letter-spacing: 0.02em; }

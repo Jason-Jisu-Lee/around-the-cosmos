@@ -60,8 +60,9 @@ document.getElementById('mute-btn').addEventListener('click', () => {
     const m=SoundSystem.toggleMute();
     document.getElementById('mute-btn').classList.toggle('muted',m);
 });
+// "Hide completed" — checked hides maxed upgrades (shown by default).
 document.getElementById('show-completed').addEventListener('change', e => {
-    showCompleted = e.target.checked;
+    showCompleted = !e.target.checked;
     buildPanels();
 });
 

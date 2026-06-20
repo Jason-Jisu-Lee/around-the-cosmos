@@ -5,9 +5,11 @@
 // when the visible set changes (visibleSig), values refreshed in place otherwise.
 
 let lastVisibleSig = '';
-let showCompleted  = false;       // hide maxed upgrades unless toggled on
+let showCompleted  = true;        // completed upgrades visible by default ("Hide completed" toggles off)
 const sectionOpen  = {};          // per-section accordion state; undefined = open by default
 const cardRefs     = [];
+const seenUpg      = new Set();    // upgrade ids that have rendered before (for the "new" sweep)
+let firstPanelBuild = true;       // don't animate everything that's already visible on first build
 
 function upgradeVisible(u) { return u.unlock ? u.unlock() : false; }
 
@@ -28,6 +30,9 @@ function visibleSig() {
 function makeCard(u) {
     const card = document.createElement('div');
     card.className = 'upgrade-card';
+    // First time this upgrade is ever shown (and not just the initial page build) → sweep highlight.
+    if (!firstPanelBuild && !seenUpg.has(u.id)) card.classList.add('upg-new');
+    seenUpg.add(u.id);
     card.innerHTML = `<div class="upg-top"><span class="upg-name">${u.name}</span><span class="upg-cost"></span></div>`
         + `<span class="upg-level"></span>`     // pinned in the card's bottom-right corner (CSS)
         + `<div class="upg-desc"></div>`;
@@ -70,6 +75,7 @@ function buildPanels() {
     }
 
     lastVisibleSig = visibleSig();
+    firstPanelBuild = false;   // after the first build, future unlocks animate as "new"
     updateCards();
 }
 
