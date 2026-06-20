@@ -185,11 +185,16 @@ body {
 .upgrade-card.can-afford { border-color: var(--accent-dim); }
 .upgrade-card.can-afford:hover { border-color: var(--accent); }
 .upgrade-card.is-maxed { opacity: 0.3; cursor: default; }
+/* On hover a maxed card un-dims and lifts above siblings so its description
+   popup is readable (opacity<1 otherwise traps the popup in a faded stacking context). */
+.upgrade-card.is-maxed:hover { opacity: 1; z-index: 300; }
 
-.upg-top  { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2px; }
+.upg-top  { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2px; }
 .upg-name { font-size: 15px; font-weight: 400; color: var(--text); font-family: 'Optima','Candara','Century Gothic',sans-serif; letter-spacing: 0.02em; }
-.upg-cost { font-size: 14px; color: var(--ink); font-weight: 700; font-family: 'Segoe UI', sans-serif; font-variant-numeric: tabular-nums; }
+.upg-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 1px; flex-shrink: 0; }
+.upg-cost { font-size: 15px; color: var(--ink); font-weight: 700; font-family: 'Segoe UI', sans-serif; font-variant-numeric: tabular-nums; line-height: 1.1; }
 .upg-cost.maxed { color: var(--text-faint); font-weight: 400; }
+.upg-level { font-size: 10px; color: var(--text-faint); font-family: 'Segoe UI', sans-serif; font-variant-numeric: tabular-nums; letter-spacing: 0.06em; }
 
 /* Description floats as a popup below the card — never affects layout */
 .upg-desc {
@@ -214,12 +219,6 @@ body {
     bottom: 100%; left: 24px;
     border: 6px solid transparent;
     border-bottom-color: rgba(26,26,26,0.82);
-}
-.upg-desc-text { display: block; }
-.upg-desc-lv {
-    display: block; margin-top: 6px;
-    font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
-    color: var(--accent-dim); font-variant-numeric: tabular-nums;
 }
 .upgrade-card:hover .upg-desc { display: block; }
 

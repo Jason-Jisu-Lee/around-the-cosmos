@@ -28,9 +28,14 @@ function visibleSig() {
 function makeCard(u) {
     const card = document.createElement('div');
     card.className = 'upgrade-card';
-    card.innerHTML = `<div class="upg-top"><span class="upg-name">${u.name}</span><span class="upg-cost"></span></div><div class="upg-desc"></div>`;
+    card.innerHTML = `<div class="upg-top"><span class="upg-name">${u.name}</span>`
+        + `<span class="upg-meta"><span class="upg-cost"></span><span class="upg-level"></span></span></div>`
+        + `<div class="upg-desc"></div>`;
     card.addEventListener('click', () => { if (buyUpgrade(u)) buildPanels(); });
-    cardRefs.push({ u, card, cost:card.querySelector('.upg-cost'), desc:card.querySelector('.upg-desc') });
+    cardRefs.push({ u, card,
+        cost:  card.querySelector('.upg-cost'),
+        level: card.querySelector('.upg-level'),
+        desc:  card.querySelector('.upg-desc') });
     return card;
 }
 
@@ -78,8 +83,8 @@ function updateCards() {
         ref.card.classList.toggle('can-afford', !isMax && G.dust >= cost);
         ref.cost.textContent = isMax ? '—' : '✦' + fmtNum(cost);
         ref.cost.classList.toggle('maxed', isMax);
-        // Effect text + a level indicator (current / total levels for this upgrade).
-        const lvlText = isMax ? `Maxed · Lv ${u.maxLevel} / ${u.maxLevel}` : `Lv ${l} / ${u.maxLevel}`;
-        ref.desc.innerHTML = `<span class="upg-desc-text">${u.desc(l)}</span><span class="upg-desc-lv">${lvlText}</span>`;
+        // Level shown on the card face, small, under the cost (e.g. "1 / 5").
+        ref.level.textContent = isMax ? `MAX · ${u.maxLevel} / ${u.maxLevel}` : `${l} / ${u.maxLevel}`;
+        ref.desc.textContent = u.desc(l);
     }
 }
