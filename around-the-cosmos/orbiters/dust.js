@@ -39,13 +39,14 @@ registerOrbiter({
     clump:    () => G.clump,
     clumpPos: () => clumpPos(),
     make:     () => newDustParticle(),
-    count:    () => Math.min(5, lvl('dust')),    // rebuilt from level on load
-    bodyUpgrade: 'dust',                          // buying this id adds a body
+    // First particle from `dust` (one-time), the rest from `dustcount` — cap 5 total.
+    count:    () => Math.min(5, (lvl('dust') >= 1 ? 1 : 0) + lvl('dustcount')),
+    bodyUpgrade: 'dust',                          // (bodies are reconciled to count() on any buy)
     payout: orbiterPayout,
     speed:  dustSpeed,
     rows: () =>
           tipRow('Orbit payout',  '✦' + fmtNum(G.planets.length * orbiterPayout()))   // whole clump
         + tipRow('Orbital speed', fmtNice(orbiterVel()) + ' m/s')
         + tipRow('Orbits / hour', fmtNice(orbiterOrbitsPerHour())),
-    labels: { dust: '+1 Dust Particle', dustpay: '×2 Payout', dustspd: '×1.2 Speed' },
+    labels: { dust: 'Dust Particle', dustcount: '+1 Dust Particle', dustpay: '+10 Payout', dustspd: '×1.2 Speed' },
 });

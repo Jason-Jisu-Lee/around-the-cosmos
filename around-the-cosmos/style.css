@@ -196,20 +196,20 @@ body {
 .upgrade-card.is-maxed .upg-top,
 .upgrade-card.is-maxed .upg-level { opacity: 0.34; }
 
-/* Newly-unlocked card: a brief left-to-right highlight sweep (clipped to the card via
-   background-position, so it doesn't bleed onto neighbours). */
+/* Newly-unlocked card: a simple yellow highlight that flashes twice, then clears
+   (the card's `animationend` handler removes .upg-new once it's transparent again). */
 .upgrade-card.upg-new::after {
     content: ''; position: absolute; inset: 0; pointer-events: none;
-    background-image: linear-gradient(90deg, transparent 0%, rgba(214,58,40,0.62) 50%, transparent 100%);
-    background-size: 200% 100%; background-repeat: no-repeat;
-    animation: upg-sweep 1.02s ease-out forwards;   /* ~20% slower */
+    background: rgba(240,200,40,0.6);
+    /* two slow, smooth swells — ease-in-out on each segment makes it glow rather than blink */
+    animation: upg-flash 2.2s ease-in-out forwards;
 }
-/* Sweeps across, then fades opacity to 0 at the tail so the finish is seamless
-   (the card's `animationend` handler removes .upg-new once it's already invisible). */
-@keyframes upg-sweep {
-    0%   { background-position: 160% 0; opacity: 1; }
-    80%  { background-position: -10% 0; opacity: 1; }
-    100% { background-position: -40% 0; opacity: 0; }
+@keyframes upg-flash {
+    0%   { opacity: 0; }
+    25%  { opacity: 1; }   /* first swell, peaks gently */
+    50%  { opacity: 0; }
+    75%  { opacity: 1; }   /* second swell */
+    100% { opacity: 0; }
 }
 
 .upg-top  { display: flex; justify-content: space-between; align-items: baseline; width: 100%; gap: 10px; }
@@ -224,13 +224,13 @@ body {
 #upg-pop {
     display: none;
     position: fixed;
-    max-width: 240px;
+    max-width: 346px;                    /* +20% again (240 → 288 → 346) */
     background: rgba(26,26,26,0.82);     /* slightly transparent — maintained */
     backdrop-filter: blur(1.5px);
     color: var(--bg);
-    font-size: 12px;
+    font-size: 17.3px;                   /* +20% again (12 → 14.4 → 17.3) */
     line-height: 1.5;
-    padding: 11px 13px;
+    padding: 15.6px 19.2px;              /* +20% again (11/13 → 13/16 → 15.6/19.2) */
     font-family: 'Segoe UI', sans-serif;
     box-shadow: 0 6px 22px rgba(0,0,0,0.2);
     z-index: 200;
@@ -240,7 +240,7 @@ body {
     content: '';
     position: absolute;
     left: 100%; top: 50%; transform: translateY(-50%);
-    border: 6px solid transparent;
+    border: 8.4px solid transparent;     /* +20% again (6 → 7 → 8.4) */
     border-left-color: rgba(26,26,26,0.82);
 }
 

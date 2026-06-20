@@ -47,12 +47,15 @@ function buyUpgrade(u) {
     const cost = u.costs[l];
     if (G.dust < cost) return false;
     G.dust -= cost; G.upgrades[u.id]++;
-    // Let the matching orbiter component add a body (if this upgrade adds one) and
-    // float its label at its clump — all per-orbiter behavior lives in orbiters/*.
+    // Let the matching orbiter component reconcile its body count to count() (handles both
+    // the "create first body" upgrade and any "+1 count" upgrade) and float its label at its
+    // clump — all per-orbiter behavior lives in orbiters/*.
     for (const o of ORBITERS) {
         if (o.labels && (u.id in o.labels)) {
-            if (o.bodyUpgrade === u.id) o.list().push(o.make());
-            const pos = o.list().length ? o.clumpPos() : clumpPos();
+            const arr = o.list(), want = o.count();
+            while (arr.length < want) arr.push(o.make());
+            while (arr.length > want) arr.pop();
+            const pos = arr.length ? o.clumpPos() : clumpPos();
             const label = typeof o.labels[u.id] === 'function' ? o.labels[u.id]() : o.labels[u.id];
             G.floatingTexts.push({ x:pos.x, y:pos.y-20, text:label, age:0, maxAge:1.8, size:15 });
             break;

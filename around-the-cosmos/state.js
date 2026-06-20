@@ -6,11 +6,13 @@ function createInitialState() {
     return {
         dust:0, runDust:0, totalDust:0,
         orbitsCompleted:0, taps:0, cometsCaught:0, gameTime:0, universeTime:0,
-        upgrades: { touch:0, grasp:0, gravpull:0, dust:0, dustpay:0, dustspd:0, asteroid:0, astpay:0, astspd:0, astcomp:0, resonance:0, charm:0 },
+        upgrades: { touch:0, grasp:0, gravpull:0, dust:0, dustcount:0, dustpay:0, dustspd:0, asteroid:0, astpay:0, astspd:0, astcomp:0, moon:0, moonpay:0, moonspd:0, moonphase:0, resonance:0, charm:0 },
         planets:  [],            // orbiters (dust particles); none at start
         clump:    newClump(),    // the shared orbit the dust clump travels as a group
         asteroids: [],           // orbiters (asteroids, ring 1); none at start
         asteroidClump: newClump(),// the shared orbit the asteroid clump travels as a group
+        moons:     [],           // orbiters (moon, ring 2); none at start
+        moonClump: newClump(),   // the shared orbit the moon travels as a group
         comet:null, cometTimer:7 + Math.random()*6, cometSeen:false, // first comet ~7-13s
         particles:[], floatingTexts:[],
     };
@@ -105,7 +107,12 @@ function loadGame() {
         G.orbitsCompleted=def('orbitsCompleted',0); G.taps=def('taps',0);
         G.cometsCaught=def('cometsCaught',0); G.gameTime=def('gameTime',0);
         G.universeTime=def('universeTime', G.gameTime); // current-universe timer (reset on prestige later)
-        G.upgrades = Object.assign({ touch:0, grasp:0, gravpull:0, dust:0, dustpay:0, dustspd:0, asteroid:0, astpay:0, astspd:0, astcomp:0, resonance:0, charm:0 }, d.upgrades);
+        G.upgrades = Object.assign({ touch:0, grasp:0, gravpull:0, dust:0, dustcount:0, dustpay:0, dustspd:0, asteroid:0, astpay:0, astspd:0, astcomp:0, moon:0, moonpay:0, moonspd:0, moonphase:0, resonance:0, charm:0 }, d.upgrades);
+        // Migrate old saves where `dust` was the count (1–5): split into dust(=1) + dustcount(the rest).
+        if (G.upgrades.dust > 1) {
+            G.upgrades.dustcount = Math.min(4, Math.max(G.upgrades.dustcount, G.upgrades.dust - 1));
+            G.upgrades.dust = 1;
+        }
         G.cometSeen = def('cometSeen', G.cometsCaught > 0);
         // Rebuild each orbiter's bodies from its upgrade level (see orbiters/*).
         for (const o of ORBITERS) {

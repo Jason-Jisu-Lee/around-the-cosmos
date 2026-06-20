@@ -30,4 +30,5 @@ const PHYS = {
     lacunaDensity:      2500,      // kg/m³ — rocky (2.50 g/cm³)
     orbitRadius:        200e3,     // m — the dust clump's real orbital radius (200 km, ring 0)
     asteroidOrbitRadius:400e3,     // m — the asteroid clump's wider orbit (400 km, ring 1)
+    moonOrbitRadius:    600e3,     // m — the moon's widest orbit (600 km, ring 2)
 };

@@ -1,6 +1,6 @@
 # Around the Cosmos — Progression & Upgrade Reference
 
-> Living design doc for the **current build** (`feature/dust_particles`). Numbers here
+> Living design doc for the **current build** (`feature/moon`). Numbers here
 > mirror `config.js` / `state.js`. Updated alongside any balance/structure change.
 
 ---
@@ -21,19 +21,20 @@ Click the Lacuna (center) to earn **stardust (✦)** → buy **Star Touch** to e
 | Start | t = 0 | Just the Lacuna. Click to earn **1 ✦**/click. Only **Star Touch** is shown. |
 | First comet | ~**7–13 s** in | A comet crosses — tap it for a burst. Unlocks the **Comet Value** stat. After this, comets recur every **25–55 s**. |
 | Star Touch ×1 | buy (✦10) | Click now earns **2** (+1). |
-| Star Touch ×2 | buy (✦50) | Click earns **3**. → **Dust Particle** upgrade appears. |
-| First Dust Particle | buy (✦100) | Your first **orbiter** appears, paying **10 ✦** per orbit. Unlocks **Dust Particle Payout** + **Dust Particle Speed**, and the **All Orbiters Payout** stat. |
-| 2nd Dust Particle | buy (✦500) | A second dust particle joins the clump → unlocks the **Asteroid** (a single body). |
+| Star Touch ×2 | buy (✦50) | Click earns **3**. → **Dust Particle** upgrade appears (creates your first orbiter). |
+| First Dust Particle | buy (✦100) | Your first **orbiter** appears, paying **10 ✦** per orbit. One-time buy. Unlocks **Dust Particle Count**, **Dust Particle Payout**, **Dust Particle Speed**, and the **All Orbiters Payout** stat. |
+| 2nd Dust Particle | buy Dust Particle Count (✦500) | A second dust particle joins the clump → unlocks the **Asteroid** (a single body). |
 | Star Touch ×5 | buy (✦400) | → **Star Grasp** appears in MAIN (a stronger per-click upgrade). |
 | The Asteroid | buy (✦1,500) | A single bigger, slower **asteroid** appears on a wider orbit, paying **50 ✦** per orbit. Unlocks **Asteroid Payout**, **Asteroid Speed**, **Asteroid Composition**. |
 | Star Grasp maxed | buy (lvl 3) | → **Gravitational Pull** and **Resonance** both appear in MAIN (clicks scale with orbiter payout; Resonance is a global orbit payout boost that lights the Lacuna glow). |
-| … | … | Buy more dust particles (max 5), pump payout/speed, grab **Resonance**, keep catching comets. |
+| The Moon | buy (✦8,000) | A large pale **moon** appears on the widest, slowest orbit (ring 2), sitting right on the orbit line and visibly waxing/waning. Pays **200 ✦** per orbit. Unlocks **Moon Payout**, **Moon Speed**, and **Lunar Phases**. |
+| … | … | Buy more dust particles (max 5), pump payout/speed, grab **Resonance**, develop the Moon, keep catching comets. |
 
 ---
 
 ## Upgrades
 
-> Sections are **per orbiter** (each will become a tab): **MAIN**, **DUST PARTICLES**, **ASTEROID**, **COMETS**.
+> Sections are **per orbiter** (each will become a tab): **MAIN**, **DUST PARTICLES**, **ASTEROID**, **MOON**, **COMETS**.
 > If the list overflows, scroll the upgrade panel.
 
 ### MAIN
@@ -84,16 +85,20 @@ even at max). Combos with Gravitational Pull.
 
 ### DUST PARTICLES
 
-**Dust Particle** — *unlocks after Star Touch lvl 2* · max **5**
-Each one is a small grey pebble orbiting the Lacuna as part of a shared **clump** (ring 0).
-Every dust particle pays **10 ✦ per orbit** at base (before the Payout upgrade).
+**Dust Particle** — *unlocks after Star Touch lvl 2* · **one-time buy** (✦100)
+Creates your **first** dust particle — a small grey pebble orbiting the Lacuna as part of a shared **clump** (ring 0),
+paying **10 ✦ per orbit** at base. Like the other orbiters, buying it populates that orbiter's upgrades
+(**Dust Particle Count**, **Payout**, **Speed**).
+
+**Dust Particle Count** — *unlocks after the first dust particle* · max **4** (→ 5 particles total)
+Adds one more particle to the clump per level (+10 base payout each).
 | Bought | Cost ✦ | Total dust particles |
 |---|---|---|
-| 1st | 100 | 1 |
-| 2nd | 500 | 2 |
-| 3rd | 1,200 | 3 |
-| 4th | 2,500 | 4 |
-| 5th | 4,000 | 5 |
+| (1st, via Dust Particle) | 100 | 1 |
+| Count ×1 | 500 | 2 |
+| Count ×2 | 1,200 | 3 |
+| Count ×3 | 2,500 | 4 |
+| Count ×4 | 4,000 | 5 |
 
 **Dust Particle Payout** — *unlocks after the first dust particle* · max **5**
 Adds **+10** to **every** dust particle's payout per level (additive, not doubling).
@@ -154,6 +159,38 @@ Reforge the single asteroid into denser/richer material: each tier **recolors** 
 > Composition is the one asteroid **multiplier**: `asteroidPayout = round((50 + 50×payoutLvl) × compMult × resonanceMult)`.
 > Rounded so the fractional multipliers never leave a fractional stardust amount.
 
+### MOON
+
+**Moon** — *unlocks after you own the asteroid* · **single body** (one-time buy, ✦8,000)
+A large, pale, round companion on the **widest, slowest orbit** (ring 2, its own clump). Pays
+**200 ✦ per orbit** at base (before the Payout upgrade) — by far the richest single body. Like the
+asteroid it is **not a count upgrade** — there's only ever one Moon.
+
+**Moon Payout** — *unlocks after the moon* · max **5** — adds **+200** to the moon's payout per level (additive).
+| Level | (base) | 1 | 2 | 3 | 4 | 5 |
+|---|---|---|---|---|---|---|
+| Cost ✦ | — | 8,000 | 18,000 | 36,000 | 70,000 | 120,000 |
+| Payout | 200 | 400 | 600 | 800 | 1,000 | 1,200 |
+
+**Moon Speed** — *unlocks after the moon* · max **5** — +20% per level, with a **0.78 base-speed factor** (the slowest orbiter) → effective **78% → 156%**.
+| Level | (base) | 1 | 2 | 3 | 4 | 5 |
+|---|---|---|---|---|---|---|
+| Cost ✦ | — | 9,000 | 18,000 | 35,000 | 60,000 | 100,000 |
+| Speed (×0.78) | 78% | 94% | 109% | 125% | 140% | 156% |
+
+**Lunar Phases** — *unlocks after the moon* · max **4** — the moon's **unique** upgrade.
+The moon visibly **waxes and wanes** on a 24-second cycle (a terminator shadow sweeps across it). Once bought,
+its payout rides that cycle: **×1 at the new moon, up to ×(1 + 0.25×level) at the full moon** — pure upside,
+so a new moon never pays *less* than base, and full moons pay a bonus.
+| Level | 1 | 2 | 3 | 4 |
+|---|---|---|---|---|
+| Cost ✦ | 12,000 | 25,000 | 45,000 | 75,000 |
+| Full-moon payout × | ×1.25 | ×1.5 | ×1.75 | ×2 |
+
+> `moonPayout = round((200 + 200×payoutLvl) × moonPhaseMult × resonanceMult)`, where
+> `moonPhaseMult = 1 + 0.25 × phaseLvl × litFraction` (litFraction 0 at new moon → 1 at full moon).
+> Before Lunar Phases is bought the cycle is purely **cosmetic** (the moon still visibly waxes/wanes, but pays flat).
+
 ### COMETS
 
 **Comet Charm** — *currently disabled* (will return later). Comets still pay windfalls without it.
@@ -164,7 +201,7 @@ Reforge the single asteroid into denser/richer material: each tier **recolors** 
 - First appears **~7–13 s** in; afterward every **25–55 s** (`COMET_MIN_GAP`–`COMET_MAX_GAP`).
 - On screen for **8 s** (`COMET_LIFE`); tap within ~48px to catch. Hovering it shows a **targeting reticle** and a "Comet" label.
 - **Windfall = round( (10 × click value) + 1.25 × every orbiter's payout combined ).**
-  - Click value = Star Touch + Star Grasp (`clickValue()`); combined = `dust × dustPayout + asteroids × asteroidPayout`.
+  - Click value = Star Touch + Star Grasp (`clickValue()`); combined = `Σ each orbiter's count × payout` (dust + asteroid + moon).
   - Rounded so the 1.25× never leaves a fractional stardust amount.
   - Example: click value 3, three dust particles at Payout lvl 1 (20 each) → `10×3 + 1.25×(3×20)` = 30 + 75 = **105 ✦**.
 
@@ -183,8 +220,8 @@ Reforge the single asteroid into denser/richer material: each tier **recolors** 
 ---
 
 ## The Lacuna (center object)
-- The small dark center everything orbits. Currently static (will evolve through stages later — see `asd.txt` for the long-term v3 plan).
-- Dust particles clump on **one orbit ring** around it; more orbiter types / rings come later.
+- The small dark center everything orbits. Currently static (will evolve through stages later).
+- Orbiters clump on their own rings around it (dust ring 0, asteroid ring 1, moon ring 2); more orbiter types / rings come later.
 
 ## Cosmic info
 **Hover** the Lacuna or a dust particle for a quick tooltip that follows your cursor. **Click** it to pin the full card in the **center of the sky** — it stays put so you can read it, and closes with the **× button** or **Escape**. (Clicking a body opens its card instead of harvesting; comets are still caught on click.) All values come from a small physics model (`PHYS` in `config.js`) so the upcoming **science-based upgrades** can grow them; numbers are kept clean (≤2 decimals, intuitive units).
@@ -215,11 +252,18 @@ Plus a one-sentence flavor line introducing the Lacuna as the protagonist.
 | Orbital speed | ~48.3 m/s at base (88%); **scales with Asteroid Speed** (up to ~96.7 m/s at 176%) |
 | Orbits / hour | ~0.08 at base; scales with Speed |
 
+**The moon (ring 2):**
+| Stat | Value |
+|---|---|
+| Phase | current lunar phase (New → Full → New, on a 24s cycle) |
+| Orbit payout | ✦ per orbit (= `moonPayout()`, base 200 +200/lvl, × Lunar Phases factor) |
+| Orbital speed | scales with Moon Speed (0.78 base factor → 78% → 156%) |
+| Orbits / hour | the slowest orbiter; scales with Speed |
+
 > Each orbiter's speed and orbits/hour are tied to its Speed upgrade — buying it visibly increases both, so the cosmic readout reflects the actual mechanic. Every card also carries a one-sentence flavor description.
 
 ---
 
 ## Not in yet (planned)
 Prestige (black-hole consumption → Dark Matter), center evolution stages, the Lacuna upgrade
-pillar, solar events, more orbiter types, the tabbed per-orbiter UI (once >5 orbiters). The
-full v3 design lives in `asd.txt`.
+pillar, solar events, more orbiter types, the tabbed per-orbiter UI (once >5 orbiters).

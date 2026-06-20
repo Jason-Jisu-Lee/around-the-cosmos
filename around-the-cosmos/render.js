@@ -18,6 +18,8 @@ function orbitR(i) { return MAXR*(i+1.9)/(CFG.MAX_PLANETS+1.9); }
 function clumpPos() { const r=orbitR(0); return { x:CX+Math.cos(G.clump.angle)*r, y:CY+Math.sin(G.clump.angle)*r }; }
 // The asteroid clump orbits on the wider ring 1.
 function asteroidClumpPos() { const r=orbitR(1); return { x:CX+Math.cos(G.asteroidClump.angle)*r, y:CY+Math.sin(G.asteroidClump.angle)*r }; }
+// The moon orbits on the widest ring 2.
+function moonClumpPos() { const r=orbitR(2); return { x:CX+Math.cos(G.moonClump.angle)*r, y:CY+Math.sin(G.moonClump.angle)*r }; }
 
 // Draw a clump of irregular pebbles (dust or asteroids) around a clump center.
 function drawClump(list, cp, pr, color, t) {
@@ -47,6 +49,39 @@ function drawClump(list, cp, pr, color, t) {
                 ctx.fillStyle='rgba(138,135,130,0.5)'; ctx.fill();
             }
         }
+    }
+}
+
+// Draw a moon as a smooth disc with a lunar-phase terminator shadow. `phase` is
+// 0..1 (0/1 = new moon, 0.5 = full). The lit disc is filled first, then the unlit
+// region is clipped to the circle and filled — its boundary is the outer limb on the
+// dark side plus the elliptical terminator (semi-axis shrinks to 0 at the quarters).
+function drawMoonDisc(cx, cy, r, phase, lit, dark) {
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.fillStyle = lit; ctx.fill();
+
+    ctx.save();
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.clip();
+    ctx.fillStyle = dark;
+    const a = r * Math.cos(2*Math.PI*phase);   // terminator horizontal semi-axis (signed)
+    const waxing = phase < 0.5;                 // dark on the left while waxing, right while waning
+    const bulgeRight = waxing ? (a > 0) : (a < 0);
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, -Math.PI/2, Math.PI/2, waxing);   // outer semicircle on the dark side (top→edge→bottom)
+    if (bulgeRight) ctx.ellipse(cx, cy, Math.abs(a), r, 0, Math.PI/2, -Math.PI/2, true);
+    else            ctx.ellipse(cx, cy, Math.abs(a), r, 0, Math.PI/2, Math.PI*1.5, false);
+    ctx.closePath(); ctx.fill();
+    ctx.restore();
+}
+
+// A round orbiter (the moon): drawn as a single phased disc sitting on the orbit line.
+function drawRoundClump(o, t) {
+    const cp = o.clumpPos(), pr = o.pebbleR();
+    for (const b of o.list()) {
+        if (b.pulse > 0) {
+            ctx.beginPath(); ctx.arc(cp.x, cp.y, pr+3+(1-b.pulse)*12, 0, Math.PI*2);
+            ctx.strokeStyle = `rgba(100,90,80,${b.pulse*0.45})`; ctx.lineWidth = 1.5; ctx.stroke();
+        }
+        drawMoonDisc(cp.x, cp.y, pr, moonPhase(), o.color(), MOON_SHADOW);
     }
 }
 
@@ -104,7 +139,10 @@ function draw(t) {
     // Orbiters — clumps of small irregular pebbles. Each clump orbits Lacuna; each
     // pebble also circles its own little orbit within the clump. Appearance (color,
     // size) comes from the component (orbiters/*).
-    for (const o of ORBITERS) if (o.list().length) drawClump(o.list(), o.clumpPos(), o.pebbleR(), o.color(), t);
+    for (const o of ORBITERS) if (o.list().length) {
+        if (o.round) drawRoundClump(o, t);
+        else         drawClump(o.list(), o.clumpPos(), o.pebbleR(), o.color(), t);
+    }
 
     if (G.comet) {
         const c=G.comet;

@@ -29,10 +29,16 @@ const UPGRADES = [
         unlock: () => lvl('grasp') >= 3,                 // after Star Grasp is maxed
     },
     {
-        id: 'dust', name: 'Dust Particle', maxLevel: 5, section: 'DUST PARTICLES',
-        costs: [100, 500, 1200, 2500, 4000],
-        desc: () => 'A dust particle orbiting the Lacuna · +10 base payout',
+        id: 'dust', name: 'Dust Particle', maxLevel: 1, section: 'DUST PARTICLES',
+        costs: [100],                                    // one-time: creates the first dust particle
+        desc: () => 'Your first dust particle orbiting the Lacuna · +10 base payout',
         unlock: () => lvl('touch') >= 2,                 // after the second Star Touch
+    },
+    {
+        id: 'dustcount', name: 'Dust Particle Count', maxLevel: 4, section: 'DUST PARTICLES',
+        costs: [500, 1200, 2500, 4000],                  // adds dust particles 2–5 (cap 5 total)
+        desc: () => '+1 dust particle in the clump (+10 base payout each)',
+        unlock: () => lvl('dust') >= 1,                  // after the first dust particle exists
     },
     {
         id: 'dustpay', name: 'Dust Particle Payout', maxLevel: 5, section: 'DUST PARTICLES',
@@ -51,7 +57,7 @@ const UPGRADES = [
         id: 'asteroid', name: 'Asteroid', maxLevel: 1, section: 'ASTEROID',
         costs: [1500],                                   // a single body — NOT a count upgrade
         desc: () => 'A single rocky asteroid on a wider orbit · +50 base payout',
-        unlock: () => lvl('dust') >= 2,                  // after the second dust particle
+        unlock: () => lvl('dustcount') >= 1,             // after the second dust particle
     },
     {
         id: 'astpay', name: 'Asteroid Payout', maxLevel: 5, section: 'ASTEROID',
@@ -75,6 +81,33 @@ const UPGRADES = [
         unlock: () => lvl('asteroid') >= 1,              // the asteroid's unique upgrade
     },
     {
+        id: 'moon', name: 'Moon', maxLevel: 1, section: 'MOON',
+        costs: [8000],                                   // a single body — NOT a count upgrade
+        desc: () => 'A single pale moon on the widest orbit · +200 base payout',
+        unlock: () => lvl('asteroid') >= 1,              // after you own the asteroid
+    },
+    {
+        id: 'moonpay', name: 'Moon Payout', maxLevel: 5, section: 'MOON',
+        costs: [8000, 18000, 36000, 70000, 120000],
+        desc: () => '+200 to the moon’s payout',         // additive, not doubling
+        unlock: () => lvl('moon') >= 1,
+    },
+    {
+        id: 'moonspd', name: 'Moon Speed', maxLevel: 5, section: 'MOON',
+        costs: [9000, 18000, 35000, 60000, 100000],
+        mult: lvl => 1 + 0.2 * lvl,                      // multiplier; moonSpeed() scales it by 0.78
+        desc: () => '+20% orbit speed per level (additive)',
+        unlock: () => lvl('moon') >= 1,
+    },
+    {
+        id: 'moonphase', name: 'Lunar Phases', maxLevel: 4, section: 'MOON',
+        costs: [12000, 25000, 45000, 75000],             // the moon's UNIQUE upgrade
+        // Couples payout to the moon's waxing/waning cycle: ×1 at new moon, up to
+        // ×(1 + 0.25·lvl) at the full moon (pure upside — full moons pay a bonus).
+        desc: l => `The moon’s payout rides its phase: up to ×${(1 + 0.25 * (l + 1)).toFixed(2)} at full moon`,
+        unlock: () => lvl('moon') >= 1,
+    },
+    {
         id: 'resonance', name: 'Resonance', maxLevel: 4, section: 'MAIN',
         costs: [5000, 10000, 18000, 30000],
         // +25% to every orbiter's payout per level (additive, ×1.25 → ×2). Also lights the Lacuna's glow.
@@ -91,4 +124,4 @@ const UPGRADES = [
 ];
 
 // Display order of upgrade sections — one per orbiter (a future tab each), MAIN first.
-const SECTION_ORDER = ['MAIN', 'DUST PARTICLES', 'ASTEROID', 'COMETS'];
+const SECTION_ORDER = ['MAIN', 'DUST PARTICLES', 'ASTEROID', 'MOON', 'COMETS'];
