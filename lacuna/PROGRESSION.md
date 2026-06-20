@@ -109,16 +109,17 @@ Adds **+10** to **every** dust particle's payout per level (additive, not doubli
 
 > One dust particle pays `10 + 10×lvl`; five particles pay `5 × that`.
 
-**Dust Particle Speed** — *unlocks after the first dust particle* · max **5**
-The upgrade runs **100% → 200%** (+20% per level) — this is the actual orbit speed (no base bump).
-| Level | Cost ✦ | Orbit speed |
+**Dust Particle Speed** — *unlocks after the first dust particle* · max **5** · +20% per level
+The upgrade multiplier runs 100%→200%, but dust has a **0.82 base-speed factor** (base reduced 18%),
+so the *actual* orbit speed is the column below — i.e. **82% → 164%**.
+| Level | Cost ✦ | Orbit speed (×0.82) |
 |---|---|---|
-| (base) | — | 100 % |
-| 1 | 200 | 120 % |
-| 2 | 600 | 140 % |
-| 3 | 1,500 | 160 % |
-| 4 | 2,500 | 180 % |
-| 5 | 4,200 | 200 % |
+| (base) | — | 82 % |
+| 1 | 200 | 98 % |
+| 2 | 600 | 115 % |
+| 3 | 1,500 | 131 % |
+| 4 | 2,500 | 148 % |
+| 5 | 4,200 | 164 % |
 
 > Faster orbit = the clump crosses the top more often = more payouts per minute.
 
@@ -136,11 +137,11 @@ identity comes from its unique **Asteroid Composition** upgrade (below).
 | Cost ✦ | — | 1,500 | 4,500 | 10,000 | 20,000 | 36,000 |
 | Payout (Rock) | 50 | 100 | 150 | 200 | 250 | 300 |
 
-**Asteroid Speed** — *unlocks after the first asteroid* · max **5** — +20% orbit speed per level (100% → 200%).
-| Level | 1 | 2 | 3 | 4 | 5 |
-|---|---|---|---|---|---|
-| Cost ✦ | 2,000 | 4,500 | 9,000 | 17,000 | 30,000 |
-| Speed | 120% | 140% | 160% | 180% | 200% |
+**Asteroid Speed** — *unlocks after the first asteroid* · max **5** — +20% per level, with a **0.88 base-speed factor** (base reduced 12%) → effective **88% → 176%**.
+| Level | (base) | 1 | 2 | 3 | 4 | 5 |
+|---|---|---|---|---|---|---|
+| Cost ✦ | — | 2,000 | 4,500 | 9,000 | 17,000 | 30,000 |
+| Speed (×0.88) | 88% | 106% | 123% | 141% | 158% | 176% |
 
 **Asteroid Composition** — *unlocks after the asteroid* · max **3** — the asteroid's **unique** upgrade.
 Reforge the single asteroid into denser/richer material: each tier **recolors** it and **multiplies its payout**.
@@ -204,7 +205,7 @@ Plus a one-sentence flavor line introducing the Lacuna as the protagonist.
 | Stat | Value |
 |---|---|
 | Orbit payout | ✦ per orbit for the **whole clump** (= dust count × `orbiterPayout()`; per particle = 10 +10/lvl) |
-| Orbital speed | ~77.7 m/s at base (100%); **scales with Dust Particle Speed** (up to ~155 m/s at 200%) |
+| Orbital speed | ~63.7 m/s at base (82%); **scales with Dust Particle Speed** (up to ~127 m/s at 164%) |
 | Orbits / hour | ~0.27 at base; scales with Speed |
 
 **An asteroid (ring 1):**
@@ -212,7 +213,7 @@ Plus a one-sentence flavor line introducing the Lacuna as the protagonist.
 |---|---|
 | Composition | current material tier (Rock / Iron / Gold / Ice) |
 | Orbit payout | ✦ per orbit (= `asteroidPayout()`, base 50 +50/lvl, × composition) |
-| Orbital speed | ~54.9 m/s at base; **scales with Asteroid Speed** (up to ~110 m/s) |
+| Orbital speed | ~48.3 m/s at base (88%); **scales with Asteroid Speed** (up to ~96.7 m/s at 176%) |
 | Orbits / hour | ~0.08 at base; scales with Speed |
 
 > Each orbiter's speed and orbits/hour are tied to its Speed upgrade — buying it visibly increases both, so the cosmic readout reflects the actual mechanic. Every card also carries a one-sentence flavor description.

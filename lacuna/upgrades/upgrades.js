@@ -43,8 +43,8 @@ const UPGRADES = [
     {
         id: 'dustspd', name: 'Dust Particle Speed', maxLevel: 5, section: 'DUST PARTICLES',
         costs: [200, 600, 1500, 2500, 4200],
-        mult: lvl => 1 + 0.2 * lvl,                      // 100%→200% upgrade range
-        desc: () => '×1.2 orbit speed per level (additive +20%). Starts at 100%, max 200%.',
+        mult: lvl => 1 + 0.2 * lvl,                      // multiplier; dustSpeed() scales it by 0.82
+        desc: () => '+20% orbit speed per level (additive)',
         unlock: () => lvl('dust') >= 1,
     },
     {
@@ -62,8 +62,8 @@ const UPGRADES = [
     {
         id: 'astspd', name: 'Asteroid Speed', maxLevel: 5, section: 'ASTEROID',
         costs: [2000, 4500, 9000, 17000, 30000],
-        mult: lvl => 1 + 0.2 * lvl,                      // base 100%, +20%/lvl → 200%
-        desc: () => '×1.2 orbit speed per level (additive +20%). Starts at 100%, max 200%.',
+        mult: lvl => 1 + 0.2 * lvl,                      // multiplier; asteroidSpeed() scales it by 0.88
+        desc: () => '+20% orbit speed per level (additive)',
         unlock: () => lvl('asteroid') >= 1,
     },
     {

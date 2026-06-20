@@ -146,13 +146,16 @@ body {
 .acc { margin-bottom: 4px; }
 .acc-head {
     display: flex; justify-content: space-between; align-items: center; cursor: pointer;
-    font-family: 'Segoe UI', sans-serif; font-size: 9px; letter-spacing: 0.22em; color: var(--text-faint);
-    border-bottom: 1px solid var(--border2); padding: 9px 0; margin-bottom: 10px;
-    transition: color 0.12s;
+    font-family: 'Segoe UI', sans-serif; font-size: 9px; letter-spacing: 0.22em; color: var(--text-dim);
+    border-bottom: 1px solid var(--border2); padding: 9px 8px; margin-bottom: 10px;
+    border-radius: 3px;
+    transition: color 0.12s, background 0.12s;
 }
-.acc-head:hover { color: var(--text-dim); }
-.acc-label { display: inline-flex; align-items: center; gap: 8px; }
-.acc-arrow { display: inline-block; transition: transform 0.2s; font-size: 8px; }
+/* Clear "this is a collapsible header" affordance: highlighted row + bigger accent chevron on hover. */
+.acc-head:hover { color: var(--ink); background: rgba(122,104,72,0.08); }
+.acc-head:hover .acc-arrow { color: var(--accent); }
+.acc-label { display: inline-flex; align-items: center; gap: 9px; }
+.acc-arrow { display: inline-block; transition: transform 0.2s, color 0.12s; font-size: 11px; color: var(--accent-dim); line-height: 1; }
 .acc.open .acc-arrow { transform: rotate(90deg); }
 .acc-count { color: var(--accent-dim); font-weight: 700; font-variant-numeric: tabular-nums; }
 .acc-body { display: none; }

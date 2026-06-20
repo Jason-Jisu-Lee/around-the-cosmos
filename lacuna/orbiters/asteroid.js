@@ -36,7 +36,8 @@ function newAsteroidBody() {
 // Rounded so the fractional multipliers never leave a fractional payout.
 function asteroidPayout() { return Math.round((50 + 50 * lvl('astpay')) * ASTEROID_COMP.mult[lvl('astcomp')] * resonanceMult()); }
 function asteroidColor()  { return ASTEROID_COMP.colors[lvl('astcomp')]; }
-function asteroidSpeed()  { return upg('astspd').mult(lvl('astspd')); }
+// Base factor 0.88 (base speed reduced 12% — max was too fast) × upgrade mult → 88% → 176%.
+function asteroidSpeed()  { return 0.88 * upg('astspd').mult(lvl('astspd')); }
 function asteroidVel()           { return Math.sqrt(PHYS.G * lacunaMass() / PHYS.asteroidOrbitRadius) * asteroidSpeed(); }
 function asteroidOrbitsPerHour() { return asteroidVel() / (2*Math.PI*PHYS.asteroidOrbitRadius) * 3600; }
 
