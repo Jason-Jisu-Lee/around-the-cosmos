@@ -150,7 +150,7 @@ Buttons to inject ✦ (100, 1K, 10K, 100K, 1M, 10M), set speed multiplier, force
 ## Git workflow
 - All changes → commit and push to `refine/v.1`
 - Merge to `main` only after user explicitly confirms a feature is good
-- Remote: https://github.com/Jason-Jisu-Lee/lacuna.git
+- Remote: https://github.com/Jason-Jisu-Lee/around-the-cosmos.git (repo renamed from `lacuna`)
 
 ## Progressive upgrade unlock
 - Each upgrade in `config.js` has an `unlock: () => boolean`; the card shows only when it returns true.
