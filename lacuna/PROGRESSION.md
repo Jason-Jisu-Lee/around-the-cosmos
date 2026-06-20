@@ -21,10 +21,10 @@ Click the Lacuna (center) to earn **stardust (✦)** → buy **Star Touch** to e
 | Start | t = 0 | Just the Lacuna. Click to earn **1 ✦**/click. Only **Star Touch** is shown. |
 | First comet | ~**7–13 s** in | A comet crosses — tap it for a burst. Unlocks the **Comet Value** stat. After this, comets recur every **25–55 s**. |
 | Star Touch ×1 | buy (✦10) | Click now earns **2** (+1). |
-| Star Touch ×2 | buy (✦40) | Click earns **3**. → **Dust Particle** upgrade appears. |
+| Star Touch ×2 | buy (✦50) | Click earns **3**. → **Dust Particle** upgrade appears. |
 | First Dust Particle | buy (✦100) | Your first **orbiter** appears, paying **10 ✦** per orbit. Unlocks **Dust Particle Payout** + **Dust Particle Speed**, and the **All Orbiters Payout** stat. |
 | 2nd Dust Particle | buy (✦300) | A second dust particle joins the clump → unlocks the **Asteroid** (a single body). |
-| The Asteroid | buy (✦1,000) | A single bigger, slower **asteroid** appears on a wider orbit, paying **50 ✦** per orbit. Unlocks **Asteroid Payout**, **Asteroid Speed**, **Asteroid Composition**. |
+| The Asteroid | buy (✦1,500) | A single bigger, slower **asteroid** appears on a wider orbit, paying **50 ✦** per orbit. Unlocks **Asteroid Payout**, **Asteroid Speed**, **Asteroid Composition**. |
 | … | … | Buy more dust particles (max 4), pump payout/speed on both, keep catching comets. |
 
 ---
@@ -33,28 +33,33 @@ Click the Lacuna (center) to earn **stardust (✦)** → buy **Star Touch** to e
 
 ### ACTIONS
 
-**Star Touch** — *always available* · max **4** levels · **+1 ✦ per click each level** (additive, not doubling)
+**Star Touch** — *always available* · max **8** levels · **+1 ✦ per click each level** (additive, not doubling)
 | Level | Cost ✦ | Click value |
 |---|---|---|
 | (base) | — | 1 |
 | 1 | 10 | 2 |
-| 2 | 40 | 3 |
-| 3 | 130 | 4 |
-| 4 | 400 | 5 |
+| 2 | 50 | 3 |
+| 3 | 150 | 4 |
+| 4 | 250 | 5 |
+| 5 | 400 | 6 |
+| 6 | 600 | 7 |
+| 7 | 800 | 8 |
+| 8 | 1,000 | 9 |
 
 > Buying level 2 is what reveals the ORBITERS section (Dust Particle).
 
 ### ORBITERS
 
-**Dust Particle** — *unlocks after Star Touch lvl 2* · max **4**
+**Dust Particle** — *unlocks after Star Touch lvl 2* · max **5**
 Each one is a small grey pebble orbiting the Lacuna as part of a shared **clump** (ring 0).
 Every dust particle pays **10 ✦ per orbit** at base (before the Payout upgrade).
 | Bought | Cost ✦ | Total dust particles |
 |---|---|---|
 | 1st | 100 | 1 |
-| 2nd | 300 | 2 |
-| 3rd | 700 | 3 |
-| 4th | 1,300 | 4 |
+| 2nd | 500 | 2 |
+| 3rd | 1,200 | 3 |
+| 4th | 2,500 | 4 |
+| 5th | 4,000 | 5 |
 
 **Dust Particle Payout** — *unlocks after the first dust particle* · max **5**
 Adds **+10** to **every** dust particle's payout per level (additive, not doubling).
@@ -62,28 +67,27 @@ Adds **+10** to **every** dust particle's payout per level (additive, not doubli
 |---|---|---|
 | (base) | — | 10 |
 | 1 | 150 | 20 |
-| 2 | 450 | 30 |
-| 3 | 1,000 | 40 |
+| 2 | 500 | 30 |
+| 3 | 1,200 | 40 |
 | 4 | 2,000 | 50 |
-| 5 | 3,600 | 60 |
+| 5 | 3,000 | 60 |
 
-> One dust particle pays `10 + 10×lvl`; four particles pay `4 × that`.
+> One dust particle pays `10 + 10×lvl`; five particles pay `5 × that`.
 
 **Dust Particle Speed** — *unlocks after the first dust particle* · max **5**
-The upgrade itself runs **100% → 200%** (+20% per level). On top of that, dust has a flat
-**×1.2 base-speed bump**, so the *actual* orbit speed is 1.2× the values below — i.e. **120% → 240%**.
-| Level | Cost ✦ | Upgrade | Actual (×1.2) |
-|---|---|---|---|
-| (base) | — | 100 % | 120 % |
-| 1 | 200 | 120 % | 144 % |
-| 2 | 450 | 140 % | 168 % |
-| 3 | 900 | 160 % | 192 % |
-| 4 | 1,700 | 180 % | 216 % |
-| 5 | 3,000 | 200 % | 240 % |
+The upgrade runs **100% → 200%** (+20% per level) — this is the actual orbit speed (no base bump).
+| Level | Cost ✦ | Orbit speed |
+|---|---|---|
+| (base) | — | 100 % |
+| 1 | 200 | 120 % |
+| 2 | 600 | 140 % |
+| 3 | 1,500 | 160 % |
+| 4 | 2,500 | 180 % |
+| 5 | 4,200 | 200 % |
 
 > Faster orbit = the clump crosses the top more often = more payouts per minute.
 
-**Asteroid** — *unlocks after the 2nd dust particle* · **single body** (one-time buy, ✦1,000)
+**Asteroid** — *unlocks after the 2nd dust particle* · **single body** (one-time buy, ✦1,500)
 A bigger rocky-brown body on a **wider, slower orbit** (ring 1, its own clump), with tiny dust
 motes drifting around it. Pays **50 ✦ per orbit** at base (before the Payout upgrade).
 **Unlike dust particles, the asteroid is not a count upgrade** — there's only ever one. Its
@@ -160,7 +164,7 @@ Plus a one-sentence flavor line introducing the Lacuna as the protagonist.
 | Stat | Value |
 |---|---|
 | Orbit payout | ✦ per orbit (= `orbiterPayout()`, base 10 +10/lvl) |
-| Orbital speed | ~93 m/s at base (120%); **scales with Dust Particle Speed** (up to ~186 m/s at 240%) |
+| Orbital speed | ~77.7 m/s at base (100%); **scales with Dust Particle Speed** (up to ~155 m/s at 200%) |
 | Orbits / hour | ~0.27 at base; scales with Speed |
 
 **An asteroid (ring 1):**

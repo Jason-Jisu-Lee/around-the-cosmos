@@ -9,34 +9,34 @@
 //   section: heading the card is grouped under (see SECTION_ORDER).
 const UPGRADES = [
     {
-        id: 'touch', name: 'Star Touch', maxLevel: 4, section: 'ACTIONS',
-        costs: [10, 40, 130, 400],
-        tapYield: [1, 2, 3, 4, 5],                       // +1 ✦ per click per level
-        desc: lvl => `Each click earns ${[1, 2, 3, 4, 5][lvl]} ✦`,
+        id: 'touch', name: 'Star Touch', maxLevel: 8, section: 'ACTIONS',
+        costs: [10, 50, 150, 250, 400, 600, 800, 1000],
+        tapYield: [1, 2, 3, 4, 5, 6, 7, 8, 9],           // +1 ✦ per click per level
+        desc: lvl => `Each click earns ${[1, 2, 3, 4, 5, 6, 7, 8, 9][lvl]} ✦`,
         unlock: () => true,                              // always visible — the first thing seen
     },
     {
-        id: 'dust', name: 'Dust Particle', maxLevel: 4, section: 'ORBITERS',
-        costs: [100, 300, 700, 1300],
+        id: 'dust', name: 'Dust Particle', maxLevel: 5, section: 'ORBITERS',
+        costs: [100, 500, 1200, 2500, 4000],
         desc: () => 'A dust particle orbiting the Lacuna · +10 base payout',
         unlock: () => lvl('touch') >= 2,                 // after the second Star Touch
     },
     {
         id: 'dustpay', name: 'Dust Particle Payout', maxLevel: 5, section: 'ORBITERS',
-        costs: [150, 450, 1000, 2000, 3600],
+        costs: [150, 500, 1200, 2000, 3000],
         desc: () => '+10 to every dust particle’s payout',   // additive, not doubling
         unlock: () => lvl('dust') >= 1,
     },
     {
         id: 'dustspd', name: 'Dust Particle Speed', maxLevel: 5, section: 'ORBITERS',
-        costs: [200, 450, 900, 1700, 3000],
+        costs: [200, 600, 1500, 2500, 4200],
         mult: lvl => 1 + 0.2 * lvl,                      // 100%→200% upgrade range
         desc: () => '×1.2 orbit speed per level (additive +20%). Starts at 100%, max 200%.',
         unlock: () => lvl('dust') >= 1,
     },
     {
         id: 'asteroid', name: 'Asteroid', maxLevel: 1, section: 'ORBITERS',
-        costs: [1000],                                   // a single body — NOT a count upgrade
+        costs: [1500],                                   // a single body — NOT a count upgrade
         desc: () => 'A single rocky asteroid on a wider orbit · +50 base payout',
         unlock: () => lvl('dust') >= 2,                  // after the second dust particle
     },

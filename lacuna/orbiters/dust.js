@@ -19,8 +19,8 @@ function newDustParticle() {
 
 // Payout: base 10 per particle, +10 per Dust Particle Payout level (additive).
 function orbiterPayout() { return 10 + 10 * lvl('dustpay'); }
-// Speed: the upgrade runs 100%→200% (mult=1+0.2·lvl); a flat ×1.2 base bump multiplies it.
-function dustSpeed()     { return 1.2 * upg('dustspd').mult(lvl('dustspd')); }
+// Speed: the upgrade runs 100%→200% (mult=1+0.2·lvl). No base-speed bump.
+function dustSpeed()     { return upg('dustspd').mult(lvl('dustspd')); }
 // Cosmic orbital velocity (ring 0 radius + Lacuna mass), scaled by speed.
 function orbiterVel()           { return Math.sqrt(PHYS.G * lacunaMass() / PHYS.orbitRadius) * dustSpeed(); }
 function orbiterOrbitsPerHour() { return orbiterVel() / (2*Math.PI*PHYS.orbitRadius) * 3600; }
@@ -37,7 +37,7 @@ registerOrbiter({
     clump:    () => G.clump,
     clumpPos: () => clumpPos(),
     make:     () => newDustParticle(),
-    count:    () => Math.min(4, lvl('dust')),    // rebuilt from level on load
+    count:    () => Math.min(5, lvl('dust')),    // rebuilt from level on load
     bodyUpgrade: 'dust',                          // buying this id adds a body
     payout: orbiterPayout,
     speed:  dustSpeed,
