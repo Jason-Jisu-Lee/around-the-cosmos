@@ -31,18 +31,40 @@ function makeCard(u) {
     const card = document.createElement('div');
     card.className = 'upgrade-card';
     // First time this upgrade is ever shown (and not just the initial page build) → sweep highlight.
-    if (!firstPanelBuild && !seenUpg.has(u.id)) card.classList.add('upg-new');
+    if (!firstPanelBuild && !seenUpg.has(u.id)) {
+        card.classList.add('upg-new');
+        // Drop the class once the sweep ends so the card returns to its default look seamlessly.
+        card.addEventListener('animationend', () => card.classList.remove('upg-new'), { once: true });
+    }
     seenUpg.add(u.id);
     card.innerHTML = `<div class="upg-top"><span class="upg-name">${u.name}</span><span class="upg-cost"></span></div>`
-        + `<span class="upg-level"></span>`     // pinned in the card's bottom-right corner (CSS)
-        + `<div class="upg-desc"></div>`;
+        + `<span class="upg-level"></span>`;    // pinned in the card's bottom-right corner (CSS)
     card.addEventListener('click', () => { if (buyUpgrade(u)) buildPanels(); });
+    // Description shows in the shared left-side popup on hover (not a child of the card).
+    card.addEventListener('mouseenter', () => showUpgPop(u, card));
+    card.addEventListener('mouseleave', hideUpgPop);
     cardRefs.push({ u, card,
         cost:  card.querySelector('.upg-cost'),
-        level: card.querySelector('.upg-level'),
-        desc:  card.querySelector('.upg-desc') });
+        level: card.querySelector('.upg-level') });
     return card;
 }
+
+// Shared description popup, positioned to the LEFT of the hovered card (fixed → escapes
+// the right column's overflow clip, so it hides nothing in the list).
+const upgPop = document.getElementById('upg-pop');
+function showUpgPop(u, cardEl) {
+    upgPop.textContent = u.desc(G.upgrades[u.id]);
+    upgPop.style.display = 'block';
+    const r = cardEl.getBoundingClientRect();
+    const pw = upgPop.offsetWidth, ph = upgPop.offsetHeight;
+    let left = r.left - pw - 12;                 // to the left of the card
+    if (left < 6) left = r.right + 12;           // no room? fall back to the right
+    let top = r.top + r.height / 2 - ph / 2;     // vertically centred on the card
+    top = Math.max(6, Math.min(top, window.innerHeight - ph - 6));
+    upgPop.style.left = left + 'px';
+    upgPop.style.top  = top + 'px';
+}
+function hideUpgPop() { upgPop.style.display = 'none'; }
 
 function buildPanels() {
     const list = document.getElementById('upgrades-list');
@@ -91,6 +113,6 @@ function updateCards() {
         ref.cost.classList.toggle('maxed', isMax);
         // Level shown small in the card's bottom-right corner (e.g. "1 / 5").
         ref.level.textContent = `${l} / ${u.maxLevel}`;
-        ref.desc.textContent = u.desc(l);
+        // (description text is rendered on hover by showUpgPop, not stored per-card)
     }
 }
