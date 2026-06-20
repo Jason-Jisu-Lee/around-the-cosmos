@@ -12,10 +12,7 @@ function updateUI(now) {
 
     document.getElementById('dust-amount').textContent = fmtNum(G.dust);
 
-    // Show the "completed" toggle only once something has actually been maxed.
-    const anyMaxed = UPGRADES.some(u => upgradeVisible(u) && G.upgrades[u.id] >= u.maxLevel);
-    document.getElementById('upg-controls').style.display = anyMaxed ? '' : 'none';
-
+    // "Show completed" toggle is always present (it no longer pops in / pushes the list down).
     if (visibleSig() !== lastVisibleSig) buildPanels(); else updateCards();
 
     updateObservatory();

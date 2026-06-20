@@ -79,7 +79,7 @@ const UPGRADES = [
         costs: [5000, 10000, 18000, 30000],
         // +25% to every orbiter's payout per level (additive, ×1.25 → ×2). Also lights the Lacuna's glow.
         desc: () => '+25% to every orbiter’s payout, per level (additive). The Lacuna begins to glow.',
-        unlock: () => lvl('asteroid') >= 1,              // mid-game: once both orbiter types are running
+        unlock: () => lvl('touch') >= 8 && lvl('gravpull') >= 2,   // after Star Touch + Gravitational Pull maxed
     },
     {
         id: 'charm', name: 'Comet Charm', maxLevel: 3, section: 'COMETS',

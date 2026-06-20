@@ -80,10 +80,10 @@ function draw(t) {
     // even at max — barely perceptible). No glow by default.
     const reso = lvl('resonance');
     if (reso > 0) {
-        const a = 0.025 * reso;   // center alpha: ~0.025 (lvl1) → ~0.10 (lvl4)
-        const g = ctx.createRadialGradient(CX,CY,0,CX,CY,sunR*4.2);
-        g.addColorStop(0,`rgba(160,130,70,${a})`); g.addColorStop(0.5,`rgba(160,120,60,${a*0.32})`); g.addColorStop(1,'rgba(160,120,60,0)');
-        ctx.beginPath(); ctx.arc(CX,CY,sunR*4.2,0,Math.PI*2); ctx.fillStyle=g; ctx.fill();
+        const a = 0.06 + 0.04 * (reso - 1);   // center alpha: 0.06 (lvl1, faint but visible) → 0.18 (lvl4)
+        const g = ctx.createRadialGradient(CX,CY,0,CX,CY,sunR*4.6);
+        g.addColorStop(0,`rgba(160,130,70,${a})`); g.addColorStop(0.5,`rgba(160,120,60,${a*0.42})`); g.addColorStop(1,'rgba(160,120,60,0)');
+        ctx.beginPath(); ctx.arc(CX,CY,sunR*4.6,0,Math.PI*2); ctx.fillStyle=g; ctx.fill();
     }
 
     ctx.beginPath(); ctx.arc(CX,CY,sunR,0,Math.PI*2); ctx.fillStyle='#1a1a1a'; ctx.fill();

@@ -29,12 +29,13 @@ function newClump() {
 
 function fmtNum(n) {
     if (!isFinite(n)) return '∞';
-    // Under 10,000: write the whole number out, comma-grouped (9000 → "9,000"). 10k+ abbreviates.
-    if (n < 10000) return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-    if (n < 1e6)  return (n/1e3).toFixed(2)+'K';
-    if (n < 1e9)  return (n/1e6).toFixed(2)+'M';
-    if (n < 1e12) return (n/1e9).toFixed(2)+'B';
-    return (n/1e12).toFixed(2)+'T';
+    // Under 100,000: write the whole number out, comma-grouped (10000 → "10,000"). 6 figures+ abbreviate.
+    if (n < 100000) return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    const abbr = (v, suf) => v.toFixed(2).replace(/\.?0+$/, '') + suf;   // trims trailing zeros (100.00→100)
+    if (n < 1e6)  return abbr(n/1e3, 'K');   // 100000 → "100K"
+    if (n < 1e9)  return abbr(n/1e6, 'M');
+    if (n < 1e12) return abbr(n/1e9, 'B');
+    return abbr(n/1e12, 'T');
 }
 
 function fmtTime(secs) {
