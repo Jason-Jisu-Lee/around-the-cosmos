@@ -28,6 +28,7 @@ function buildStats(showOrbiter, showComet) {
         statEls.orbiterMin = mk('All Orbiters Payout / min');
     }
     if (showComet)   { const r = mkPop('Comet Value');         statEls.comet   = r.val; statEls.cometPop   = r.pop; }
+    { const r = mkPop('Total Stardust Collected'); statEls.total = r.val; statEls.totalPop = r.pop; }
     statEls.time = mk('Time on Current Universe');
 }
 
@@ -62,5 +63,7 @@ function updateObservatory() {
         statEls.comet.textContent = '✦' + fmtNum(cometVal);
         statEls.cometPop.innerHTML = `10 × click (${fmtNum(touchVal)}) + 1.25 × orbiters (${fmtNum(orbiterSum)}) = <b>✦${fmtNum(cometVal)}</b>`;
     }
+    statEls.total.textContent = '✦' + fmtNum(G.runDust);
+    statEls.totalPop.innerHTML = 'All stardust earned in the current universe (resets on prestige).';
     statEls.time.textContent = fmtTime(G.universeTime);
 }

@@ -151,6 +151,7 @@ Reforge the single asteroid into denser/richer material: each tier **recolors** 
 | All Orbiters Payout | combined payout of all orbiters per orbit (hover → formula) | after first orbiter |
 | All Orbiters Payout / min | that combined payout × how often the clumps orbit (payout × orbits per minute) | after first orbiter |
 | Comet Value | what the next comet pays (hover → formula) | after first comet caught |
+| Total Stardust Collected | all stardust earned this universe (`runDust`; hover → note that it resets on prestige) | always |
 | Time on Current Universe | run timer (resets on prestige, later) | always |
 
 ---

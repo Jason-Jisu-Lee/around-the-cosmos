@@ -126,7 +126,6 @@ body {
 
 #dust-display { font-size: 46px; font-weight: 400; color: var(--ink); line-height: 1; font-variant-numeric: tabular-nums; font-family: 'Optima','Candara','Century Gothic',sans-serif; letter-spacing: 0.01em; }
 #dust-icon  { font-size: 30px; }
-#dust-rate  { font-size: 13px; color: var(--text-dim); font-family: 'Segoe UI', sans-serif; font-style: italic; letter-spacing: 0.04em; }
 
 #sky-section { flex: 1; position: relative; min-width: 0; }
 #sky { display: block; width: 100%; height: 100%; cursor: default; }
