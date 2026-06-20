@@ -21,3 +21,10 @@ function sfxBuy() {
     const t = SND.ctx.currentTime;
     tone('triangle',580,t,0.07,0.22); tone('triangle',870,t+0.07,0.09,0.16);
 }
+// Played when an upgrade reaches max level — a soft ascending chime (E5-B5-E6).
+function sfxComplete() {
+    if (!SND.ctx) return;
+    const t = SND.ctx.currentTime;
+    [[659.25,0.00,0.11],[987.77,0.07,0.11],[1318.51,0.15,0.08]]
+        .forEach(([f,d,v]) => tone('sine', f, t+d, 0.7, v, SND.sfxBus));
+}

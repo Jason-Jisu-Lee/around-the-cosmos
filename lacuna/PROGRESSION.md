@@ -33,7 +33,10 @@ Click the Lacuna (center) to earn **stardust (✦)** → buy **Star Touch** to e
 
 ## Upgrades
 
-### ACTIONS
+> Sections are **per orbiter** (each will become a tab): **MAIN**, **DUST PARTICLES**, **ASTEROID**, **COMETS**.
+> If the list overflows, scroll the upgrade panel.
+
+### MAIN
 
 **Star Touch** — *always available* · max **8** levels · **+1 ✦ per click each level** (additive, not doubling)
 | Level | Cost ✦ | Click value |
@@ -48,7 +51,7 @@ Click the Lacuna (center) to earn **stardust (✦)** → buy **Star Touch** to e
 | 7 | 800 | 8 |
 | 8 | 1,000 | 9 |
 
-> Buying level 2 is what reveals the ORBITERS section (Dust Particle).
+> Buying level 2 is what reveals the DUST PARTICLES section (Dust Particle).
 
 **Star Grasp** — *unlocks after Star Touch lvl 5* · max **3** · **+2 ✦ per click each level** (stacks on Star Touch)
 | Level | Cost ✦ | Adds to each click |
@@ -68,7 +71,18 @@ Click the Lacuna (center) to earn **stardust (✦)** → buy **Star Touch** to e
 > Ties active clicking to your idle income — the more your orbiters pay, the more each click is worth.
 > Combos with **Resonance** (which raises orbiter payout, so it raises this bonus too).
 
-### ORBITERS
+**Resonance** — *unlocks after the asteroid* · max **4** · **global** payout multiplier on **every** orbiter
+Adds **+25% per level (additive)** to all orbiter payout — ×1.25 → ×2 at level 4 — and is the only thing
+that lights the **Lacuna's glow** (off by default; brightens marginally per level, but stays *very* faint
+even at max). Combos with Gravitational Pull.
+| Level | Cost ✦ | All orbiter payout |
+|---|---|---|
+| 1 | 5,000 | ×1.25 |
+| 2 | 10,000 | ×1.5 |
+| 3 | 18,000 | ×1.75 |
+| 4 | 30,000 | ×2 |
+
+### DUST PARTICLES
 
 **Dust Particle** — *unlocks after Star Touch lvl 2* · max **5**
 Each one is a small grey pebble orbiting the Lacuna as part of a shared **clump** (ring 0).
@@ -107,6 +121,8 @@ The upgrade runs **100% → 200%** (+20% per level) — this is the actual orbit
 
 > Faster orbit = the clump crosses the top more often = more payouts per minute.
 
+### ASTEROID
+
 **Asteroid** — *unlocks after the 2nd dust particle* · **single body** (one-time buy, ✦1,500)
 A bigger rocky-brown body on a **wider, slower orbit** (ring 1, its own clump), with tiny dust
 motes drifting around it. Pays **50 ✦ per orbit** at base (before the Payout upgrade).
@@ -136,17 +152,6 @@ Reforge the single asteroid into denser/richer material: each tier **recolors** 
 
 > Composition is the one asteroid **multiplier**: `asteroidPayout = round((50 + 50×payoutLvl) × compMult × resonanceMult)`.
 > Rounded so the fractional multipliers never leave a fractional stardust amount.
-
-**Resonance** — *unlocks after the asteroid* · max **4** · **global** payout multiplier on **every** orbiter
-Adds **+25% per level (additive)** to all orbiter payout — ×1.25 → ×2 at level 4 — and is the only thing
-that lights the **Lacuna's glow** (off by default; brightens marginally per level, but stays *very* faint
-even at max). Combos with Gravitational Pull.
-| Level | Cost ✦ | All orbiter payout |
-|---|---|---|
-| 1 | 5,000 | ×1.25 |
-| 2 | 10,000 | ×1.5 |
-| 3 | 18,000 | ×1.75 |
-| 4 | 30,000 | ×2 |
 
 ### COMETS
 

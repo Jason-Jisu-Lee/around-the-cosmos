@@ -12,20 +12,21 @@ Celestial idle/incremental game. Pure vanilla JS + Canvas. No build step, no fra
 > starts with **0 orbiters** — clicking is the only income; you buy the first one.
 > **Economy note:** effects are **additive (fixed +amount/level), not doubling** — this keeps
 > the scale from exploding. Multipliers are used sparingly (only Speed and Composition).
-> **ACTIONS:** **Star Touch** (8 levels, costs [10,50,150,250,400,600,800,1000], click → 1…9, **+1 per level**),
+> Upgrade sections are now **per orbiter** (future tabs): **MAIN** / **DUST PARTICLES** / **ASTEROID** / **COMETS**.
+> **MAIN:** **Star Touch** (8 levels, costs [10,50,150,250,400,600,800,1000], click → 1…9, **+1 per level**),
 > then **Star Grasp** (after 5th Star Touch; 3 levels, costs [500,1000,1500], **+2 per click per level**),
 > then **Gravitational Pull** (after Star Grasp maxed; 2 levels, costs [5000,20000], each level adds
-> **+1% of total orbiter payout to every click**). Click value = `clickValue()` = Star Touch + 2×Grasp
-> + 0.01×gravpull×(total orbiter payout), rounded.
-> **ORBITERS:** **Dust Particle** (after 2nd Star Touch; buy 5, costs [100,500,1200,2500,4000], **+10 base
+> **+1% of total orbiter payout to every click**), and **Resonance** (see below). Click value =
+> `clickValue()` = Star Touch + 2×Grasp + 0.01×gravpull×(total orbiter payout), rounded.
+> **DUST PARTICLES:** **Dust Particle** (after 2nd Star Touch; buy 5, costs [100,500,1200,2500,4000], **+10 base
 > payout** each — all share one orbit on ring 0) and **Dust Particle Payout** (**+10 to each dust
 > particle's payout per level**, 5 levels, costs [150,500,1200,2000,3000]) and **Dust Particle Speed**
 > (the upgrade runs 100%→200%, costs [200,600,1500,2500,4200]).
-> Then **Asteroid** (after 2nd dust particle; a **single body**, one-time cost 1500, **+50 base payout**,
+> **ASTEROID:** **Asteroid** (after 2nd dust particle; a **single body**, one-time cost 1500, **+50 base payout**,
 > own clump on the wider ring 1, with drifting dust motes) with **Asteroid Payout** (**+50/level**, 5
 > levels, costs [1500,4500,10000,20000,36000]), **Asteroid Speed** (costs [2000,4500,9000,17000,30000]),
 > and its unique **Asteroid Composition** (3 tiers Rock→Iron→Gold→Ice, recolors it + payout ×[1,1.25,1.5,1.75],
-> costs [3000,8000,18000]). **Resonance** (after asteroid; 4 levels, costs [5000,10000,18000,30000]) is a
+> costs [3000,8000,18000]). **Resonance** (in MAIN, after asteroid; 4 levels, costs [5000,10000,18000,30000]) is a
 > **global ×payout on every orbiter**, +0.25/level (×1→×2), and lights the Lacuna's faint glow.
 > **Only dust particles use a count upgrade**; all other orbiters are single bodies. **COMETS:** Comet Charm exists but is **disabled** (`unlock:()=>false`);
 > comets still pay windfalls. Prestige, remnants, moons, evolution, etc. are all out.
@@ -42,7 +43,7 @@ Scripts load in this order — each file can reference globals from earlier file
 | **Core** | |
 | `config.js` | CFG constants, PLANET_DEF (ring radii/periods), PLANET_COLORS, **PHYS** (cosmic-flavor physical model). Just constants. |
 | `state.js` | G object, createInitialState, `newClump`, formatters (`fmtNum`/`fmtTime`/`sig3`/`fmtNice`/`fmtSci`), upg/lvl accessors, **Lacuna physics** (`lacunaMass`/`lacunaGravity`/`lacunaEscapeVel`), earn, save/load |
-| **`sound/`** | `core.js` (Web Audio engine: `SND` state, `audioBoot`/`tone`/`reverb`, volumes, mute), `effects/sfx.js` (`sfxTap`/`sfxOrbit`/`sfxComet`/`sfxBuy`), `music/tracks.js` (3 procedural tracks + loop scheduler), `sound.js` (the `SoundSystem` facade everything calls) |
+| **`sound/`** | `core.js` (Web Audio engine: `SND` state, `audioBoot`/`tone`/`reverb`, volumes, mute), `effects/sfx.js` (`sfxTap`/`sfxOrbit`/`sfxComet`/`sfxBuy`/`sfxComplete`), `music/tracks.js` (3 procedural tracks + loop scheduler), `sound.js` (the `SoundSystem` facade everything calls) |
 | **`orbiters/`** | `registry.js` (`ORBITERS`/`ORBITER_BY_ID`/`registerOrbiter`/`tipRow`); `dust.js`, `asteroid.js` — **one self-contained component per orbiter type** (body factory, payout/speed/velocity, **flavor description — edit here**, color/pebbleR/ring, list/clump/clumpPos, info-card `rows()`, buy-`labels`; `asteroid.js` also defines `ASTEROID_COMP`). |
 | **`upgrades/`** | `upgrades.js` — `UPGRADES` (all upgrade defs: costs/effects/unlocks) + `SECTION_ORDER` |
 | `render.js` | canvas/ctx, resize, orbitR, clumpPos/asteroidClumpPos, drawClump, **drawReticle**, draw (iterates ORBITERS), burst, COMET_HOVER_R |
@@ -69,20 +70,20 @@ full upgrade structure (levels, costs, effects, unlock order). Keep it in sync w
 ## Upgrade tree (cost ✦) — defined in `upgrades/upgrades.js`. Effects are ADDITIVE, not doubling.
 | id | Name | Levels | Effect | Unlock | Section |
 |---|---|---|---|---|---|
-| touch | Star Touch | 8 | each click earns tapYield[lvl] = [1..9] ✦ (**+1/level**, costs [10,50,150,250,400,600,800,1000]) | always | ACTIONS |
-| grasp | Star Grasp | 3 | **+2 ✦ per click per level** (adds to Star Touch via `clickValue()`, costs [500,1000,1500]) | after touch lvl ≥ 5 | ACTIONS |
-| gravpull | Gravitational Pull | 2 | each level adds **+1% of total orbiter payout to every click** (in `clickValue()`, costs [5000,20000]) | after grasp lvl ≥ 3 | ACTIONS |
-| dust | Dust Particle | 5 | adds a dust orbiter (+10 base payout, ring 0); count == this level (costs [100,500,1200,2500,4000]) | after touch lvl ≥ 2 | ORBITERS |
-| dustpay | Dust Particle Payout | 5 | **+10** to every dust particle's payout per level (`orbiterPayout`=10+10·lvl, costs [150,500,1200,2000,3000]) | after dust lvl ≥ 1 | ORBITERS |
-| dustspd | Dust Particle Speed | 5 | upgrade runs 100%→200% (`dustSpeed()`=`mult`=1+0.2×lvl, costs [200,600,1500,2500,4200]) | after dust lvl ≥ 1 | ORBITERS |
-| asteroid | Asteroid | 1 | a single asteroid orbiter (+50 base payout, own clump on ring 1); one-time buy (cost [1500]) | after dust lvl ≥ 2 | ORBITERS |
-| astpay | Asteroid Payout | 5 | **+50** to the asteroid's payout per level (`asteroidPayout`=(50+50·lvl)×comp, costs [1500,4500,10000,20000,36000]) | after asteroid lvl ≥ 1 | ORBITERS |
-| astspd | Asteroid Speed | 5 | asteroid clump speed: base 100%, +20% additive per lvl → 200% (`mult`=1+0.2×lvl, costs [2000,4500,9000,17000,30000]) | after asteroid lvl ≥ 1 | ORBITERS |
-| astcomp | Asteroid Composition | 3 | **unique asteroid upgrade**: reforge Rock→Iron→Gold→Ice; recolors the asteroid (`ASTEROID_COMP.colors`) and ×payout [1,1.25,1.5,1.75] (`asteroidPayout` is rounded → integer; costs [3000,8000,18000]) | after asteroid lvl ≥ 1 | ORBITERS |
-| resonance | Resonance | 4 | **global ×payout on every orbiter**: `resonanceMult()`=1+0.25×lvl (×1→×2); applied in each orbiter's `payout()`. Also lights the Lacuna glow (render.js), brightening faintly per level (costs [5000,10000,18000,30000]) | after asteroid lvl ≥ 1 | ORBITERS |
+| touch | Star Touch | 8 | each click earns tapYield[lvl] = [1..9] ✦ (**+1/level**, costs [10,50,150,250,400,600,800,1000]) | always | MAIN |
+| grasp | Star Grasp | 3 | **+2 ✦ per click per level** (adds to Star Touch via `clickValue()`, costs [500,1000,1500]) | after touch lvl ≥ 5 | MAIN |
+| gravpull | Gravitational Pull | 2 | each level adds **+1% of total orbiter payout to every click** (in `clickValue()`, costs [5000,20000]) | after grasp lvl ≥ 3 | MAIN |
+| resonance | Resonance | 4 | **global ×payout on every orbiter**: `resonanceMult()`=1+0.25×lvl (×1→×2); applied in each orbiter's `payout()`. Also lights the Lacuna glow (render.js), brightening faintly per level (costs [5000,10000,18000,30000]) | after asteroid lvl ≥ 1 | MAIN |
+| dust | Dust Particle | 5 | adds a dust orbiter (+10 base payout, ring 0); count == this level (costs [100,500,1200,2500,4000]) | after touch lvl ≥ 2 | DUST PARTICLES |
+| dustpay | Dust Particle Payout | 5 | **+10** to every dust particle's payout per level (`orbiterPayout`=10+10·lvl, costs [150,500,1200,2000,3000]) | after dust lvl ≥ 1 | DUST PARTICLES |
+| dustspd | Dust Particle Speed | 5 | upgrade runs 100%→200% (`dustSpeed()`=`mult`=1+0.2×lvl, costs [200,600,1500,2500,4200]) | after dust lvl ≥ 1 | DUST PARTICLES |
+| asteroid | Asteroid | 1 | a single asteroid orbiter (+50 base payout, own clump on ring 1); one-time buy (cost [1500]) | after dust lvl ≥ 2 | ASTEROID |
+| astpay | Asteroid Payout | 5 | **+50** to the asteroid's payout per level (`asteroidPayout`=(50+50·lvl)×comp, costs [1500,4500,10000,20000,36000]) | after asteroid lvl ≥ 1 | ASTEROID |
+| astspd | Asteroid Speed | 5 | asteroid clump speed: base 100%, +20% additive per lvl → 200% (`mult`=1+0.2×lvl, costs [2000,4500,9000,17000,30000]) | after asteroid lvl ≥ 1 | ASTEROID |
+| astcomp | Asteroid Composition | 3 | **unique asteroid upgrade**: reforge Rock→Iron→Gold→Ice; recolors the asteroid (`ASTEROID_COMP.colors`) and ×payout [1,1.25,1.5,1.75] (`asteroidPayout` is rounded → integer; costs [3000,8000,18000]) | after asteroid lvl ≥ 1 | ASTEROID |
 | charm | Comet Charm | 3 | comet windfall ×(1+0.25·lvl) (costs [30,80,200]) | **disabled** (`unlock:()=>false`) | COMETS |
 
-`SECTION_ORDER` = `['ACTIONS','ORBITERS','COMETS']`. `buildPanels` renders each section as a
+`SECTION_ORDER` = `['MAIN','DUST PARTICLES','ASTEROID','COMETS']` — **one section per orbiter** (each becomes a tab eventually); MAIN holds the click upgrades + Gravitational Pull + Resonance. `buildPanels` renders each section as a
 **multi-open accordion** (`.acc`): all sections open by default, each independently
 collapsible (state in `sectionOpen`). A section with no shown cards is omitted.
 
@@ -131,7 +132,7 @@ Key fields: `dust`, `runDust`, `totalDust`, `orbitsCompleted`, `taps`, `cometsCa
 Split into: `core.js` (Web Audio engine — the shared `SND` state object, `audioBoot`, `tone`, `reverb`, volumes, mute), `effects/sfx.js` (`sfxTap`/`sfxOrbit`/`sfxComet`/`sfxBuy`), `music/tracks.js` (3 procedural tracks Celestial/Drift/Wane + loop scheduler), and `sound.js` (the `SoundSystem` facade everything calls). Internals are plain globals sharing the `SND` object — **not** an IIFE.
 - `SoundSystem.boot()` — call on first user gesture (wired in game.js)
 - `SoundSystem.startMusic()` / `setTrack(n)` — looping ambient music
-- SFX: `sfxTap`, `sfxOrbit`, `sfxComet`, `sfxBuy`
+- SFX: `sfxTap`, `sfxOrbit`, `sfxComet`, `sfxBuy`, `sfxComplete` (soft ascending chime played by `buyUpgrade` when an upgrade reaches max level; the normal `sfxBuy` blip plays otherwise)
 - Mute button (#mute-btn) in header toggles master gain
 
 ## Save system

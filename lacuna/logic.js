@@ -62,5 +62,7 @@ function buyUpgrade(u) {
             break;
         }
     }
-    SoundSystem.sfxBuy(); saveGame(); return true;
+    // Completing an upgrade gets a distinct chime; otherwise the normal buy blip.
+    if (G.upgrades[u.id] >= u.maxLevel) SoundSystem.sfxComplete(); else SoundSystem.sfxBuy();
+    saveGame(); return true;
 }
