@@ -10,11 +10,11 @@ Pure **vanilla JS + Canvas** — no build step, no framework, no dependencies.
 
 ## Play / run it
 
-The game lives in [`lacuna/`](lacuna/). Serve that folder over HTTP (browsers block
+The game lives in [`around-the-cosmos/`](around-the-cosmos/). Serve that folder over HTTP (browsers block
 audio from `file://`):
 
 ```bash
-cd lacuna
+cd around-the-cosmos
 python -m http.server 3000
 ```
 
@@ -38,5 +38,5 @@ comets, reset). It never appears in normal play.
 
 ## Project docs
 
-- [`lacuna/CLAUDE.md`](lacuna/CLAUDE.md) — architecture & mechanics reference.
-- [`lacuna/PROGRESSION.md`](lacuna/PROGRESSION.md) — early-game flow & full upgrade tree.
+- [`around-the-cosmos/CLAUDE.md`](around-the-cosmos/CLAUDE.md) — architecture & mechanics reference.
+- [`around-the-cosmos/PROGRESSION.md`](around-the-cosmos/PROGRESSION.md) — early-game flow & full upgrade tree.

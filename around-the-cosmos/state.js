@@ -97,7 +97,7 @@ function saveGame() {
 
 function loadGame() {
     try {
-        const raw = localStorage.getItem(CFG.SAVE_KEY);
+        const raw = localStorage.getItem(CFG.SAVE_KEY) || localStorage.getItem('lacuna_v1'); // migrate old key
         if (!raw) return;
         const d = JSON.parse(raw);
         const def = (k, fb) => d[k] ?? fb;
