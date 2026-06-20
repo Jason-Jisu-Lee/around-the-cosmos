@@ -12,7 +12,7 @@ const UPGRADES = [
         id: 'touch', name: 'Star Touch', maxLevel: 8, section: 'ACTIONS',
         costs: [10, 50, 150, 250, 400, 600, 800, 1000],
         tapYield: [1, 2, 3, 4, 5, 6, 7, 8, 9],           // +1 ✦ per click per level
-        desc: lvl => `Each click earns ${[1, 2, 3, 4, 5, 6, 7, 8, 9][lvl]} ✦`,
+        desc: () => `+1 ✦ to every click, per level · ${clickValue()} ✦ per click`,
         unlock: () => true,                              // always visible — the first thing seen
     },
     {
