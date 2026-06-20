@@ -1,0 +1,74 @@
+'use strict';
+
+// ── Upgrade definitions ──────────────────────────────────────────────────────
+// All purchasable upgrades and the order their sections render in. Effects are
+// kept ADDITIVE (fixed +amount per level) rather than doubling, so the economy
+// scales predictably — see orbiters/* for how payout/speed read these levels.
+//
+//   unlock: fn → card is visible when fn() returns true.
+//   section: heading the card is grouped under (see SECTION_ORDER).
+const UPGRADES = [
+    {
+        id: 'touch', name: 'Star Touch', maxLevel: 4, section: 'ACTIONS',
+        costs: [10, 40, 130, 400],
+        tapYield: [1, 2, 3, 4, 5],                       // +1 ✦ per click per level
+        desc: lvl => `Each click earns ${[1, 2, 3, 4, 5][lvl]} ✦`,
+        unlock: () => true,                              // always visible — the first thing seen
+    },
+    {
+        id: 'dust', name: 'Dust Particle', maxLevel: 4, section: 'ORBITERS',
+        costs: [100, 300, 700, 1300],
+        desc: () => 'A dust particle orbiting the Lacuna · +10 base payout',
+        unlock: () => lvl('touch') >= 2,                 // after the second Star Touch
+    },
+    {
+        id: 'dustpay', name: 'Dust Particle Payout', maxLevel: 5, section: 'ORBITERS',
+        costs: [150, 450, 1000, 2000, 3600],
+        desc: () => '+10 to every dust particle’s payout',   // additive, not doubling
+        unlock: () => lvl('dust') >= 1,
+    },
+    {
+        id: 'dustspd', name: 'Dust Particle Speed', maxLevel: 5, section: 'ORBITERS',
+        costs: [200, 450, 900, 1700, 3000],
+        mult: lvl => 1 + 0.2 * lvl,                      // 100%→200% upgrade range
+        desc: () => '×1.2 orbit speed per level (additive +20%). Starts at 100%, max 200%.',
+        unlock: () => lvl('dust') >= 1,
+    },
+    {
+        id: 'asteroid', name: 'Asteroid', maxLevel: 1, section: 'ORBITERS',
+        costs: [1000],                                   // a single body — NOT a count upgrade
+        desc: () => 'A single rocky asteroid on a wider orbit · +50 base payout',
+        unlock: () => lvl('dust') >= 2,                  // after the second dust particle
+    },
+    {
+        id: 'astpay', name: 'Asteroid Payout', maxLevel: 5, section: 'ORBITERS',
+        costs: [1500, 4500, 10000, 20000, 36000],
+        desc: () => '+50 to every asteroid’s payout',    // additive, not doubling
+        unlock: () => lvl('asteroid') >= 1,
+    },
+    {
+        id: 'astspd', name: 'Asteroid Speed', maxLevel: 5, section: 'ORBITERS',
+        costs: [2000, 4500, 9000, 17000, 30000],
+        mult: lvl => 1 + 0.2 * lvl,                      // base 100%, +20%/lvl → 200%
+        desc: () => '×1.2 orbit speed per level (additive +20%). Starts at 100%, max 200%.',
+        unlock: () => lvl('asteroid') >= 1,
+    },
+    {
+        id: 'astcomp', name: 'Asteroid Composition', maxLevel: 3, section: 'ORBITERS',
+        costs: [3000, 8000, 18000],                      // reforge into richer material
+        desc: l => l >= 3
+            ? `Composition: ${ASTEROID_COMP.names[3]} · payout ×${ASTEROID_COMP.mult[3]}`
+            : `Reforge ${ASTEROID_COMP.names[l]} → ${ASTEROID_COMP.names[l+1]} · asteroid payout ×${ASTEROID_COMP.mult[l+1]}`,
+        unlock: () => lvl('asteroid') >= 1,              // the asteroid's unique upgrade
+    },
+    {
+        id: 'charm', name: 'Comet Charm', maxLevel: 3, section: 'COMETS',
+        costs: [30, 80, 200],
+        bonus: lvl => 1 + 0.25 * lvl,
+        desc: lvl => `Comet windfall ×${(1 + 0.25 * lvl).toFixed(2)}`,
+        unlock: () => false,                             // comet upgrades disabled for now
+    },
+];
+
+// Display order of upgrade sections (new sections append here as the game grows).
+const SECTION_ORDER = ['ACTIONS', 'ORBITERS', 'COMETS'];

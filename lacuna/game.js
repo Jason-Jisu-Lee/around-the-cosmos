@@ -1,5 +1,8 @@
 'use strict';
 
+// ── Main loop, input, and boot ───────────────────────────────────────────────
+// Settings live in settings.js, the info cards in ui/cosmo.js, UI refresh in ui/.
+
 let lastTs = 0, lastSave = 0;
 
 function loop(ts) {
@@ -20,57 +23,7 @@ function resetGame() {
     G = createInitialState(); buildPanels();
 }
 
-function loadSettings() {
-    try {
-        const s = JSON.parse(localStorage.getItem('lacuna_settings_v1') || '{}');
-        const mv=s.musicVol??100, sv=s.sfxVol??100, track=s.track??0;
-        document.getElementById('vol-music').value            = mv;
-        document.getElementById('vol-sfx').value              = sv;
-        document.getElementById('vol-music-val').textContent  = mv+'%';
-        document.getElementById('vol-sfx-val').textContent    = sv+'%';
-        document.querySelectorAll('.track-btn').forEach(b =>
-            b.classList.toggle('active', parseInt(b.dataset.track)===track));
-        return { mv, sv, track };
-    } catch(_) { return { mv:100, sv:100, track:0 }; }
-}
-
-function saveSettings() {
-    try {
-        localStorage.setItem('lacuna_settings_v1', JSON.stringify({
-            musicVol: parseInt(document.getElementById('vol-music').value),
-            sfxVol:   parseInt(document.getElementById('vol-sfx').value),
-            track:    SoundSystem.getTrack(),
-        }));
-    } catch(_) {}
-}
-
-function initSettings() {
-    const { mv, sv, track } = loadSettings();
-    const settingsBtn   = document.getElementById('settings-btn');
-    const settingsPanel = document.getElementById('settings-panel');
-    settingsBtn.addEventListener('click', e => { e.stopPropagation(); settingsPanel.classList.toggle('open'); });
-    settingsPanel.addEventListener('click', e => e.stopPropagation());
-    document.addEventListener('click', () => settingsPanel.classList.remove('open'));
-    document.getElementById('vol-music').addEventListener('input', e => {
-        const v=parseInt(e.target.value);
-        document.getElementById('vol-music-val').textContent=v+'%';
-        SoundSystem.setMusicVolume(v); saveSettings();
-    });
-    document.getElementById('vol-sfx').addEventListener('input', e => {
-        const v=parseInt(e.target.value);
-        document.getElementById('vol-sfx-val').textContent=v+'%';
-        SoundSystem.setSfxVolume(v); saveSettings();
-    });
-    document.querySelectorAll('.track-btn').forEach(b => {
-        b.addEventListener('click', () => {
-            SoundSystem.setTrack(parseInt(b.dataset.track));
-            document.querySelectorAll('.track-btn').forEach(x => x.classList.remove('active'));
-            b.classList.add('active'); saveSettings();
-        });
-    });
-    return { mv, sv, track };
-}
-
+// ---- Canvas input ----
 function canvasClick(x, y) {
     if (G.comet) {
         const dx=G.comet.x-x, dy=G.comet.y-y;
@@ -102,90 +55,17 @@ canvas.addEventListener('mouseleave', () => { stopHold(); cosmoOver = false; });
 window.addEventListener('mouseup', stopHold);
 window.addEventListener('blur', stopHold);
 
-// ---- Cosmic info: hover tooltip (follows cursor) + click-to-pin card (centered) ----
-// Hover a body → a small tooltip follows the cursor. Click a body → its full card
-// opens pinned in the CENTER of the sky, sticky, dismissed with × / Escape. The comet
-// is hover-only (a targeting reticle + "Comet" label); clicking it catches it.
-// Orbiter names / descriptions / card rows live in orbiters.js (one component each).
-const cosmoTip  = document.getElementById('cosmo-tip');   // hover — follows cursor
-const cosmoCard = document.getElementById('cosmo-card');  // click — pinned center
-let cosmoMx = 0, cosmoMy = 0, cosmoOver = false;
-let pinnedTarget = null;    // orbiter id | 'lacuna' | null — centered card open via click
-
-const LACUNA_DESC = 'A small absence at the heart of everything — patient, hollow, and quietly gathering a universe back together.';
-
-// Returns 'comet' | 'lacuna' | an orbiter id | null.
-function cosmoTargetAt(x, y) {
-    if (G.comet && Math.hypot(x-G.comet.x, y-G.comet.y) < COMET_HOVER_R) return 'comet';
-    if (Math.hypot(x-CX, y-CY) < 22) return 'lacuna';
-    for (const o of ORBITERS) {
-        if (o.list().length && Math.hypot(x-o.clumpPos().x, y-o.clumpPos().y) < o.hoverR) return o.id;
-    }
-    return null;
-}
-
-function lacunaRows() {
-    return tipRow('Diameter',        fmtNice(2*PHYS.lacunaRadius/1000) + ' km')
-         + tipRow('Mass',            fmtSci(lacunaMass()) + ' kg')
-         + tipRow('Surface gravity', fmtNice(lacunaGravity()/9.81*100) + '% of Earth')
-         + tipRow('Escape velocity', fmtNice(lacunaEscapeVel()) + ' m/s')
-         + tipRow('Density',         fmtNice(PHYS.lacunaDensity/1000) + ' g/cm³');
-}
-function cosmoBody(target, withClose) {
-    if (target === 'comet') return `<div class="cosmo-solo">Comet</div>`;
-    const title = target === 'lacuna' ? 'The Lacuna' : ORBITER_BY_ID[target].title;
-    const rows  = target === 'lacuna' ? lacunaRows()  : ORBITER_BY_ID[target].rows();
-    const desc  = target === 'lacuna' ? LACUNA_DESC   : ORBITER_BY_ID[target].desc;
-    return (withClose ? `<button class="cosmo-close" aria-label="Close">×</button>` : '')
-        + `<div class="cosmo-title">${title}</div>` + rows
-        + `<div class="tip-note">${desc}</div>`;
-}
-
-// The comet is never pinned (clicking it catches it instead).
-function openCosmoCard(target) { if (target === 'comet') return; pinnedTarget = target; cosmoTip.style.display = 'none'; }
-function closeCosmoCard()      { pinnedTarget = null; cosmoCard.style.display = 'none'; }
-
-function updateCosmoTip() {
-    const over = cosmoOver ? cosmoTargetAt(cosmoMx, cosmoMy) : null;
-    canvas.style.cursor = over ? 'pointer' : 'default';
-
-    // hover tooltip — follows the cursor; hidden while a card is pinned
-    if (over && !pinnedTarget) {
-        const html = cosmoBody(over, false);
-        if (cosmoTip._html !== html) { cosmoTip.innerHTML = html; cosmoTip._html = html; }
-        cosmoTip.style.display = 'block';
-        const pad = 16, tw = cosmoTip.offsetWidth, th = cosmoTip.offsetHeight;
-        let lx = cosmoMx + pad, ly = cosmoMy + pad;
-        if (lx + tw > W) lx = cosmoMx - pad - tw;
-        if (ly + th > H) ly = cosmoMy - pad - th;
-        cosmoTip.style.left = Math.max(0, lx) + 'px';
-        cosmoTip.style.top  = Math.max(0, ly) + 'px';
-    } else {
-        cosmoTip.style.display = 'none';
-    }
-
-    // pinned card — centered, sticky until × / Escape
-    if (pinnedTarget) {
-        const html = cosmoBody(pinnedTarget, true);
-        if (cosmoCard._html !== html) { cosmoCard.innerHTML = html; cosmoCard._html = html; }
-        cosmoCard.style.display = 'block';
-        cosmoCard.style.left = Math.round((W - cosmoCard.offsetWidth)/2) + 'px';
-        cosmoCard.style.top  = Math.round((H - cosmoCard.offsetHeight)/2) + 'px';
-    } else {
-        cosmoCard.style.display = 'none';
-    }
-}
-
-cosmoCard.addEventListener('click', e => {
-    if (e.target.closest('.cosmo-close')) { e.stopPropagation(); closeCosmoCard(); }
-});
-window.addEventListener('keydown', e => { if (e.key === 'Escape') closeCosmoCard(); });
-
+// ---- Header controls ----
 document.getElementById('mute-btn').addEventListener('click', () => {
     const m=SoundSystem.toggleMute();
     document.getElementById('mute-btn').classList.toggle('muted',m);
 });
+document.getElementById('show-completed').addEventListener('change', e => {
+    showCompleted = e.target.checked;
+    buildPanels();
+});
 
+// ---- Audio boots on the first user gesture ----
 let _savedVols = { mv:100, sv:100, track:0 };
 const _bootAudio = () => {
     SoundSystem.boot(); SoundSystem.loadTrack(_savedVols.track); SoundSystem.startMusic();
@@ -196,12 +76,12 @@ const _bootAudio = () => {
 window.addEventListener('click',   _bootAudio);
 window.addEventListener('keydown', _bootAudio);
 
+// ---- Draggable panels (the observatory) ----
 function initDraggable(el) {
     el.addEventListener('mousedown', e => {
         if (e.target.closest('button, input, a')) return; // let controls work
         const rect=el.getBoundingClientRect(), ox=e.clientX-rect.left, oy=e.clientY-rect.top;
-        // pin to current spot first, so a plain click doesn't drop it off-screen
-        el.style.left=rect.left+'px'; el.style.top=rect.top+'px';
+        el.style.left=rect.left+'px'; el.style.top=rect.top+'px';      // pin before clearing sides
         el.style.bottom='auto'; el.style.right='auto';
         const onMove=mv => { el.style.left=(mv.clientX-ox)+'px'; el.style.top=(mv.clientY-oy)+'px'; };
         const onUp=() => { document.removeEventListener('mousemove',onMove); document.removeEventListener('mouseup',onUp); };
@@ -209,11 +89,7 @@ function initDraggable(el) {
     });
 }
 
-document.getElementById('show-completed').addEventListener('change', e => {
-    showCompleted = e.target.checked;
-    buildPanels();
-});
-
+// ---- Boot ----
 window.addEventListener('resize', resize);
 window.addEventListener('beforeunload', saveGame);
 document.getElementById('reset-btn').addEventListener('click', resetGame);

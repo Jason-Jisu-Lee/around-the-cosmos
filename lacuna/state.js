@@ -27,10 +27,6 @@ function newClump() {
     return { angle, nextTop };
 }
 
-function randCometGap() {
-    return CFG.COMET_MIN_GAP + Math.random()*(CFG.COMET_MAX_GAP-CFG.COMET_MIN_GAP);
-}
-
 function fmtNum(n) {
     if (!isFinite(n)) return '∞';
     if (n < 1000) return n < 10 ? (Math.round(n*10)/10).toString() : Math.round(n).toString();

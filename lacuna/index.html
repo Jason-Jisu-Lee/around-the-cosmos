@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Around the Cosmos</title>
-    <link rel="stylesheet" href="style.css?v=39">
+    <link rel="stylesheet" href="style.css?v=40">
 </head>
 <body>
     <div id="app">
@@ -69,16 +69,38 @@
         <div id="stats-list"></div>
     </div>
 
-    <script src="sound.js?v=39"></script>
-    <script src="config.js?v=39"></script>
-    <script src="state.js?v=39"></script>
-    <script src="orbiters/registry.js?v=39"></script>
-    <script src="orbiters/dust.js?v=39"></script>
-    <script src="orbiters/asteroid.js?v=39"></script>
-    <script src="render.js?v=39"></script>
-    <script src="logic.js?v=39"></script>
-    <script src="ui.js?v=39"></script>
-    <script src="debug.js?v=39"></script>
-    <script src="game.js?v=39"></script>
+    <!-- Core -->
+    <script src="config.js?v=40"></script>
+    <script src="state.js?v=40"></script>
+
+    <!-- Sound (engine + effects + music) -->
+    <script src="sound/core.js?v=40"></script>
+    <script src="sound/effects/sfx.js?v=40"></script>
+    <script src="sound/music/tracks.js?v=40"></script>
+    <script src="sound/sound.js?v=40"></script>
+
+    <!-- Orbiters (one component per type) -->
+    <script src="orbiters/registry.js?v=40"></script>
+    <script src="orbiters/dust.js?v=40"></script>
+    <script src="orbiters/asteroid.js?v=40"></script>
+
+    <!-- Upgrades -->
+    <script src="upgrades/upgrades.js?v=40"></script>
+
+    <!-- Render + simulation -->
+    <script src="render.js?v=40"></script>
+    <script src="comet/comet.js?v=40"></script>
+    <script src="logic.js?v=40"></script>
+
+    <!-- UI -->
+    <script src="ui/panels.js?v=40"></script>
+    <script src="ui/observatory.js?v=40"></script>
+    <script src="ui/hud.js?v=40"></script>
+    <script src="ui/cosmo.js?v=40"></script>
+
+    <!-- App -->
+    <script src="settings.js?v=40"></script>
+    <script src="debug.js?v=40"></script>
+    <script src="game.js?v=40"></script>
 </body>
 </html>

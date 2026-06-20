@@ -3,7 +3,15 @@
 // ── Asteroid ─────────────────────────────────────────────────────────────────
 // A single bigger, slower body on ring 1, surrounded by drifting dust motes. Not
 // a count upgrade — there's only ever one. Its unique upgrade is Composition,
-// which recolors it and multiplies its payout (see config.js ASTEROID_COMP).
+// which recolors it and multiplies its payout.
+
+// Composition tiers — the asteroid's unique upgrade. Each tier recolors the body
+// and multiplies its payout (denser/richer material = more stardust).
+const ASTEROID_COMP = {
+    names:  ['Rock', 'Iron', 'Gold', 'Ice'],
+    colors: ['#7a6a55', '#8c8f96', '#b8923a', '#a8c6d6'], // Rock keeps the original color
+    mult:   [1, 1.5, 2.5, 4],                              // payout × per tier
+};
 
 // An asteroid body. `motes` are tiny specks that constantly drift around it.
 function newAsteroidBody() {
@@ -24,8 +32,8 @@ function newAsteroidBody() {
     };
 }
 
-// Payout: flat 80, doubled by Asteroid Payout and scaled by the Composition tier.
-function asteroidPayout() { return 80 * upg('astpay').mult(lvl('astpay')) * ASTEROID_COMP.mult[lvl('astcomp')]; }
+// Payout: base 50, +50 per Asteroid Payout level (additive), then × the Composition tier.
+function asteroidPayout() { return (50 + 50 * lvl('astpay')) * ASTEROID_COMP.mult[lvl('astcomp')]; }
 function asteroidColor()  { return ASTEROID_COMP.colors[lvl('astcomp')]; }
 function asteroidSpeed()  { return upg('astspd').mult(lvl('astspd')); }
 function asteroidVel()           { return Math.sqrt(PHYS.G * lacunaMass() / PHYS.asteroidOrbitRadius) * asteroidSpeed(); }

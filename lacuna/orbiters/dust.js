@@ -17,8 +17,8 @@ function newDustParticle() {
     };
 }
 
-// Payout: flat 20 per particle, doubled by Dust Particle Payout.
-function orbiterPayout() { return 20 * upg('dustpay').mult(lvl('dustpay')); }
+// Payout: base 10 per particle, +10 per Dust Particle Payout level (additive).
+function orbiterPayout() { return 10 + 10 * lvl('dustpay'); }
 // Speed: the upgrade runs 100%→200% (mult=1+0.2·lvl); a flat ×1.2 base bump multiplies it.
 function dustSpeed()     { return 1.2 * upg('dustspd').mult(lvl('dustspd')); }
 // Cosmic orbital velocity (ring 0 radius + Lacuna mass), scaled by speed.
