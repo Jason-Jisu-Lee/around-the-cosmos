@@ -5,7 +5,7 @@
 // orbiter-specific data lives in orbiters/*.
 
 const CFG = {
-    SAVE_KEY:      'lacuna_v1',
+    SAVE_KEY:      'around_the_cosmos_v1',   // (migrates an old 'lacuna_v1' save on load)
     MAX_PLANETS:   8,
     COMET_MIN_GAP: 25,
     COMET_MAX_GAP: 55,

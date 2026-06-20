@@ -1,4 +1,4 @@
-# Lacuna — Progression & Upgrade Reference
+# Around the Cosmos — Progression & Upgrade Reference
 
 > Living design doc for the **current build** (`feature/dust_particles`). Numbers here
 > mirror `config.js` / `state.js`. Updated alongside any balance/structure change.

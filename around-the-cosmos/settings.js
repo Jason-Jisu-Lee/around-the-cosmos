@@ -3,9 +3,11 @@
 // ── Settings ─────────────────────────────────────────────────────────────────
 // The gear panel: music/effects volume, track selection. Persisted to localStorage.
 
+const SETTINGS_KEY = 'around_the_cosmos_settings_v1';
+
 function loadSettings() {
     try {
-        const s = JSON.parse(localStorage.getItem('lacuna_settings_v1') || '{}');
+        const s = JSON.parse(localStorage.getItem(SETTINGS_KEY) || localStorage.getItem('lacuna_settings_v1') || '{}');
         const mv=s.musicVol??100, sv=s.sfxVol??100, track=s.track??0;
         document.getElementById('vol-music').value            = mv;
         document.getElementById('vol-sfx').value              = sv;
@@ -19,7 +21,7 @@ function loadSettings() {
 
 function saveSettings() {
     try {
-        localStorage.setItem('lacuna_settings_v1', JSON.stringify({
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify({
             musicVol: parseInt(document.getElementById('vol-music').value),
             sfxVol:   parseInt(document.getElementById('vol-sfx').value),
             track:    SoundSystem.getTrack(),

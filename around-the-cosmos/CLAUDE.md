@@ -1,6 +1,7 @@
-# Lacuna
+# Around the Cosmos
 
-Celestial idle/incremental game. Pure vanilla JS + Canvas. No build step, no framework, no dependencies.
+Celestial idle/incremental game (the protagonist/center object is named **the Lacuna**).
+Pure vanilla JS + Canvas. No build step, no framework, no dependencies.
 
 ## What this game is
 - The **Lacuna** (small dark center) is orbited by **orbiters** that pay stardust (✦) each orbit
@@ -141,7 +142,7 @@ Split into: `core.js` (Web Audio engine — the shared `SND` state object, `audi
 - Mute button (#mute-btn) in header toggles master gain
 
 ## Save system
-localStorage key: `lacuna_v1`. Saves every 20s and on tab close. Settings: `lacuna_settings_v1`.
+localStorage key: `around_the_cosmos_v1` (migrates an old `lacuna_v1` save on load). Saves every 20s and on tab close. Settings: `around_the_cosmos_settings_v1` (falls back to `lacuna_settings_v1`).
 
 ## Debug panel
 URL: `?debug` (e.g. `localhost:3000?debug`)
