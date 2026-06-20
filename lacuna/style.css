@@ -50,7 +50,7 @@ body {
 #dust-hud {
     position: fixed;
     top: 16px;
-    left: calc(50% - 38px);
+    left: calc(50% - 48px);   /* nudged 10px left */
     transform: translateX(-50%);
     display: flex;
     flex-direction: column;
@@ -155,7 +155,7 @@ body {
 .acc-head:hover { color: var(--ink); background: rgba(122,104,72,0.08); }
 .acc-head:hover .acc-arrow { color: var(--accent); }
 .acc-label { display: inline-flex; align-items: center; gap: 9px; }
-.acc-arrow { display: inline-block; transition: transform 0.2s, color 0.12s; font-size: 11px; color: var(--accent-dim); line-height: 1; }
+.acc-arrow { display: inline-block; transition: transform 0.2s, color 0.12s; font-size: 15px; color: var(--accent); line-height: 1; }
 .acc.open .acc-arrow { transform: rotate(90deg); }
 .acc-count { color: var(--accent-dim); font-weight: 700; font-variant-numeric: tabular-nums; }
 .acc-body { display: none; }
@@ -200,13 +200,16 @@ body {
    background-position, so it doesn't bleed onto neighbours). */
 .upgrade-card.upg-new::after {
     content: ''; position: absolute; inset: 0; pointer-events: none;
-    background-image: linear-gradient(90deg, transparent 0%, rgba(168,128,52,0.55) 50%, transparent 100%);
+    background-image: linear-gradient(90deg, transparent 0%, rgba(214,58,40,0.62) 50%, transparent 100%);
     background-size: 200% 100%; background-repeat: no-repeat;
-    animation: upg-sweep 0.85s ease-out forwards;
+    animation: upg-sweep 1.02s ease-out forwards;   /* ~20% slower */
 }
+/* Sweeps across, then fades opacity to 0 at the tail so the finish is seamless
+   (the card's `animationend` handler removes .upg-new once it's already invisible). */
 @keyframes upg-sweep {
-    from { background-position: 150% 0; }   /* band off the left edge */
-    to   { background-position: -50% 0; }    /* sweeps across → off the right edge */
+    0%   { background-position: 160% 0; opacity: 1; }
+    80%  { background-position: -10% 0; opacity: 1; }
+    100% { background-position: -40% 0; opacity: 0; }
 }
 
 .upg-top  { display: flex; justify-content: space-between; align-items: baseline; width: 100%; gap: 10px; }
@@ -216,31 +219,30 @@ body {
 /* Level: small, tucked into the card's bottom-right corner (out of flow). */
 .upg-level { position: absolute; right: 16px; bottom: 8px; font-size: 9px; color: var(--text-faint); font-family: 'Segoe UI', sans-serif; font-variant-numeric: tabular-nums; letter-spacing: 0.08em; }
 
-/* Description floats as a popup below the card — never affects layout */
-.upg-desc {
+/* Description popup — a single shared element, JS-positioned to the LEFT of the hovered
+   card (fixed, so it escapes the right column's overflow clip and hides nothing in the list). */
+#upg-pop {
     display: none;
-    position: absolute;
-    top: calc(100% + 9px);
-    left: 0; right: 0;
-    background: rgba(26,26,26,0.82);     /* slightly transparent — see cards behind, still readable */
+    position: fixed;
+    max-width: 240px;
+    background: rgba(26,26,26,0.82);     /* slightly transparent — maintained */
     backdrop-filter: blur(1.5px);
     color: var(--bg);
     font-size: 12px;
     line-height: 1.5;
     padding: 11px 13px;
     font-family: 'Segoe UI', sans-serif;
-    box-shadow: 0 6px 22px rgba(0,0,0,0.18);
+    box-shadow: 0 6px 22px rgba(0,0,0,0.2);
     z-index: 200;
     pointer-events: none;
 }
-.upg-desc::after {
+#upg-pop::after {           /* little arrow on the right edge, pointing at the card */
     content: '';
     position: absolute;
-    bottom: 100%; left: 24px;
+    left: 100%; top: 50%; transform: translateY(-50%);
     border: 6px solid transparent;
-    border-bottom-color: rgba(26,26,26,0.82);
+    border-left-color: rgba(26,26,26,0.82);
 }
-.upgrade-card:hover .upg-desc { display: block; }
 
 .stat-row { display: flex; justify-content: space-between; align-items: baseline; gap: 14px; padding: 6px 0; border-bottom: 1px solid var(--border2); font-size: 13px; font-family: 'Segoe UI', sans-serif; }
 .stat-label { color: var(--text-dim); flex: 1; }
