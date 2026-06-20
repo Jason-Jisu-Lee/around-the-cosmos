@@ -12,7 +12,7 @@ function createInitialState() {
         asteroids: [],           // orbiters (asteroids, ring 1); none at start
         asteroidClump: newClump(),// the shared orbit the asteroid clump travels as a group
         comet:null, cometTimer:7 + Math.random()*6, cometSeen:false, // first comet ~7-13s
-        particles:[], floatingTexts:[], incomeWindow:[], income:0,
+        particles:[], floatingTexts:[],
     };
 }
 
@@ -59,14 +59,6 @@ function lacunaMass()     { const r = PHYS.lacunaRadius; return PHYS.lacunaDensi
 function lacunaGravity()  { return PHYS.G * lacunaMass() / (PHYS.lacunaRadius*PHYS.lacunaRadius); }            // m/s²
 function lacunaEscapeVel(){ return Math.sqrt(2 * PHYS.G * lacunaMass() / PHYS.lacunaRadius); }                 // m/s
 
-// Round to 3 significant figures, plain decimal string (e.g. 0.0839, 142, 2.5).
-function sig3(n) {
-    if (n === 0) return '0';
-    if (!isFinite(n)) return '∞';
-    const mag = Math.floor(Math.log10(Math.abs(n)));
-    const f = Math.pow(10, 2 - mag);
-    return (Math.round(n*f)/f).toString();
-}
 // Compact display: whole number when ≥100, otherwise ≤2 decimals (trailing zeros dropped).
 // Pair with a chosen unit so values read cleanly (e.g. 8.39 cm/s², 142 m/s).
 function fmtNice(n) {
@@ -86,7 +78,6 @@ function fmtSci(n) {
 
 function earn(amount, x, y, big) {
     G.dust += amount; G.runDust += amount; G.totalDust += amount;
-    G.incomeWindow.push({ t:G.gameTime, v:amount });
     if (x !== undefined) {
         G.floatingTexts.push({ x, y, text:'+✦'+fmtNum(amount), age:0, maxAge:big?1.6:1.1, size:big?22:14 });
     }
