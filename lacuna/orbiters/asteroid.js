@@ -10,7 +10,7 @@
 const ASTEROID_COMP = {
     names:  ['Rock', 'Iron', 'Gold', 'Ice'],
     colors: ['#7a6a55', '#8c8f96', '#b8923a', '#a8c6d6'], // Rock keeps the original color
-    mult:   [1, 1.5, 2.5, 4],                              // payout × per tier
+    mult:   [1, 1.2, 1.4, 1.6],                            // payout × per tier (gentle, +0.2 steps)
 };
 
 // An asteroid body. `motes` are tiny specks that constantly drift around it.

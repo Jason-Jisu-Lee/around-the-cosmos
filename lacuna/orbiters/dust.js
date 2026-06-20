@@ -42,7 +42,7 @@ registerOrbiter({
     payout: orbiterPayout,
     speed:  dustSpeed,
     rows: () =>
-          tipRow('Orbit payout',  '✦' + fmtNum(orbiterPayout()))
+          tipRow('Orbit payout',  '✦' + fmtNum(G.planets.length * orbiterPayout()))   // whole clump
         + tipRow('Orbital speed', fmtNice(orbiterVel()) + ' m/s')
         + tipRow('Orbits / hour', fmtNice(orbiterOrbitsPerHour())),
     labels: { dust: '+1 Dust Particle', dustpay: '×2 Payout', dustspd: '×1.2 Speed' },

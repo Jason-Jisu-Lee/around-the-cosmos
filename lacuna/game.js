@@ -29,7 +29,7 @@ function canvasClick(x, y) {
         const dx=G.comet.x-x, dy=G.comet.y-y;
         if (dx*dx+dy*dy < 48*48) { catchComet(); return; }
     }
-    earn(upg('touch').tapYield[lvl('touch')], x, y-14);
+    earn(clickValue(), x, y-14);
     G.taps++; SoundSystem.sfxTap(); burst(x,y,'rgba(100,80,50,',5,80);
 }
 
@@ -45,7 +45,7 @@ canvas.addEventListener('mousedown', e => {
     if (tgt && !cometNear) { openCosmoCard(tgt); return; }
     canvasClick(holdX, holdY);                                   // immediate click
     stopHold();
-    holdTimer = setInterval(() => canvasClick(holdX, holdY), 500); // 2× / sec while held
+    holdTimer = setInterval(() => canvasClick(holdX, holdY), 333); // 3× / sec while held
 });
 canvas.addEventListener('mousemove', e => {
     [cosmoMx, cosmoMy] = canvasXY(e); cosmoOver = true;

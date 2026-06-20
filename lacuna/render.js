@@ -53,8 +53,8 @@ function drawClump(list, cp, pr, color, t) {
 // Targeting reticle — a square drawn only at its corners (tactical-crosshair brackets),
 // gently pulsing. Used to mark the comet on hover.
 function drawReticle(x, y, t) {
-    const s = 16 + Math.sin(t*4)*1.3;   // half-size (corner offset), gentle pulse
-    const a = 6;                        // bracket arm length
+    const s = 18 + Math.sin(t*4)*1.5;   // half-size (corner offset), gentle pulse (~13% bigger)
+    const a = 7;                        // bracket arm length
     ctx.strokeStyle = 'rgba(60,80,70,0.85)';
     ctx.lineWidth = 1.5;
     for (const [sx, sy] of [[-1,-1],[1,-1],[1,1],[-1,1]]) {

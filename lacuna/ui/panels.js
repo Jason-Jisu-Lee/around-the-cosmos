@@ -78,6 +78,8 @@ function updateCards() {
         ref.card.classList.toggle('can-afford', !isMax && G.dust >= cost);
         ref.cost.textContent = isMax ? '—' : '✦' + fmtNum(cost);
         ref.cost.classList.toggle('maxed', isMax);
-        ref.desc.textContent = u.desc(l);
+        // Effect text + a level indicator (current / total levels for this upgrade).
+        const lvlText = isMax ? `Maxed · Lv ${u.maxLevel} / ${u.maxLevel}` : `Lv ${l} / ${u.maxLevel}`;
+        ref.desc.innerHTML = `<span class="upg-desc-text">${u.desc(l)}</span><span class="upg-desc-lv">${lvlText}</span>`;
     }
 }

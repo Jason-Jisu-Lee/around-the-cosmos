@@ -16,6 +16,12 @@ const UPGRADES = [
         unlock: () => true,                              // always visible — the first thing seen
     },
     {
+        id: 'grasp', name: 'Star Grasp', maxLevel: 3, section: 'ACTIONS',
+        costs: [500, 1000, 1500],
+        desc: () => '+2 ✦ to every click, per level',    // stacks on top of Star Touch
+        unlock: () => lvl('touch') >= 5,                 // after the 5th Star Touch
+    },
+    {
         id: 'dust', name: 'Dust Particle', maxLevel: 5, section: 'ORBITERS',
         costs: [100, 500, 1200, 2500, 4000],
         desc: () => 'A dust particle orbiting the Lacuna · +10 base payout',

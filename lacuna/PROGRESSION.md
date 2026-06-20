@@ -9,7 +9,7 @@
 Click the Lacuna (center) to earn **stardust (✦)** → buy **Star Touch** to earn more per click
 → buy **Dust Particles** (orbiters) that pay on every orbit → catch **comets** for bursts.
 
-- **Clicking:** each click earns the current Star Touch value. **Hold the mouse** to auto-click ~2×/sec.
+- **Clicking:** each click earns the current click value (Star Touch + Star Grasp). **Hold the mouse** to auto-click **~3×/sec**.
 - **No passive income yet** — early game is active (clicking + comets). Orbiters add the first "idle" income.
 
 ---
@@ -23,9 +23,10 @@ Click the Lacuna (center) to earn **stardust (✦)** → buy **Star Touch** to e
 | Star Touch ×1 | buy (✦10) | Click now earns **2** (+1). |
 | Star Touch ×2 | buy (✦50) | Click earns **3**. → **Dust Particle** upgrade appears. |
 | First Dust Particle | buy (✦100) | Your first **orbiter** appears, paying **10 ✦** per orbit. Unlocks **Dust Particle Payout** + **Dust Particle Speed**, and the **All Orbiters Payout** stat. |
-| 2nd Dust Particle | buy (✦300) | A second dust particle joins the clump → unlocks the **Asteroid** (a single body). |
+| 2nd Dust Particle | buy (✦500) | A second dust particle joins the clump → unlocks the **Asteroid** (a single body). |
+| Star Touch ×5 | buy (✦400) | → **Star Grasp** appears in ACTIONS (a stronger per-click upgrade). |
 | The Asteroid | buy (✦1,500) | A single bigger, slower **asteroid** appears on a wider orbit, paying **50 ✦** per orbit. Unlocks **Asteroid Payout**, **Asteroid Speed**, **Asteroid Composition**. |
-| … | … | Buy more dust particles (max 4), pump payout/speed on both, keep catching comets. |
+| … | … | Buy more dust particles (max 5), pump payout/speed on both, keep catching comets. |
 
 ---
 
@@ -47,6 +48,16 @@ Click the Lacuna (center) to earn **stardust (✦)** → buy **Star Touch** to e
 | 8 | 1,000 | 9 |
 
 > Buying level 2 is what reveals the ORBITERS section (Dust Particle).
+
+**Star Grasp** — *unlocks after Star Touch lvl 5* · max **3** · **+2 ✦ per click each level** (stacks on Star Touch)
+| Level | Cost ✦ | Adds to each click |
+|---|---|---|
+| 1 | 500 | +2 |
+| 2 | 1,000 | +4 |
+| 3 | 1,500 | +6 |
+
+> Total click value = Star Touch value + 2 × Star Grasp level (`clickValue()`). A new ACTIONS
+> upgrade is planned to appear once Star Grasp is maxed (TBD).
 
 ### ORBITERS
 
@@ -110,11 +121,12 @@ Reforge the single asteroid into denser/richer material: each tier **recolors** 
 | Tier | Material | Color | Payout × | Cost to reach ✦ |
 |---|---|---|---|---|
 | 0 (base) | Rock | grey-brown | ×1 | — |
-| 1 | Iron | steel grey | ×1.5 | 3,000 |
-| 2 | Gold | gold | ×2.5 | 8,000 |
-| 3 | Ice | pale blue | ×4 | 18,000 |
+| 1 | Iron | steel grey | ×1.2 | 3,000 |
+| 2 | Gold | gold | ×1.4 | 8,000 |
+| 3 | Ice | pale blue | ×1.6 | 18,000 |
 
 > Composition is the one asteroid **multiplier**: `asteroidPayout = (50 + 50×payoutLvl) × compMult`.
+> Kept to ×0.2 steps so the product is always a whole number (no fractional stardust).
 
 ### COMETS
 
@@ -125,8 +137,9 @@ Reforge the single asteroid into denser/richer material: each tier **recolors** 
 ## Comets
 - First appears **~7–13 s** in; afterward every **25–55 s** (`COMET_MIN_GAP`–`COMET_MAX_GAP`).
 - On screen for **8 s** (`COMET_LIFE`); tap within ~48px to catch. Hovering it shows a **targeting reticle** and a "Comet" label.
-- **Windfall = (10 × click value) + 1.25 × (every orbiter's payout combined).**
-  - Combined orbiter payout = `dust × dustPayout + asteroids × asteroidPayout`.
+- **Windfall = round( (10 × click value) + 1.25 × every orbiter's payout combined ).**
+  - Click value = Star Touch + Star Grasp (`clickValue()`); combined = `dust × dustPayout + asteroids × asteroidPayout`.
+  - Rounded so the 1.25× never leaves a fractional stardust amount.
   - Example: click value 3, three dust particles at Payout lvl 1 (20 each) → `10×3 + 1.25×(3×20)` = 30 + 75 = **105 ✦**.
 
 ---
@@ -163,7 +176,7 @@ Plus a one-sentence flavor line introducing the Lacuna as the protagonist.
 **A dust particle (ring 0):**
 | Stat | Value |
 |---|---|
-| Orbit payout | ✦ per orbit (= `orbiterPayout()`, base 10 +10/lvl) |
+| Orbit payout | ✦ per orbit for the **whole clump** (= dust count × `orbiterPayout()`; per particle = 10 +10/lvl) |
 | Orbital speed | ~77.7 m/s at base (100%); **scales with Dust Particle Speed** (up to ~155 m/s at 200%) |
 | Orbits / hour | ~0.27 at base; scales with Speed |
 

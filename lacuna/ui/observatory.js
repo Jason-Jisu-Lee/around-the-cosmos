@@ -31,7 +31,7 @@ function buildStats(showOrbiter, showComet) {
 
 // Recompute + write the observatory values (called from updateUI each tick).
 function updateObservatory() {
-    const touchVal = upg('touch').tapYield[lvl('touch')];
+    const touchVal = clickValue();   // Star Touch + Star Grasp
     // Combine every orbiter type's payout (iterates the orbiters/* registry).
     let orbiterSum = 0, totalOrbiters = 0;
     const popParts = [];
@@ -42,7 +42,7 @@ function updateObservatory() {
         totalOrbiters += n;
         popParts.push(`${n} ${o.id} × ${fmtNum(o.payout())}`);
     }
-    const cometVal = 10 * touchVal + 1.25 * orbiterSum;
+    const cometVal = Math.round(10 * touchVal + 1.25 * orbiterSum);
 
     const showOrbiter = totalOrbiters >= 1, showComet = G.cometSeen;
     const sig = (showOrbiter ? 'O' : '') + (showComet ? 'C' : '');
