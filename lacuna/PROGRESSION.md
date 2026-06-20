@@ -121,12 +121,12 @@ Reforge the single asteroid into denser/richer material: each tier **recolors** 
 | Tier | Material | Color | Payout × | Cost to reach ✦ |
 |---|---|---|---|---|
 | 0 (base) | Rock | grey-brown | ×1 | — |
-| 1 | Iron | steel grey | ×1.2 | 3,000 |
-| 2 | Gold | gold | ×1.4 | 8,000 |
-| 3 | Ice | pale blue | ×1.6 | 18,000 |
+| 1 | Iron | steel grey | ×1.25 | 3,000 |
+| 2 | Gold | gold | ×1.5 | 8,000 |
+| 3 | Ice | pale blue | ×1.75 | 18,000 |
 
-> Composition is the one asteroid **multiplier**: `asteroidPayout = (50 + 50×payoutLvl) × compMult`.
-> Kept to ×0.2 steps so the product is always a whole number (no fractional stardust).
+> Composition is the one asteroid **multiplier**: `asteroidPayout = round((50 + 50×payoutLvl) × compMult)`.
+> Rounded so the ×1.25 / ×1.75 tiers never leave a fractional stardust amount.
 
 ### COMETS
 
@@ -147,9 +147,9 @@ Reforge the single asteroid into denser/richer material: each tier **recolors** 
 ## Observatory stats (the draggable panel, top-left)
 | Stat | Shows | Appears |
 |---|---|---|
-| Star Touch Value | ✦ per click | always |
-| All Orbiters Payout | combined payout of all dust particles per orbit (hover → formula) | after first dust particle |
-| Stardust / min | live total income rate (rolling 5 s average) | always |
+| Star Touch Value | ✦ per click (Star Touch + Star Grasp) | always |
+| All Orbiters Payout | combined payout of all orbiters per orbit (hover → formula) | after first orbiter |
+| All Orbiters Payout / min | that combined payout × how often the clumps orbit (payout × orbits per minute) | after first orbiter |
 | Comet Value | what the next comet pays (hover → formula) | after first comet caught |
 | Time on Current Universe | run timer (resets on prestige, later) | always |
 

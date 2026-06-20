@@ -23,8 +23,10 @@ function buildStats(showOrbiter, showComet) {
         return { val: row.querySelector('.stat-val'), pop: row.querySelector('.stat-pop') };
     };
     statEls.touch = mk('Star Touch Value');
-    if (showOrbiter) { const r = mkPop('All Orbiters Payout'); statEls.orbiter = r.val; statEls.orbiterPop = r.pop; }
-    statEls.rate = mk('Stardust / min');
+    if (showOrbiter) {
+        const r = mkPop('All Orbiters Payout'); statEls.orbiter = r.val; statEls.orbiterPop = r.pop;
+        statEls.orbiterMin = mk('All Orbiters Payout / min');
+    }
     if (showComet)   { const r = mkPop('Comet Value');         statEls.comet   = r.val; statEls.cometPop   = r.pop; }
     statEls.time = mk('Time on Current Universe');
 }
@@ -33,12 +35,14 @@ function buildStats(showOrbiter, showComet) {
 function updateObservatory() {
     const touchVal = clickValue();   // Star Touch + Star Grasp
     // Combine every orbiter type's payout (iterates the orbiters/* registry).
-    let orbiterSum = 0, totalOrbiters = 0;
+    // Per-min = payout × the clump's orbits per minute (60 × speed ÷ ring period).
+    let orbiterSum = 0, orbiterPerMin = 0, totalOrbiters = 0;
     const popParts = [];
     for (const o of ORBITERS) {
         const n = o.list().length;
         if (!n) continue;
         orbiterSum += n * o.payout();
+        orbiterPerMin += n * o.payout() * 60 * o.speed() / PLANET_DEF[o.ring].period;
         totalOrbiters += n;
         popParts.push(`${n} ${o.id} × ${fmtNum(o.payout())}`);
     }
@@ -52,8 +56,8 @@ function updateObservatory() {
     if (statEls.orbiter) {
         statEls.orbiter.textContent = '✦' + fmtNum(orbiterSum);
         statEls.orbiterPop.innerHTML = `${popParts.join(' + ')} = <b>✦${fmtNum(orbiterSum)}</b>`;
+        statEls.orbiterMin.textContent = '✦' + fmtNum(orbiterPerMin) + ' / min';
     }
-    statEls.rate.textContent = '✦' + fmtNum(G.income * 60) + ' / min';
     if (statEls.comet) {
         statEls.comet.textContent = '✦' + fmtNum(cometVal);
         statEls.cometPop.innerHTML = `10 × click (${fmtNum(touchVal)}) + 1.25 × orbiters (${fmtNum(orbiterSum)}) = <b>✦${fmtNum(cometVal)}</b>`;

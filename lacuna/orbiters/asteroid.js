@@ -10,7 +10,7 @@
 const ASTEROID_COMP = {
     names:  ['Rock', 'Iron', 'Gold', 'Ice'],
     colors: ['#7a6a55', '#8c8f96', '#b8923a', '#a8c6d6'], // Rock keeps the original color
-    mult:   [1, 1.2, 1.4, 1.6],                            // payout × per tier (gentle, +0.2 steps)
+    mult:   [1, 1.25, 1.5, 1.75],                          // payout × per tier (+0.25 steps)
 };
 
 // An asteroid body. `motes` are tiny specks that constantly drift around it.
@@ -33,7 +33,8 @@ function newAsteroidBody() {
 }
 
 // Payout: base 50, +50 per Asteroid Payout level (additive), then × the Composition tier.
-function asteroidPayout() { return (50 + 50 * lvl('astpay')) * ASTEROID_COMP.mult[lvl('astcomp')]; }
+// Rounded so the ×1.25 / ×1.75 tiers never leave a fractional payout.
+function asteroidPayout() { return Math.round((50 + 50 * lvl('astpay')) * ASTEROID_COMP.mult[lvl('astcomp')]); }
 function asteroidColor()  { return ASTEROID_COMP.colors[lvl('astcomp')]; }
 function asteroidSpeed()  { return upg('astspd').mult(lvl('astspd')); }
 function asteroidVel()           { return Math.sqrt(PHYS.G * lacunaMass() / PHYS.asteroidOrbitRadius) * asteroidSpeed(); }
