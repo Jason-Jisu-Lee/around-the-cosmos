@@ -1,0 +1,23 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>12 · Orbital Sectors</title>
+<style>
+  html,body{margin:0;height:100%;background:#060912;color:#d9e0f0;font-family:Georgia,serif;overflow:hidden}
+  svg{position:absolute;inset:0;width:100%;height:100%}
+  .ring{fill:none;stroke:#1a2238;stroke-width:1}
+  .core{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center}
+  .core .dot{width:64px;height:64px;border-radius:50%;background:radial-gradient(circle,#0a0d16,#1a2740);box-shadow:0 0 36px 8px rgba(110,140,210,.25);margin:0 auto 8px}
+  .core .m{font-size:20px;color:#cfe0ff}.core .k{font-size:9px;letter-spacing:.3em;color:#6c7793}
+  .sector{position:absolute;width:172px;transform:translate(-50%,-50%);text-align:center}
+  .sector h2{font-size:11px;letter-spacing:.3em;color:#8fa6dc;text-transform:uppercase;font-weight:400;margin:0 0 8px}
+  .u{font-size:13px;margin-bottom:5px}.u .ct{color:#9fb0d8;font-size:11px}
+  .top{position:absolute;top:20px;left:28px;font-size:11px;letter-spacing:.4em;color:#5d6688}
+  .accrete{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);background:none;border:1px solid #2a3552;color:#d9e0f0;padding:11px 26px;letter-spacing:.25em;font:13px Georgia;cursor:pointer;border-radius:2px}
+</style></head><body>
+  <div class="top">A C C R E T I O N · S E C T O R S</div>
+  <svg viewBox="0 0 1000 600" preserveAspectRatio="none"><ellipse class="ring" cx="500" cy="300" rx="300" ry="210"/><ellipse class="ring" cx="500" cy="300" rx="170" ry="120"/></svg>
+  <div class="sector" style="left:50%;top:16%"><h2>Lacuna</h2><div class="u">Swell the Lacuna <span class="ct">✶5</span></div><div class="u">Deeper Pull <span class="ct">✶3</span></div></div>
+  <div class="sector" style="left:84%;top:50%"><h2>Orbiters</h2><div class="u">Dwarf Planet <span class="ct">✶4</span></div><div class="u">Swift Orbits <span class="ct">✶2</span></div></div>
+  <div class="sector" style="left:50%;top:84%"><h2>Economy</h2><div class="u">Star Touch ×2 <span class="ct">✶2</span></div><div class="u">Auto-Harvest <span class="ct">✶3</span></div></div>
+  <div class="sector" style="left:16%;top:50%"><h2>Comet</h2><div class="u">Comet Charm <span class="ct">✶2</span></div><div class="u">More Comets <span class="ct">✶3</span></div></div>
+  <div class="core"><div class="dot"></div><div class="m">✶ 12</div><div class="k">MASS</div></div>
+  <button class="accrete">A C C R E T E</button>
+</body></html>

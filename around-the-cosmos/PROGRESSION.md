@@ -27,7 +27,7 @@ Click the Lacuna (center) to earn **stardust (✦)** → buy **Star Touch** to e
 | Star Touch ×5 | buy (✦400) | → **Star Grasp** appears in MAIN (a stronger per-click upgrade). |
 | The Asteroid | buy (✦1,500) | A single bigger, slower **asteroid** appears on a wider orbit, paying **50 ✦** per orbit. Unlocks **Asteroid Payout**, **Asteroid Speed**, **Asteroid Composition**. |
 | Star Grasp maxed | buy (lvl 3) | → **Gravitational Pull** and **Resonance** both appear in MAIN (clicks scale with orbiter payout; Resonance is a global orbit payout boost that lights the Lacuna glow). |
-| The Moon | buy (✦8,000) | A large pale **moon** appears on the widest, slowest orbit (ring 2), sitting right on the orbit line and visibly waxing/waning. Pays **200 ✦** per orbit. Unlocks **Moon Payout**, **Moon Speed**, and **Lunar Phases**. |
+| The Moon | buy (✦8,000) | A large pale **moon** appears on the widest, slowest orbit (ring 2), sitting right on the orbit line and visibly waxing/waning. Pays **200 ✦** per orbit (varying with its phase by default — most at full moon). Unlocks **Moon Payout** and **Moon Speed**. |
 | … | … | Buy more dust particles (max 5), pump payout/speed, grab **Resonance**, develop the Moon, keep catching comets. |
 
 ---
@@ -63,25 +63,30 @@ Click the Lacuna (center) to earn **stardust (✦)** → buy **Star Touch** to e
 
 > Total click value = Star Touch value + 2 × Star Grasp level (+ Gravitational Pull, below), via `clickValue()`.
 
+**Pulse** — *unlocks after Star Touch is maxed (lvl 8)* · max **1** · one-time **✦2,500** · the **auto-clicker**.
+A slow heartbeat every **3 seconds** auto-harvests **12 clicks** worth of stardust (≈**4 clicks/sec**), with a gentle beat on the Lacuna.
+**Trade-off:** once bought you **can no longer harvest by clicking** — it's hands-free (comets and info cards still respond to clicks).
+
 **Gravitational Pull** — *unlocks after Star Grasp is maxed* · max **2** · each level adds **+1% of total orbiter payout to every click**
 | Level | Cost ✦ | Click bonus |
 |---|---|---|
-| 1 | 5,000 | +1% of all orbiter payout |
-| 2 | 20,000 | +2% of all orbiter payout |
+| 1 | 2,000 | +1% of all orbiter payout |
+| 2 | 4,000 | +2% of all orbiter payout |
 
 > Ties active clicking to your idle income — the more your orbiters pay, the more each click is worth.
 > Combos with **Resonance** (which raises orbiter payout, so it raises this bonus too).
 
-**Resonance** — *unlocks after Star Grasp is maxed (appears alongside Gravitational Pull)* · max **4** · **global** payout multiplier on **every** orbiter
-Adds **+25% per level (additive)** to all orbiter payout — ×1.25 → ×2 at level 4 — and is the only thing
+**Resonance** — *unlocks after Star Grasp is maxed (appears alongside Gravitational Pull)* · max **5** · **global** payout multiplier on **every** orbiter
+Adds **+10% per level (additive)** to all orbiter payout — ×1.10 → ×1.50 at level 5 — and is the only thing
 that lights the **Lacuna's glow** (off by default; brightens marginally per level, but stays *very* faint
 even at max). Combos with Gravitational Pull.
 | Level | Cost ✦ | All orbiter payout |
 |---|---|---|
-| 1 | 5,000 | ×1.25 |
-| 2 | 10,000 | ×1.5 |
-| 3 | 18,000 | ×1.75 |
-| 4 | 30,000 | ×2 |
+| 1 | 3,000 | ×1.10 |
+| 2 | 6,500 | ×1.20 |
+| 3 | 12,000 | ×1.30 |
+| 4 | 20,000 | ×1.40 |
+| 5 | 32,000 | ×1.50 |
 
 ### DUST PARTICLES
 
@@ -178,18 +183,14 @@ asteroid it is **not a count upgrade** — there's only ever one Moon.
 | Cost ✦ | — | 9,000 | 18,000 | 35,000 | 60,000 | 100,000 |
 | Speed (×0.78) | 78% | 94% | 109% | 125% | 140% | 156% |
 
-**Lunar Phases** — *unlocks after the moon* · max **4** — the moon's **unique** upgrade.
-The moon visibly **waxes and wanes** on a 24-second cycle (a terminator shadow sweeps across it). Once bought,
-its payout rides that cycle: **×1 at the new moon, up to ×(1 + 0.25×level) at the full moon** — pure upside,
-so a new moon never pays *less* than base, and full moons pay a bonus.
-| Level | 1 | 2 | 3 | 4 |
-|---|---|---|---|---|
-| Cost ✦ | 12,000 | 25,000 | 45,000 | 75,000 |
-| Full-moon payout × | ×1.25 | ×1.5 | ×1.75 | ×2 |
+**Phase-varying payout** — a **default feature** of the moon (no upgrade).
+The moon visibly **waxes and wanes** on a 19.2-second cycle (25% faster than the old 24s) (a terminator shadow sweeps across it), and its
+payout rides that cycle: **×1 at the new moon, up to ×1.5 at the full moon** — pure upside, so a new moon
+never pays *less* than base and full moons pay a bonus.
 
 > `moonPayout = round((200 + 200×payoutLvl) × moonPhaseMult × resonanceMult)`, where
-> `moonPhaseMult = 1 + 0.25 × phaseLvl × litFraction` (litFraction 0 at new moon → 1 at full moon).
-> Before Lunar Phases is bought the cycle is purely **cosmetic** (the moon still visibly waxes/wanes, but pays flat).
+> `moonPhaseMult = 1 + 0.5 × litFraction` (litFraction 0 at new moon → 1 at full moon).
+> The moon currently has **no unique upgrade** (Lunar Phases became this default behavior).
 
 ### COMETS
 
@@ -256,7 +257,7 @@ Plus a one-sentence flavor line introducing the Lacuna as the protagonist.
 | Stat | Value |
 |---|---|
 | Phase | current lunar phase (New → Full → New, on a 24s cycle) |
-| Orbit payout | ✦ per orbit (= `moonPayout()`, base 200 +200/lvl, × Lunar Phases factor) |
+| Orbit payout | ✦ per orbit (= `moonPayout()`, base 200 +200/lvl, × phase factor) |
 | Orbital speed | scales with Moon Speed (0.78 base factor → 78% → 156%) |
 | Orbits / hour | the slowest orbiter; scales with Speed |
 

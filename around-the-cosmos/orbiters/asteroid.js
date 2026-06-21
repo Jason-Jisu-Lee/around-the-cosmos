@@ -13,10 +13,14 @@ const ASTEROID_COMP = {
     mult:   [1, 1.25, 1.5, 1.75],                          // payout × per tier (+0.25 steps)
 };
 
+// A fixed, gently-irregular outline — rounded and lumpy, not spiky. There's only ever
+// one asteroid, so a hand-tuned constant keeps it consistent and good every load
+// (the old per-load random shape was what kept "changing" the rock).
+const ASTEROID_SHAPE = [1.20, 1.04, 0.82, 0.92, 1.14, 1.06, 0.80, 0.96, 1.10, 0.86, 1.00, 0.90];
+
 // An asteroid body. `motes` are tiny specks that constantly drift around it.
 function newAsteroidBody() {
-    const shape = [];
-    for (let k = 0; k < 8; k++) shape.push(0.6 + Math.random()*0.8);
+    const shape = ASTEROID_SHAPE.slice();
     const motes = [];
     for (let m = 0; m < 6; m++) motes.push({
         dist:  1.4 + Math.random()*1.4,                     // × pebble radius from its center
@@ -39,7 +43,7 @@ function asteroidColor()  { return ASTEROID_COMP.colors[lvl('astcomp')]; }
 // Base factor 0.88 (base speed reduced 12% — max was too fast) × upgrade mult → 88% → 176%.
 function asteroidSpeed()  { return 0.88 * upg('astspd').mult(lvl('astspd')); }
 function asteroidVel()           { return Math.sqrt(PHYS.G * lacunaMass() / PHYS.asteroidOrbitRadius) * asteroidSpeed(); }
-function asteroidOrbitsPerHour() { return asteroidVel() / (2*Math.PI*PHYS.asteroidOrbitRadius) * 3600; }
+function asteroidOrbitsPerMin() { return 60 * asteroidSpeed() / PLANET_DEF[1].period; }   // in-game orbit cadence
 
 registerOrbiter({
     id: 'asteroid',
@@ -48,7 +52,7 @@ registerOrbiter({
     ring: 1,
     hoverR: 40,
     color:    () => asteroidColor(),
-    pebbleR:  () => (PLANET_DEF[1].radius/3 + 4) * 1.5,   // 50% bigger than the original asteroid
+    pebbleR:  () => (PLANET_DEF[1].radius/3 + 4) * 1.95,  // bigger again (was ×1.7)
     list:     () => G.asteroids,
     clump:    () => G.asteroidClump,
     clumpPos: () => asteroidClumpPos(),
@@ -61,7 +65,7 @@ registerOrbiter({
           tipRow('Composition',   ASTEROID_COMP.names[lvl('astcomp')])
         + tipRow('Orbit payout',  '✦' + fmtNum(asteroidPayout()))
         + tipRow('Orbital speed', fmtNice(asteroidVel()) + ' m/s')
-        + tipRow('Orbits / hour', fmtNice(asteroidOrbitsPerHour())),
+        + tipRow('Orbits / min', fmtNice(asteroidOrbitsPerMin())),
     labels: {
         asteroid: 'Asteroid', astpay: '×2 Payout', astspd: '×1.2 Speed',
         astcomp: () => ASTEROID_COMP.names[lvl('astcomp')],   // composition: new tier name

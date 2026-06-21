@@ -1,0 +1,43 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Shining star — loop preview</title>
+<style>
+  html,body{margin:0;height:100%;overflow:hidden;font-family:Georgia,serif}
+  #sky{position:fixed;inset:0;background:radial-gradient(circle at 50% 40%,#101826,#05070d 80%);transition:background .3s}
+  #sky.parch{background:#f4f0e8}
+  .star{position:absolute;transform:translate(-50%,-50%);pointer-events:none}
+  .star img{display:block;width:100%;height:100%}
+  .ui{position:fixed;top:14px;left:14px;z-index:9;color:#9aa6bd;font-size:12px;letter-spacing:.04em}
+  .ui button{background:rgba(255,255,255,.06);border:1px solid #39415c;color:#cdd3e0;border-radius:4px;padding:5px 10px;font:12px Georgia;cursor:pointer;margin-right:6px}
+  .ui.parch{color:#7a7468}
+</style></head><body>
+  <div id="sky"></div>
+  <div class="ui" id="ui">
+    star shining — loops ~1s (pause after frame 3, longer holds when fully formed) &nbsp;
+    <button onclick="document.getElementById('sky').classList.toggle('parch');document.getElementById('ui').classList.toggle('parch')">toggle background</button>
+    <button onclick="slow=!slow">½ speed</button>
+  </div>
+<script>
+  // [frame ('' = blank pause), ms]. Sums to ~1000ms. Later (formed) frames held longer.
+  // Full cycle: f1→f13, then f1,f2,f3 again (sparkle in → form → hold → sparkle out).
+  const SEQ=[['1',40],['2',40],['3',42],['',70],['4',55],['5',58],['6',60],['7',62],['8',58],['9',42],['10',40],['11',40],['12',40],['13',48],['1',40],['2',40],['3',42]];
+  const V='?v=3';  // cache-bust when frames are re-exported
+  const imgs={}; for(let i=1;i<=13;i++){imgs[i]=new Image();imgs[i].src='f'+i+'.png'+V;}  // preload
+  let slow=false;
+  function makeStar(size,x,y,startIdx){
+    const el=document.createElement('div'); el.className='star';
+    el.style.width=el.style.height=size+'px'; el.style.left=x; el.style.top=y;
+    const img=document.createElement('img'); el.appendChild(img);
+    document.getElementById('sky').appendChild(el);
+    let idx=startIdx%SEQ.length;
+    (function step(){
+      const [f,ms]=SEQ[idx];
+      if(f){img.src='f'+f+'.png'+V; img.style.visibility='visible';} else img.style.visibility='hidden';
+      idx=(idx+1)%SEQ.length;
+      setTimeout(step, ms*(slow?2:1));
+    })();
+  }
+  makeStar(190,'50%','42%',0);     // the main one
+  makeStar(96,'24%','68%',5);      // a couple of smaller twinkles, out of phase
+  makeStar(120,'76%','30%',9);
+  makeStar(70,'66%','74%',2);
+</script>
+</body></html>

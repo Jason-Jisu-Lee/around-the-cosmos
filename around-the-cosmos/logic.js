@@ -1,8 +1,23 @@
 'use strict';
 
+const PULSE_INTERVAL = 3, PULSE_CLICKS = 12;   // Pulse upgrade: a heartbeat every 3s worth 12 clicks
+let pulseTimer = 0;
+
 function tick(dt) {
     G.gameTime += dt;
     G.universeTime += dt;
+
+    // Pulse (auto-clicker): once owned, a slow heartbeat auto-harvests 12 clicks every 3s
+    // (≈4 clicks/sec) and the Lacuna gives a gentle beat. Manual clicking is disabled (game.js).
+    if (lvl('pulse') >= 1) {
+        pulseTimer += dt;
+        while (pulseTimer >= PULSE_INTERVAL) {
+            pulseTimer -= PULSE_INTERVAL;
+            earn(PULSE_CLICKS * clickValue(), CX, CY - 20);
+            clickFxId = 'pulseBeat'; triggerClickFx(performance.now()/1000, 0, -1);
+            SoundSystem.sfxTap();
+        }
+    }
 
     // Each orbiter clump orbits as a group and pays when it crosses the top. The
     // per-orbiter specifics (ring, speed, payout, position) come from orbiters/*.

@@ -29,6 +29,7 @@ function canvasClick(x, y) {
         const dx=G.comet.x-x, dy=G.comet.y-y;
         if (dx*dx+dy*dy < 48*48) { catchComet(); return; }
     }
+    if (lvl('pulse') >= 1) return;   // Pulse automates harvesting — manual clicks no longer earn
     earn(clickValue(), x, y-14);
     G.taps++; SoundSystem.sfxTap(); burst(x,y,'rgba(100,80,50,',5,80);
     // Kick the Lacuna's click reaction (effects.js): random effect each click,
@@ -72,7 +73,7 @@ document.getElementById('show-completed').addEventListener('change', e => {
 });
 
 // ---- Audio boots on the first user gesture ----
-let _savedVols = { mv:100, sv:100, track:0 };
+let _savedVols = { mv:75, sv:75, track:0 };
 const _bootAudio = () => {
     SoundSystem.boot(); SoundSystem.loadTrack(_savedVols.track); SoundSystem.startMusic();
     SoundSystem.setMusicVolume(_savedVols.mv); SoundSystem.setSfxVolume(_savedVols.sv);

@@ -22,8 +22,16 @@ const UPGRADES = [
         unlock: () => lvl('touch') >= 5,                 // after the 5th Star Touch
     },
     {
+        id: 'pulse', name: 'Pulse', maxLevel: 1, section: 'MAIN',
+        costs: [2500],                                   // one-time buy
+        // Automates harvesting: a slow heartbeat every 3s worth 12 clicks (≈4 clicks/sec).
+        // Once owned, manual harvest clicks stop earning (logic.js auto-pulse + game.js gate).
+        desc: () => 'A steady heartbeat — every 3s the Lacuna pulses for 12 clicks of stardust (≈4 clicks/sec). Hands-free: you no longer harvest by clicking.',
+        unlock: () => lvl('touch') >= 8,                 // after Star Touch is maxed
+    },
+    {
         id: 'gravpull', name: 'Gravitational Pull', maxLevel: 2, section: 'MAIN',
-        costs: [5000, 20000],
+        costs: [2000, 4000],
         // Each level adds +1% of total orbiter payout to every click (applied in clickValue()).
         desc: () => '+1% of all orbiter payout to each click, per level',
         unlock: () => lvl('grasp') >= 3,                 // after Star Grasp is maxed
@@ -83,7 +91,8 @@ const UPGRADES = [
     {
         id: 'moon', name: 'Moon', maxLevel: 1, section: 'MOON',
         costs: [8000],                                   // a single body — NOT a count upgrade
-        desc: () => 'A single pale moon on the widest orbit · +200 base payout',
+        // Explain the phase-varying payout here so players understand the fluctuating number.
+        desc: () => 'A single pale moon on the widest orbit (+200 base payout). Its payout rises and falls with the lunar phase — lowest at the new moon, highest at the full moon — and whatever the payout reads when it completes an orbit is exactly what it pays that lap.',
         unlock: () => lvl('asteroid') >= 1,              // after you own the asteroid
     },
     {
@@ -100,18 +109,10 @@ const UPGRADES = [
         unlock: () => lvl('moon') >= 1,
     },
     {
-        id: 'moonphase', name: 'Lunar Phases', maxLevel: 4, section: 'MOON',
-        costs: [12000, 25000, 45000, 75000],             // the moon's UNIQUE upgrade
-        // Couples payout to the moon's waxing/waning cycle: ×1 at new moon, up to
-        // ×(1 + 0.25·lvl) at the full moon (pure upside — full moons pay a bonus).
-        desc: l => `The moon’s payout rides its phase: up to ×${(1 + 0.25 * (l + 1)).toFixed(2)} at full moon`,
-        unlock: () => lvl('moon') >= 1,
-    },
-    {
-        id: 'resonance', name: 'Resonance', maxLevel: 4, section: 'MAIN',
-        costs: [5000, 10000, 18000, 30000],
-        // +25% to every orbiter's payout per level (additive, ×1.25 → ×2). Also lights the Lacuna's glow.
-        desc: () => '+25% to every orbiter’s payout, per level (additive). The Lacuna begins to glow.',
+        id: 'resonance', name: 'Resonance', maxLevel: 5, section: 'MAIN',
+        costs: [3000, 6500, 12000, 20000, 32000],
+        // +10% to every orbiter's payout per level (additive, ×1.10 → ×1.50). Also lights the Lacuna's glow.
+        desc: () => '+10% to every orbiter’s payout, per level (additive). The Lacuna begins to glow.',
         unlock: () => lvl('grasp') >= 3,                 // appears alongside Gravitational Pull (after Star Grasp maxed)
     },
     {

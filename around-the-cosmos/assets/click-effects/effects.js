@@ -11,35 +11,20 @@
 // gallery at preview.html lets you feel all five). Pure — no game globals, so
 // both the game and the preview share this file.
 
-// Six fun Bounce variations — all uniform scale pops (sx = sy = s). Every entry
-// is rolled with equal chance on a click.
+// A single Bounce — a quick uniform scale pop (sx = sy = s), like a beat.
 const CLICK_FX = {
-    bouncePop:       {  // smooth single pop
+    bouncePop: {
         name: 'Pop', dur: 0.13,
         fn: p => { const s = 1 + 0.34 * Math.sin(Math.PI * p); return { sx: s, sy: s }; },
     },
-    bounceSnap:      {  // instant grow, quick ease back
-        name: 'Snap', dur: 0.16,
-        fn: p => { const s = 1 + 0.32 * Math.pow(1 - p, 1.6); return { sx: s, sy: s }; },
-    },
-    bounceBig:       {  // a big, bold, satisfying pop
-        name: 'Big', dur: 0.20,
-        fn: p => { const s = 1 + 0.52 * Math.sin(Math.PI * p); return { sx: s, sy: s }; },
-    },
-    bounceElastic:   {  // overshoot, dip below 1, settle
-        name: 'Elastic', dur: 0.32,
-        fn: p => { const s = 1 + 0.34 * Math.exp(-4 * p) * Math.cos(2 * Math.PI * 1.2 * p); return { sx: s, sy: s }; },
-    },
-    bounceDouble:    {  // two diminishing pops
-        name: 'Double', dur: 0.34,
-        fn: p => { const s = 1 + 0.40 * Math.exp(-3 * p) * Math.abs(Math.sin(2 * Math.PI * 1.3 * p)); return { sx: s, sy: s }; },
-    },
-    bounceHeartbeat: {  // thump-thump — two close pops then rest
-        name: 'Heartbeat', dur: 0.48,
-        fn: p => { const g = (c, w) => Math.exp(-(((p - c) / w) ** 2)); const e = g(0.13, 0.085) + 0.85 * g(0.40, 0.085); return { sx: 1 + 0.30 * e, sy: 1 + 0.30 * e }; },
+    // The Pulse auto-clicker's heartbeat — a slow, gentle swell. NOT in CLICK_FX_LIST,
+    // so manual clicks never roll it; logic.js triggers it directly every 3s.
+    pulseBeat: {
+        name: 'Heartbeat', dur: 0.5,
+        fn: p => { const s = 1 + 0.16 * Math.sin(Math.PI * p); return { sx: s, sy: s }; },
     },
 };
-const CLICK_FX_LIST = ['bouncePop', 'bounceSnap', 'bounceBig', 'bounceElastic', 'bounceDouble', 'bounceHeartbeat'];
+const CLICK_FX_LIST = ['bouncePop'];
 
 // ── live state (read by render.js, set by the click handler) ─────────────────
 let clickFxRandom = true;          // each click picks a random effect (equal chance)
