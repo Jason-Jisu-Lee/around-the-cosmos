@@ -1,42 +1,38 @@
 # Around the Cosmos
 
-A calm, celestial **idle / incremental** game. A small dark **Lacuna** sits at the
-centre; **orbiters** circle it and pay **stardust (✦)** every time they complete an
-orbit. Click anywhere to harvest stardust by hand, and catch **comets** for windfalls.
+An idle/incremental game. A dark center (the Lacuna) is orbited by bodies — dust
+particles, an asteroid, a moon — that pay stardust (✦) each time they complete an
+orbit. Click to earn stardust, spend it on upgrades, and catch comets for extra.
 
-> "Lacuna" means a gap or void. The tone is meditative, slightly melancholy.
+Vanilla JS + Canvas. No build step, no framework, no dependencies.
 
-Pure **vanilla JS + Canvas** — no build step, no framework, no dependencies.
+## Run it
 
-## Play / run it
-
-The game lives in [`around-the-cosmos/`](around-the-cosmos/). Serve that folder over HTTP (browsers block
-audio from `file://`):
+The game is in `around-the-cosmos/`. Serve that folder over HTTP (browsers block audio on `file://`):
 
 ```bash
 cd around-the-cosmos
 python -m http.server 3000
 ```
 
-Then open `http://localhost:3000`.
+Then open http://localhost:3000.
 
-## The loop
+## How it works
 
-1. **Click** the sky to earn stardust (buy **Star Touch** for more per click).
-2. Buy **Dust Particles** — small orbiters that pay on every orbit.
-3. Unlock the **Asteroid**, then payout/speed/composition upgrades for each orbiter.
-4. **Gravitational Pull** ties clicks to your orbiter income; **Resonance** boosts all
-   orbiters and lights the Lacuna's glow.
-5. Catch **comets** for bursts of stardust.
+1. Click the sky to earn stardust. Buy Star Touch to earn more per click.
+2. Buy Dust Particles — orbiters that pay on every orbit.
+3. Unlock the Asteroid and the Moon, plus payout/speed upgrades for each.
+4. Gravitational Pull adds a share of your orbiter income to every click. Resonance boosts all orbiter payout.
+5. Pulse auto-clicks for you once Star Touch is maxed.
+6. Catch comets for bursts of stardust.
 
-Hover the Lacuna or an orbiter for its real-physics stats; click for a pinned card.
+Hover a body for its stats; click it to pin a card.
 
-## Debug mode
+## Debug
 
-Add `?debug` to the URL for a draggable panel (inject dust, speed multiplier, force
-comets, reset). It never appears in normal play.
+Add `?debug` to the URL for a panel (inject stardust, speed multiplier, force comets, reset). It doesn't appear in normal play.
 
-## Project docs
+## Docs
 
-- [`around-the-cosmos/CLAUDE.md`](around-the-cosmos/CLAUDE.md) — architecture & mechanics reference.
-- [`around-the-cosmos/PROGRESSION.md`](around-the-cosmos/PROGRESSION.md) — early-game flow & full upgrade tree.
+- `around-the-cosmos/CLAUDE.md` — architecture and mechanics.
+- `around-the-cosmos/PROGRESSION.md` — early-game flow and the full upgrade tree.
