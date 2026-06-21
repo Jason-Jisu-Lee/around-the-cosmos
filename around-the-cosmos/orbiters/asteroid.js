@@ -43,7 +43,8 @@ function asteroidColor()  { return ASTEROID_COMP.colors[lvl('astcomp')]; }
 // Base factor 0.88 (base speed reduced 12% — max was too fast) × upgrade mult → 88% → 176%.
 function asteroidSpeed()  { return 0.88 * upg('astspd').mult(lvl('astspd')); }
 function asteroidVel()           { return Math.sqrt(PHYS.G * lacunaMass() / PHYS.asteroidOrbitRadius) * asteroidSpeed(); }
-function asteroidOrbitsPerMin() { return 60 * asteroidSpeed() / PLANET_DEF[1].period; }   // in-game orbit cadence
+function asteroidOrbitsPerMin()  { return 60 * asteroidSpeed() / PLANET_DEF[1].period; }   // in-game orbit cadence
+function asteroidStardustPerMin() { return asteroidPayout() * asteroidOrbitsPerMin(); }
 
 registerOrbiter({
     id: 'asteroid',
@@ -65,7 +66,8 @@ registerOrbiter({
           tipRow('Composition',   ASTEROID_COMP.names[lvl('astcomp')])
         + tipRow('Orbit payout',  '✦' + fmtNum(asteroidPayout()))
         + tipRow('Orbital speed', fmtNice(asteroidVel()) + ' m/s')
-        + tipRow('Orbits / min', fmtNice(asteroidOrbitsPerMin())),
+        + tipRow('Orbits / min', fmtNice(asteroidOrbitsPerMin()))
+        + tipRow('Stardust / min', '✦' + fmtNum(Math.round(asteroidStardustPerMin()))),
     labels: {
         asteroid: 'Asteroid', astpay: '×2 Payout', astspd: '×1.2 Speed',
         astcomp: () => ASTEROID_COMP.names[lvl('astcomp')],   // composition: new tier name

@@ -26,12 +26,14 @@ function dustSpeed()     { return 0.82 * upg('dustspd').mult(lvl('dustspd')); }
 // Cosmic orbital velocity (ring 0 radius + Lacuna mass), scaled by speed.
 function orbiterVel()          { return Math.sqrt(PHYS.G * lacunaMass() / PHYS.orbitRadius) * dustSpeed(); }
 // In-game orbit cadence (matches the visible clump + the observatory's payout/min).
-function orbiterOrbitsPerMin() { return 60 * dustSpeed() / PLANET_DEF[0].period; }
+function orbiterOrbitsPerMin()  { return 60 * dustSpeed() / PLANET_DEF[0].period; }
+// Whole-clump stardust per minute = (count × payout) × orbits per minute.
+function dustStardustPerMin()   { return G.planets.length * orbiterPayout() * orbiterOrbitsPerMin(); }
 
 registerOrbiter({
     id: 'dust',
     title: 'Dust Particle',
-    desc: "The first speck stubborn enough to answer the Lacuna's pull, tracing patient circles and paying a little stardust each time it passes.",
+    desc: "A lone grain of dust drawn into the Lacuna's orbit, tracing patient circles and shedding a little stardust each time it passes.",
     ring: 0,
     hoverR: 35,
     color:    () => '#8a8782',
@@ -48,6 +50,7 @@ registerOrbiter({
     rows: () =>
           tipRow('Orbit payout',  '✦' + fmtNum(G.planets.length * orbiterPayout()))   // whole clump
         + tipRow('Orbital speed', fmtNice(orbiterVel()) + ' m/s')
-        + tipRow('Orbits / min', fmtNice(orbiterOrbitsPerMin())),
+        + tipRow('Orbits / min', fmtNice(orbiterOrbitsPerMin()))
+        + tipRow('Stardust / min', '✦' + fmtNum(Math.round(dustStardustPerMin()))),
     labels: { dust: 'Dust Particle', dustcount: '+1 Dust Particle', dustpay: '+10 Payout', dustspd: '×1.2 Speed' },
 });

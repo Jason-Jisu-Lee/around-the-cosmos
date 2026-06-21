@@ -59,7 +59,11 @@ function makeCard(u) {
 // the right column's overflow clip, so it hides nothing in the list).
 const upgPop = document.getElementById('upg-pop');
 function showUpgPop(u, cardEl) {
-    upgPop.textContent = u.desc(G.upgrades[u.id]);
+    // Two areas: an optional flavor "description" on top, and the actual "Effect" below.
+    const l = G.upgrades[u.id];
+    const flavor = typeof u.flavor === 'function' ? u.flavor(l) : u.flavor;
+    upgPop.innerHTML = (flavor ? `<div class="upg-pop-flavor">${flavor}</div>` : '')
+        + `<div class="upg-pop-fn">${u.desc(l)}</div>`;
     upgPop.style.display = 'block';
     const r = cardEl.getBoundingClientRect();
     const pw = upgPop.offsetWidth, ph = upgPop.offsetHeight;
@@ -123,7 +127,7 @@ function updateCards() {
         const cost = isMax ? null : u.costs[l];
         ref.card.classList.toggle('is-maxed',    isMax);
         ref.card.classList.toggle('can-afford', !isMax && G.dust >= cost);
-        ref.cost.textContent = isMax ? '—' : '✦' + fmtNum(cost);
+        ref.cost.textContent = isMax ? 'MAX' : '✦' + fmtNum(cost);
         ref.cost.classList.toggle('maxed', isMax);
         // Level shown small in the card's bottom-right corner (e.g. "1 / 5").
         ref.level.textContent = `${l} / ${u.maxLevel}`;

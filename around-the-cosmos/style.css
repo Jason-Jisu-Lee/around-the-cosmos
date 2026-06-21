@@ -248,6 +248,12 @@ body {
     border: 8.4px solid transparent;     /* +20% again (6 → 7 → 8.4) */
     border-left-color: rgba(26,26,26,0.82);
 }
+/* Two areas in the popup: flavor "description" on top, the actual "Effect" below. */
+#upg-pop .upg-pop-flavor {
+    font-style: italic; opacity: 0.72; font-size: 0.82em; line-height: 1.45;
+    margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid rgba(244,240,232,0.16);
+}
+#upg-pop .upg-pop-fn  { font-size: 0.9em; }
 
 .stat-row { display: flex; justify-content: space-between; align-items: baseline; gap: 14px; padding: 6px 0; border-bottom: 1px solid var(--border2); font-size: 13px; font-family: 'Segoe UI', sans-serif; }
 .stat-label { color: var(--text-dim); flex: 1; }

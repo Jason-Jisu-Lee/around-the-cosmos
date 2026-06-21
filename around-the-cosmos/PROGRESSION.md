@@ -24,10 +24,10 @@ Click the Lacuna (center) to earn **stardust (✦)** → buy **Star Touch** to e
 | Star Touch ×2 | buy (✦50) | Click earns **3**. → **Dust Particle** upgrade appears (creates your first orbiter). |
 | First Dust Particle | buy (✦100) | Your first **orbiter** appears, paying **10 ✦** per orbit. One-time buy. Unlocks **Dust Particle Count**, **Dust Particle Payout**, **Dust Particle Speed**, and the **All Orbiters Payout** stat. |
 | 2nd Dust Particle | buy Dust Particle Count (✦500) | A second dust particle joins the clump → unlocks the **Asteroid** (a single body). |
-| Star Touch ×5 | buy (✦400) | → **Star Grasp** appears in MAIN (a stronger per-click upgrade). |
+| Star Touch ×4 | buy (✦250) | → **Star Grasp** appears in MAIN (a stronger per-click upgrade). |
 | The Asteroid | buy (✦1,500) | A single bigger, slower **asteroid** appears on a wider orbit, paying **50 ✦** per orbit. Unlocks **Asteroid Payout**, **Asteroid Speed**, **Asteroid Composition**. |
 | Star Grasp maxed | buy (lvl 3) | → **Gravitational Pull** and **Resonance** both appear in MAIN (clicks scale with orbiter payout; Resonance is a global orbit payout boost that lights the Lacuna glow). |
-| The Moon | buy (✦8,000) | A large pale **moon** appears on the widest, slowest orbit (ring 2), sitting right on the orbit line and visibly waxing/waning. Pays **200 ✦** per orbit (varying with its phase by default — most at full moon). Unlocks **Moon Payout** and **Moon Speed**. |
+| The Moon | buy (✦8,000) | A large pale **moon** appears on the widest, slowest orbit (ring 2), sitting right on the orbit line and visibly waxing/waning. Pays **200 ✦** per orbit (varying with its phase by default, most at full moon). Unlocks **Moon Payout**, **Moon Speed**, and **Lunar Phases**. |
 | … | … | Buy more dust particles (max 5), pump payout/speed, grab **Resonance**, develop the Moon, keep catching comets. |
 
 ---
@@ -54,7 +54,7 @@ Click the Lacuna (center) to earn **stardust (✦)** → buy **Star Touch** to e
 
 > Buying level 2 is what reveals the DUST PARTICLES section (Dust Particle).
 
-**Star Grasp** — *unlocks after Star Touch lvl 5* · max **3** · **+2 ✦ per click each level** (stacks on Star Touch)
+**Star Grasp** — *unlocks after Star Touch lvl 4* · max **3** · **+2 ✦ per click each level** (stacks on Star Touch)
 | Level | Cost ✦ | Adds to each click |
 |---|---|---|
 | 1 | 500 | +2 |
@@ -177,20 +177,22 @@ asteroid it is **not a count upgrade** — there's only ever one Moon.
 | Cost ✦ | — | 8,000 | 18,000 | 36,000 | 70,000 | 120,000 |
 | Payout | 200 | 400 | 600 | 800 | 1,000 | 1,200 |
 
-**Moon Speed** — *unlocks after the moon* · max **5** — +20% per level, with a **0.78 base-speed factor** (the slowest orbiter) → effective **78% → 156%**.
+**Moon Speed** — *unlocks after the moon* · max **5** — +20% per level, with a **0.663 base-speed factor** (slowed 15% from 0.78; the slowest orbiter) → effective **66.3% → 132.6%**.
 | Level | (base) | 1 | 2 | 3 | 4 | 5 |
 |---|---|---|---|---|---|---|
 | Cost ✦ | — | 9,000 | 18,000 | 35,000 | 60,000 | 100,000 |
-| Speed (×0.78) | 78% | 94% | 109% | 125% | 140% | 156% |
+| Speed (×0.663) | 66% | 80% | 93% | 106% | 119% | 133% |
 
-**Phase-varying payout** — a **default feature** of the moon (no upgrade).
-The moon visibly **waxes and wanes** on a 19.2-second cycle (25% faster than the old 24s) (a terminator shadow sweeps across it), and its
-payout rides that cycle: **×1 at the new moon, up to ×1.5 at the full moon** — pure upside, so a new moon
-never pays *less* than base and full moons pay a bonus.
+**Phase-varying payout** — the moon's payout swings with its phase **by default** (no upgrade needed): from **×0.75 at the new moon up to ×1.25 at the full moon**. It visibly waxes and wanes on a 19.2-second cycle (a terminator shadow sweeps across it), and whatever the payout reads when it completes an orbit is what it pays.
+
+**Lunar Phases** — *unlocks after the moon* · max **5** — the moon's **unique** upgrade. Each level shifts that range up by **+0.10 on both ends**, so it raises the average payout while keeping the new→full swing.
+| Level | (default) | 1 | 2 | 3 | 4 | 5 |
+|---|---|---|---|---|---|---|
+| Cost ✦ | — | 12,000 | 28,000 | 55,000 | 90,000 | 140,000 |
+| Range (new → full) | ×0.75–1.25 | ×0.85–1.35 | ×0.95–1.45 | ×1.05–1.55 | ×1.15–1.65 | ×1.25–1.75 |
 
 > `moonPayout = round((200 + 200×payoutLvl) × moonPhaseMult × resonanceMult)`, where
-> `moonPhaseMult = 1 + 0.5 × litFraction` (litFraction 0 at new moon → 1 at full moon).
-> The moon currently has **no unique upgrade** (Lunar Phases became this default behavior).
+> `moonPhaseMult = (0.75 + 0.10×phaseLvl) + 0.50 × litFraction` (litFraction 0 at new moon → 1 at full moon).
 
 ### COMETS
 

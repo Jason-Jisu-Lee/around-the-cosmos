@@ -10,7 +10,7 @@ const cosmoCard = document.getElementById('cosmo-card');  // click — pinned ce
 let cosmoMx = 0, cosmoMy = 0, cosmoOver = false;
 let pinnedTarget = null;    // orbiter id | 'lacuna' | null — centered card open via click
 
-const LACUNA_DESC = 'A small absence at the heart of everything — patient, hollow, and quietly gathering a universe back together.';
+const LACUNA_DESC = 'A small absence at the heart of everything, patient and hollow, quietly gathering a universe back together.';
 
 // Returns 'comet' | 'lacuna' | an orbiter id | null.
 function cosmoTargetAt(x, y) {
