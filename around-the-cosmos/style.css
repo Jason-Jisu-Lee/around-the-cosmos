@@ -286,11 +286,12 @@ body {
 }
 #cosmo-tip  .cosmo-title { font-size: 14px; }
 #cosmo-card .cosmo-title { font-size: 16px; }
-/* Comet hover label — just the word, no rows/border */
+/* Comet hover label — just the word, no rows/border. Shrink the box to fit it. */
 .cosmo-solo {
     font-family: 'Optima','Candara','Century Gothic',sans-serif; font-size: 14px;
-    color: #e8dcc0; letter-spacing: 0.06em;
+    color: #e8dcc0; letter-spacing: 0.06em; white-space: nowrap;
 }
+#cosmo-tip:has(.cosmo-solo) { min-width: 0; padding: 8px 13px; }
 .tip-row { display: flex; justify-content: space-between; gap: 18px; padding: 2px 0; }
 .tip-l   { color: #b8b0a2; }
 .tip-v   { color: #f4f0e8; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }

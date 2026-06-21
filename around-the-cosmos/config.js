@@ -31,4 +31,6 @@ const PHYS = {
     orbitRadius:        200e3,     // m — the dust clump's real orbital radius (200 km, ring 0)
     asteroidOrbitRadius:400e3,     // m — the asteroid clump's wider orbit (400 km, ring 1)
     moonOrbitRadius:    600e3,     // m — the moon's widest orbit (600 km, ring 2)
+    moonRadius:         40e3,      // m — 40 km, a SMALL moon (80 km across; smaller than the dwarf planet to come)
+    moonDensity:        1800,      // kg/m³ — icy/rocky (1.80 g/cm³), lighter than the Lacuna
 };

@@ -32,6 +32,11 @@ function moonPayout() { return Math.round((200 + 200 * lvl('moonpay')) * moonPha
 // Average payout over a full lunar cycle (mean litFraction = 0.5) — used by the observatory so
 // the displayed stats don't fluctuate with the phase, while actual orbit-cross earnings stay live.
 function moonAvgPayout() { return Math.round((200 + 200 * lvl('moonpay')) * (1 + 0.25 * lvl('moonphase') * 0.5) * resonanceMult()); }
+// Physical body (a SMALL moon — see PHYS.moonRadius). Mirrors the Lacuna physics so
+// the info card reads as a real, if little, world. Sphere mass = 4/3 π r³ ρ.
+function moonBodyMass()  { return (4 / 3) * Math.PI * PHYS.moonRadius ** 3 * PHYS.moonDensity; }
+function moonGravity()   { return PHYS.G * moonBodyMass() / PHYS.moonRadius ** 2; }
+
 // Base factor 0.78 (the slowest orbiter — heaviest, widest orbit) × upgrade mult → 78% → 156%.
 function moonSpeed()  { return 0.78 * upg('moonspd').mult(lvl('moonspd')); }
 function moonVel()           { return Math.sqrt(PHYS.G * lacunaMass() / PHYS.moonOrbitRadius) * moonSpeed(); }
@@ -47,7 +52,7 @@ function moonPhaseName() {
 registerOrbiter({
     id: 'moon',
     title: 'Moon',
-    desc: 'A pale companion grown heavy enough to hold its own slow circle — the widest, calmest orbit yet, waxing and waning as it goes, and richest of all at the full moon.',
+    desc: 'A small moon — pale and patient, lesser than the dwarf worlds still to come, yet heavy enough to hold its own slow circle: the widest, calmest orbit yet, waxing and waning as it goes, richest of all at the full moon.',
     ring: 2,
     hoverR: 46,
     round:    true,                                       // drawn as a phased disc, not a pebble clump
@@ -63,10 +68,13 @@ registerOrbiter({
     avgPayout: moonAvgPayout,   // observatory uses this (phase-averaged) so stats don't flicker
     speed:     moonSpeed,
     rows: () =>
-          tipRow('Phase',         moonPhaseName())
-        + tipRow('Orbit payout',  '✦' + fmtNum(moonPayout()))
-        + tipRow('Orbital speed', fmtNice(moonVel()) + ' m/s')
-        + tipRow('Orbits / hour', fmtNice(moonOrbitsPerHour())),
+          tipRow('Class',          'Small moon')
+        + tipRow('Diameter',       fmtNice(2 * PHYS.moonRadius / 1000) + ' km')
+        + tipRow('Mass',           fmtSci(moonBodyMass()) + ' kg')
+        + tipRow('Surface gravity', fmtNice(moonGravity() / 9.81 * 100) + '% of Earth')
+        + tipRow('Phase',          moonPhaseName())
+        + tipRow('Orbit payout',   '✦' + fmtNum(moonPayout()))
+        + tipRow('Orbits / hour',  fmtNice(moonOrbitsPerHour())),
     labels: {
         moon: 'Moon', moonpay: '+200 Payout', moonspd: '×1.2 Speed', moonphase: 'Lunar Phases',
     },
