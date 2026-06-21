@@ -1,7 +1,6 @@
 'use strict';
 
-// Audio engine: the Web Audio context, the master/music/sfx buses, and the shared
-// tone()/reverb() helpers everything else builds on. Shared state lives on `SND`.
+
 const SND = { ctx:null, master:null, musicBus:null, sfxBus:null, musicSession:null, muted:false };
 
 function audioBoot() {
@@ -12,7 +11,7 @@ function audioBoot() {
 }
 function mkGain(vol) { const g = SND.ctx.createGain(); g.gain.value = vol; return g; }
 
-// One enveloped oscillator note. Default bus is the SFX bus.
+
 function tone(type, freq, start, dur, vol, bus, freqEnd) {
     const o = SND.ctx.createOscillator(), g = SND.ctx.createGain();
     o.type = type; o.frequency.setValueAtTime(freq, start);
@@ -23,7 +22,7 @@ function tone(type, freq, start, dur, vol, bus, freqEnd) {
     o.connect(g); g.connect(bus || SND.sfxBus); o.start(start); o.stop(start + dur + 0.05);
 }
 
-// Convolution reverb tail, routed into the current music session (or the music bus).
+
 function reverb(len = 2.4) {
     const sr = SND.ctx.sampleRate, buf = SND.ctx.createBuffer(2, sr * len, sr);
     for (let c = 0; c < 2; c++) {
@@ -35,10 +34,7 @@ function reverb(len = 2.4) {
     conv.connect(SND.musicSession || SND.musicBus); return conv;
 }
 
-// Volume scale: 75% is the reference loudness (the default); the slider runs to
-// 100% for more headroom. Gain divides by 75 (75%→reference, 100%→reference×1.33).
-// Reference gains: music 0.5712, sfx 0.8262 (the earlier 0.672/0.972, toned down 15%).
-// Default volumes are 75%.
+
 function setMusicVolume(pct) { if (SND.ctx) SND.musicBus.gain.setTargetAtTime(0.5712*pct/75, SND.ctx.currentTime, 0.1); }
 function setSfxVolume(pct)   { if (SND.ctx) SND.sfxBus.gain.setTargetAtTime(0.8262*pct/75, SND.ctx.currentTime, 0.1); }
 function toggleMute() { if (!SND.ctx) return true; SND.muted=!SND.muted; SND.master.gain.setTargetAtTime(SND.muted?0:0.75, SND.ctx.currentTime, 0.15); return SND.muted; }

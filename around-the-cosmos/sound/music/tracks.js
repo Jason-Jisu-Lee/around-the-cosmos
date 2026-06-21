@@ -1,9 +1,9 @@
 'use strict';
 
-// Background music — three procedural ambient tracks and the looping scheduler.
+
 let currentTrack = 0, loopHandle = null, loopStop = false;
 
-// Track 1: Celestial
+
 const NOTES = {
     C2:65.41,G2:98.00,A2:110.00,C3:130.81,D3:146.83,E3:164.81,
     G3:196.00,A3:220.00,C4:261.63,D4:293.66,E4:329.63,
@@ -35,7 +35,7 @@ function scheduleLoop(startAt) {
     return startAt + loopLen + 1.5;
 }
 
-// Track 2: Drift — breathing sine drone pairs (mid-range fifths)
+
 function scheduleLoop2(startAt) {
     const rev = reverb(4.5);
     [[130.81,196.00,0],[110.00,164.81,9],[146.83,220.00,18],[174.61,261.63,27]]
@@ -51,7 +51,7 @@ function scheduleLoop2(startAt) {
     return startAt + 36;
 }
 
-// Track 3: Wane — staccato E minor pentatonic plucks
+
 const WANE = [
     [164.81,0.0,0.26],[196.00,0.7,0.20],[246.94,1.4,0.22],[293.66,2.1,0.18],[329.63,2.8,0.26],
     [293.66,3.5,0.18],[246.94,4.2,0.20],[196.00,4.9,0.18],[164.81,5.6,0.24],

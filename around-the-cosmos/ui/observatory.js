@@ -1,10 +1,8 @@
 'use strict';
 
-// ── Observatory ──────────────────────────────────────────────────────────────
-// The draggable stats panel. The DOM is built once per row layout (statsSig) and
-// values are updated in place each tick, so the hover formula popups don't flicker.
 
-let statsSig = null;   // null (not '') so the first update always builds the DOM
+
+let statsSig = null;
 let statEls  = {};
 
 function buildStats(showOrbiter, showComet) {
@@ -32,24 +30,21 @@ function buildStats(showOrbiter, showComet) {
     statEls.time = mk('Time on Current Universe');
 }
 
-// Recompute + write the observatory values (called from updateUI each tick).
+
 function updateObservatory() {
-    const touchVal = clickValue();   // Star Touch + Star Grasp
-    // Combine every orbiter type's payout (iterates the orbiters/* registry).
-    // Per-min = payout × the clump's orbits per minute (60 × speed ÷ ring period).
+    const touchVal = clickValue();
+
     let orbiterSum = 0, orbiterPerMin = 0, totalOrbiters = 0;
     const popParts = [];
     for (const o of ORBITERS) {
         const n = o.list().length;
         if (!n) continue;
-        // Use the orbiter's averaged payout for display if it has one (the moon's payout
-        // fluctuates with its phase) — keeps the stat steady while live earnings stay phase-based.
+
         const pay = (o.avgPayout || o.payout)();
         orbiterSum += n * pay;
         orbiterPerMin += n * pay * 60 * o.speed() / PLANET_DEF[o.ring].period;
         totalOrbiters += n;
-        // One entry per orbiter type (dust counts collapse to a single "dust" line);
-        // show the type's combined payout so the breakdown still sums to the total.
+
         const name = o.id.charAt(0).toUpperCase() + o.id.slice(1);
         popParts.push(`${name} ✦${fmtNum(n * pay)}`);
     }

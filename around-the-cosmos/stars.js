@@ -1,20 +1,10 @@
 'use strict';
 
-// ── Background shining stars ──────────────────────────────────────────────────
-// Decorative twinkles drawn behind everything (assets/star/, variation 1). Each
-// star runs the same frame sequence with its own phase offset so they twinkle out
-// of sync. Positions are fractions of the canvas so they survive resizes.
-//
-// The source frames are white/gold (built to glow on a DARK background). On the
-// parchment sky they'd be invisible, so each frame is re-tinted on load to a warm
-// muted gold (luminance → EDGE..CORE gradient) that reads on #f4f0e8 without being
-// loud. Originals are untouched on disk, so they stay usable on dark screens.
-// [frame (0 = blank), ms]. A full cycle is 16 frames: f1→f13, then f1,f2,f3 again
-// (sparkle in → form → hold → sparkle out). Late frames (full star) flicker fast.
+
 const STAR_SEQ = [[1,40],[2,40],[3,42],[0,70],[4,55],[5,58],[6,60],[7,62],[8,58],[9,42],[10,40],[11,40],[12,40],[13,48],[1,40],[2,40],[3,42]];
 const STAR_TOTAL = STAR_SEQ.reduce((s, p) => s + p[1], 0);
-const STAR_EDGE = [168, 144, 92], STAR_CORE = [210, 186, 130];  // soft, light gold (dim edge → warm core)
-const STAR_ALPHA = 0.42;                                        // overall subtlety — keeps it non-intrusive
+const STAR_EDGE = [168, 144, 92], STAR_CORE = [210, 186, 130];
+const STAR_ALPHA = 0.42;
 
 const STAR_TINTED = [];
 function tintStarFrame(img) {
@@ -45,15 +35,14 @@ function starFrameAt(ms) {
 let _stars = null;
 function initStars(n) {
     _stars = [];
-    let s = 20260621;                                  // seeded RNG → a stable scatter (no reshuffle each frame)
+    let s = 20260621;
     const rnd = () => { s = (s * 1103515245 + 12345) & 0x7fffffff; return s / 0x7fffffff; };
     for (let i = 0; i < n; i++) {
         let fx, fy;
         do { fx = 0.06 + rnd() * 0.88; fy = 0.06 + rnd() * 0.88; }
-        while (Math.hypot(fx - 0.5, fy - 0.5) < 0.16);  // keep clear of the Lacuna/orbiters in the center
-        // After shining, a star stays dark for a long random idle so it doesn't re-twinkle
-        // in the same spot too often. Each star's cycle = shine (~0.7s) + idle, all different.
-        const idle = 3500 + rnd() * 6000;               // 3.5–9.5s dark between shines
+        while (Math.hypot(fx - 0.5, fy - 0.5) < 0.16);
+
+        const idle = 3500 + rnd() * 6000;
         _stars.push({ fx, fy, size: 16 + rnd() * 26, idle, off: rnd() * (STAR_TOTAL + idle) });
     }
 }
@@ -64,11 +53,11 @@ function drawStars(t) {
     ctx.save(); ctx.globalAlpha = STAR_ALPHA;
     for (const st of _stars) {
         const phase = (ms + st.off) % (STAR_TOTAL + st.idle);
-        if (phase >= STAR_TOTAL) continue;              // idle — star is dark
+        if (phase >= STAR_TOTAL) continue;
         const f = starFrameAt(phase);
-        if (!f) continue;                               // blank pause frame
+        if (!f) continue;
         const img = STAR_TINTED[f];
-        if (!img) continue;                             // not loaded/tinted yet
+        if (!img) continue;
         const sz = st.size;
         ctx.drawImage(img, st.fx * W - sz / 2, st.fy * H - sz / 2, sz, sz);
     }

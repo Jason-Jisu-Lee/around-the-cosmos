@@ -1,18 +1,14 @@
 'use strict';
 
-// ── Cosmic info cards ────────────────────────────────────────────────────────
-// Hover a body → a small tooltip follows the cursor. Click a body → its full card
-// opens pinned in the CENTER of the sky, sticky, dismissed with × / Escape. The
-// comet is hover-only (a targeting reticle + "Comet" label); clicking it catches
-// it. Orbiter names / descriptions / card rows come from the orbiters/* registry.
-const cosmoTip  = document.getElementById('cosmo-tip');   // hover — follows cursor
-const cosmoCard = document.getElementById('cosmo-card');  // click — pinned center
+
+const cosmoTip  = document.getElementById('cosmo-tip');
+const cosmoCard = document.getElementById('cosmo-card');
 let cosmoMx = 0, cosmoMy = 0, cosmoOver = false;
-let pinnedTarget = null;    // orbiter id | 'lacuna' | null — centered card open via click
+let pinnedTarget = null;
 
 const LACUNA_DESC = 'A small absence at the heart of everything, patient and hollow, quietly gathering a universe back together.';
 
-// Returns 'comet' | 'lacuna' | an orbiter id | null.
+
 function cosmoTargetAt(x, y) {
     if (G.comet && Math.hypot(x-G.comet.x, y-G.comet.y) < COMET_HOVER_R) return 'comet';
     if (Math.hypot(x-CX, y-CY) < 22) return 'lacuna';
@@ -39,17 +35,40 @@ function cosmoBody(target, withClose) {
         + `<div class="tip-note">${desc}</div>`;
 }
 
-// The comet is never pinned (clicking it catches it instead).
-function openCosmoCard(target) { if (target === 'comet') return; pinnedTarget = target; cosmoTip.style.display = 'none'; }
+
+let _uniformSet = false;
+function setUniformCardSize() {
+    _uniformSet = true;
+    const c = cosmoCard;
+    const sL = c.style.left, sT = c.style.top, sD = c.style.display;
+    c.style.width = ''; c.style.minHeight = '';
+    c.style.left = '-9999px'; c.style.top = '0'; c.style.display = 'block';
+    let maxW = 0, maxH = 0;
+    for (const t of ['lacuna', ...ORBITERS.map(o => o.id)]) {
+        c.innerHTML = '<button class="cosmo-close" aria-label="Close">×</button><div class="cosmo-content">' + cosmoBody(t, false) + '</div>';
+        if (c.offsetWidth  > maxW) maxW = c.offsetWidth;
+        if (c.offsetHeight > maxH) maxH = c.offsetHeight;
+    }
+    c.style.width = maxW + 'px';
+    c.style.minHeight = maxH + 'px';
+    c.innerHTML = ''; c._pinned = null; c._html = null; c._w = -1;
+    c.style.left = sL; c.style.top = sT; c.style.display = sD || 'none';
+}
+
+
+function openCosmoCard(target) {
+    if (target === 'comet') return;
+    if (!_uniformSet) setUniformCardSize();
+    pinnedTarget = target; cosmoTip.style.display = 'none';
+}
 function closeCosmoCard()      { pinnedTarget = null; cosmoCard.style.display = 'none'; }
 
 function updateCosmoTip() {
     const over = cosmoOver ? cosmoTargetAt(cosmoMx, cosmoMy) : null;
-    // Over a body → the pointer hand (it's clickable); otherwise the custom needle.
-    // (Inline style is set each frame, so it must carry the needle or it overrides the CSS.)
+
     canvas.style.cursor = over ? 'pointer' : 'url(assets/cursors/needle.png?v=63) 3 3, default';
 
-    // hover tooltip — follows the cursor; hidden while a card is pinned
+
     if (over && !pinnedTarget) {
         const html = cosmoBody(over, false);
         if (cosmoTip._html !== html) { cosmoTip.innerHTML = html; cosmoTip._html = html; }
@@ -64,11 +83,9 @@ function updateCosmoTip() {
         cosmoTip.style.display = 'none';
     }
 
-    // pinned card — centered, sticky until × / Escape
+
     if (pinnedTarget) {
-        // Build the shell (× button + content container) ONCE per open. Only the content
-        // is rewritten each frame — so the close button isn't destroyed mid-hover (which
-        // made it flicker and become unclickable for live cards like the moon).
+
         if (cosmoCard._pinned !== pinnedTarget) {
             cosmoCard.innerHTML = '<button class="cosmo-close" aria-label="Close">×</button><div class="cosmo-content"></div>';
             cosmoCard._content = cosmoCard.querySelector('.cosmo-content');
@@ -77,7 +94,7 @@ function updateCosmoTip() {
         const html = cosmoBody(pinnedTarget, false);
         if (cosmoCard._html !== html) { cosmoCard._content.innerHTML = html; cosmoCard._html = html; }
         cosmoCard.style.display = 'block';
-        // Re-center only when the size/viewport actually changes (avoids per-frame jitter).
+
         if (cosmoCard._w !== cosmoCard.offsetWidth || cosmoCard._h !== cosmoCard.offsetHeight || cosmoCard._W !== W || cosmoCard._H !== H) {
             cosmoCard._w = cosmoCard.offsetWidth; cosmoCard._h = cosmoCard.offsetHeight; cosmoCard._W = W; cosmoCard._H = H;
             cosmoCard.style.left = Math.round((W - cosmoCard._w)/2) + 'px';

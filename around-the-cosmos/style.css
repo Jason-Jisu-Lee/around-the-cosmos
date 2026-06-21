@@ -280,8 +280,10 @@ body {
     font-size: 12.5px; box-shadow: 0 6px 22px rgba(0,0,0,0.28); pointer-events: none;
 }
 #cosmo-card {
-    background: rgba(44,38,32,0.85); padding: 23px 30px 22px; min-width: 290px; max-width: 345px;
-    font-size: 15.5px; box-shadow: 0 14px 50px rgba(0,0,0,0.4); pointer-events: auto;
+    background: rgba(44,38,32,0.85); padding: 30px 39px 29px; min-width: 290px; max-width: 450px;
+    font-size: 20px; box-shadow: 0 14px 50px rgba(0,0,0,0.4); pointer-events: auto;
+    /* width + min-height are set once by JS (setUniformCardSize) so every body's card
+       is the SAME size, matched to the longest description (empty space is fine). */
 }
 .cosmo-close {
     position: absolute; top: 8px; right: 9px;
@@ -296,7 +298,7 @@ body {
     border-bottom: 1px solid rgba(216,200,164,0.25);
 }
 #cosmo-tip  .cosmo-title { font-size: 14px; }
-#cosmo-card .cosmo-title { font-size: 16px; }
+#cosmo-card .cosmo-title { font-size: 21px; }
 /* Comet hover label — just the word, no rows/border. Shrink the box to fit it. */
 .cosmo-solo {
     font-family: 'Optima','Candara','Century Gothic',sans-serif; font-size: 14px;
@@ -307,7 +309,7 @@ body {
 .tip-l   { color: #b8b0a2; }
 .tip-v   { color: #f4f0e8; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .tip-note { margin-top: 10px; font-size: 12px; font-style: italic; color: #b0a894; line-height: 1.5; }
-#cosmo-card .tip-note { font-size: 12.5px; margin-top: 11px; }
+#cosmo-card .tip-note { font-size: 16px; margin-top: 14px; }
 
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }

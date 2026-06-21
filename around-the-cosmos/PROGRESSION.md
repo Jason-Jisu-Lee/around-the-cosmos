@@ -63,7 +63,7 @@ Click the Lacuna (center) to earn **stardust (✦)** → buy **Star Touch** to e
 
 > Total click value = Star Touch value + 2 × Star Grasp level (+ Gravitational Pull, below), via `clickValue()`.
 
-**Pulse** — *unlocks after Star Touch is maxed (lvl 8)* · max **1** · one-time **✦2,500** · the **auto-clicker**.
+**Pulse** — *unlocks after Star Touch is maxed (lvl 8)* · max **1** · one-time **✦10,000** · the **auto-clicker**.
 A slow heartbeat every **3 seconds** auto-harvests **12 clicks** worth of stardust (≈**4 clicks/sec**), with a gentle beat on the Lacuna.
 **Trade-off:** once bought you **can no longer harvest by clicking** — it's hands-free (comets and info cards still respond to clicks).
 
@@ -183,7 +183,7 @@ asteroid it is **not a count upgrade** — there's only ever one Moon.
 | Cost ✦ | — | 9,000 | 18,000 | 35,000 | 60,000 | 100,000 |
 | Speed (×0.663) | 66% | 80% | 93% | 106% | 119% | 133% |
 
-**Phase-varying payout** — the moon's payout swings with its phase **by default** (no upgrade needed): from **×0.75 at the new moon up to ×1.25 at the full moon**. It visibly waxes and wanes on a 19.2-second cycle (a terminator shadow sweeps across it), and whatever the payout reads when it completes an orbit is what it pays.
+**Phase-varying payout** — the moon's payout swings with its phase **by default** (no upgrade needed): from **×0.75 at the new moon up to ×1.25 at the full moon**. It visibly waxes and wanes on a 16-second cycle (a terminator shadow sweeps across it), and whatever the payout reads when it completes an orbit is what it pays.
 
 **Lunar Phases** — *unlocks after the moon* · max **5** — the moon's **unique** upgrade. Each level shifts that range up by **+0.10 on both ends**, so it raises the average payout while keeping the new→full swing.
 | Level | (default) | 1 | 2 | 3 | 4 | 5 |

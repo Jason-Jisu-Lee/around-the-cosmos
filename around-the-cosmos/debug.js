@@ -31,7 +31,7 @@ function initDebug() {
     btn('Spawn Comet', () => { G.comet=null; G.cometTimer=0; });
     btn('Reset',       () => { localStorage.removeItem(CFG.SAVE_KEY); G=createInitialState(); resetPanelAnimations(); buildPanels(); });
 
-    // Auto Hold — auto-click the canvas centre 3×/sec, like holding the mouse.
+
     let autoHold = null;
     const autoBtn = btn('Auto Hold: OFF', () => {
         if (autoHold) { clearInterval(autoHold); autoHold = null; autoBtn.textContent = 'Auto Hold: OFF'; return; }
@@ -51,7 +51,7 @@ function initDebug() {
     });
     panel.appendChild(speedRow);
 
-    // Click FX — game default is Random; pin one here to test it (click the sky to feel it).
+
     const fxRow = document.createElement('div');
     fxRow.style.cssText = 'display:flex;align-items:center;gap:6px;margin-top:2px;flex-wrap:wrap';
     fxRow.innerHTML = '<span style="font-size:12px;width:100%">Click FX</span>';

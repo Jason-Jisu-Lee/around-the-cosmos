@@ -1,11 +1,8 @@
 'use strict';
 
-// ── Settings ─────────────────────────────────────────────────────────────────
-// The gear panel: music/effects volume, track selection. Persisted to localStorage.
 
-// v2: volume scale rebased so 75% = reference loudness (old 100%), slider goes to
-// 100% for extra headroom. Defaults are 75%. Old v1/lacuna saves (which stored 100
-// = the old max) are intentionally NOT migrated, so everyone lands on the new 75% default.
+
+
 const SETTINGS_KEY = 'around_the_cosmos_settings_v2';
 
 function loadSettings() {

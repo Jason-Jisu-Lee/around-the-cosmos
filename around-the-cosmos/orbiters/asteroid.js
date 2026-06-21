@@ -1,49 +1,42 @@
 'use strict';
 
-// ── Asteroid ─────────────────────────────────────────────────────────────────
-// A single bigger, slower body on ring 1, surrounded by drifting dust motes. Not
-// a count upgrade — there's only ever one. Its unique upgrade is Composition,
-// which recolors it and multiplies its payout.
 
-// Composition tiers — the asteroid's unique upgrade. Each tier recolors the body
-// and multiplies its payout (denser/richer material = more stardust).
+
+
 const ASTEROID_COMP = {
     names:  ['Rock', 'Iron', 'Gold', 'Ice'],
-    colors: ['#7a6a55', '#8c8f96', '#b8923a', '#a8c6d6'], // Rock keeps the original color
-    mult:   [1, 1.25, 1.5, 1.75],                          // payout × per tier (+0.25 steps)
+    colors: ['#7a6a55', '#8c8f96', '#b8923a', '#a8c6d6'],
+    mult:   [1, 1.25, 1.5, 1.75],
 };
 
-// A fixed, gently-irregular outline — rounded and lumpy, not spiky. There's only ever
-// one asteroid, so a hand-tuned constant keeps it consistent and good every load
-// (the old per-load random shape was what kept "changing" the rock).
+
 const ASTEROID_SHAPE = [1.20, 1.04, 0.82, 0.92, 1.14, 1.06, 0.80, 0.96, 1.10, 0.86, 1.00, 0.90];
 
-// An asteroid body. `motes` are tiny specks that constantly drift around it.
+
 function newAsteroidBody() {
     const shape = ASTEROID_SHAPE.slice();
     const motes = [];
     for (let m = 0; m < 6; m++) motes.push({
-        dist:  1.4 + Math.random()*1.4,                     // × pebble radius from its center
+        dist:  1.4 + Math.random()*1.4,
         phase: Math.random()*Math.PI*2,
         spin:  (Math.random()<0.5?-1:1) * (0.5 + Math.random()*1.1),
-        size:  0.6 + Math.random()*0.9,                     // much smaller than a dust orbiter
+        size:  0.6 + Math.random()*0.9,
     });
     return {
         localPhase: Math.random()*Math.PI*2,
-        localR:     8 + Math.random()*8,   // inner-orbit radius within the clump (8–16px)
+        localR:     8 + Math.random()*8,
         localSpin:  (Math.random()<0.5?-1:1) * (0.5 + Math.random()*0.7),
         pulse:0, shape, motes,
     };
 }
 
-// Payout: base 50, +50 per Asteroid Payout level (additive), × Composition tier, × Resonance.
-// Rounded so the fractional multipliers never leave a fractional payout.
+
 function asteroidPayout() { return Math.round((50 + 50 * lvl('astpay')) * ASTEROID_COMP.mult[lvl('astcomp')] * resonanceMult()); }
 function asteroidColor()  { return ASTEROID_COMP.colors[lvl('astcomp')]; }
-// Base factor 0.88 (base speed reduced 12% — max was too fast) × upgrade mult → 88% → 176%.
+
 function asteroidSpeed()  { return 0.88 * upg('astspd').mult(lvl('astspd')); }
 function asteroidVel()           { return Math.sqrt(PHYS.G * lacunaMass() / PHYS.asteroidOrbitRadius) * asteroidSpeed(); }
-function asteroidOrbitsPerMin()  { return 60 * asteroidSpeed() / PLANET_DEF[1].period; }   // in-game orbit cadence
+function asteroidOrbitsPerMin()  { return 60 * asteroidSpeed() / PLANET_DEF[1].period; }
 function asteroidStardustPerMin() { return asteroidPayout() * asteroidOrbitsPerMin(); }
 
 registerOrbiter({
@@ -53,12 +46,12 @@ registerOrbiter({
     ring: 1,
     hoverR: 40,
     color:    () => asteroidColor(),
-    pebbleR:  () => (PLANET_DEF[1].radius/3 + 4) * 1.95,  // bigger again (was ×1.7)
+    pebbleR:  () => (PLANET_DEF[1].radius/3 + 4) * 1.95,
     list:     () => G.asteroids,
     clump:    () => G.asteroidClump,
     clumpPos: () => asteroidClumpPos(),
     make:     () => newAsteroidBody(),
-    count:    () => (lvl('asteroid') >= 1 ? 1 : 0),       // single body
+    count:    () => (lvl('asteroid') >= 1 ? 1 : 0),
     bodyUpgrade: 'asteroid',
     payout: asteroidPayout,
     speed:  asteroidSpeed,
@@ -70,6 +63,6 @@ registerOrbiter({
         + tipRow('Stardust / min', '✦' + fmtNum(Math.round(asteroidStardustPerMin()))),
     labels: {
         asteroid: 'Asteroid', astpay: '×2 Payout', astspd: '×1.2 Speed',
-        astcomp: () => ASTEROID_COMP.names[lvl('astcomp')],   // composition: new tier name
+        astcomp: () => ASTEROID_COMP.names[lvl('astcomp')],
     },
 });

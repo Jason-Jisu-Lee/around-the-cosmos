@@ -1,9 +1,6 @@
 'use strict';
 
-// ── Comet ────────────────────────────────────────────────────────────────────
-// Comets drift across the sky on a timer; catch one (click within ~48px) for a
-// windfall. Spawning, movement, and the catch payout all live here. The hover
-// reticle is drawn in render.js (drawReticle) since it's pure rendering.
+
 
 function randCometGap() {
     return CFG.COMET_MIN_GAP + Math.random()*(CFG.COMET_MAX_GAP-CFG.COMET_MIN_GAP);
@@ -21,8 +18,7 @@ function spawnComet() {
 
 function catchComet() {
     const c = G.comet;
-    // Windfall = 10 clicks' worth + 1.25 × every orbiter's payout combined.
-    // Rounded so the 1.25× never leaves a fractional stardust amount.
+
     let combined = 0;
     for (const o of ORBITERS) combined += o.list().length * o.payout();
     const windfall = Math.round(10 * clickValue() + 1.25 * combined);
@@ -32,8 +28,7 @@ function catchComet() {
     G.comet = null; G.cometTimer = randCometGap();
 }
 
-// Per-frame comet update: move an active comet (despawn when expired/off-screen),
-// or count down to the next spawn.
+
 function cometTick(dt) {
     if (G.comet) {
         const c = G.comet;
