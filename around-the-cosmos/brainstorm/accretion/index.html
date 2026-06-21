@@ -1,0 +1,42 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Accretion screen — 8 concepts</title>
+<style>
+  html,body{margin:0;background:#16181d;color:#cdd2dc;font-family:'Segoe UI',sans-serif}
+  h1{font-weight:400;padding:24px 28px 4px;font-size:20px;letter-spacing:.04em}
+  p.lead{margin:0 28px 18px;color:#828a98;font-size:13px}
+  .grp{font-weight:400;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#8893a4;margin:10px 28px 2px;padding-top:14px;border-top:1px solid #272b34}
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;padding:14px 28px 24px;max-width:1280px}
+  .tile{background:#0e0f13;border:1px solid #272b34;border-radius:8px;overflow:hidden}
+  .tile .cap{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;font-size:13px}
+  .tile .cap a{color:#9fb0ff;text-decoration:none;font-size:12px}
+  .frame{position:relative;height:300px;overflow:hidden;border-top:1px solid #272b34}
+  .frame iframe{position:absolute;top:0;left:0;width:1280px;height:800px;border:0;transform:scale(.5);transform-origin:top left;pointer-events:none}
+</style></head><body>
+  <h1>Accretion / Mass screen — concepts</h1>
+  <p class="lead">Brainstorm mockups only (static, placeholder upgrades). Click a title to open full-screen. Layout &amp; theme are separable — mix freely.</p>
+  <h2 class="grp">Round 2 — grouped categories, all on one screen (no tabs)</h2>
+  <div class="grid" id="g2"></div>
+  <h2 class="grp">Round 1 — first explorations</h2>
+  <div class="grid" id="g"></div>
+<script>
+  const R2=[
+    ['9 · Ledger Columns','4 category columns side by side','mock-9-columns.html'],
+    ['10 · Void Quadrants','2×2 categories, Lacuna core center','mock-10-quadrants.html'],
+    ['11 · Shelves','horizontal lanes, one per category','mock-11-lanes.html'],
+    ['12 · Orbital Sectors','categories ring the core','mock-12-sectors.html'],
+    ['13 · Bento','asymmetric dashboard tiles','mock-13-bento.html'],
+  ];
+  const M=[
+    ['1 · Void Ledger','quiet dark, centered list','mock-1-void-ledger.html'],
+    ['2 · Accretion Disk','radial — upgrades orbit the core','mock-2-accretion-disk.html'],
+    ['3 · Constellation','skill-tree as a star chart','mock-3-constellation.html'],
+    ['4 · Strata','layered bands, crust→core tiers','mock-4-strata.html'],
+    ['5 · Codex','aged manuscript, two columns','mock-5-codex.html'],
+    ['6 · Gravity Grid','modern card grid, app-like','mock-6-grid.html'],
+    ['7 · Console','sidebar categories + panel','mock-7-sidebar.html'],
+    ['8 · Monoliths','tall standing-stone cards','mock-8-monolith.html'],
+  ];
+  const tile=([t,d,f])=>`<div class="tile"><div class="cap"><span>${t} — <span style="color:#828a98">${d}</span></span><a href="${f}" target="_blank">open ↗</a></div><div class="frame"><iframe src="${f}"></iframe></div></div>`;
+  document.getElementById('g2').innerHTML=R2.map(tile).join('');
+  document.getElementById('g').innerHTML=M.map(tile).join('');
+</script>
+</body></html>

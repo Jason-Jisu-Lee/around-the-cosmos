@@ -42,10 +42,16 @@ function updateObservatory() {
     for (const o of ORBITERS) {
         const n = o.list().length;
         if (!n) continue;
-        orbiterSum += n * o.payout();
-        orbiterPerMin += n * o.payout() * 60 * o.speed() / PLANET_DEF[o.ring].period;
+        // Use the orbiter's averaged payout for display if it has one (the moon's payout
+        // fluctuates with its phase) — keeps the stat steady while live earnings stay phase-based.
+        const pay = (o.avgPayout || o.payout)();
+        orbiterSum += n * pay;
+        orbiterPerMin += n * pay * 60 * o.speed() / PLANET_DEF[o.ring].period;
         totalOrbiters += n;
-        popParts.push(`${n} ${o.id} × ${fmtNum(o.payout())}`);
+        // One entry per orbiter type (dust counts collapse to a single "dust" line);
+        // show the type's combined payout so the breakdown still sums to the total.
+        const name = o.id.charAt(0).toUpperCase() + o.id.slice(1);
+        popParts.push(`${name} ✦${fmtNum(n * pay)}`);
     }
     const cometVal = Math.round(10 * touchVal + 1.25 * orbiterSum);
 

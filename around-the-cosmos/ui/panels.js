@@ -39,7 +39,13 @@ function makeCard(u) {
     seenUpg.add(u.id);
     card.innerHTML = `<div class="upg-top"><span class="upg-name">${u.name}</span><span class="upg-cost"></span></div>`
         + `<span class="upg-level"></span>`;    // pinned in the card's bottom-right corner (CSS)
-    card.addEventListener('click', () => { if (buyUpgrade(u)) buildPanels(); });
+    // On buy, only rebuild the whole panel if the visible set changed (a new unlock, or a
+    // card maxed + hidden). Otherwise just refresh values in place — rebuilding would recreate
+    // every card element and kill any in-progress "new upgrade" highlight on a sibling card.
+    card.addEventListener('click', () => {
+        if (!buyUpgrade(u)) return;
+        if (visibleSig() !== lastVisibleSig) buildPanels(); else updateCards();
+    });
     // Description shows in the shared left-side popup on hover (not a child of the card).
     card.addEventListener('mouseenter', () => showUpgPop(u, card));
     card.addEventListener('mouseleave', hideUpgPop);
@@ -65,6 +71,14 @@ function showUpgPop(u, cardEl) {
     upgPop.style.top  = top + 'px';
 }
 function hideUpgPop() { upgPop.style.display = 'none'; }
+
+// Reset the "new upgrade" highlight tracking — call on any universe reset (debug Reset,
+// and prestige later). Without this the in-memory `seenUpg` survives the reset (no page
+// reload happens), so re-unlocked upgrades wouldn't flash again. We clear `seenUpg` but
+// DON'T re-arm `firstPanelBuild` (it's already false): a reset/prestige drops to the base
+// universe (just Star Touch visible), so letting that one card flash is a nice "new universe"
+// cue and immediate confirmation — and there's no flash-storm risk since progress is gone.
+function resetPanelAnimations() { seenUpg.clear(); }
 
 function buildPanels() {
     const list = document.getElementById('upgrades-list');

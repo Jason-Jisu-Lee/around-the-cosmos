@@ -1,8 +1,23 @@
 'use strict';
 
+const PULSE_INTERVAL = 3, PULSE_CLICKS = 12;   // Pulse upgrade: a heartbeat every 3s worth 12 clicks
+let pulseTimer = 0;
+
 function tick(dt) {
     G.gameTime += dt;
     G.universeTime += dt;
+
+    // Pulse (auto-clicker): once owned, a slow heartbeat auto-harvests 12 clicks every 3s
+    // (≈4 clicks/sec) and the Lacuna gives a gentle beat. Manual clicking is disabled (game.js).
+    if (lvl('pulse') >= 1) {
+        pulseTimer += dt;
+        while (pulseTimer >= PULSE_INTERVAL) {
+            pulseTimer -= PULSE_INTERVAL;
+            earn(PULSE_CLICKS * clickValue(), CX, CY - 20);
+            clickFxId = 'pulseBeat'; triggerClickFx(performance.now()/1000, 0, -1);
+            SoundSystem.sfxTap();
+        }
+    }
 
     // Each orbiter clump orbits as a group and pays when it crosses the top. The
     // per-orbiter specifics (ring, speed, payout, position) come from orbiters/*.
@@ -47,12 +62,15 @@ function buyUpgrade(u) {
     const cost = u.costs[l];
     if (G.dust < cost) return false;
     G.dust -= cost; G.upgrades[u.id]++;
-    // Let the matching orbiter component add a body (if this upgrade adds one) and
-    // float its label at its clump — all per-orbiter behavior lives in orbiters/*.
+    // Let the matching orbiter component reconcile its body count to count() (handles both
+    // the "create first body" upgrade and any "+1 count" upgrade) and float its label at its
+    // clump — all per-orbiter behavior lives in orbiters/*.
     for (const o of ORBITERS) {
         if (o.labels && (u.id in o.labels)) {
-            if (o.bodyUpgrade === u.id) o.list().push(o.make());
-            const pos = o.list().length ? o.clumpPos() : clumpPos();
+            const arr = o.list(), want = o.count();
+            while (arr.length < want) arr.push(o.make());
+            while (arr.length > want) arr.pop();
+            const pos = arr.length ? o.clumpPos() : clumpPos();
             const label = typeof o.labels[u.id] === 'function' ? o.labels[u.id]() : o.labels[u.id];
             G.floatingTexts.push({ x:pos.x, y:pos.y-20, text:label, age:0, maxAge:1.8, size:15 });
             break;

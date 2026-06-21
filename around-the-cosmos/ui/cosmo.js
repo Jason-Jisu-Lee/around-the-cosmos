@@ -45,7 +45,9 @@ function closeCosmoCard()      { pinnedTarget = null; cosmoCard.style.display = 
 
 function updateCosmoTip() {
     const over = cosmoOver ? cosmoTargetAt(cosmoMx, cosmoMy) : null;
-    canvas.style.cursor = over ? 'pointer' : 'default';
+    // Over a body → the pointer hand (it's clickable); otherwise the custom needle.
+    // (Inline style is set each frame, so it must carry the needle or it overrides the CSS.)
+    canvas.style.cursor = over ? 'pointer' : 'url(assets/cursors/needle.png?v=63) 3 3, default';
 
     // hover tooltip — follows the cursor; hidden while a card is pinned
     if (over && !pinnedTarget) {
@@ -64,12 +66,25 @@ function updateCosmoTip() {
 
     // pinned card — centered, sticky until × / Escape
     if (pinnedTarget) {
-        const html = cosmoBody(pinnedTarget, true);
-        if (cosmoCard._html !== html) { cosmoCard.innerHTML = html; cosmoCard._html = html; }
+        // Build the shell (× button + content container) ONCE per open. Only the content
+        // is rewritten each frame — so the close button isn't destroyed mid-hover (which
+        // made it flicker and become unclickable for live cards like the moon).
+        if (cosmoCard._pinned !== pinnedTarget) {
+            cosmoCard.innerHTML = '<button class="cosmo-close" aria-label="Close">×</button><div class="cosmo-content"></div>';
+            cosmoCard._content = cosmoCard.querySelector('.cosmo-content');
+            cosmoCard._pinned = pinnedTarget; cosmoCard._html = null; cosmoCard._w = -1;
+        }
+        const html = cosmoBody(pinnedTarget, false);
+        if (cosmoCard._html !== html) { cosmoCard._content.innerHTML = html; cosmoCard._html = html; }
         cosmoCard.style.display = 'block';
-        cosmoCard.style.left = Math.round((W - cosmoCard.offsetWidth)/2) + 'px';
-        cosmoCard.style.top  = Math.round((H - cosmoCard.offsetHeight)/2) + 'px';
+        // Re-center only when the size/viewport actually changes (avoids per-frame jitter).
+        if (cosmoCard._w !== cosmoCard.offsetWidth || cosmoCard._h !== cosmoCard.offsetHeight || cosmoCard._W !== W || cosmoCard._H !== H) {
+            cosmoCard._w = cosmoCard.offsetWidth; cosmoCard._h = cosmoCard.offsetHeight; cosmoCard._W = W; cosmoCard._H = H;
+            cosmoCard.style.left = Math.round((W - cosmoCard._w)/2) + 'px';
+            cosmoCard.style.top  = Math.round((H - cosmoCard._h)/2) + 'px';
+        }
     } else {
+        if (cosmoCard._pinned) { cosmoCard._pinned = null; cosmoCard._html = null; }
         cosmoCard.style.display = 'none';
     }
 }

@@ -3,12 +3,15 @@
 // ── Settings ─────────────────────────────────────────────────────────────────
 // The gear panel: music/effects volume, track selection. Persisted to localStorage.
 
-const SETTINGS_KEY = 'around_the_cosmos_settings_v1';
+// v2: volume scale rebased so 75% = reference loudness (old 100%), slider goes to
+// 100% for extra headroom. Defaults are 75%. Old v1/lacuna saves (which stored 100
+// = the old max) are intentionally NOT migrated, so everyone lands on the new 75% default.
+const SETTINGS_KEY = 'around_the_cosmos_settings_v2';
 
 function loadSettings() {
     try {
-        const s = JSON.parse(localStorage.getItem(SETTINGS_KEY) || localStorage.getItem('lacuna_settings_v1') || '{}');
-        const mv=s.musicVol??100, sv=s.sfxVol??100, track=s.track??0;
+        const s = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
+        const mv=s.musicVol??75, sv=s.sfxVol??75, track=s.track??0;
         document.getElementById('vol-music').value            = mv;
         document.getElementById('vol-sfx').value              = sv;
         document.getElementById('vol-music-val').textContent  = mv+'%';
@@ -16,7 +19,7 @@ function loadSettings() {
         document.querySelectorAll('.track-btn').forEach(b =>
             b.classList.toggle('active', parseInt(b.dataset.track)===track));
         return { mv, sv, track };
-    } catch(_) { return { mv:100, sv:100, track:0 }; }
+    } catch(_) { return { mv:75, sv:75, track:0 }; }
 }
 
 function saveSettings() {

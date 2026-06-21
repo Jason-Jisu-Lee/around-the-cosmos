@@ -92,7 +92,7 @@ body {
 .settings-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
 .settings-row:last-child { margin-bottom: 0; }
 .settings-name { font-size: 11px; color: var(--text-dim); font-family: 'Segoe UI', sans-serif; width: 46px; flex-shrink: 0; }
-.settings-row input[type=range] { flex: 1; accent-color: var(--accent); cursor: pointer; height: 2px; }
+.settings-row input[type=range] { flex: 1; min-width: 0; accent-color: var(--accent); cursor: pointer; height: 2px; }
 .vol-val { font-size: 10px; color: var(--text-faint); font-family: 'Segoe UI', sans-serif; width: 32px; text-align: right; flex-shrink: 0; font-variant-numeric: tabular-nums; }
 
 #track-row { display: flex; gap: 5px; margin-top: 6px; }
@@ -126,9 +126,14 @@ body {
 
 #dust-display { font-size: 46px; font-weight: 400; color: var(--ink); line-height: 1; font-variant-numeric: tabular-nums; font-family: 'Optima','Candara','Century Gothic',sans-serif; letter-spacing: 0.01em; }
 #dust-icon  { font-size: 30px; }
+/* Small, faint passive-income line under the count — minimal, themed. Empty (and hidden)
+   until you actually have orbiters producing income, so it's gone right after a reset. */
+#dust-rate  { margin-top: 9px; font-family: Georgia, serif; font-style: italic; font-size: 12px;
+              color: var(--text-faint); letter-spacing: 0.06em; line-height: 1; opacity: 0.78; }
+#dust-rate:empty { display: none; }
 
 #sky-section { flex: 1; position: relative; min-width: 0; }
-#sky { display: block; width: 100%; height: 100%; cursor: default; }
+#sky { display: block; width: 100%; height: 100%; cursor: url(assets/cursors/needle.png?v=63) 3 3, default; }
 
 #right-col { width: 308px; flex-shrink: 0; padding: 22px 16px 80px; overflow-y: auto; }
 
@@ -196,20 +201,20 @@ body {
 .upgrade-card.is-maxed .upg-top,
 .upgrade-card.is-maxed .upg-level { opacity: 0.34; }
 
-/* Newly-unlocked card: a brief left-to-right highlight sweep (clipped to the card via
-   background-position, so it doesn't bleed onto neighbours). */
+/* Newly-unlocked card: a simple yellow highlight that flashes twice, then clears
+   (the card's `animationend` handler removes .upg-new once it's transparent again). */
 .upgrade-card.upg-new::after {
     content: ''; position: absolute; inset: 0; pointer-events: none;
-    background-image: linear-gradient(90deg, transparent 0%, rgba(214,58,40,0.62) 50%, transparent 100%);
-    background-size: 200% 100%; background-repeat: no-repeat;
-    animation: upg-sweep 1.02s ease-out forwards;   /* ~20% slower */
+    background: rgba(240,200,40,0.6);
+    /* two slow, smooth swells — ease-in-out on each segment makes it glow rather than blink */
+    animation: upg-flash 2.2s ease-in-out forwards;
 }
-/* Sweeps across, then fades opacity to 0 at the tail so the finish is seamless
-   (the card's `animationend` handler removes .upg-new once it's already invisible). */
-@keyframes upg-sweep {
-    0%   { background-position: 160% 0; opacity: 1; }
-    80%  { background-position: -10% 0; opacity: 1; }
-    100% { background-position: -40% 0; opacity: 0; }
+@keyframes upg-flash {
+    0%   { opacity: 0; }
+    25%  { opacity: 1; }   /* first swell, peaks gently */
+    50%  { opacity: 0; }
+    75%  { opacity: 1; }   /* second swell */
+    100% { opacity: 0; }
 }
 
 .upg-top  { display: flex; justify-content: space-between; align-items: baseline; width: 100%; gap: 10px; }
@@ -224,13 +229,13 @@ body {
 #upg-pop {
     display: none;
     position: fixed;
-    max-width: 240px;
+    max-width: 346px;                    /* +20% again (240 → 288 → 346) */
     background: rgba(26,26,26,0.82);     /* slightly transparent — maintained */
     backdrop-filter: blur(1.5px);
     color: var(--bg);
-    font-size: 12px;
+    font-size: 17.3px;                   /* +20% again (12 → 14.4 → 17.3) */
     line-height: 1.5;
-    padding: 11px 13px;
+    padding: 15.6px 19.2px;              /* +20% again (11/13 → 13/16 → 15.6/19.2) */
     font-family: 'Segoe UI', sans-serif;
     box-shadow: 0 6px 22px rgba(0,0,0,0.2);
     z-index: 200;
@@ -240,7 +245,7 @@ body {
     content: '';
     position: absolute;
     left: 100%; top: 50%; transform: translateY(-50%);
-    border: 6px solid transparent;
+    border: 8.4px solid transparent;     /* +20% again (6 → 7 → 8.4) */
     border-left-color: rgba(26,26,26,0.82);
 }
 
@@ -286,11 +291,12 @@ body {
 }
 #cosmo-tip  .cosmo-title { font-size: 14px; }
 #cosmo-card .cosmo-title { font-size: 16px; }
-/* Comet hover label — just the word, no rows/border */
+/* Comet hover label — just the word, no rows/border. Shrink the box to fit it. */
 .cosmo-solo {
     font-family: 'Optima','Candara','Century Gothic',sans-serif; font-size: 14px;
-    color: #e8dcc0; letter-spacing: 0.06em;
+    color: #e8dcc0; letter-spacing: 0.06em; white-space: nowrap;
 }
+#cosmo-tip:has(.cosmo-solo) { min-width: 0; padding: 8px 13px; }
 .tip-row { display: flex; justify-content: space-between; gap: 18px; padding: 2px 0; }
 .tip-l   { color: #b8b0a2; }
 .tip-v   { color: #f4f0e8; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }

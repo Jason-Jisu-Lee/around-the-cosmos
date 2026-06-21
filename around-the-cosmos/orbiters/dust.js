@@ -24,8 +24,9 @@ function orbiterPayout() { return Math.round((10 + 10 * lvl('dustpay')) * resona
 // multiplier (1+0.2·lvl), so effective speed runs 82% → 164%.
 function dustSpeed()     { return 0.82 * upg('dustspd').mult(lvl('dustspd')); }
 // Cosmic orbital velocity (ring 0 radius + Lacuna mass), scaled by speed.
-function orbiterVel()           { return Math.sqrt(PHYS.G * lacunaMass() / PHYS.orbitRadius) * dustSpeed(); }
-function orbiterOrbitsPerHour() { return orbiterVel() / (2*Math.PI*PHYS.orbitRadius) * 3600; }
+function orbiterVel()          { return Math.sqrt(PHYS.G * lacunaMass() / PHYS.orbitRadius) * dustSpeed(); }
+// In-game orbit cadence (matches the visible clump + the observatory's payout/min).
+function orbiterOrbitsPerMin() { return 60 * dustSpeed() / PLANET_DEF[0].period; }
 
 registerOrbiter({
     id: 'dust',
@@ -39,13 +40,14 @@ registerOrbiter({
     clump:    () => G.clump,
     clumpPos: () => clumpPos(),
     make:     () => newDustParticle(),
-    count:    () => Math.min(5, lvl('dust')),    // rebuilt from level on load
-    bodyUpgrade: 'dust',                          // buying this id adds a body
+    // First particle from `dust` (one-time), the rest from `dustcount` — cap 5 total.
+    count:    () => Math.min(5, (lvl('dust') >= 1 ? 1 : 0) + lvl('dustcount')),
+    bodyUpgrade: 'dust',                          // (bodies are reconciled to count() on any buy)
     payout: orbiterPayout,
     speed:  dustSpeed,
     rows: () =>
           tipRow('Orbit payout',  '✦' + fmtNum(G.planets.length * orbiterPayout()))   // whole clump
         + tipRow('Orbital speed', fmtNice(orbiterVel()) + ' m/s')
-        + tipRow('Orbits / hour', fmtNice(orbiterOrbitsPerHour())),
-    labels: { dust: '+1 Dust Particle', dustpay: '×2 Payout', dustspd: '×1.2 Speed' },
+        + tipRow('Orbits / min', fmtNice(orbiterOrbitsPerMin())),
+    labels: { dust: 'Dust Particle', dustcount: '+1 Dust Particle', dustpay: '+10 Payout', dustspd: '×1.2 Speed' },
 });

@@ -7,7 +7,7 @@ const SND = { ctx:null, master:null, musicBus:null, sfxBus:null, musicSession:nu
 function audioBoot() {
     if (SND.ctx) { if (SND.ctx.state === 'suspended') SND.ctx.resume(); return; }
     SND.ctx = new (window.AudioContext || window.webkitAudioContext)();
-    SND.master = mkGain(0.75); SND.musicBus = mkGain(0.56); SND.sfxBus = mkGain(0.81);
+    SND.master = mkGain(0.75); SND.musicBus = mkGain(0.5712); SND.sfxBus = mkGain(0.8262);
     SND.musicBus.connect(SND.master); SND.sfxBus.connect(SND.master); SND.master.connect(SND.ctx.destination);
 }
 function mkGain(vol) { const g = SND.ctx.createGain(); g.gain.value = vol; return g; }
@@ -35,7 +35,11 @@ function reverb(len = 2.4) {
     conv.connect(SND.musicSession || SND.musicBus); return conv;
 }
 
-function setMusicVolume(pct) { if (SND.ctx) SND.musicBus.gain.setTargetAtTime(0.56*pct/100, SND.ctx.currentTime, 0.1); }
-function setSfxVolume(pct)   { if (SND.ctx) SND.sfxBus.gain.setTargetAtTime(0.81*pct/100, SND.ctx.currentTime, 0.1); }
+// Volume scale: 75% is the reference loudness (the default); the slider runs to
+// 100% for more headroom. Gain divides by 75 (75%→reference, 100%→reference×1.33).
+// Reference gains: music 0.5712, sfx 0.8262 (the earlier 0.672/0.972, toned down 15%).
+// Default volumes are 75%.
+function setMusicVolume(pct) { if (SND.ctx) SND.musicBus.gain.setTargetAtTime(0.5712*pct/75, SND.ctx.currentTime, 0.1); }
+function setSfxVolume(pct)   { if (SND.ctx) SND.sfxBus.gain.setTargetAtTime(0.8262*pct/75, SND.ctx.currentTime, 0.1); }
 function toggleMute() { if (!SND.ctx) return true; SND.muted=!SND.muted; SND.master.gain.setTargetAtTime(SND.muted?0:0.75, SND.ctx.currentTime, 0.15); return SND.muted; }
 function isMuted()    { return SND.muted; }
