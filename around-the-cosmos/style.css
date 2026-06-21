@@ -48,17 +48,16 @@ body {
 #header-right { display: flex; justify-content: flex-end; margin-left: auto; }
 
 #dust-hud {
-    position: fixed;
-    top: 16px;
-    left: calc(50% - 48px);   /* nudged 10px left */
-    transform: translateX(-50%);
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 3px;
-    pointer-events: none;
-    z-index: 60;
+    gap: 4px;
     text-align: center;
+    margin-bottom: 18px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border2);
+    flex-shrink: 0;
+    pointer-events: none;
 }
 
 #mute-btn {
@@ -135,10 +134,11 @@ body {
 #sky-section { flex: 1; position: relative; min-width: 0; }
 #sky { display: block; width: 100%; height: 100%; cursor: url(assets/cursors/needle.png?v=63) 3 3, default; }
 
-#right-col { width: 308px; flex-shrink: 0; padding: 22px 16px 80px; overflow-y: auto; }
+#right-col { width: 308px; flex-shrink: 0; padding: 22px 16px; display: flex; flex-direction: column; min-height: 0; }
+#upgrades-list { flex: 1; min-height: 0; overflow-y: auto; }
 
-/* "Show completed" toggle */
-#upg-controls { display: flex; justify-content: flex-end; margin-bottom: 12px; }
+/* "Hide completed" toggle — pinned at the bottom-right of the panel */
+#upg-controls { display: flex; justify-content: flex-end; margin-top: 14px; padding-top: 10px; border-top: 1px solid var(--border2); flex-shrink: 0; }
 #show-completed-wrap {
     display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
     font-family: 'Segoe UI', sans-serif; font-size: 10px; letter-spacing: 0.04em;
@@ -182,6 +182,17 @@ body {
 #observatory:hover { background: rgba(244,240,232,0.98); }
 #observatory:hover::before { background: var(--accent-dim); }
 #observatory:active { cursor: grabbing; }
+
+/* Accretion (prestige) button — sits under the observatory, independently draggable. */
+#accretion-btn {
+    position: fixed; top: 250px; left: 16px; z-index: 50; user-select: none; cursor: grab;
+    background: rgba(244,240,232,0.92); border: 1px solid var(--accent-dim); color: var(--accent);
+    padding: 11px 22px; border-radius: 3px; letter-spacing: 0.14em;
+    font-family: 'Optima','Candara','Century Gothic',sans-serif; font-size: 15px;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+#accretion-btn:hover { background: rgba(244,240,232,0.99); color: var(--ink); border-color: var(--accent); }
+#accretion-btn:active { cursor: grabbing; }
 
 .upgrade-card {
     position: relative;

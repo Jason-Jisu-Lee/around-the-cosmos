@@ -3,7 +3,7 @@
 
 
 let lastVisibleSig = '';
-let showCompleted  = true;
+let showCompleted  = false;
 const sectionOpen  = {};
 const cardRefs     = [];
 const seenUpg      = new Set();

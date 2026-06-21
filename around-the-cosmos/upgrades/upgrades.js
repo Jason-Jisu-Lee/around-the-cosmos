@@ -13,7 +13,7 @@ const UPGRADES = [
         id: 'grasp', name: 'Star Grasp', maxLevel: 3, section: 'MAIN',
         costs: [500, 1000, 1500],
         flavor: 'A surer hand closes on the falling stardust.',
-        desc: () => '+2 ✦ to every click, per level (stacks on Star Touch).',
+        desc: () => '+2 ✦ to every click, per level.',
         unlock: () => lvl('touch') >= 4,
     },
     {

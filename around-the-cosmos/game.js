@@ -100,4 +100,7 @@ window.addEventListener('beforeunload', saveGame);
 document.getElementById('reset-btn').addEventListener('click', resetGame);
 loadGame(); resize(); buildPanels(); initDebug(); _savedVols=initSettings();
 initDraggable(document.getElementById('observatory'));
+const _accBtn = document.getElementById('accretion-btn');
+initDraggable(_accBtn);
+setTimeout(() => { const r = document.getElementById('observatory').getBoundingClientRect(); _accBtn.style.left = r.left + 'px'; _accBtn.style.top = (r.bottom + 12) + 'px'; }, 120);
 requestAnimationFrame(ts => { lastTs=ts; requestAnimationFrame(loop); });

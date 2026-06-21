@@ -19,8 +19,6 @@ function orbiterPayout() { return Math.round((10 + 10 * lvl('dustpay')) * resona
 
 function dustSpeed()     { return 0.82 * upg('dustspd').mult(lvl('dustspd')); }
 
-function orbiterVel()          { return Math.sqrt(PHYS.G * lacunaMass() / PHYS.orbitRadius) * dustSpeed(); }
-
 function orbiterOrbitsPerMin()  { return 60 * dustSpeed() / PLANET_DEF[0].period; }
 
 function dustStardustPerMin()   { return G.planets.length * orbiterPayout() * orbiterOrbitsPerMin(); }
@@ -44,7 +42,6 @@ registerOrbiter({
     speed:  dustSpeed,
     rows: () =>
           tipRow('Orbit payout',  '✦' + fmtNum(G.planets.length * orbiterPayout()))
-        + tipRow('Orbital speed', fmtNice(orbiterVel()) + ' m/s')
         + tipRow('Orbits / min', fmtNice(orbiterOrbitsPerMin()))
         + tipRow('Stardust / min', '✦' + fmtNum(Math.round(dustStardustPerMin()))),
     labels: { dust: 'Dust Particle', dustcount: '+1 Dust Particle', dustpay: '+10 Payout', dustspd: '×1.2 Speed' },
