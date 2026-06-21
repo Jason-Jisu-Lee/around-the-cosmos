@@ -53,5 +53,24 @@ function initSettings() {
             b.classList.add('active'); saveSettings();
         });
     });
+    const wireVolEdit = (sliderId, valId, apply) => {
+        const slider = document.getElementById(sliderId), val = document.getElementById(valId);
+        val.contentEditable = 'true'; val.spellcheck = false;
+        val.addEventListener('focus', () => {
+            val.textContent = slider.value;
+            const r = document.createRange(); r.selectNodeContents(val);
+            const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+        });
+        val.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); val.blur(); } });
+        val.addEventListener('blur', () => {
+            let v = parseInt(val.textContent.replace(/[^0-9]/g, ''), 10);
+            if (isNaN(v)) v = parseInt(slider.value, 10);
+            v = Math.max(0, Math.min(100, v));
+            slider.value = v; val.textContent = v + '%';
+            apply(v); saveSettings();
+        });
+    };
+    wireVolEdit('vol-music', 'vol-music-val', v => SoundSystem.setMusicVolume(v));
+    wireVolEdit('vol-sfx', 'vol-sfx-val', v => SoundSystem.setSfxVolume(v));
     return { mv, sv, track };
 }

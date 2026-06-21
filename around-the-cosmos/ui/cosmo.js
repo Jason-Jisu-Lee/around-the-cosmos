@@ -66,8 +66,7 @@ function closeCosmoCard()      { pinnedTarget = null; cosmoCard.style.display = 
 function updateCosmoTip() {
     const over = cosmoOver ? cosmoTargetAt(cosmoMx, cosmoMy) : null;
 
-    canvas.style.cursor = over ? 'pointer' : 'url(assets/cursors/needle.png?v=63) 3 3, default';
-
+    canvas.style.cursor = 'url(assets/cursors/needle.png?v=63) 3 3, default';
 
     if (over && !pinnedTarget) {
         const html = cosmoBody(over, false);

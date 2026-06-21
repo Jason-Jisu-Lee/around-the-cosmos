@@ -1,0 +1,35 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>1 · Tech Tree</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  html,body{margin:0;height:100%;overflow:hidden;background:radial-gradient(circle at 10% 50%,#0f1626,#070a12 72%);color:#e6ecf5;font-family:'Nunito',sans-serif}
+  svg{position:absolute;inset:0;width:100%;height:100%}
+  line{stroke:#28344e;stroke-width:.28}
+  .orb{position:absolute;left:6.5%;top:50%;transform:translate(-50%,-50%);width:118px;height:118px;border-radius:50%;background:radial-gradient(circle at 50% 42%,#101a2c,#070b14);
+    box-shadow:0 0 54px 13px rgba(90,140,220,.28),inset 0 0 24px rgba(80,130,210,.4);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+  .orb .m{font-size:26px;font-weight:800;color:#eef4ff}.orb .k{font-size:9px;letter-spacing:.34em;color:#7d8db0;margin-top:2px;font-weight:700}
+  .node{position:absolute;transform:translate(-50%,-50%);width:96px;text-align:center;background:#0e1626;border:1px solid #26314a;border-left:3px solid var(--col);border-radius:9px;padding:6px 6px}
+  .node.lock{opacity:.4}.node .n{font-size:12px;font-weight:700;color:#dde5f2;white-space:nowrap}.node .c{font-size:11px;color:var(--col);font-weight:800}
+  .legend{position:absolute;top:18px;left:50%;transform:translateX(-50%);display:flex;gap:18px;font-size:11px;font-weight:700;letter-spacing:.1em}
+  .legend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:middle}
+  .accrete{position:absolute;right:30px;bottom:24px;background:rgba(90,140,220,.12);border:1px solid #34436a;color:#e6ecf5;padding:12px 28px;border-radius:10px;font:800 14px Nunito;cursor:pointer}
+</style></head><body>
+  <svg id="s" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
+  <div class="orb"><div class="m">✶ 12</div><div class="k">MASS</div></div>
+  <div id="n"></div>
+  <div class="legend" id="lg"></div>
+  <button class="accrete">Accrete</button>
+<script>
+  const CC=['#9a7fe0','#5ec8c0','#e0a85e','#8f9ee8'], CN=['Lacuna','Orbiters','Phenomena','Continuum'];
+  const NX=[19,37,55,73,90]; const pos=[]; let k=1;
+  for(let c=0;c<5;c++){pos[c]=[];for(let r=0;r<4;r++)pos[c][r]={x:NX[c],y:16+r*22.7,n:k++,col:CC[r],c};}
+  let svg='',nodes='';
+  const L=(a,b,x,y)=>`<line x1="${a}" y1="${b}" x2="${x}" y2="${y}"/>`;
+  for(let r=0;r<4;r++)svg+=L(6.5,50,pos[0][r].x,pos[0][r].y);
+  for(let c=0;c<4;c++)for(let r=0;r<4;r++){const a=pos[c][r];svg+=L(a.x,a.y,pos[c+1][r].x,pos[c+1][r].y);
+    if(r<3&&(r+c)%2===0)svg+=L(a.x,a.y,pos[c+1][r+1].x,pos[c+1][r+1].y);
+    if(r>0&&(r+c)%2===1)svg+=L(a.x,a.y,pos[c+1][r-1].x,pos[c+1][r-1].y);}
+  for(let c=0;c<5;c++)for(let r=0;r<4;r++){const p=pos[c][r];nodes+=`<div class="node ${c>1?'lock':''}" style="left:${p.x}%;top:${p.y}%;--col:${p.col}"><div class="n">Dummy #${p.n}</div><div class="c">✶${c+1}</div></div>`;}
+  document.getElementById('s').innerHTML=svg;document.getElementById('n').innerHTML=nodes;
+  document.getElementById('lg').innerHTML=CN.map((c,i)=>`<span><i style="background:${CC[i]}"></i>${c}</span>`).join('');
+</script></body></html>

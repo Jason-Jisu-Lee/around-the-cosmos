@@ -1,0 +1,39 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>4 · Constellation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  html,body{margin:0;height:100%;overflow:hidden;background:radial-gradient(circle at 50% 50%,#0a0e1c,#04060e 78%);color:#dfe7f5;font-family:'Nunito',sans-serif}
+  svg{position:absolute;inset:0;width:100%;height:100%}
+  line{stroke:#1d2740;stroke-width:.22}
+  .star{position:absolute;transform:translate(-50%,-50%);text-align:center;width:104px}
+  .star .dot{width:13px;height:13px;border-radius:50%;margin:0 auto 5px;background:var(--col);box-shadow:0 0 12px 2px var(--col)}
+  .star.lock .dot{opacity:.4;box-shadow:none}.star.lock{opacity:.55}
+  .star .n{font-size:12px;font-weight:700;color:#dde5f2;white-space:nowrap}.star .c{font-size:11px;color:var(--col);font-weight:800}
+  .core{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:104px;height:104px;border-radius:50%;background:radial-gradient(circle at 50% 42%,#0d1320,#070b14);
+    box-shadow:0 0 50px 14px rgba(120,150,230,.26),inset 0 0 22px rgba(100,130,210,.4);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+  .core .m{font-size:24px;font-weight:800;color:#eef3ff}.core .k{font-size:9px;letter-spacing:.32em;color:#7f8db0;font-weight:700;margin-top:1px}
+  .cl{position:absolute;transform:translate(-50%,-50%);font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase}
+  .accrete{position:absolute;right:30px;bottom:24px;background:rgba(120,150,230,.12);border:1px solid #2e3a5c;color:#dfe7f5;padding:12px 28px;border-radius:24px;font:800 14px Nunito;cursor:pointer}
+</style></head><body>
+  <svg id="s" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
+  <div class="core"><div class="m">✶ 12</div><div class="k">MASS</div></div>
+  <div id="n"></div>
+  <button class="accrete">Accrete</button>
+<script>
+  const CL=[
+    {name:'Lacuna',col:'#b39cf0',lx:24,ly:11,P:[[16,24],[25,17],[23,34],[34,26],[31,40]]},
+    {name:'Orbiters',col:'#79d4cd',lx:76,ly:11,P:[[66,20],[75,27],[71,36],[83,24],[81,40]]},
+    {name:'Phenomena',col:'#e6b574',lx:24,ly:91,P:[[18,68],[27,76],[23,60],[35,72],[31,84]]},
+    {name:'Continuum',col:'#9aa9f0',lx:76,ly:91,P:[[68,66],[77,74],[73,82],[85,68],[83,82]]},
+  ];
+  const E=[[0,1],[1,2],[1,3],[3,4]]; let svg='',nodes='';
+  const L=(a,b,x,y)=>`<line x1="${a}" y1="${b}" x2="${x}" y2="${y}"/>`;
+  let k=1;
+  for(const c of CL){
+    svg+=L(50,50,c.P[0][0],c.P[0][1]);
+    E.forEach(([a,b])=>svg+=L(c.P[a][0],c.P[a][1],c.P[b][0],c.P[b][1]));
+    c.P.forEach((p,i)=>nodes+=`<div class="star ${i>1?'lock':''}" style="left:${p[0]}%;top:${p[1]}%;--col:${c.col}"><div class="dot"></div><div class="n">Dummy #${k++}</div><div class="c">✶${i+1}</div></div>`);
+    nodes+=`<div class="cl" style="left:${c.lx}%;top:${c.ly}%;color:${c.col}">${c.name}</div>`;
+  }
+  document.getElementById('s').innerHTML=svg;document.getElementById('n').innerHTML=nodes;
+</script></body></html>

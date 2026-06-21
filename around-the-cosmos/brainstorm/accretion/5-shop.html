@@ -1,0 +1,25 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>5 · Shop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  html,body{margin:0;height:100%;overflow:hidden;background:#0f1117;color:#e7eaf0;font-family:'Nunito',sans-serif}
+  .bar{display:flex;justify-content:space-between;align-items:center;padding:20px 32px;border-bottom:1px solid #1d212b}
+  .bar .t{font-size:15px;font-weight:800;letter-spacing:.18em;color:#8b93a6}
+  .bar .mass{font-size:26px;font-weight:800;color:#cdd6ff}
+  .cols{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;padding:22px 32px}
+  .col h2{font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--col);margin:0 0 12px;padding-bottom:8px;border-bottom:2px solid var(--col)}
+  .card{display:flex;justify-content:space-between;align-items:center;background:#161922;border:1px solid #242a36;border-radius:12px;padding:12px 14px;margin-bottom:10px;transition:border-color .12s}
+  .card:hover{border-color:var(--col)}.card.own{opacity:.5}
+  .card .n{font-size:14px;font-weight:700;color:#dfe4ee}
+  .card .b{font-size:13px;font-weight:800;color:var(--col);border:1px solid currentColor;border-radius:999px;padding:3px 11px}
+  .card.own .b{color:#6f7892;border-color:#2a3140}
+  .accrete{position:absolute;right:32px;bottom:22px;background:linear-gradient(#3a46a8,#283180);border:none;color:#fff;padding:13px 32px;border-radius:12px;font:800 14px Nunito;cursor:pointer}
+</style></head><body>
+  <div class="bar"><div class="t">ACCRETION · STORE</div><div class="mass">✶ 12 Mass</div></div>
+  <div class="cols" id="x"></div>
+  <button class="accrete">Accrete &amp; reset</button>
+<script>
+  const CC=['#b39cf0','#79d4cd','#e6b574','#9aa9f0'], CN=['Lacuna','Orbiters','Phenomena','Continuum'];
+  let k=1;
+  document.getElementById('x').innerHTML=CN.map((c,ci)=>`<div class="col" style="--col:${CC[ci]}"><h2>${c}</h2>${[0,1,2,3,4].map(i=>`<div class="card ${i===0?'own':''}"><span class="n">Dummy #${k++}</span><span class="b">${i===0?'Owned':'✶ '+(i+1)}</span></div>`).join('')}</div>`).join('');
+</script></body></html>

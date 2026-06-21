@@ -12,7 +12,18 @@
     --ink-dim:    #888880;
     --accent:     #7a6848;
     --accent-dim: #c0b498;
+    --cursor:     url(assets/cursors/needle.png?v=63) 3 3, auto;
 }
+
+/* The custom needle cursor everywhere — never the default OS arrow/hand. */
+html, body { cursor: var(--cursor); }
+button, label, input, select, textarea, a,
+.upgrade-card, .acc-head, .track-btn, .stat-pop-row, .vol-val,
+#observatory, #accretion-btn, #show-completed, #show-completed-wrap {
+    cursor: var(--cursor) !important;
+}
+/* Themed text selection (parchment/gold), not browser blue. */
+::selection { background: rgba(122,104,72,0.28); color: var(--ink); }
 
 body {
     background: var(--bg);
@@ -91,8 +102,8 @@ body {
 .settings-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
 .settings-row:last-child { margin-bottom: 0; }
 .settings-name { font-size: 11px; color: var(--text-dim); font-family: 'Segoe UI', sans-serif; width: 46px; flex-shrink: 0; }
-.settings-row input[type=range] { flex: 1; min-width: 0; accent-color: var(--accent); cursor: pointer; height: 2px; }
-.vol-val { font-size: 10px; color: var(--text-faint); font-family: 'Segoe UI', sans-serif; width: 32px; text-align: right; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+.settings-row input[type=range] { flex: 1; min-width: 0; accent-color: var(--accent); height: 2px; outline: none; }
+.vol-val { font-size: 10px; color: var(--text-faint); font-family: 'Segoe UI', sans-serif; width: 32px; text-align: right; flex-shrink: 0; font-variant-numeric: tabular-nums; outline: none; cursor: text; }
 
 #track-row { display: flex; gap: 5px; margin-top: 6px; }
 .track-btn {
@@ -125,11 +136,6 @@ body {
 
 #dust-display { font-size: 46px; font-weight: 400; color: var(--ink); line-height: 1; font-variant-numeric: tabular-nums; font-family: 'Optima','Candara','Century Gothic',sans-serif; letter-spacing: 0.01em; }
 #dust-icon  { font-size: 30px; }
-/* Small, faint passive-income line under the count — minimal, themed. Empty (and hidden)
-   until you actually have orbiters producing income, so it's gone right after a reset. */
-#dust-rate  { margin-top: 9px; font-family: Georgia, serif; font-style: italic; font-size: 12px;
-              color: var(--text-faint); letter-spacing: 0.06em; line-height: 1; opacity: 0.78; }
-#dust-rate:empty { display: none; }
 
 #sky-section { flex: 1; position: relative; min-width: 0; }
 #sky { display: block; width: 100%; height: 100%; cursor: url(assets/cursors/needle.png?v=63) 3 3, default; }
@@ -228,7 +234,7 @@ body {
     100% { opacity: 0; }
 }
 
-.upg-top  { display: flex; justify-content: space-between; align-items: baseline; width: 100%; gap: 10px; }
+.upg-top  { display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 10px; }
 .upg-name { font-size: 15px; font-weight: 400; color: var(--text); font-family: 'Optima','Candara','Century Gothic',sans-serif; letter-spacing: 0.02em; }
 .upg-cost { font-size: 15px; color: var(--ink); font-weight: 700; font-family: 'Segoe UI', sans-serif; font-variant-numeric: tabular-nums; flex-shrink: 0; }
 .upg-cost.maxed { color: var(--text-faint); font-weight: 400; }
@@ -265,6 +271,12 @@ body {
     margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid rgba(244,240,232,0.16);
 }
 #upg-pop .upg-pop-fn  { font-size: 0.9em; }
+
+/* Soft modern font (Nunito) across all upgrade UI — cards, accordion, popup, toggle. */
+#upgrades-list, .upgrade-card, .upg-name, .upg-cost, .upg-level,
+.acc-head, .acc-label, #upg-pop, #show-completed-wrap {
+    font-family: 'Nunito','Segoe UI',sans-serif !important;
+}
 
 .stat-row { display: flex; justify-content: space-between; align-items: baseline; gap: 14px; padding: 6px 0; border-bottom: 1px solid var(--border2); font-size: 13px; font-family: 'Segoe UI', sans-serif; }
 .stat-label { color: var(--text-dim); flex: 1; }
@@ -304,8 +316,8 @@ body {
 }
 .cosmo-close:hover { color: #f4f0e8; }
 .cosmo-title {
-    font-family: 'Optima','Candara','Century Gothic',sans-serif;
-    color: #e8dcc0; margin-bottom: 9px; padding: 0 20px 6px 0; letter-spacing: 0.06em;
+    font-family: 'Nunito','Segoe UI',sans-serif; font-weight: 700;
+    color: #e8dcc0; margin-bottom: 9px; padding: 0 20px 6px 0; letter-spacing: 0.01em;
     border-bottom: 1px solid rgba(216,200,164,0.25);
 }
 #cosmo-tip  .cosmo-title { font-size: 14px; }
