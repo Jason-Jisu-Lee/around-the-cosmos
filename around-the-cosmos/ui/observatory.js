@@ -48,7 +48,10 @@ function updateObservatory() {
         orbiterSum += n * pay;
         orbiterPerMin += n * pay * 60 * o.speed() / PLANET_DEF[o.ring].period;
         totalOrbiters += n;
-        popParts.push(`${n} ${o.id} × ${fmtNum(pay)}`);
+        // One entry per orbiter type (dust counts collapse to a single "dust" line);
+        // show the type's combined payout so the breakdown still sums to the total.
+        const name = o.id.charAt(0).toUpperCase() + o.id.slice(1);
+        popParts.push(`${name} ✦${fmtNum(n * pay)}`);
     }
     const cometVal = Math.round(10 * touchVal + 1.25 * orbiterSum);
 

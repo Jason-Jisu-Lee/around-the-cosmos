@@ -45,7 +45,9 @@ function closeCosmoCard()      { pinnedTarget = null; cosmoCard.style.display = 
 
 function updateCosmoTip() {
     const over = cosmoOver ? cosmoTargetAt(cosmoMx, cosmoMy) : null;
-    canvas.style.cursor = over ? 'pointer' : 'default';
+    // Over a body → the pointer hand (it's clickable); otherwise the custom needle.
+    // (Inline style is set each frame, so it must carry the needle or it overrides the CSS.)
+    canvas.style.cursor = over ? 'pointer' : 'url(assets/cursors/needle.png?v=63) 3 3, default';
 
     // hover tooltip — follows the cursor; hidden while a card is pinned
     if (over && !pinnedTarget) {

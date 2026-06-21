@@ -128,7 +128,7 @@ body {
 #dust-icon  { font-size: 30px; }
 
 #sky-section { flex: 1; position: relative; min-width: 0; }
-#sky { display: block; width: 100%; height: 100%; cursor: default; }
+#sky { display: block; width: 100%; height: 100%; cursor: url(assets/cursors/needle.png?v=63) 3 3, default; }
 
 #right-col { width: 308px; flex-shrink: 0; padding: 22px 16px 80px; overflow-y: auto; }
 

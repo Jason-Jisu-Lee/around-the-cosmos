@@ -31,6 +31,11 @@ function canvasClick(x, y) {
     }
     earn(clickValue(), x, y-14);
     G.taps++; SoundSystem.sfxTap(); burst(x,y,'rgba(100,80,50,',5,80);
+    // Kick the Lacuna's click reaction (effects.js): random effect each click,
+    // direction = away from the click. (debug can pin one by clearing clickFxRandom)
+    if (clickFxRandom) clickFxId = randomClickFxId();
+    const ddx=x-CX, ddy=y-CY, dl=Math.hypot(ddx,ddy)||1;
+    triggerClickFx(performance.now()/1000, ddx/dl, ddy/dl);
 }
 
 // Hold to auto-click twice per second; release stops it.

@@ -134,7 +134,10 @@ function draw(t) {
         }
     }
 
-    ctx.beginPath(); ctx.arc(CX,CY,sunR,0,Math.PI*2); ctx.fillStyle='#1a1a1a'; ctx.fill();
+    // Lacuna core — the click reaction (effects.js) offsets/squashes it briefly.
+    const fx = clickFxTransform(t);
+    ctx.beginPath(); ctx.ellipse(CX+fx.dx, CY+fx.dy, sunR*fx.sx, sunR*fx.sy, 0, 0, Math.PI*2);
+    ctx.fillStyle='#1a1a1a'; ctx.fill();
 
     // Orbiters — clumps of small irregular pebbles. Each clump orbits Lacuna; each
     // pebble also circles its own little orbit within the clump. Appearance (color,
