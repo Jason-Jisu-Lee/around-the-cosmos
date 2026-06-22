@@ -1,0 +1,44 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Select · Carousel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_tree.css">
+<style>
+  .caro{position:absolute;top:56px;left:50%;transform:translateX(-50%);z-index:5;display:flex;align-items:center;gap:14px}
+  .arw{font-size:26px;line-height:1;color:#a8853a;background:none;border:none;cursor:pointer;padding:0 4px}
+  .arw:hover{color:#1a1a1a}
+  .cur{font:800 15px 'Nunito';letter-spacing:.24em;text-transform:uppercase;min-width:150px;text-align:center;color:#1a1a1a}
+  .side{font:700 10px 'Nunito';letter-spacing:.12em;text-transform:uppercase;color:#c3b89f;width:78px}
+  .side.r{text-align:right}
+  .stage-title{display:none}
+</style></head><body>
+  <div class="eyebrow">Accretion</div>
+  <div class="masshdr"><span id="micon"></span><div class="num">12</div><div class="lbl">Mass</div></div>
+  <div class="caro">
+    <span class="side r" id="ps"></span>
+    <button class="arw" id="prev">‹</button>
+    <div class="cur" id="cur"></div>
+    <button class="arw" id="next">›</button>
+    <span class="side" id="ns"></span>
+  </div>
+  <div class="stagewrap"><div class="stage-title" id="st"></div><div class="stage-sub" id="ss"></div><div class="tree" id="tree"></div></div>
+  <div class="legend"><div class="it"><span class="sw avail"></span>Available</div><div class="it"><span class="sw up"></span>Upgrading</div><div class="it"><span class="sw max"></span>Maxed</div><div class="it"><span class="sw lock"></span>Locked</div></div>
+  <button class="accrete">Accrete</button>
+<script src="_tree.js"></script>
+<script>
+  document.getElementById('micon').innerHTML=MASS_SVG(26);
+  function select(name){
+    document.getElementById('st').textContent=name;
+    document.getElementById('ss').textContent=CATSUB[name];
+    document.getElementById('tree').innerHTML=buildTree(name);
+  }
+  let idx=0;
+  function render(){const n=CATS[idx];
+    document.getElementById('cur').textContent=n;
+    document.getElementById('ps').textContent=CATS[(idx-1+CATS.length)%CATS.length];
+    document.getElementById('ns').textContent=CATS[(idx+1)%CATS.length];
+    select(n);}
+  document.getElementById('prev').onclick=()=>{idx=(idx-1+CATS.length)%CATS.length;render();};
+  document.getElementById('next').onclick=()=>{idx=(idx+1)%CATS.length;render();};
+  render();
+</script>
+</body></html>

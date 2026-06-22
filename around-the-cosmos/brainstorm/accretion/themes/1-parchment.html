@@ -1,0 +1,39 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Theme · Parchment</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;overflow:hidden;background:#f4f0e8;color:#1a1a1a;font-family:'Nunito',sans-serif}
+  .top{display:flex;align-items:center;justify-content:space-between;padding:18px 32px;height:80px;border-bottom:1px solid #d9d2c4}
+  .badge{display:flex;align-items:center;gap:12px}
+  .badge .ring{width:50px;height:50px;border-radius:50%;border:2px solid #1a1a1a;display:flex;align-items:center;justify-content:center;font:800 18px Nunito;color:#1a1a1a}
+  .badge .lbl{font-family:Georgia,serif;font-size:13px;letter-spacing:.34em;color:#6b6253;text-transform:uppercase}.badge .lbl b{display:block;font:italic 17px Georgia,serif;letter-spacing:.02em;color:#1a1a1a}
+  .title{font-family:Georgia,serif;font-size:18px;letter-spacing:.42em;text-transform:uppercase;color:#8a7f6c}
+  .clusters{position:absolute;left:0;right:0;top:80px;bottom:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr}
+  .cluster{position:relative;display:flex;align-items:center;justify-content:center}
+  .ctitle{position:absolute;top:18px;left:0;right:0;text-align:center;font-family:Georgia,serif;font-size:13px;letter-spacing:.24em;text-transform:uppercase}
+  .bloom{position:relative;margin-top:26px}
+  .hex{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%)}
+  .hex .n{font-size:11px;font-weight:800;line-height:1.1;white-space:nowrap}.hex .c{font-size:10.5px;font-weight:800;margin-top:2px}
+  .hex.open{background:var(--col)}.hex.open .n{color:#fbf8f1}.hex.open .c{color:rgba(251,248,241,.78)}
+  /* locked: drawn with an ink hex behind a cream hex = clean inked outline on clip-path */
+  .hex.lock{background:#cabfa9}
+  .hex.lock .inner{clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);background:#f4f0e8;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .hex.lock .n{color:#9b927f}.hex.lock .c{color:#b3a88f}
+  .accrete{position:absolute;right:30px;bottom:22px;background:#1a1a1a;color:#f4f0e8;border:none;padding:12px 30px;border-radius:6px;font:800 14px Nunito;letter-spacing:.08em;cursor:pointer}
+</style></head><body>
+  <div class="top">
+    <div class="badge"><div class="ring">12</div><div class="lbl">Mass<b>twelve</b></div></div>
+    <div class="title">Accretion</div>
+  </div>
+  <div class="clusters" id="c"></div>
+  <button class="accrete">Accrete</button>
+<script>
+  window.CATCOLORS={Lacuna:'#7c6bb0',Orbiters:'#3f8f88',Phenomena:'#b07d34',Cycles:'#5d68a8'};
+  window.HEX=({open,k,col,W,H,left,top,cost})=>{
+    if(open) return `<div class="hex open" style="--col:${col};left:${left}px;top:${top}px;width:${W}px;height:${H}px"><span class="n">Dummy #${k}</span><span class="c">✦${cost}</span></div>`;
+    return `<div class="hex lock" style="left:${left}px;top:${top}px;width:${W}px;height:${H}px"><div class="inner" style="width:${W-3}px;height:${H-3}px"><span class="n">Dummy #${k}</span><span class="c">✦${cost}</span></div></div>`;
+  };
+</script>
+<script src="_bloom.js"></script>
+</body></html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Select · Orbit Dial</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_tree.css">
+<style>
+  .dial{position:absolute;top:50px;left:50%;transform:translateX(-50%);width:280px;height:190px;z-index:5;overflow:visible}
+  .dial svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+  .dial .ring{position:absolute;left:140px;top:95px;width:140px;height:140px;margin:-70px 0 0 -70px;border:1px dashed #d8cdb5;border-radius:50%}
+  .dial .hub{position:absolute;left:140px;top:95px;width:11px;height:11px;margin:-5.5px 0 0 -5.5px;border-radius:50%;background:#1a1a1a}
+  .chip{position:absolute;transform:translate(-50%,-50%);padding:7px 13px;border-radius:14px;border:1.5px solid #d8cdb5;background:#f4f0e8;font:800 10px 'Nunito';letter-spacing:.1em;text-transform:uppercase;color:#8a7f6c;cursor:pointer;white-space:nowrap;transition:all .12s}
+  .chip:hover{color:#1a1a1a;border-color:#bfae87}
+  .chip.on{background:#a8853a;border-color:#a8853a;color:#fbf8f1}
+  .stagewrap{top:252px}
+  .stage-title{display:none}
+</style></head><body>
+  <div class="eyebrow">Accretion</div>
+  <div class="masshdr"><span id="micon"></span><div class="num">12</div><div class="lbl">Mass</div></div>
+  <div class="dial" id="dial"></div>
+  <div class="stagewrap"><div class="stage-title" id="st"></div><div class="stage-sub" id="ss"></div><div class="tree" id="tree"></div></div>
+  <div class="legend"><div class="it"><span class="sw avail"></span>Available</div><div class="it"><span class="sw up"></span>Upgrading</div><div class="it"><span class="sw max"></span>Maxed</div><div class="it"><span class="sw lock"></span>Locked</div></div>
+  <button class="accrete">Accrete</button>
+<script src="_tree.js"></script>
+<script>
+  document.getElementById('micon').innerHTML=MASS_SVG(26);
+  const cx=140,cy=95,R=70;
+  const pts=CATS.map((c,i)=>{const a=-Math.PI/2+i*(2*Math.PI/CATS.length);return{c,x:cx+Math.cos(a)*R,y:cy+Math.sin(a)*R};});
+  const spokes=`<svg>${pts.map(p=>`<line x1="${cx}" y1="${cy}" x2="${p.x}" y2="${p.y}" stroke="#d8cdb5" stroke-width="1"/>`).join('')}</svg>`;
+  document.getElementById('dial').innerHTML = spokes + '<div class="ring"></div><div class="hub"></div>' +
+    pts.map(p=>`<button class="chip" data-c="${p.c}" style="left:${p.x}px;top:${p.y}px" onclick="select('${p.c}')">${p.c}</button>`).join('');
+  function select(name){
+    document.querySelectorAll('.chip').forEach(t=>t.classList.toggle('on',t.dataset.c===name));
+    document.getElementById('st').textContent=name;
+    document.getElementById('ss').textContent=CATSUB[name];
+    document.getElementById('tree').innerHTML=buildTree(name);
+  }
+  select('Lacuna');
+</script>
+</body></html>

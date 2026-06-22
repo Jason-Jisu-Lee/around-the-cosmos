@@ -1,0 +1,25 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Accretion — parchment + star treatments</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  html,body{margin:0;background:#0c0d12;color:#cdd2dc;font-family:'Nunito',sans-serif}
+  h1{font-weight:800;padding:24px 28px 2px;font-size:22px}
+  p.l{margin:0 28px 18px;color:#828a98;font-size:13px}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;padding:0 28px 40px;max-width:1500px}
+  .tile{background:#08090d;border:1px solid #242833;border-radius:10px;overflow:hidden}
+  .cap{display:flex;justify-content:space-between;align-items:center;padding:11px 15px;font-size:14px;font-weight:700}
+  .cap a{color:#9fb0ff;text-decoration:none;font-size:12px;font-weight:600}
+  .frame{position:relative;height:300px;border-top:1px solid #242833;overflow:hidden}
+  .frame iframe{position:absolute;top:0;left:0;width:1300px;height:800px;border:0;transform:scale(.36);transform-origin:top left;pointer-events:none}
+</style></head><body>
+  <h1>Accretion — parchment + outlined stars</h1>
+  <p class="l">Theme #1 (parchment), single gold accent, Nunito throughout, ~10 hexes/category. Three ways to draw the background stars so they read on cream. Open them full-size — the twinkle and outlines don't survive the thumbnail scale.</p>
+  <div class="grid" id="g"></div>
+<script>
+  const M=[
+    ['1 · Outlined Dots','gold dots with a thin ink ring','1-dots.html'],
+    ['2 · Drawn Sparkles','4-point chart stars, ink outline + faint gold','2-sparkles.html'],
+    ['3 · Chart Markers','hollow ink rings + a few solid dots, cartographic','3-rings.html'],
+  ];
+  document.getElementById('g').innerHTML=M.map(([t,d,f])=>`<div class="tile"><div class="cap"><span>${t} — <span style="color:#828a98;font-weight:400">${d}</span></span><a href="${f}" target="_blank">open ↗</a></div><div class="frame"><iframe src="${f}"></iframe></div></div>`).join('');
+</script></body></html>

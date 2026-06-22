@@ -1,0 +1,31 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Select · Side Rail</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_tree.css">
+<style>
+  .rail{position:absolute;top:96px;left:26px;bottom:60px;width:172px;z-index:5;display:flex;flex-direction:column;gap:6px}
+  .tab{text-align:left;padding:14px 16px;border-radius:9px;font:800 12px 'Nunito';letter-spacing:.1em;text-transform:uppercase;color:#8a7f6c;cursor:pointer;border:1px solid transparent;background:transparent;transition:all .12s}
+  .tab:hover{background:rgba(168,133,58,.07)}
+  .tab.on{background:#faf2e1;border-color:#a8853a;color:#1a1a1a}
+  .tab small{display:block;margin-top:5px;font:600 9px 'Nunito';letter-spacing:.01em;text-transform:none;color:#a99f88}
+  .stagewrap{left:210px}
+</style></head><body>
+  <div class="eyebrow">Accretion</div>
+  <div class="masshdr"><span id="micon"></span><div class="num">12</div><div class="lbl">Mass</div></div>
+  <div class="rail" id="sel"></div>
+  <div class="stagewrap"><div class="stage-title" id="st"></div><div class="stage-sub" id="ss"></div><div class="tree" id="tree"></div></div>
+  <div class="legend"><div class="it"><span class="sw avail"></span>Available</div><div class="it"><span class="sw up"></span>Upgrading</div><div class="it"><span class="sw max"></span>Maxed</div><div class="it"><span class="sw lock"></span>Locked</div></div>
+  <button class="accrete">Accrete</button>
+<script src="_tree.js"></script>
+<script>
+  document.getElementById('micon').innerHTML=MASS_SVG(26);
+  document.getElementById('sel').innerHTML=CATS.map(c=>`<button class="tab" data-c="${c}" onclick="select('${c}')">${c}<small>${CATSUB[c]}</small></button>`).join('');
+  function select(name){
+    document.querySelectorAll('[data-c]').forEach(t=>t.classList.toggle('on',t.dataset.c===name));
+    document.getElementById('st').textContent=name;
+    document.getElementById('ss').textContent=CATSUB[name];
+    document.getElementById('tree').innerHTML=buildTree(name);
+  }
+  select('Lacuna');
+</script>
+</body></html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Theme · Star Chart</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Spline+Sans+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;overflow:hidden;font-family:'Nunito',sans-serif;color:#cfe3ef;
+    background:#0c1a26}
+  /* faint chart grid */
+  body::before{content:"";position:absolute;inset:0;background-image:
+    linear-gradient(rgba(120,180,210,.07) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(120,180,210,.07) 1px,transparent 1px);background-size:34px 34px}
+  /* registration frame */
+  .frame{position:absolute;inset:16px;border:1px solid rgba(130,190,220,.35);z-index:1;pointer-events:none}
+  .frame::before,.frame::after{content:"";position:absolute;width:14px;height:14px;border:1px solid rgba(130,190,220,.6)}
+  .frame::before{top:-1px;left:-1px;border-right:0;border-bottom:0}
+  .frame::after{bottom:-1px;right:-1px;border-left:0;border-top:0}
+  .top,.clusters,.accrete{position:relative;z-index:2}
+  .top{display:flex;align-items:center;justify-content:space-between;padding:20px 36px;height:84px}
+  .badge{display:flex;align-items:center;gap:12px;font-family:'Spline Sans Mono',monospace}
+  .badge .ring{width:50px;height:50px;border-radius:50%;border:1px solid rgba(130,190,220,.7);display:flex;align-items:center;justify-content:center;font:700 18px 'Spline Sans Mono';color:#dff1fb}
+  .badge .lbl{font-size:11px;letter-spacing:.3em;color:#6f9cb2}.badge .lbl b{display:block;font-size:15px;color:#dff1fb;letter-spacing:.06em}
+  .title{font-family:'Spline Sans Mono',monospace;font-size:13px;letter-spacing:.4em;text-transform:uppercase;color:#7fb0c8}
+  .clusters{position:absolute;left:0;right:0;top:84px;bottom:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr}
+  .cluster{position:relative;display:flex;align-items:center;justify-content:center}
+  .ctitle{position:absolute;top:18px;left:0;right:0;text-align:center;font-family:'Spline Sans Mono',monospace;font-size:11px;letter-spacing:.26em;text-transform:uppercase}
+  .bloom{position:relative;margin-top:26px}
+  /* hexes as line-drawn cells: outer stroke hex behind inner bg hex */
+  .hex{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+    clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);background:var(--stroke)}
+  .hex .inner{clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);background:#0c1a26;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .hex .n{font-family:'Spline Sans Mono',monospace;font-size:10px;font-weight:700;line-height:1.1;white-space:nowrap}.hex .c{font-size:10px;font-weight:700;margin-top:3px;font-family:'Spline Sans Mono',monospace}
+  .hex.open{--stroke:var(--col);filter:drop-shadow(0 0 7px var(--col))}
+  .hex.open .n{color:#dff1fb}.hex.open .c{color:var(--col)}
+  .hex.open .inner{background:color-mix(in srgb,var(--col) 12%,#0c1a26)}
+  .hex.lock{--stroke:rgba(120,170,200,.28)}
+  .hex.lock .n{color:#5d7d8e}.hex.lock .c{color:#4a6675}
+  .dot{position:absolute;left:50%;top:0;width:4px;height:4px;border-radius:50%;background:#dff1fb;transform:translate(-50%,-50%);box-shadow:0 0 6px #bfe6f7}
+  .accrete{position:absolute;right:34px;bottom:26px;background:transparent;border:1px solid rgba(130,190,220,.7);color:#dff1fb;
+    padding:11px 28px;border-radius:4px;font:700 13px 'Spline Sans Mono';letter-spacing:.16em;cursor:pointer}
+</style></head><body>
+  <div class="frame"></div>
+  <div class="top"><div class="badge"><div class="ring">12</div><div class="lbl">MASS<b>+12.00</b></div></div>
+    <div class="title">Accretion Chart</div></div>
+  <div class="clusters" id="c"></div>
+  <button class="accrete">▸ ACCRETE</button>
+<script>
+  window.CATCOLORS={Lacuna:'#c4a8ff',Orbiters:'#74e0d6',Phenomena:'#f0c074',Cycles:'#9fb4ff'};
+  window.HEX=({open,k,col,W,H,left,top,cost})=>
+    `<div class="hex ${open?'open':'lock'}" style="--col:${col};left:${left}px;top:${top}px;width:${W}px;height:${H}px">
+       <div class="inner" style="width:${W-2.5}px;height:${H-2.5}px"><span class="n">D-${String(k).padStart(2,'0')}</span><span class="c">✦${cost}</span></div>
+       ${open?'<div class="dot"></div>':''}</div>`;
+</script>
+<script src="_bloom.js"></script>
+</body></html>

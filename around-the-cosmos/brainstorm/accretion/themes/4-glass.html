@@ -1,0 +1,44 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Theme · Stained Glass</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Cormorant+Garamond:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;overflow:hidden;font-family:'Nunito',sans-serif;color:#f3ecdd;
+    background:radial-gradient(circle at 50% 22%, #241a2e, #120c18 78%)}
+  .top{display:flex;align-items:center;justify-content:space-between;padding:18px 34px;height:82px;border-bottom:1px solid rgba(212,180,120,.22)}
+  .badge{display:flex;align-items:center;gap:13px}
+  .badge .ring{width:54px;height:54px;border-radius:50%;background:conic-gradient(from 0deg,#caa24a,#7e2f57,#2f5f8a,#3f7e57,#caa24a);
+    display:flex;align-items:center;justify-content:center;position:relative}
+  .badge .ring::after{content:"12";position:absolute;inset:5px;border-radius:50%;background:#160f1e;display:flex;align-items:center;justify-content:center;font:800 18px Nunito;color:#f0d99a}
+  .badge .lbl{font-family:'Cormorant Garamond',serif;font-size:13px;letter-spacing:.32em;text-transform:uppercase;color:#bfa15e}.badge .lbl b{display:block;font:700 20px 'Cormorant Garamond',serif;letter-spacing:.04em;color:#f0e3c4}
+  .title{font-family:'Cormorant Garamond',serif;font-size:22px;letter-spacing:.36em;text-transform:uppercase;color:#caa24a}
+  .clusters{position:absolute;left:0;right:0;top:82px;bottom:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr}
+  .cluster{position:relative;display:flex;align-items:center;justify-content:center}
+  .ctitle{position:absolute;top:16px;left:0;right:0;text-align:center;font-family:'Cormorant Garamond',serif;font-size:15px;letter-spacing:.24em;text-transform:uppercase}
+  .bloom{position:relative;margin-top:26px}
+  /* lead came (dark hex) behind a glass pane (inner hex) */
+  .hex{position:absolute;display:flex;align-items:center;justify-content:center;
+    clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);background:#0a0710}
+  .pane{clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+  .hex .n{font-size:11px;font-weight:800;line-height:1.1;white-space:nowrap}.hex .c{font-size:10.5px;font-weight:800;margin-top:2px}
+  .hex.open .pane{background:
+    radial-gradient(circle at 38% 26%, rgba(255,255,255,.55), transparent 46%),
+    linear-gradient(150deg, color-mix(in srgb,var(--col) 85%,#fff) , var(--col) 60%, color-mix(in srgb,var(--col) 70%,#000))}
+  .hex.open .n{color:#1a1020;text-shadow:0 1px 0 rgba(255,255,255,.4)}.hex.open .c{color:rgba(26,16,32,.7)}
+  .hex.lock .pane{background:linear-gradient(150deg,#39323f,#241f2c)}
+  .hex.lock .n{color:#7c7384}.hex.lock .c{color:#5f566b}
+  .accrete{position:absolute;right:32px;bottom:24px;background:linear-gradient(#caa24a,#9b7a2f);border:none;color:#1a1020;
+    padding:12px 32px;border-radius:6px;font:800 14px Nunito;letter-spacing:.1em;cursor:pointer;box-shadow:0 0 20px rgba(202,162,74,.4)}
+</style></head><body>
+  <div class="top"><div class="badge"><div class="ring"></div><div class="lbl">Mass<b>Twelve</b></div></div>
+    <div class="title">Accretion</div></div>
+  <div class="clusters" id="c"></div>
+  <button class="accrete">Accrete</button>
+<script>
+  window.CATCOLORS={Lacuna:'#8b5fd6',Orbiters:'#2f9aa0',Phenomena:'#d68a3a',Cycles:'#4f63c4'};
+  window.HEX=({open,k,col,W,H,left,top,cost})=>
+    `<div class="hex ${open?'open':'lock'}" style="--col:${col};left:${left}px;top:${top}px;width:${W}px;height:${H}px">
+       <div class="pane" style="width:${W-5}px;height:${H-6}px"><span class="n">Dummy #${k}</span><span class="c">✦${cost}</span></div></div>`;
+</script>
+<script src="_bloom.js"></script>
+</body></html>

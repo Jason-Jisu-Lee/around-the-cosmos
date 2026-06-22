@@ -12,6 +12,9 @@
     --ink-dim:    #888880;
     --accent:     #7a6848;
     --accent-dim: #c0b498;
+    /* 10% accent pop (Accretion / prestige) — teal, the cool complement to parchment */
+    --accretion:    #2f7d77;
+    --accretion-hi: #266b66;
     --cursor:     url(assets/cursors/needle.png?v=63) 3 3, auto;
 }
 
@@ -146,12 +149,12 @@ body {
 /* "Hide completed" toggle — pinned at the bottom-right of the panel */
 #upg-controls { display: flex; justify-content: flex-end; margin-top: 14px; padding-top: 10px; border-top: 1px solid var(--border2); flex-shrink: 0; }
 #show-completed-wrap {
-    display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
-    font-family: 'Segoe UI', sans-serif; font-size: 10px; letter-spacing: 0.04em;
-    color: var(--text-faint); transition: color 0.12s;
+    display: inline-flex; align-items: center; gap: 7px; cursor: pointer;
+    font-family: 'Segoe UI', sans-serif; font-size: 12px; letter-spacing: 0.04em; font-weight: 600;
+    color: var(--text); transition: color 0.12s;
 }
-#show-completed-wrap:hover { color: var(--text-dim); }
-#show-completed { accent-color: var(--accent); cursor: pointer; width: 12px; height: 12px; }
+#show-completed-wrap:hover { color: var(--ink); }
+#show-completed { accent-color: var(--ink); cursor: pointer; width: 15px; height: 15px; }
 
 /* Accordion sections (multi-open) */
 .acc { margin-bottom: 4px; }
@@ -189,16 +192,18 @@ body {
 #observatory:hover::before { background: var(--accent-dim); }
 #observatory:active { cursor: grabbing; }
 
-/* Accretion (prestige) button — sits under the observatory, independently draggable. */
+/* Accretion (prestige) button — fixed at the bottom-left of the screen (not movable).
+   The 10% accent "pop": a saturated teal that stands out against the parchment 60%. */
 #accretion-btn {
-    position: fixed; top: 250px; left: 16px; z-index: 50; user-select: none; cursor: grab;
-    background: rgba(244,240,232,0.92); border: 1px solid var(--accent-dim); color: var(--accent);
-    padding: 11px 22px; border-radius: 3px; letter-spacing: 0.14em;
+    position: fixed; bottom: 18px; left: 18px; z-index: 50; user-select: none;
+    background: var(--accretion); border: none; color: #f6f3ec;
+    padding: 13px 26px; border-radius: 7px; letter-spacing: 0.14em; font-weight: 700;
     font-family: 'Optima','Candara','Century Gothic',sans-serif; font-size: 15px;
-    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    box-shadow: 0 4px 14px rgba(47,125,119,0.38);
+    transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
 }
-#accretion-btn:hover { background: rgba(244,240,232,0.99); color: var(--ink); border-color: var(--accent); }
-#accretion-btn:active { cursor: grabbing; }
+#accretion-btn:hover { background: var(--accretion-hi); box-shadow: 0 6px 20px rgba(47,125,119,0.5); }
+#accretion-btn:active { transform: translateY(1px); }
 
 .upgrade-card {
     position: relative;
@@ -337,3 +342,61 @@ body {
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); }
+
+/* ===== Accretion (prestige) screen — Tabs layout, overlays the live page ===== */
+#accretion-screen {
+    display: none; position: fixed; inset: 0; z-index: 120;
+    background: rgba(244,240,232,0.93);
+    flex-direction: column; align-items: center;
+    font-family: 'Nunito','Segoe UI',sans-serif; color: #1a1a1a;
+}
+#accretion-screen.show { display: flex; }
+#acc-close {
+    position: absolute; top: 16px; right: 22px; background: none; border: none;
+    font-size: 28px; line-height: 1; color: #9a8f78; cursor: pointer;
+    font-family: 'Segoe UI', sans-serif;
+}
+#acc-close:hover { color: #1a1a1a; }
+.acc-eyebrow { position: absolute; top: 24px; left: 28px; font-size: 12px; font-weight: 800; letter-spacing: 0.36em; text-transform: uppercase; color: #9a8f78; }
+
+.acc-masshdr { margin-top: 18px; display: flex; align-items: center; gap: 10px; }
+.acc-masshdr svg { display: block; }
+.acc-masshdr .num { font-size: 26px; font-weight: 800; line-height: 1; }
+.acc-masshdr .lbl { font-size: 9px; font-weight: 800; letter-spacing: 0.34em; color: #9a8f78; text-transform: uppercase; }
+
+.acc-tabs { margin-top: 16px; display: flex; gap: 5px; background: #ece6d8; padding: 4px; border-radius: 11px; }
+.acc-tab { padding: 9px 20px; border-radius: 8px; font: 800 11px 'Nunito'; letter-spacing: 0.14em; text-transform: uppercase; color: #8a7f6c; cursor: pointer; border: none; background: transparent; transition: all 0.12s; }
+.acc-tab:hover { color: #1a1a1a; }
+.acc-tab.on { background: #f4f0e8; color: #1a1a1a; box-shadow: 0 1px 4px rgba(0,0,0,0.12); }
+
+.acc-stage { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; }
+.acc-stitle { font-size: 16px; font-weight: 800; letter-spacing: 0.22em; text-transform: uppercase; }
+.acc-ssub { font-size: 10.5px; color: #9a8f78; font-weight: 600; margin-top: 4px; margin-bottom: 22px; }
+
+.acc-tree { display: flex; flex-direction: column; align-items: center; }
+.acc-tier { display: flex; gap: 9px; justify-content: center; }
+.acc-conn { width: 1px; height: 13px; background: #cdbfa0; margin: 4px 0; }
+
+.acc-node { position: relative; width: 112px; background: #f4f0e8; border: 1.5px solid #d8cdb5; border-radius: 8px; padding: 7px 9px 8px; }
+.acc-nrow { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; }
+.acc-nm { font-size: 10.5px; font-weight: 700; color: #6b6150; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.acc-lv { font-size: 8.5px; font-weight: 800; color: #b0a589; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+.acc-bar { margin-top: 6px; height: 3px; background: #e6ddca; border-radius: 2px; overflow: hidden; }
+.acc-bar i { display: block; height: 100%; background: #a8853a; border-radius: 2px; }
+.acc-node.lock { border-style: dashed; opacity: 0.62; }
+.acc-node.lock .acc-nm { color: #a99f88; }
+.acc-node.avail { border-color: #a8853a; border-width: 2px; padding: 6.5px 8.5px 7.5px; }
+.acc-node.avail .acc-nm { color: #1a1a1a; } .acc-node.avail .acc-lv { color: #a8853a; }
+.acc-node.up { border-color: #a8853a; background: #faf2e1; }
+.acc-node.up .acc-nm { color: #1a1a1a; } .acc-node.up .acc-lv { color: #a8853a; }
+.acc-node.max { background: #a8853a; border-color: #a8853a; }
+.acc-node.max .acc-nm { color: #fbf8f1; } .acc-node.max .acc-lv { color: #fbf8f1; }
+.acc-node.max .acc-bar { background: rgba(255,255,255,0.32); } .acc-node.max .acc-bar i { background: #fbf8f1; }
+
+.acc-accrete {
+    position: absolute; right: 24px; bottom: 20px;
+    background: var(--accretion); color: #f6f3ec; border: none;
+    padding: 12px 30px; border-radius: 7px; font: 800 13px 'Nunito'; letter-spacing: 0.08em;
+    cursor: pointer; box-shadow: 0 4px 14px rgba(47,125,119,0.34); transition: background 0.15s;
+}
+.acc-accrete:hover { background: var(--accretion-hi); }

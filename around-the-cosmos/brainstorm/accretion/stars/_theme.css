@@ -1,0 +1,30 @@
+/* Parchment Accretion theme — shared by the 3 star-treatment mockups */
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:#f4f0e8;color:#1a1a1a;font-family:'Nunito',sans-serif}
+#stars{position:absolute;inset:0;z-index:0}
+.top,.clusters,.accrete{position:relative;z-index:2}
+
+.top{display:flex;align-items:center;justify-content:space-between;padding:18px 32px;height:80px;border-bottom:1px solid #ddd5c6}
+.badge{display:flex;align-items:center;gap:12px}
+.badge .ring{width:50px;height:50px;border-radius:50%;border:2px solid #1a1a1a;display:flex;align-items:center;justify-content:center;font:800 18px 'Nunito'}
+.badge .lbl{font-size:11px;letter-spacing:.3em;color:#7a705d;font-weight:800;text-transform:uppercase}
+.badge .lbl b{display:block;font-size:16px;letter-spacing:.04em;color:#1a1a1a}
+.title{font-size:14px;letter-spacing:.36em;text-transform:uppercase;color:#8a7f6c;font-weight:800}
+
+.clusters{position:absolute;left:0;right:0;top:80px;bottom:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr}
+.cluster{position:relative;display:flex;align-items:center;justify-content:center}
+.ctitle{position:absolute;top:14px;left:0;right:0;text-align:center;font-size:12px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:#9a8f78}
+.bloom{position:relative;margin-top:24px}
+
+.hex{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+  clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%)}
+.hex .n{font-size:9.5px;font-weight:800;line-height:1.05;white-space:nowrap}
+.hex .c{font-size:9px;font-weight:800;margin-top:1px}
+/* single accent: available = gold fill; locked = tan ring (dark hex behind a cream hex) */
+.hex.open{background:#a8853a}
+.hex.open .n{color:#fbf8f1}.hex.open .c{color:rgba(251,248,241,.82)}
+.hex.lock{background:#d8cdb5}
+.hex.lock .inner{clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);background:#f4f0e8;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.hex.lock .n{color:#a99f88}.hex.lock .c{color:#b9af97}
+
+.accrete{position:absolute;right:30px;bottom:22px;background:#1a1a1a;color:#f4f0e8;border:none;padding:12px 30px;border-radius:6px;font:800 14px 'Nunito';letter-spacing:.08em;cursor:pointer}

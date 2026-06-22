@@ -1,0 +1,22 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Stars · Drawn Sparkles</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_theme.css">
+</head><body>
+  <canvas id="stars"></canvas>
+  <div class="top"><div class="badge"><div class="ring">12</div><div class="lbl">Mass<b>twelve</b></div></div><div class="title">Accretion</div></div>
+  <div class="clusters" id="c"></div>
+  <button class="accrete">Accrete</button>
+<script>
+  // Variation 2: hand-drawn 4-point sparkles — ink outline + faint gold fill, like chart stars.
+  const cv=document.getElementById('stars'),x=cv.getContext('2d');let S=[];
+  function gen(){cv.width=innerWidth;cv.height=innerHeight;S=[];for(let i=0;i<55;i++)S.push({x:Math.random()*cv.width,y:Math.random()*cv.height,R:Math.random()*4+3.5,p:Math.random()*6.28});}
+  function star4(cx,cy,R){const r=R*0.34;x.beginPath();for(let i=0;i<8;i++){const ang=i*Math.PI/4-Math.PI/2;const rad=i%2?r:R;const px=cx+Math.cos(ang)*rad,py=cy+Math.sin(ang)*rad;i?x.lineTo(px,py):x.moveTo(px,py);}x.closePath();}
+  function draw(t){x.clearRect(0,0,cv.width,cv.height);for(const s of S){const a=.45+.3*Math.sin(t/800+s.p);
+    star4(s.x,s.y,s.R);x.globalAlpha=a*.5;x.fillStyle='#d2ad55';x.fill();
+    x.globalAlpha=a;x.lineWidth=.8;x.strokeStyle='#473e2a';x.stroke();}
+    requestAnimationFrame(draw);}
+  addEventListener('resize',gen);gen();requestAnimationFrame(draw);
+</script>
+<script src="_bloom.js"></script>
+</body></html>

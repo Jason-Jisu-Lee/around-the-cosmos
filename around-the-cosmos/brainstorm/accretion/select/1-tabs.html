@@ -1,0 +1,29 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Select · Tabs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_tree.css">
+<style>
+  .tabs{position:absolute;top:60px;left:50%;transform:translateX(-50%);z-index:5;display:flex;gap:5px;background:#ece6d8;padding:4px;border-radius:11px}
+  .tab{padding:9px 20px;border-radius:8px;font:800 11px 'Nunito';letter-spacing:.14em;text-transform:uppercase;color:#8a7f6c;cursor:pointer;border:none;background:transparent;transition:all .12s}
+  .tab:hover{color:#1a1a1a}
+  .tab.on{background:#f4f0e8;color:#1a1a1a;box-shadow:0 1px 4px rgba(0,0,0,.12)}
+</style></head><body>
+  <div class="eyebrow">Accretion</div>
+  <div class="masshdr"><span id="micon"></span><div class="num">12</div><div class="lbl">Mass</div></div>
+  <div class="tabs" id="sel"></div>
+  <div class="stagewrap"><div class="stage-title" id="st"></div><div class="stage-sub" id="ss"></div><div class="tree" id="tree"></div></div>
+  <div class="legend"><div class="it"><span class="sw avail"></span>Available</div><div class="it"><span class="sw up"></span>Upgrading</div><div class="it"><span class="sw max"></span>Maxed</div><div class="it"><span class="sw lock"></span>Locked</div></div>
+  <button class="accrete">Accrete</button>
+<script src="_tree.js"></script>
+<script>
+  document.getElementById('micon').innerHTML=MASS_SVG(26);
+  document.getElementById('sel').innerHTML=CATS.map(c=>`<button class="tab" data-c="${c}" onclick="select('${c}')">${c}</button>`).join('');
+  function select(name){
+    document.querySelectorAll('[data-c]').forEach(t=>t.classList.toggle('on',t.dataset.c===name));
+    document.getElementById('st').textContent=name;
+    document.getElementById('ss').textContent=CATSUB[name];
+    document.getElementById('tree').innerHTML=buildTree(name);
+  }
+  select('Lacuna');
+</script>
+</body></html>

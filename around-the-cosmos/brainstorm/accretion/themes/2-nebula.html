@@ -1,0 +1,51 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Theme · Nebula</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;overflow:hidden;font-family:'Nunito',sans-serif;color:#eae6f6;
+    background:#080611}
+  /* layered nebula clouds + starfield */
+  body::before{content:"";position:absolute;inset:0;background:
+    radial-gradient(40% 50% at 24% 30%, rgba(120,90,200,.34),transparent 70%),
+    radial-gradient(46% 54% at 78% 32%, rgba(40,150,160,.30),transparent 72%),
+    radial-gradient(50% 60% at 30% 78%, rgba(200,120,90,.20),transparent 72%),
+    radial-gradient(50% 60% at 76% 80%, rgba(90,110,210,.26),transparent 72%),
+    radial-gradient(circle at 50% 45%, #0d0a1c, #060410 80%);}
+  #stars{position:absolute;inset:0}
+  .top,.clusters,.accrete{position:relative;z-index:2}
+  .top{display:flex;align-items:center;justify-content:space-between;padding:16px 32px;height:80px}
+  .badge{display:flex;align-items:center;gap:12px}
+  .badge .ring{width:54px;height:54px;border-radius:50%;background:radial-gradient(circle at 50% 38%,#2a2150,#0d0a22);
+    box-shadow:0 0 28px 8px rgba(150,120,235,.45);display:flex;align-items:center;justify-content:center;font:800 19px Nunito;color:#efe9ff}
+  .badge .lbl{font-size:11px;letter-spacing:.3em;color:#9b8fd0;font-weight:800}.badge .lbl b{display:block;font-size:16px;letter-spacing:.05em;color:#efe9ff}
+  .clusters{position:absolute;left:0;right:0;top:80px;bottom:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr}
+  .cluster{position:relative;display:flex;align-items:center;justify-content:center}
+  .ctitle{position:absolute;top:16px;left:0;right:0;text-align:center;font-size:12px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;text-shadow:0 0 12px currentColor}
+  .bloom{position:relative;margin-top:26px}
+  .hex{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%)}
+  .hex .n{font-size:11px;font-weight:800;line-height:1.1;white-space:nowrap}.hex .c{font-size:10.5px;font-weight:800;margin-top:2px}
+  .hex.open{background:radial-gradient(circle at 50% 36%, color-mix(in srgb,var(--col) 70%,#fff) , var(--col));box-shadow:0 0 22px 1px var(--col)}
+  .hex.open .n{color:#0c0a18}.hex.open .c{color:rgba(10,8,22,.62)}
+  .hex.lock{background:rgba(40,36,64,.55);border:1px solid rgba(150,140,200,.18)}
+  .hex.lock .n{color:#6b6494}.hex.lock .c{color:#544d78}
+  .accrete{position:absolute;right:30px;bottom:22px;background:linear-gradient(#6a4fd0,#3a2a8a);border:none;color:#fff;
+    padding:12px 30px;border-radius:999px;font:800 14px Nunito;cursor:pointer;box-shadow:0 0 24px rgba(120,90,220,.5)}
+</style></head><body>
+  <canvas id="stars"></canvas>
+  <div class="top"><div class="badge"><div class="ring">12</div><div class="lbl">MASS<b>available</b></div></div></div>
+  <div class="clusters" id="c"></div>
+  <button class="accrete">Accrete</button>
+<script>
+  // starfield
+  const cv=document.getElementById('stars'),x=cv.getContext('2d');
+  function fit(){cv.width=innerWidth;cv.height=innerHeight;x.clearRect(0,0,cv.width,cv.height);
+    for(let i=0;i<160;i++){const r=Math.random()*1.3+.2;x.globalAlpha=Math.random()*.7+.15;x.fillStyle='#dfe0ff';
+      x.beginPath();x.arc(Math.random()*cv.width,Math.random()*cv.height,r,0,7);x.fill();}}
+  addEventListener('resize',fit);fit();
+  window.CATCOLORS={Lacuna:'#b39cf0',Orbiters:'#79d4cd',Phenomena:'#e6b574',Cycles:'#9aa9f0'};
+  window.HEX=({open,k,col,W,H,left,top,cost})=>
+    `<div class="hex ${open?'open':'lock'}" style="--col:${col};left:${left}px;top:${top}px;width:${W}px;height:${H}px"><span class="n">Dummy #${k}</span><span class="c">✦${cost}</span></div>`;
+</script>
+<script src="_bloom.js"></script>
+</body></html>

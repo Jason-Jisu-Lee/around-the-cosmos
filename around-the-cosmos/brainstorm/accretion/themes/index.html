@@ -1,0 +1,27 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Accretion — theme concepts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  html,body{margin:0;background:#0c0d12;color:#cdd2dc;font-family:'Nunito',sans-serif}
+  h1{font-weight:800;padding:24px 28px 2px;font-size:22px}
+  p.l{margin:0 28px 18px;color:#828a98;font-size:13px}
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;padding:0 28px 40px;max-width:1340px}
+  .tile{background:#08090d;border:1px solid #242833;border-radius:10px;overflow:hidden}
+  .cap{display:flex;justify-content:space-between;align-items:center;padding:11px 16px;font-size:15px;font-weight:700}
+  .cap a{color:#9fb0ff;text-decoration:none;font-size:12px;font-weight:600}
+  .frame{position:relative;height:336px;border-top:1px solid #242833;overflow:hidden}
+  .frame iframe{position:absolute;top:0;left:0;width:1300px;height:800px;border:0;transform:scale(.56);transform-origin:top left;pointer-events:none}
+</style></head><body>
+  <h1>Accretion — theme concepts</h1>
+  <p class="l">Same Hex Bloom layout, five different skins. Irregular clusters; the brighter hexes per category are "available now". Pick a direction (or mix bits of several).</p>
+  <div class="grid" id="g"></div>
+<script>
+  const M=[
+    ['1 · Parchment','matches the main game — cream, ink outlines, gold serif chrome','1-parchment.html'],
+    ['2 · Nebula','deep space — glowing hexes, layered nebula clouds, real starfield','2-nebula.html'],
+    ['3 · Star Chart','astronomical blueprint — navy grid, line-drawn cells, mono numerals','3-blueprint.html'],
+    ['4 · Stained Glass','cathedral panes with dark leading, jewel tones, gilt serif','4-glass.html'],
+    ['5 · Crystalline','faceted mineral crystals, beveled light, growing-mass feel','5-crystal.html'],
+  ];
+  document.getElementById('g').innerHTML=M.map(([t,d,f])=>`<div class="tile"><div class="cap"><span>${t} — <span style="color:#828a98;font-weight:400">${d}</span></span><a href="${f}" target="_blank">open ↗</a></div><div class="frame"><iframe src="${f}"></iframe></div></div>`).join('');
+</script></body></html>

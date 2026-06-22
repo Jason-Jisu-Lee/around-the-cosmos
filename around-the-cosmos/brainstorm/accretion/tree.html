@@ -1,0 +1,115 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Accretion · Tree</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;overflow:hidden;background:#f4f0e8;color:#1a1a1a;font-family:'Nunito',sans-serif}
+  #stars{position:absolute;inset:0;z-index:0}
+
+  /* top chrome */
+  .eyebrow{position:absolute;top:22px;left:28px;z-index:3;font-size:12px;font-weight:800;letter-spacing:.36em;text-transform:uppercase;color:#9a8f78}
+  .masshdr{position:absolute;top:12px;left:50%;transform:translateX(-50%);text-align:center;z-index:3}
+  .masshdr .num{font-size:30px;font-weight:800;letter-spacing:.02em;color:#1a1a1a;line-height:1}
+  .masshdr .num em{font-style:normal;color:#a8853a}
+  .masshdr .lbl{font-size:10px;font-weight:800;letter-spacing:.36em;color:#9a8f78;margin-top:3px}
+  .legend{position:absolute;top:18px;right:26px;z-index:3;display:flex;flex-direction:column;gap:5px;font-size:10px;font-weight:700;color:#7a705d}
+  .legend .it{display:flex;align-items:center;gap:8px}
+  .sw{width:17px;height:13px;border-radius:3px;border:1.5px solid #d8cdb5;flex-shrink:0}
+  .sw.avail{border-color:#a8853a;border-width:2px}
+  .sw.up{border-color:#a8853a;background:#faf2e1}
+  .sw.up::after{content:"";display:block;height:100%;width:55%;background:#a8853a;border-radius:2px 0 0 2px;opacity:.55}
+  .sw.max{background:#a8853a;border-color:#a8853a}
+  .sw.lock{border-style:dashed;opacity:.6}
+
+  /* 2x2 grid of category trees */
+  .clusters{position:absolute;left:0;right:0;top:66px;bottom:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;z-index:2}
+  .cluster{position:relative;display:flex;flex-direction:column;align-items:center;padding-top:10px}
+  .cat{font-size:12px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:#9a8f78;margin-bottom:12px}
+  .tree{display:flex;flex-direction:column;align-items:center}
+  .tier{display:flex;gap:9px;justify-content:center}
+  .conn{width:1px;height:13px;background:#cdbfa0;margin:4px 0}
+
+  /* nodes */
+  .node{position:relative;width:110px;background:#f4f0e8;border:1.5px solid #d8cdb5;border-radius:8px;padding:7px 9px 8px;transition:transform .1s}
+  .nrow{display:flex;justify-content:space-between;align-items:baseline;gap:6px}
+  .nm{font-size:10.5px;font-weight:700;color:#6b6150;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .lv{font-size:8.5px;font-weight:800;color:#b0a589;flex-shrink:0;font-variant-numeric:tabular-nums}
+  .bar{margin-top:6px;height:3px;background:#e6ddca;border-radius:2px;overflow:hidden}
+  .bar i{display:block;height:100%;background:#a8853a;border-radius:2px}
+  /* states */
+  .node.lock{border-style:dashed;opacity:.62}
+  .node.lock .nm{color:#a99f88}
+  .node.avail{border-color:#a8853a;border-width:2px;padding:6.5px 8.5px 7.5px}
+  .node.avail .nm{color:#1a1a1a}.node.avail .lv{color:#a8853a}
+  .node.up{border-color:#a8853a;background:#faf2e1}
+  .node.up .nm{color:#1a1a1a}.node.up .lv{color:#a8853a}
+  .node.max{background:#a8853a;border-color:#a8853a}
+  .node.max .nm{color:#fbf8f1}.node.max .lv{color:#fbf8f1}
+  .node.max .bar{background:rgba(255,255,255,.32)}.node.max .bar i{background:#fbf8f1}
+
+  .accrete{position:absolute;right:30px;bottom:22px;z-index:3;background:#1a1a1a;color:#f4f0e8;border:none;padding:12px 30px;border-radius:6px;font:800 14px 'Nunito';letter-spacing:.08em;cursor:pointer}
+</style></head><body>
+  <canvas id="stars"></canvas>
+  <div class="eyebrow">Accretion</div>
+  <div class="masshdr"><div class="num"><em>✦</em> 12</div><div class="lbl">Mass</div></div>
+  <div class="legend">
+    <div class="it"><span class="sw avail"></span>Available</div>
+    <div class="it"><span class="sw up"></span>Upgrading</div>
+    <div class="it"><span class="sw max"></span>Maxed</div>
+    <div class="it"><span class="sw lock"></span>Locked</div>
+  </div>
+  <div class="clusters" id="c"></div>
+  <button class="accrete">Accrete</button>
+<script>
+  // subtle parchment starfield (outlined dots, sparse + faint) — echoes the main page sky
+  const cv=document.getElementById('stars'),x=cv.getContext('2d');let S=[];
+  function gen(){cv.width=innerWidth;cv.height=innerHeight;S=[];for(let i=0;i<48;i++)S.push({x:Math.random()*cv.width,y:Math.random()*cv.height,r:Math.random()*1.5+.8,p:Math.random()*6.28});}
+  function draw(t){x.clearRect(0,0,cv.width,cv.height);for(const s of S){const a=.22+.16*Math.sin(t/850+s.p);
+    x.beginPath();x.arc(s.x,s.y,s.r,0,7);x.globalAlpha=a;x.fillStyle='#c9a23f';x.fill();
+    x.globalAlpha=Math.min(.6,a+.25);x.lineWidth=.6;x.strokeStyle='#5a5038';x.stroke();}requestAnimationFrame(draw);}
+  addEventListener('resize',gen);gen();requestAnimationFrame(draw);
+
+  // [state, level, max]  — irregular tier widths + irregular availability per category
+  const TREE=[
+   {name:'Lacuna', tiers:[
+     [['max',5,5]],
+     [['up',4,5],['up',2,4]],
+     [['avail',0,5],['avail',0,5]],
+     [['lock',0,3],['lock',0,5],['lock',0,5]],
+     [['lock',0,5],['lock',0,5]],
+   ]},
+   {name:'Orbiters', tiers:[
+     [['max',5,5],['max',3,3]],
+     [['up',3,5],['up',1,4],['avail',0,5]],
+     [['avail',0,5],['lock',0,5]],
+     [['lock',0,5],['lock',0,5],['lock',0,5]],
+     [['lock',0,5],['lock',0,5]],
+   ]},
+   {name:'Phenomena', tiers:[
+     [['max',5,5]],
+     [['up',3,5],['up',2,5]],
+     [['avail',0,5],['avail',0,5],['avail',0,5]],
+     [['avail',0,5],['avail',0,5],['lock',0,5]],
+   ]},
+   {name:'Cycles', tiers:[
+     [['max',4,4]],
+     [['up',2,5]],
+     [['avail',0,5],['lock',0,5]],
+     [['lock',0,5],['lock',0,5],['lock',0,5]],
+     [['lock',0,5],['lock',0,5],['lock',0,5],['lock',0,5]],
+   ]},
+  ];
+  let k=1;
+  document.getElementById('c').innerHTML = TREE.map(cat=>{
+    const tiers = cat.tiers.map((tier,ti)=>{
+      const nodes = tier.map(([s,l,m])=>{
+        const pct = s==='max'?100:(m?Math.round(l/m*100):0);
+        const lv  = s==='max'?'MAX':`${l} / ${m}`;
+        return `<div class="node ${s}"><div class="nrow"><span class="nm">Dummy #${k++}</span><span class="lv">${lv}</span></div><div class="bar"><i style="width:${pct}%"></i></div></div>`;
+      }).join('');
+      return (ti?`<div class="conn"></div>`:'') + `<div class="tier">${nodes}</div>`;
+    }).join('');
+    return `<div class="cluster"><div class="cat">${cat.name}</div><div class="tree">${tiers}</div></div>`;
+  }).join('');
+</script>
+</body></html>

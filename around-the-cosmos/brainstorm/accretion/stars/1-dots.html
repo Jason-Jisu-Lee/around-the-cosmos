@@ -1,0 +1,21 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Stars · Outlined Dots</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_theme.css">
+</head><body>
+  <canvas id="stars"></canvas>
+  <div class="top"><div class="badge"><div class="ring">12</div><div class="lbl">Mass<b>twelve</b></div></div><div class="title">Accretion</div></div>
+  <div class="clusters" id="c"></div>
+  <button class="accrete">Accrete</button>
+<script>
+  // Variation 1: small gold dots with a thin dark-ink outline so they read on parchment.
+  const cv=document.getElementById('stars'),x=cv.getContext('2d');let S=[];
+  function gen(){cv.width=innerWidth;cv.height=innerHeight;S=[];for(let i=0;i<95;i++)S.push({x:Math.random()*cv.width,y:Math.random()*cv.height,r:Math.random()*1.7+1,p:Math.random()*6.28});}
+  function draw(t){x.clearRect(0,0,cv.width,cv.height);for(const s of S){const a=.4+.28*Math.sin(t/750+s.p);
+    x.beginPath();x.arc(s.x,s.y,s.r,0,7);x.globalAlpha=a;x.fillStyle='#c9a23f';x.fill();
+    x.globalAlpha=Math.min(.9,a+.35);x.lineWidth=.7;x.strokeStyle='#473e2a';x.stroke();}
+    requestAnimationFrame(draw);}
+  addEventListener('resize',gen);gen();requestAnimationFrame(draw);
+</script>
+<script src="_bloom.js"></script>
+</body></html>

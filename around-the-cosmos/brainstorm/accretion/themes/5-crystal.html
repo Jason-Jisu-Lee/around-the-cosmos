@@ -1,0 +1,48 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Theme · Crystalline</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;overflow:hidden;font-family:'Nunito',sans-serif;color:#e9edf2;
+    background:radial-gradient(circle at 50% 30%, #1c2230, #0a0d14 80%)}
+  .top{display:flex;align-items:center;justify-content:space-between;padding:16px 32px;height:80px}
+  .badge{display:flex;align-items:center;gap:12px}
+  .badge .ring{width:54px;height:54px;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);
+    background:linear-gradient(135deg,#dfe7f2,#9fb0c8 55%,#5a6b86);display:flex;align-items:center;justify-content:center;font:800 18px Nunito;color:#1a2230}
+  .badge .lbl{font-size:11px;letter-spacing:.3em;color:#8a9bb4;font-weight:800}.badge .lbl b{display:block;font-size:16px;letter-spacing:.05em;color:#eef3fa}
+  .title{font-size:14px;letter-spacing:.34em;text-transform:uppercase;color:#8a9bb4;font-weight:800}
+  .clusters{position:absolute;left:0;right:0;top:80px;bottom:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr}
+  .cluster{position:relative;display:flex;align-items:center;justify-content:center}
+  .ctitle{position:absolute;top:16px;left:0;right:0;text-align:center;font-size:12px;font-weight:800;letter-spacing:.2em;text-transform:uppercase}
+  .bloom{position:relative;margin-top:26px}
+  /* faceted crystal: diagonal light/dark split + bright top-left highlight */
+  .hex{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+    clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%)}
+  .hex .n{font-size:11px;font-weight:800;line-height:1.1;white-space:nowrap}.hex .c{font-size:10.5px;font-weight:800;margin-top:2px}
+  .hex.open{background:
+    linear-gradient(125deg,
+      color-mix(in srgb,var(--col) 30%,#fff) 0%,
+      color-mix(in srgb,var(--col) 80%,#fff) 28%,
+      var(--col) 52%,
+      color-mix(in srgb,var(--col) 72%,#000) 78%,
+      color-mix(in srgb,var(--col) 45%,#000) 100%);
+    box-shadow:0 0 18px -1px var(--col)}
+  /* facet seam */
+  .hex.open::before{content:"";position:absolute;inset:0;clip-path:polygon(50% 0,50% 100%,0 75%,0 25%);background:rgba(255,255,255,.10)}
+  .hex.open .n{color:#10151f;position:relative;z-index:2}.hex.open .c{color:rgba(16,21,31,.62);position:relative;z-index:2}
+  .hex.lock{background:linear-gradient(125deg,#2c333f,#1a2029);border:1px solid #353d4a}
+  .hex.lock .n{color:#6f7d92}.hex.lock .c{color:#56627a}
+  .accrete{position:absolute;right:30px;bottom:22px;background:linear-gradient(135deg,#dfe7f2,#7f93b0);border:none;color:#141a26;
+    padding:12px 30px;clip-path:polygon(6% 0,100% 0,94% 100%,0 100%);font:800 14px Nunito;letter-spacing:.08em;cursor:pointer}
+</style></head><body>
+  <div class="top"><div class="badge"><div class="ring">12</div><div class="lbl">MASS<b>available</b></div></div>
+    <div class="title">Accretion</div></div>
+  <div class="clusters" id="c"></div>
+  <button class="accrete">ACCRETE</button>
+<script>
+  window.CATCOLORS={Lacuna:'#b39cf0',Orbiters:'#5fd0c6',Phenomena:'#e8b25e',Cycles:'#8fa0f0'};
+  window.HEX=({open,k,col,W,H,left,top,cost})=>
+    `<div class="hex ${open?'open':'lock'}" style="--col:${col};left:${left}px;top:${top}px;width:${W}px;height:${H}px"><span class="n">Dummy #${k}</span><span class="c">✦${cost}</span></div>`;
+</script>
+<script src="_bloom.js"></script>
+</body></html>

@@ -1,0 +1,43 @@
+/* Shared parchment Accretion tree (single category on stage) + chrome.
+   NOTE: real screen overlays the live main-page background (parchment + looping stars);
+   these mockups are plain parchment so the selector UX is what you judge. */
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:#f4f0e8;color:#1a1a1a;font-family:'Nunito',sans-serif}
+
+.eyebrow{position:absolute;top:22px;left:28px;z-index:5;font-size:12px;font-weight:800;letter-spacing:.36em;text-transform:uppercase;color:#9a8f78}
+.masshdr{position:absolute;top:14px;left:50%;transform:translateX(-50%);text-align:center;z-index:6;display:flex;align-items:center;gap:10px}
+.masshdr svg{display:block}
+.masshdr .num{font-size:26px;font-weight:800;color:#1a1a1a;line-height:1}
+.masshdr .lbl{font-size:9px;font-weight:800;letter-spacing:.34em;color:#9a8f78;text-transform:uppercase;text-align:left}
+
+.legend{position:absolute;bottom:20px;left:28px;z-index:5;display:flex;gap:15px;font-size:10px;font-weight:700;color:#7a705d}
+.legend .it{display:flex;align-items:center;gap:7px}
+.sw{width:16px;height:12px;border-radius:3px;border:1.5px solid #d8cdb5}
+.sw.avail{border-color:#a8853a;border-width:2px}
+.sw.up{border-color:#a8853a;background:#faf2e1}
+.sw.max{background:#a8853a;border-color:#a8853a}
+.sw.lock{border-style:dashed;opacity:.6}
+
+/* centered stage */
+.stagewrap{position:absolute;left:0;right:0;top:108px;bottom:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:2}
+.stage-title{font-size:16px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:#1a1a1a}
+.stage-sub{font-size:10.5px;color:#9a8f78;font-weight:600;margin-top:4px;margin-bottom:20px}
+
+.tree{display:flex;flex-direction:column;align-items:center}
+.tier{display:flex;gap:9px;justify-content:center}
+.conn{width:1px;height:13px;background:#cdbfa0;margin:4px 0}
+
+.node{position:relative;width:112px;background:#f4f0e8;border:1.5px solid #d8cdb5;border-radius:8px;padding:7px 9px 8px}
+.nrow{display:flex;justify-content:space-between;align-items:baseline;gap:6px}
+.nm{font-size:10.5px;font-weight:700;color:#6b6150;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lv{font-size:8.5px;font-weight:800;color:#b0a589;flex-shrink:0;font-variant-numeric:tabular-nums}
+.bar{margin-top:6px;height:3px;background:#e6ddca;border-radius:2px;overflow:hidden}
+.bar i{display:block;height:100%;background:#a8853a;border-radius:2px}
+.node.lock{border-style:dashed;opacity:.62}.node.lock .nm{color:#a99f88}
+.node.avail{border-color:#a8853a;border-width:2px;padding:6.5px 8.5px 7.5px}
+.node.avail .nm{color:#1a1a1a}.node.avail .lv{color:#a8853a}
+.node.up{border-color:#a8853a;background:#faf2e1}.node.up .nm{color:#1a1a1a}.node.up .lv{color:#a8853a}
+.node.max{background:#a8853a;border-color:#a8853a}.node.max .nm{color:#fbf8f1}.node.max .lv{color:#fbf8f1}
+.node.max .bar{background:rgba(255,255,255,.32)}.node.max .bar i{background:#fbf8f1}
+
+.accrete{position:absolute;right:30px;bottom:20px;z-index:6;background:#1a1a1a;color:#f4f0e8;border:none;padding:11px 28px;border-radius:6px;font:800 13px 'Nunito';letter-spacing:.08em;cursor:pointer}

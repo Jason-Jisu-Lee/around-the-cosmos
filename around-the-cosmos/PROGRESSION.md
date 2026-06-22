@@ -24,7 +24,7 @@ Click the Lacuna (center) to earn **stardust (✦)** → buy **Star Touch** to e
 | Star Touch ×2 | buy (✦50) | Click earns **3**. → **Dust Particle** upgrade appears (creates your first orbiter). |
 | First Dust Particle | buy (✦100) | Your first **orbiter** appears, paying **10 ✦** per orbit. One-time buy. Unlocks **Dust Particle Count**, **Dust Particle Payout**, **Dust Particle Speed**, and the **All Orbiters Payout** stat. |
 | 2nd Dust Particle | buy Dust Particle Count (✦500) | A second dust particle joins the clump → unlocks the **Asteroid** (a single body). |
-| Star Touch ×4 | buy (✦250) | → **Star Grasp** appears in MAIN (a stronger per-click upgrade). |
+| Star Touch ×6 | buy (✦600) | → **Star Grasp** appears in MAIN (a stronger per-click upgrade). |
 | The Asteroid | buy (✦1,500) | A single bigger, slower **asteroid** appears on a wider orbit, paying **50 ✦** per orbit. Unlocks **Asteroid Payout**, **Asteroid Speed**, **Asteroid Composition**. |
 | Star Grasp maxed | buy (lvl 3) | → **Gravitational Pull** and **Resonance** both appear in MAIN (clicks scale with orbiter payout; Resonance is a global orbit payout boost that lights the Lacuna glow). |
 | The Moon | buy (✦8,000) | A large pale **moon** appears on the widest, slowest orbit (ring 2), sitting right on the orbit line and visibly waxing/waning. Pays **200 ✦** per orbit (varying with its phase by default, most at full moon). Unlocks **Moon Payout**, **Moon Speed**, and **Lunar Phases**. |
@@ -54,7 +54,7 @@ Click the Lacuna (center) to earn **stardust (✦)** → buy **Star Touch** to e
 
 > Buying level 2 is what reveals the DUST PARTICLES section (Dust Particle).
 
-**Star Grasp** — *unlocks after Star Touch lvl 4* · max **3** · **+2 ✦ per click each level** (stacks on Star Touch)
+**Star Grasp** — *unlocks after Star Touch lvl 6* · max **3** · **+2 ✦ per click each level** (stacks on Star Touch)
 | Level | Cost ✦ | Adds to each click |
 |---|---|---|
 | 1 | 500 | +2 |

@@ -1,0 +1,66 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Color — 60·30·10 palettes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;background:#15161c;color:#cdd2dc;font-family:'Nunito',sans-serif}
+  h1{font-weight:800;padding:24px 30px 2px;font-size:22px}
+  p.l{margin:0 30px 20px;color:#828a98;font-size:13px;max-width:760px;line-height:1.5}
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:22px;padding:0 30px 44px;max-width:1320px}
+  .card{background:#0c0d12;border:1px solid #262a35;border-radius:12px;overflow:hidden}
+  .chead{display:flex;justify-content:space-between;align-items:baseline;padding:14px 18px 6px}
+  .chead .nm{font-size:16px;font-weight:800}.chead .tag{font-size:11px;color:#7e8696;font-weight:700}
+  /* 60-30-10 proportion bar */
+  .bar{display:flex;height:26px;margin:6px 18px 14px;border-radius:6px;overflow:hidden;font-size:9px;font-weight:800}
+  .bar span{display:flex;align-items:center;justify-content:center;letter-spacing:.05em}
+  /* applied mini-UI mock */
+  .mock{margin:0 18px 18px;border-radius:10px;overflow:hidden;border:1px solid rgba(0,0,0,.15);background:var(--bg);color:var(--sec)}
+  .mtop{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid color-mix(in srgb,var(--sec) 16%,transparent)}
+  .mlogo{font-size:13px;font-weight:800;letter-spacing:.22em;color:var(--sec)}
+  .mmass{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:800;color:var(--acc)}
+  .mbody{display:flex;gap:14px;padding:16px}
+  .mcol{flex:1;display:flex;flex-direction:column;gap:8px}
+  .mcard{display:flex;justify-content:space-between;align-items:center;background:color-mix(in srgb,var(--bg) 86%,#000);border:1px solid color-mix(in srgb,var(--sec) 18%,transparent);border-radius:8px;padding:10px 12px;font-size:12px;font-weight:700}
+  .mcard .cc{font-weight:800;color:var(--sec)}
+  .mcard.on{border:2px solid var(--acc)}.mcard.on .cc{color:var(--acc)}
+  .mcard.done{background:var(--acc);border-color:var(--acc);color:#fff}.mcard.done .cc{color:rgba(255,255,255,.85)}
+  .mbtn{align-self:flex-start;background:var(--acc);color:#fff;border:none;border-radius:7px;padding:11px 22px;font:800 13px 'Nunito';letter-spacing:.08em;cursor:pointer;box-shadow:0 3px 10px color-mix(in srgb,var(--acc) 45%,transparent)}
+  .mnote{padding:0 18px 16px;font-size:11.5px;color:#7e8696;line-height:1.5}
+</style></head><body>
+  <h1>Color — the 60·30·10 rule</h1>
+  <p class="l">Each palette keeps the <b>parchment 60%</b> dominant (you like the theme), uses an ink/earth <b>30% secondary</b>, and a single saturated <b>10% accent</b> for the pop — buttons, the Mass figure, "available" highlights. The accent is what makes the Accretion button noticeable. None are yellow. The mini-mock shows each applied to a slice of the real UI.</p>
+  <div class="grid" id="g"></div>
+<script>
+  // [name, vibe, 60 dominant, 30 secondary, 10 accent, note]
+  const P=[
+   ['Teal Pop','cool complement','#f4f0e8','#2b2b2b','#2f7d77','Cool teal is the complement of warm cream, so it pops the hardest with the least area. Cleanest "modern indie" read.'],
+   ['Terracotta','warm analogous','#f4f0e8','#3a3330','#c2562f','Warm rust stays in the parchment family — cohesive and editorial, a touch softer/less punchy than teal.'],
+   ['Dusty Blue','Ghibli sky','#f4f0e8','#2f3a44','#4a82a8','That soft Ghibli sky-blue over slate. Calm and airy; reads friendly rather than urgent.'],
+   ['Sage & Clay','earthy duo','#f1ede2','#5b6452','#bf5a3c','Secondary shifts to muted sage so the whole thing feels more grown/organic; clay accent ties back to warmth.'],
+   ['Plum Dusk','muted jewel','#f4f0e8','#39323f','#8a5a8c','A dusty plum accent — unusual, slightly melancholy (fits "lacuna"), still calm. The most distinctive.'],
+  ];
+  document.getElementById('g').innerHTML=P.map(([nm,vibe,bg,sec,acc,note])=>`
+    <div class="card">
+      <div class="chead"><span class="nm">${nm}</span><span class="tag">${vibe}</span></div>
+      <div class="bar">
+        <span style="flex:60;background:${bg};color:#7a705d">60 · parchment</span>
+        <span style="flex:30;background:${sec};color:#e8e4da">30 · ${sec}</span>
+        <span style="flex:10;background:${acc};color:#fff">10</span>
+      </div>
+      <div class="mock" style="--bg:${bg};--sec:${sec};--acc:${acc}">
+        <div class="mtop"><span class="mlogo">AROUND THE COSMOS</span><span class="mmass">◍ 12 Mass</span></div>
+        <div class="mbody">
+          <div class="mcol">
+            <div class="mcard done">Star Touch <span class="cc">MAX</span></div>
+            <div class="mcard on">Dust Particle <span class="cc">✦100</span></div>
+            <div class="mcard">Asteroid <span class="cc">✦1.5K</span></div>
+          </div>
+          <div class="mcol" style="flex:0 0 auto;justify-content:flex-end">
+            <button class="mbtn">Accretion</button>
+          </div>
+        </div>
+      </div>
+      <div class="mnote">${note}</div>
+    </div>`).join('');
+</script>
+</body></html>

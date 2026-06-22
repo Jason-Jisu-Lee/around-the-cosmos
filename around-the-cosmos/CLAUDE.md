@@ -15,8 +15,8 @@ Pure vanilla JS + Canvas. No build step, no framework, no dependencies.
 > the scale from exploding. Multipliers are used sparingly (only Speed and Composition).
 > Upgrade sections are now **per orbiter** (future tabs): **MAIN** / **DUST PARTICLES** / **ASTEROID** / **COMETS**.
 > **MAIN:** **Star Touch** (8 levels, costs [10,50,150,250,400,600,800,1000], click → 1…9, **+1 per level**),
-> then **Star Grasp** (after 4th Star Touch; 3 levels, costs [500,1000,1500], **+2 per click per level**),
-> then **Gravitational Pull** (after Star Grasp maxed; 2 levels, costs [2000,4000], each level adds
+> then **Star Grasp** (after 6th Star Touch; 3 levels, costs [500,1000,1500], **+2 per click per level**),
+> then **Gravitational Pull** (after Star Grasp maxed; 2 levels, costs [5000,12000], each level adds
 > **+1% of total orbiter payout to every click**), and **Resonance** (see below). Click value =
 > `clickValue()` = Star Touch + 2×Grasp + 0.01×gravpull×(total orbiter payout), rounded.
 > **DUST PARTICLES:** **Dust Particle** (after 2nd Star Touch; **one-time buy** that creates the first particle,
@@ -49,7 +49,7 @@ Scripts load in this order — each file can reference globals from earlier file
 
 | File | Contents |
 |---|---|
-| `index.html` | Shell, header (game title **"AROUND THE COSMOS"** in `#logo`), 3-column layout. The stardust HUD (`#dust-hud`: big `#dust-amount` + `#dust-rate`) sits at the **top of the right (upgrade) column**; "Hide completed" is pinned **bottom-right** of that column; the upgrades list scrolls between. Observatory + draggable **`#accretion-btn`** (prestige entry, under the observatory) + cosmo-tip/cosmo-card. Loads every script below, in order. **Cache-busting:** `style.css` + every script tag carry `?v=N` — **bump N (currently 91) when you edit a CSS/JS file** or the browser may serve a stale cached copy. |
+| `index.html` | Shell, header (game title **"AROUND THE COSMOS"** in `#logo`), 3-column layout. The stardust HUD (`#dust-hud`: big `#dust-amount` + `#dust-rate`) sits at the **top of the right (upgrade) column**; "Hide completed" is pinned **bottom-right** of that column; the upgrades list scrolls between. Observatory (draggable) + **`#accretion-btn`** (prestige entry, **fixed at the screen's bottom-left, not draggable; the 10% accent "pop" — a teal `--accretion` fill, not the gold accent**, opens `#accretion-screen`) + `#accretion-screen` (the prestige overlay) + cosmo-tip/cosmo-card. Loads every script below, in order. **Cache-busting:** `style.css` + every script tag carry `?v=N` — **bump N (currently 101) when you edit a CSS/JS file** or the browser may serve a stale cached copy. |
 | `style.css` | All styling — parchment theme (#f4f0e8 bg, Georgia serif, flat shapes). **The custom needle cursor is global** — a `--cursor` var (`url(assets/cursors/needle.png?v=N) 3 3`) on `html, body` plus an `!important` override on all interactive elements (buttons/inputs/labels/draggables) so it's NEVER the OS arrow/hand. `ui/cosmo.js` also sets `canvas.style.cursor` to the same needle every frame (always — no pointer-over-body). Themed `::selection` (gold) replaces the browser-blue highlight. The cursor URL carries its own `?v=N` cache-bust because the PNG is overwritten in place when regenerated. |
 | `assets/` | Static assets + small self-contained design modules. `cursors/` holds `needle.png` (the in-game cursor — a **32×32 single flat ink** slim triangle pointing top-left, no outline, crisp supersampled edges) + `generate.js` (dependency-free pure-Node PNG generator — `node assets/cursors/generate.js`; the shape is the `TRI` triangle, tip = hotspot 3,3). `cursors`'s `assets/preview.html` shows it at 1×/4×/zoom. `click-effects/` holds `effects.js` (the Lacuna click-reaction registry — see below) + `preview.html` (interactive gallery to feel all five). |
 | **Core** | |
@@ -62,7 +62,7 @@ Scripts load in this order — each file can reference globals from earlier file
 | `stars.js` | Background shining stars — `STAR_FRAMES`/`STAR_SEQ`, `drawStars(t)` (called from `draw`). Animates ~10 twinkles from `assets/star/` frames. |
 | **`comet/`** | `comet.js` — `randCometGap`, `spawnComet`, `catchComet`, `cometTick` |
 | `simulation.js` | `tick` (iterates ORBITERS + calls `cometTick`), `buyUpgrade` |
-| **`ui/`** | `panels.js` (upgrade accordion + visibleSig), `observatory.js` (stats DOM + `updateObservatory`), `hud.js` (`updateUI` orchestrator), `cosmo.js` (hover tooltip + click-to-pin info cards, comet reticle label) |
+| **`ui/`** | `panels.js` (upgrade accordion + visibleSig), `observatory.js` (stats DOM + `updateObservatory`), `hud.js` (`updateUI` orchestrator), `cosmo.js` (hover tooltip + click-to-pin info cards, comet reticle label), `accretion.js` (**prestige screen** — Tabs layout overlay; `openAccretion`/`closeAccretion`, category tabs Lacuna/Orbiters/Phenomena/Cycles, placeholder tree — Mass economy + real upgrades TBD) |
 | `settings.js` | gear panel: volume sliders, track buttons, persistence |
 | `debug.js` | initDebug, tickWithDebug (speed mult), dust inject / spawn comet / reset |
 | `main.js` | Main loop, canvas input (click + hold-to-autoclick), header controls, audio boot, draggable, init — **~95 lines** |
@@ -84,9 +84,9 @@ full upgrade structure (levels, costs, effects, unlock order). Keep it in sync w
 | id | Name | Levels | Effect | Unlock | Section |
 |---|---|---|---|---|---|
 | touch | Star Touch | 8 | each click earns tapYield[lvl] = [1..9] ✦ (**+1/level**, costs [10,50,150,250,400,600,800,1000]) | always | MAIN |
-| grasp | Star Grasp | 3 | **+2 ✦ per click per level** (adds to Star Touch via `clickValue()`, costs [500,1000,1500]) | after touch lvl ≥ 4 | MAIN |
+| grasp | Star Grasp | 3 | **+2 ✦ per click per level** (adds to Star Touch via `clickValue()`, costs [500,1000,1500]) | after touch lvl ≥ 6 | MAIN |
 | pulse | Pulse | 1 | **auto-clicker** (one-time, cost [10000]): a heartbeat every `PULSE_INTERVAL`=3s auto-earns `PULSE_CLICKS`=12 × `clickValue()` (≈4 clicks/sec) + a slow `pulseBeat` Lacuna bounce (simulation.js `pulseTimer`). **Disables manual harvest** — `canvasClick` returns early when owned (comets/info-cards still clickable) | after touch lvl ≥ 8 (maxed) | MAIN |
-| gravpull | Gravitational Pull | 2 | each level adds **+1% of total orbiter payout to every click** (in `clickValue()`, costs [2000,4000]) | after grasp lvl ≥ 3 | MAIN |
+| gravpull | Gravitational Pull | 2 | each level adds **+1% of total orbiter payout to every click** (in `clickValue()`, costs [5000,12000]) | after grasp lvl ≥ 3 | MAIN |
 | resonance | Resonance | 5 | **global ×payout on every orbiter**: `resonanceMult()`=1+0.10×lvl (×1→×1.5); applied in each orbiter's `payout()`. Also lights the Lacuna glow (render.js), brightening faintly per level (costs [3000,6500,12000,20000,32000]) | after grasp lvl ≥ 3 (alongside Gravitational Pull) | MAIN |
 | dust | Dust Particle | 1 | **one-time** buy that creates the first dust orbiter (+10 base payout, ring 0); cost [100] | after touch lvl ≥ 2 | DUST PARTICLES |
 | dustcount | Dust Particle Count | 4 | **+1** dust particle per level (particles 2–5; `count`=min(5, (dust≥1?1:0)+lvl(dustcount)), costs [500,1200,2500,4000]) | after dust lvl ≥ 1 | DUST PARTICLES |
