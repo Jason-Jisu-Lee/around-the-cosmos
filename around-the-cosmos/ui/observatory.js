@@ -27,7 +27,8 @@ function buildStats(showOrbiter, showComet) {
     }
     if (showComet)   { const r = mkPop('Comet Value');         statEls.comet   = r.val; statEls.cometPop   = r.pop; }
     { const r = mkPop('Total Stardust Collected'); statEls.total = r.val; statEls.totalPop = r.pop; }
-    statEls.time = mk('Time on Current Universe');
+    statEls.time   = mk('Time on Current Universe');
+    statEls.played = mk('Total time played');
 }
 
 
@@ -66,5 +67,6 @@ function updateObservatory() {
     }
     statEls.total.textContent = '✦' + fmtNum(G.runDust);
     statEls.totalPop.innerHTML = 'All stardust earned in the current universe (resets on prestige).';
-    statEls.time.textContent = fmtTime(G.universeTime);
+    statEls.time.textContent   = fmtTime(G.universeTime);
+    statEls.played.textContent = fmtTime(G.gameTime);
 }

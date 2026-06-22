@@ -36,11 +36,11 @@ const UPGRADES = [
     name: "Pulse",
     maxLevel: 1,
     section: "MAIN",
-    costs: [10000], // one-time buy
+    costs: [100000], // one-time buy
     flavor: "A steady heartbeat to keep the gathering going on its own.",
     desc: () =>
       "Every 3s the Lacuna pulses for 12 clicks of stardust (about 4 / sec). Hands-free: you no longer harvest by clicking.",
-    unlock: () => lvl("touch") >= 8, // after Star Touch is maxed
+    unlock: () => lvl("grasp") >= 3, // after Star Grasp is maxed (with Gravitational Pull + Resonance)
   },
   {
     id: "gravpull",

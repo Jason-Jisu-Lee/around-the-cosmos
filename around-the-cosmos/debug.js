@@ -9,7 +9,7 @@ function initDebug() {
     const panel = document.createElement('div');
     panel.id = 'debug-panel';
     panel.style.cssText = [
-        'position:fixed;bottom:16px;left:16px;z-index:9999',
+        'position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:9999',
         'background:rgba(10,10,20,0.92);border:1px solid rgba(106,223,208,0.4)',
         'border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px',
         'font:13px/1 "Segoe UI",sans-serif;color:#c8d0e8;min-width:200px',

@@ -65,7 +65,7 @@ function accTreeHTML(name) {
 
 function accRender() {
     document.getElementById('acc-mass').innerHTML = ACC_MASS_ICON
-        + '<div class="num">0</div><div class="lbl">Mass</div>';
+        + `<div class="num">${fmtNum(G.mass)}</div><div class="lbl">Mass</div>`;
 
     const tabs = document.getElementById('acc-tabs');
     tabs.innerHTML = ACC_CATS.map(c =>
@@ -81,6 +81,35 @@ function accRender() {
 function openAccretion()  { document.getElementById('accretion-screen').classList.add('show'); accRender(); }
 function closeAccretion() { document.getElementById('accretion-screen').classList.remove('show'); }
 
+// Plain-language confirmation before committing an Accretion.
+function accConfirmBody() {
+    const gain = massGain();
+    return `<p>This pulls everything in your universe into the Lacuna and collapses it.</p>
+        <p class="acc-gain">You'll gain <b>${gain} Mass</b>.</p>
+        <p>Mass comes from <b>all the stardust you've ever gathered</b> (${fmtNum(G.totalDust)} so far).
+           The more you collect over your whole journey, the more Mass — so it grows slowly, and
+           re-earning the same amount again barely adds any.</p>
+        <p><b>What resets:</b> your stardust drops to zero and every stardust upgrade
+           (Star Touch, the orbiters, Resonance…) is undone. You start a fresh universe.</p>
+        <p><b>What you keep:</b> your Mass, and anything you spend it on.</p>`;
+}
+function openAccConfirm() {
+    document.getElementById('acc-confirm-body').innerHTML = accConfirmBody();
+    document.getElementById('acc-confirm').classList.add('show');
+}
+function closeAccConfirm() { document.getElementById('acc-confirm').classList.remove('show'); }
+
 document.getElementById('accretion-btn').addEventListener('click', openAccretion);
 document.getElementById('acc-close').addEventListener('click', closeAccretion);
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAccretion(); });
+document.querySelector('.acc-accrete').addEventListener('click', openAccConfirm);
+document.getElementById('acc-confirm-cancel').addEventListener('click', closeAccConfirm);
+document.getElementById('acc-confirm-go').addEventListener('click', () => {
+    doAccretion();
+    closeAccConfirm();
+    closeAccretion();
+});
+document.addEventListener('keydown', e => {
+    if (e.key !== 'Escape') return;
+    if (document.getElementById('acc-confirm').classList.contains('show')) closeAccConfirm();
+    else closeAccretion();
+});

@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=101">
+    <link rel="stylesheet" href="style.css?v=103">
 </head>
 <body>
     <div id="app">
@@ -85,47 +85,59 @@
             <div id="acc-tree" class="acc-tree"></div>
         </div>
         <button class="acc-accrete">Accrete</button>
+
+        <!-- Confirmation modal explaining the Mass gain + reset, in plain language -->
+        <div id="acc-confirm" class="acc-confirm">
+            <div class="acc-confirm-box">
+                <div class="acc-confirm-title">Accrete this universe?</div>
+                <div id="acc-confirm-body" class="acc-confirm-body"></div>
+                <div class="acc-confirm-actions">
+                    <button id="acc-confirm-cancel" class="acc-btn-ghost">Cancel</button>
+                    <button id="acc-confirm-go" class="acc-btn-go">Accrete</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Shared upgrade description popup (positioned to the left of the hovered card) -->
     <div id="upg-pop"></div>
 
     <!-- Core -->
-    <script src="config.js?v=101"></script>
-    <script src="state.js?v=101"></script>
+    <script src="config.js?v=103"></script>
+    <script src="state.js?v=103"></script>
 
     <!-- Sound (engine + effects + music) -->
-    <script src="sound/core.js?v=101"></script>
-    <script src="sound/effects/sfx.js?v=101"></script>
-    <script src="sound/music/tracks.js?v=101"></script>
-    <script src="sound/sound.js?v=101"></script>
+    <script src="sound/core.js?v=103"></script>
+    <script src="sound/effects/sfx.js?v=103"></script>
+    <script src="sound/music/tracks.js?v=103"></script>
+    <script src="sound/sound.js?v=103"></script>
 
     <!-- Orbiters (one component per type) -->
-    <script src="orbiters/registry.js?v=101"></script>
-    <script src="orbiters/dust.js?v=101"></script>
-    <script src="orbiters/asteroid.js?v=101"></script>
-    <script src="orbiters/moon.js?v=101"></script>
+    <script src="orbiters/registry.js?v=103"></script>
+    <script src="orbiters/dust.js?v=103"></script>
+    <script src="orbiters/asteroid.js?v=103"></script>
+    <script src="orbiters/moon.js?v=103"></script>
 
     <!-- Upgrades -->
-    <script src="upgrades/upgrades.js?v=101"></script>
+    <script src="upgrades/upgrades.js?v=103"></script>
 
     <!-- Render + simulation -->
-    <script src="assets/click-effects/effects.js?v=101"></script>
-    <script src="render.js?v=101"></script>
-    <script src="stars.js?v=101"></script>
-    <script src="comet/comet.js?v=101"></script>
-    <script src="simulation.js?v=101"></script>
+    <script src="assets/click-effects/effects.js?v=103"></script>
+    <script src="render.js?v=103"></script>
+    <script src="stars.js?v=103"></script>
+    <script src="comet/comet.js?v=103"></script>
+    <script src="simulation.js?v=103"></script>
 
     <!-- UI -->
-    <script src="ui/panels.js?v=101"></script>
-    <script src="ui/observatory.js?v=101"></script>
-    <script src="ui/hud.js?v=101"></script>
-    <script src="ui/cosmo.js?v=101"></script>
-    <script src="ui/accretion.js?v=101"></script>
+    <script src="ui/panels.js?v=103"></script>
+    <script src="ui/observatory.js?v=103"></script>
+    <script src="ui/hud.js?v=103"></script>
+    <script src="ui/cosmo.js?v=103"></script>
+    <script src="ui/accretion.js?v=103"></script>
 
     <!-- App -->
-    <script src="settings.js?v=101"></script>
-    <script src="debug.js?v=101"></script>
-    <script src="main.js?v=101"></script>
+    <script src="settings.js?v=103"></script>
+    <script src="debug.js?v=103"></script>
+    <script src="main.js?v=103"></script>
 </body>
 </html>

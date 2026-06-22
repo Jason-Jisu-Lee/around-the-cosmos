@@ -26,7 +26,7 @@ Click the Lacuna (center) to earn **stardust (✦)** → buy **Star Touch** to e
 | 2nd Dust Particle | buy Dust Particle Count (✦500) | A second dust particle joins the clump → unlocks the **Asteroid** (a single body). |
 | Star Touch ×6 | buy (✦600) | → **Star Grasp** appears in MAIN (a stronger per-click upgrade). |
 | The Asteroid | buy (✦1,500) | A single bigger, slower **asteroid** appears on a wider orbit, paying **50 ✦** per orbit. Unlocks **Asteroid Payout**, **Asteroid Speed**, **Asteroid Composition**. |
-| Star Grasp maxed | buy (lvl 3) | → **Gravitational Pull** and **Resonance** both appear in MAIN (clicks scale with orbiter payout; Resonance is a global orbit payout boost that lights the Lacuna glow). |
+| Star Grasp maxed | buy (lvl 3) | → **Gravitational Pull**, **Resonance**, and **Pulse** all appear in MAIN at once (clicks scale with orbiter payout; Resonance is a global orbit payout boost that lights the Lacuna glow; Pulse is the ✦100,000 auto-clicker). |
 | The Moon | buy (✦8,000) | A large pale **moon** appears on the widest, slowest orbit (ring 2), sitting right on the orbit line and visibly waxing/waning. Pays **200 ✦** per orbit (varying with its phase by default, most at full moon). Unlocks **Moon Payout**, **Moon Speed**, and **Lunar Phases**. |
 | … | … | Buy more dust particles (max 5), pump payout/speed, grab **Resonance**, develop the Moon, keep catching comets. |
 
@@ -63,7 +63,7 @@ Click the Lacuna (center) to earn **stardust (✦)** → buy **Star Touch** to e
 
 > Total click value = Star Touch value + 2 × Star Grasp level (+ Gravitational Pull, below), via `clickValue()`.
 
-**Pulse** — *unlocks after Star Touch is maxed (lvl 8)* · max **1** · one-time **✦10,000** · the **auto-clicker**.
+**Pulse** — *unlocks after Star Grasp is maxed (lvl 3), alongside Gravitational Pull + Resonance* · max **1** · one-time **✦100,000** · the **auto-clicker**.
 A slow heartbeat every **3 seconds** auto-harvests **12 clicks** worth of stardust (≈**4 clicks/sec**), with a gentle beat on the Lacuna.
 **Trade-off:** once bought you **can no longer harvest by clicking** — it's hands-free (comets and info cards still respond to clicks).
 

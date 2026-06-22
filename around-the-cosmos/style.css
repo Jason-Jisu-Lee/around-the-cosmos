@@ -12,9 +12,9 @@
     --ink-dim:    #888880;
     --accent:     #7a6848;
     --accent-dim: #c0b498;
-    /* 10% accent pop (Accretion / prestige) — teal, the cool complement to parchment */
-    --accretion:    #2f7d77;
-    --accretion-hi: #266b66;
+    /* 10% accent pop — Dusty Blue (Ghibli sky); the cool pop against the parchment 60% */
+    --accretion:    #4a82a8;
+    --accretion-hi: #3d6f92;
     --cursor:     url(assets/cursors/needle.png?v=63) 3 3, auto;
 }
 
@@ -195,14 +195,15 @@ body {
 /* Accretion (prestige) button — fixed at the bottom-left of the screen (not movable).
    The 10% accent "pop": a saturated teal that stands out against the parchment 60%. */
 #accretion-btn {
+    display: none;  /* shown by JS once lifetime stardust first passes 200k */
     position: fixed; bottom: 18px; left: 18px; z-index: 50; user-select: none;
     background: var(--accretion); border: none; color: #f6f3ec;
     padding: 13px 26px; border-radius: 7px; letter-spacing: 0.14em; font-weight: 700;
     font-family: 'Optima','Candara','Century Gothic',sans-serif; font-size: 15px;
-    box-shadow: 0 4px 14px rgba(47,125,119,0.38);
+    box-shadow: 0 4px 14px rgba(74,130,168,0.38);
     transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
 }
-#accretion-btn:hover { background: var(--accretion-hi); box-shadow: 0 6px 20px rgba(47,125,119,0.5); }
+#accretion-btn:hover { background: var(--accretion-hi); box-shadow: 0 6px 20px rgba(74,130,168,0.5); }
 #accretion-btn:active { transform: translateY(1px); }
 
 .upgrade-card {
@@ -397,6 +398,26 @@ body {
     position: absolute; right: 24px; bottom: 20px;
     background: var(--accretion); color: #f6f3ec; border: none;
     padding: 12px 30px; border-radius: 7px; font: 800 13px 'Nunito'; letter-spacing: 0.08em;
-    cursor: pointer; box-shadow: 0 4px 14px rgba(47,125,119,0.34); transition: background 0.15s;
+    cursor: pointer; box-shadow: 0 4px 14px rgba(74,130,168,0.34); transition: background 0.15s;
 }
 .acc-accrete:hover { background: var(--accretion-hi); }
+
+/* Accretion confirmation modal — plain-language explanation of the Mass gain + reset */
+.acc-confirm { display: none; position: absolute; inset: 0; z-index: 10; background: rgba(26,22,18,0.34); align-items: center; justify-content: center; }
+.acc-confirm.show { display: flex; }
+.acc-confirm-box {
+    background: #f7f3ec; border: 1px solid #e0d8c8; border-radius: 12px;
+    width: 440px; max-width: 90%; padding: 26px 28px 22px;
+    box-shadow: 0 18px 50px rgba(0,0,0,0.28);
+}
+.acc-confirm-title { font-size: 18px; font-weight: 800; letter-spacing: 0.02em; margin-bottom: 12px; }
+.acc-confirm-body { font-size: 13.5px; line-height: 1.6; color: #4a443b; }
+.acc-confirm-body p { margin: 0 0 10px; }
+.acc-confirm-body b { color: #1a1a1a; }
+.acc-confirm-body .acc-gain { font-size: 15px; color: var(--accretion); }
+.acc-confirm-body .acc-gain b { color: var(--accretion); }
+.acc-confirm-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px; }
+.acc-btn-ghost { background: none; border: 1px solid #d3cbbb; color: #6b6150; border-radius: 7px; padding: 10px 20px; font: 700 13px 'Nunito'; cursor: pointer; }
+.acc-btn-ghost:hover { border-color: #b9af97; color: #1a1a1a; }
+.acc-btn-go { background: var(--accretion); border: none; color: #f6f3ec; border-radius: 7px; padding: 10px 22px; font: 800 13px 'Nunito'; letter-spacing: 0.06em; cursor: pointer; }
+.acc-btn-go:hover { background: var(--accretion-hi); }
