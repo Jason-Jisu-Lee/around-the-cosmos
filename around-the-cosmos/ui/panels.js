@@ -15,12 +15,13 @@ function upgradeVisible(u) { return u.unlock ? u.unlock() : false; }
 function isShown(u) {
     if (!upgradeVisible(u)) return false;
     const maxed = G.upgrades[u.id] >= u.maxLevel;
-    return !maxed || showCompleted;
+    // Before the Moon is ever owned, completed cards are never hidden (and the toggle isn't shown).
+    return !maxed || showCompleted || !G.moonEverOwned;
 }
 
 
 function visibleSig() {
-    let s = (showCompleted ? 'C' : '_') + '|';
+    let s = (showCompleted ? 'C' : '_') + (G.moonEverOwned ? 'M' : '_') + '|';
     for (const u of UPGRADES) if (isShown(u)) s += u.id + ',';
     return s;
 }

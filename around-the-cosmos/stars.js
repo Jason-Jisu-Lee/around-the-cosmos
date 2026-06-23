@@ -47,10 +47,12 @@ function initStars(n) {
     }
 }
 
-function drawStars(t) {
+// Defaults to the game canvas (ctx/W/H); the Accretion page passes its own context + dims
+// so the exact same looping stars render behind the Mass UI.
+function drawStars(t, g = ctx, w = W, h = H) {
     if (!_stars) initStars(10);
     const ms = t * 1000;
-    ctx.save(); ctx.globalAlpha = STAR_ALPHA;
+    g.save(); g.globalAlpha = STAR_ALPHA;
     for (const st of _stars) {
         const phase = (ms + st.off) % (STAR_TOTAL + st.idle);
         if (phase >= STAR_TOTAL) continue;
@@ -59,7 +61,7 @@ function drawStars(t) {
         const img = STAR_TINTED[f];
         if (!img) continue;
         const sz = st.size;
-        ctx.drawImage(img, st.fx * W - sz / 2, st.fy * H - sz / 2, sz, sz);
+        g.drawImage(img, st.fx * w - sz / 2, st.fy * h - sz / 2, sz, sz);
     }
-    ctx.restore();
+    g.restore();
 }

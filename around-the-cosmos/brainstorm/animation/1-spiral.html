@@ -1,0 +1,59 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Absorb · Spiral</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  html,body{margin:0;height:100%;overflow:hidden;background:#f4f0e8;font-family:'Nunito',sans-serif}
+  canvas{display:block}
+  .cap{position:absolute;top:20px;left:24px;font-size:13px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:#9a8f78}
+  .replay{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);background:#1a1a1a;color:#f4f0e8;border:none;padding:11px 26px;border-radius:7px;font:800 13px Nunito;letter-spacing:.08em;cursor:pointer}
+</style></head><body>
+<canvas id="c"></canvas>
+<div class="cap">1 · Accretion Spiral</div>
+<button class="replay" onclick="start()">Replay</button>
+<script>
+const cv=document.getElementById('c'),x=cv.getContext('2d');
+let CX,CY; function fit(){cv.width=innerWidth;cv.height=innerHeight;CX=cv.width/2;CY=cv.height/2;}
+addEventListener('resize',fit);fit();
+const coreR=15;
+let orb,phase,T,energy,ring,last;
+function start(){
+  orb=[];
+  for(let i=0;i<6;i++) orb.push({r:66,a:i/6*6.28,spd:1.2,size:4.5,col:'#8a8275',vr:14});
+  orb.push({r:120,a:1.0,spd:0.75,size:11,col:'#7a6a55',vr:14});
+  orb.push({r:176,a:3.6,spd:0.52,size:16,col:'#8f9498',vr:14});
+  phase='orbit';T=0;energy=0;ring=0;last=0;
+  x.fillStyle='#f4f0e8';x.fillRect(0,0,cv.width,cv.height);
+}
+function drawCore(){
+  if(energy>0){
+    const R=coreR*(2.4+energy*5), g=x.createRadialGradient(CX,CY,0,CX,CY,R);
+    g.addColorStop(0,`rgba(214,176,90,${0.10+energy*0.5})`); g.addColorStop(1,'rgba(214,176,90,0)');
+    x.fillStyle=g; x.beginPath(); x.arc(CX,CY,R,0,7); x.fill();
+  }
+  x.fillStyle='#1a1a1a'; x.beginPath(); x.arc(CX,CY,coreR+energy*4,0,7); x.fill();
+}
+function frame(ts){
+  const now=ts/1000; if(!last)last=now; const dt=Math.min(now-last,0.05); last=now; T+=dt;
+  x.fillStyle='rgba(244,240,232,0.22)'; x.fillRect(0,0,cv.width,cv.height);  // motion-blur trails
+  // faint orbit guides
+  x.strokeStyle='rgba(160,150,130,0.18)'; x.lineWidth=1;
+  [66,120,176].forEach(r=>{x.beginPath();x.arc(CX,CY,r,0,7);x.stroke();});
+  if(phase==='orbit'&&T>1.1) phase='absorb';
+  let alive=0;
+  for(const o of orb){
+    if(o.done) continue; alive++;
+    if(phase==='absorb'){
+      o.vr += dt*70; o.r -= dt*o.vr;
+      o.a += dt*o.spd*(1+150/Math.max(o.r,16));
+      if(o.r<=coreR){o.done=true; energy=Math.min(1,energy+0.16); ring=1;}
+    } else o.a += dt*o.spd;
+    const px=CX+Math.cos(o.a)*o.r, py=CY+Math.sin(o.a)*o.r;
+    x.fillStyle=o.col; x.beginPath(); x.arc(px,py,o.size,0,7); x.fill();
+  }
+  drawCore();
+  if(ring>0){ x.strokeStyle=`rgba(214,176,90,${ring})`; x.lineWidth=2.5; x.beginPath();
+    x.arc(CX,CY,coreR+(1-ring)*70,0,7); x.stroke(); ring-=dt*1.4; }
+  requestAnimationFrame(frame);
+}
+start(); requestAnimationFrame(frame);
+</script>
+</body></html>

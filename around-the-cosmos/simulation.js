@@ -60,6 +60,7 @@ function buyUpgrade(u) {
     const cost = u.costs[l];
     if (G.dust < cost) return false;
     G.dust -= cost; G.upgrades[u.id]++;
+    if (u.id === 'moon') G.moonEverOwned = true;   // permanent milestone: unlocks the Hide-completed toggle
 
     for (const o of ORBITERS) {
         if (o.labels && (u.id in o.labels)) {

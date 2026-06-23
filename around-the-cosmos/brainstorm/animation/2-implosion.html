@@ -1,0 +1,67 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Absorb · Implosion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  html,body{margin:0;height:100%;overflow:hidden;background:#f4f0e8;font-family:'Nunito',sans-serif}
+  canvas{display:block}
+  .cap{position:absolute;top:20px;left:24px;font-size:13px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:#9a8f78;z-index:2}
+  .replay{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);background:#1a1a1a;color:#f4f0e8;border:none;padding:11px 26px;border-radius:7px;font:800 13px Nunito;letter-spacing:.08em;cursor:pointer;z-index:2}
+</style></head><body>
+<canvas id="c"></canvas>
+<div class="cap">2 · Implosion &amp; Rebirth</div>
+<button class="replay" onclick="start()">Replay</button>
+<script>
+const cv=document.getElementById('c'),x=cv.getContext('2d');
+let CX,CY; function fit(){cv.width=innerWidth;cv.height=innerHeight;CX=cv.width/2;CY=cv.height/2;}
+addEventListener('resize',fit);fit();
+const coreR=15;
+let orb,stars,phase,T,dark,flash,shock,rebirth,last;
+function start(){
+  orb=[];
+  for(let i=0;i<6;i++){const a=i/6*6.28,r=66;orb.push({x:CX+Math.cos(a)*r,y:CY+Math.sin(a)*r,a,r,spd:1.2,size:4.5,col:'#8a8275',v:0});}
+  {const a=1.0,r=120;orb.push({x:CX+Math.cos(a)*r,y:CY+Math.sin(a)*r,a,r,spd:.75,size:11,col:'#7a6a55',v:0});}
+  {const a=3.6,r=176;orb.push({x:CX+Math.cos(a)*r,y:CY+Math.sin(a)*r,a,r,spd:.52,size:16,col:'#8f9498',v:0});}
+  stars=[];for(let i=0;i<90;i++)stars.push({x:Math.random()*cv.width,y:Math.random()*cv.height,r:Math.random()*1.4+.5});
+  phase='orbit';T=0;dark=0;flash=0;shock=0;rebirth=0;last=0;
+}
+function frame(ts){
+  const now=ts/1000; if(!last)last=now; const dt=Math.min(now-last,0.05); last=now; T+=dt;
+  // base: parchment fading to deep space as it collapses
+  dark = phase==='orbit' ? 0 : Math.min(1, dark+dt*0.7);
+  x.fillStyle=`rgb(${244-238*dark},${240-232*dark},${232-216*dark})`; x.fillRect(0,0,cv.width,cv.height);
+  if(phase==='orbit'&&T>1.0){phase='implode';}
+  // stars appear as it darkens, and get pulled in during implosion
+  for(const s of stars){
+    if(phase!=='orbit'){const dx=CX-s.x,dy=CY-s.y,d=Math.hypot(dx,dy)||1; s.x+=dx/d*dt*90*(1+ (1-d/700)); s.y+=dy/d*dt*90;}
+    x.globalAlpha=dark*0.7; x.fillStyle='#dfe2f0'; x.beginPath(); x.arc(s.x,s.y,s.r,0,7); x.fill();
+  }
+  x.globalAlpha=1;
+  let alive=0;
+  for(const o of orb){
+    if(o.done) continue;
+    if(phase==='orbit'){o.a+=dt*o.spd;o.x=CX+Math.cos(o.a)*o.r;o.y=CY+Math.sin(o.a)*o.r;}
+    else{ alive++; const dx=CX-o.x,dy=CY-o.y,d=Math.hypot(dx,dy)||1; o.v+=dt*900; o.x+=dx/d*o.v*dt; o.y+=dy/d*o.v*dt;
+      if(d<coreR+4){o.done=true;} }
+    x.fillStyle=o.col; x.beginPath(); x.arc(o.x,o.y,o.size,0,7); x.fill();
+  }
+  // core
+  x.fillStyle = dark>0.5 ? '#0a0810' : '#1a1a1a'; x.beginPath(); x.arc(CX,CY,coreR,0,7); x.fill();
+  if(phase==='implode' && alive===0){ phase='flash'; flash=1; shock=0; }
+  if(phase==='flash'){
+    x.fillStyle=`rgba(255,250,240,${flash})`; x.fillRect(0,0,cv.width,cv.height);
+    flash-=dt*1.3; shock+=dt;
+    x.strokeStyle=`rgba(214,176,90,${Math.max(0,1-shock*1.1)})`; x.lineWidth=4;
+    x.beginPath(); x.arc(CX,CY,shock*520,0,7); x.stroke();
+    if(flash<=0){phase='rebirth';}
+  }
+  if(phase==='rebirth'){
+    rebirth=Math.min(1,rebirth+dt*0.6);
+    const R=coreR*(1+rebirth*3), g=x.createRadialGradient(CX,CY,0,CX,CY,R);
+    g.addColorStop(0,`rgba(150,130,210,${0.5*rebirth})`); g.addColorStop(1,'rgba(150,130,210,0)');
+    x.fillStyle=g; x.beginPath(); x.arc(CX,CY,R,0,7); x.fill();
+    x.fillStyle='#0a0810'; x.beginPath(); x.arc(CX,CY,coreR,0,7); x.fill();
+  }
+  requestAnimationFrame(frame);
+}
+start(); requestAnimationFrame(frame);
+</script>
+</body></html>

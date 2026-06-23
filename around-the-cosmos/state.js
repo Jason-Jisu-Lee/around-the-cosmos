@@ -5,7 +5,7 @@ let G = createInitialState();
 function createInitialState() {
     return {
         dust:0, runDust:0, totalDust:0,
-        mass:0, massEarned:0,
+        mass:0, massEarned:0, moonEverOwned:false,
         orbitsCompleted:0, taps:0, cometsCaught:0, gameTime:0, universeTime:0,
         upgrades: { touch:0, grasp:0, pulse:0, gravpull:0, dust:0, dustcount:0, dustpay:0, dustspd:0, asteroid:0, astpay:0, astspd:0, astcomp:0, moon:0, moonpay:0, moonspd:0, moonphase:0, resonance:0, charm:0 },
         planets:  [],
@@ -92,27 +92,29 @@ function massEarnable() { return Math.floor(3 * Math.sqrt(G.totalDust / ACCRETIO
 function massGain()     { return Math.max(0, massEarnable() - G.massEarned); }
 function canAccrete()   { return G.totalDust >= ACCRETION_THRESHOLD; }
 
-function doAccretion() {
+// Step 1 (on confirm): credit the Mass immediately — this is the "major event" commit.
+function commitAccretion() {
     const gain = massGain();
-    const keep = {
-        mass:       G.mass + gain,
-        massEarned: G.massEarned + gain,
-        totalDust:  G.totalDust,   // lifetime — never resets
-        gameTime:   G.gameTime,    // total time played — only the Reset button clears it
-    };
+    G.mass += gain; G.massEarned += gain;
+    saveGame();
+    return gain;
+}
+// Step 2 (after the absorption animation): collapse the universe — full reset, keeping
+// only the meta-currency, lifetime stardust, and total time played.
+function resetUniverse() {
+    const keep = { mass:G.mass, massEarned:G.massEarned, totalDust:G.totalDust, gameTime:G.gameTime, moonEverOwned:G.moonEverOwned };
     G = createInitialState();
     Object.assign(G, keep);
     if (typeof resetPanelAnimations === 'function') resetPanelAnimations();
     if (typeof buildPanels === 'function') buildPanels();
     saveGame();
-    return gain;
 }
 
 function saveGame() {
     try {
         localStorage.setItem(CFG.SAVE_KEY, JSON.stringify({
             dust:G.dust, runDust:G.runDust, totalDust:G.totalDust,
-            mass:G.mass, massEarned:G.massEarned,
+            mass:G.mass, massEarned:G.massEarned, moonEverOwned:G.moonEverOwned,
             orbitsCompleted:G.orbitsCompleted, taps:G.taps,
             cometsCaught:G.cometsCaught, gameTime:G.gameTime, universeTime:G.universeTime,
             cometSeen:G.cometSeen,
@@ -129,6 +131,7 @@ function loadGame() {
         const def = (k, fb) => d[k] ?? fb;
         G.dust=def('dust',0); G.runDust=def('runDust',0); G.totalDust=def('totalDust',0);
         G.mass=def('mass',0); G.massEarned=def('massEarned',0);
+        G.moonEverOwned=def('moonEverOwned', (d.upgrades && d.upgrades.moon >= 1) || false);
         G.orbitsCompleted=def('orbitsCompleted',0); G.taps=def('taps',0);
         G.cometsCaught=def('cometsCaught',0); G.gameTime=def('gameTime',0);
         G.universeTime=def('universeTime', G.gameTime);

@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=103">
+    <link rel="stylesheet" href="style.css?v=108">
 </head>
 <body>
     <div id="app">
@@ -75,8 +75,9 @@
 
     <!-- Accretion (prestige) screen — overlays the live page; opens from #accretion-btn -->
     <div id="accretion-screen">
-        <button id="acc-close">&times;</button>
+        <canvas id="acc-stars"></canvas>
         <div class="acc-eyebrow">Accretion</div>
+        <button id="acc-return" class="acc-return">Return to the Cosmos</button>
         <div id="acc-mass" class="acc-masshdr"></div>
         <div id="acc-tabs" class="acc-tabs"></div>
         <div class="acc-stage">
@@ -84,17 +85,19 @@
             <div id="acc-sub" class="acc-ssub"></div>
             <div id="acc-tree" class="acc-tree"></div>
         </div>
-        <button class="acc-accrete">Accrete</button>
+    </div>
 
-        <!-- Confirmation modal explaining the Mass gain + reset, in plain language -->
-        <div id="acc-confirm" class="acc-confirm">
-            <div class="acc-confirm-box">
-                <div class="acc-confirm-title">Accrete this universe?</div>
-                <div id="acc-confirm-body" class="acc-confirm-body"></div>
-                <div class="acc-confirm-actions">
-                    <button id="acc-confirm-cancel" class="acc-btn-ghost">Cancel</button>
-                    <button id="acc-confirm-go" class="acc-btn-go">Accrete</button>
-                </div>
+    <!-- Absorption animation overlay (Implosion &amp; Rebirth); shown only during the Accretion sequence -->
+    <canvas id="accretion-fx"></canvas>
+
+    <!-- Accretion confirm modal — top-level so it shows over the live game when the button is pressed -->
+    <div id="acc-confirm" class="acc-confirm">
+        <div class="acc-confirm-box">
+            <div class="acc-confirm-title">Accrete this universe?</div>
+            <div id="acc-confirm-body" class="acc-confirm-body"></div>
+            <div class="acc-confirm-actions">
+                <button id="acc-confirm-cancel" class="acc-btn-ghost">Stay</button>
+                <button id="acc-confirm-go" class="acc-btn-go">Accrete</button>
             </div>
         </div>
     </div>
@@ -103,41 +106,41 @@
     <div id="upg-pop"></div>
 
     <!-- Core -->
-    <script src="config.js?v=103"></script>
-    <script src="state.js?v=103"></script>
+    <script src="config.js?v=108"></script>
+    <script src="state.js?v=108"></script>
 
     <!-- Sound (engine + effects + music) -->
-    <script src="sound/core.js?v=103"></script>
-    <script src="sound/effects/sfx.js?v=103"></script>
-    <script src="sound/music/tracks.js?v=103"></script>
-    <script src="sound/sound.js?v=103"></script>
+    <script src="sound/core.js?v=108"></script>
+    <script src="sound/effects/sfx.js?v=108"></script>
+    <script src="sound/music/tracks.js?v=108"></script>
+    <script src="sound/sound.js?v=108"></script>
 
     <!-- Orbiters (one component per type) -->
-    <script src="orbiters/registry.js?v=103"></script>
-    <script src="orbiters/dust.js?v=103"></script>
-    <script src="orbiters/asteroid.js?v=103"></script>
-    <script src="orbiters/moon.js?v=103"></script>
+    <script src="orbiters/registry.js?v=108"></script>
+    <script src="orbiters/dust.js?v=108"></script>
+    <script src="orbiters/asteroid.js?v=108"></script>
+    <script src="orbiters/moon.js?v=108"></script>
 
     <!-- Upgrades -->
-    <script src="upgrades/upgrades.js?v=103"></script>
+    <script src="upgrades/upgrades.js?v=108"></script>
 
     <!-- Render + simulation -->
-    <script src="assets/click-effects/effects.js?v=103"></script>
-    <script src="render.js?v=103"></script>
-    <script src="stars.js?v=103"></script>
-    <script src="comet/comet.js?v=103"></script>
-    <script src="simulation.js?v=103"></script>
+    <script src="assets/click-effects/effects.js?v=108"></script>
+    <script src="render.js?v=108"></script>
+    <script src="stars.js?v=108"></script>
+    <script src="comet/comet.js?v=108"></script>
+    <script src="simulation.js?v=108"></script>
 
     <!-- UI -->
-    <script src="ui/panels.js?v=103"></script>
-    <script src="ui/observatory.js?v=103"></script>
-    <script src="ui/hud.js?v=103"></script>
-    <script src="ui/cosmo.js?v=103"></script>
-    <script src="ui/accretion.js?v=103"></script>
+    <script src="ui/panels.js?v=108"></script>
+    <script src="ui/observatory.js?v=108"></script>
+    <script src="ui/hud.js?v=108"></script>
+    <script src="ui/cosmo.js?v=108"></script>
+    <script src="ui/accretion.js?v=108"></script>
 
     <!-- App -->
-    <script src="settings.js?v=103"></script>
-    <script src="debug.js?v=103"></script>
-    <script src="main.js?v=103"></script>
+    <script src="settings.js?v=108"></script>
+    <script src="debug.js?v=108"></script>
+    <script src="main.js?v=108"></script>
 </body>
 </html>

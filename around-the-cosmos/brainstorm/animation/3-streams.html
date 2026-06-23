@@ -1,0 +1,64 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Absorb · Tidal Streams</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  html,body{margin:0;height:100%;overflow:hidden;background:#f4f0e8;font-family:'Nunito',sans-serif}
+  canvas{display:block}
+  .cap{position:absolute;top:20px;left:24px;font-size:13px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:#9a8f78}
+  .replay{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);background:#1a1a1a;color:#f4f0e8;border:none;padding:11px 26px;border-radius:7px;font:800 13px Nunito;letter-spacing:.08em;cursor:pointer}
+</style></head><body>
+<canvas id="c"></canvas>
+<div class="cap">3 · Tidal Streams</div>
+<button class="replay" onclick="start()">Replay</button>
+<script>
+const cv=document.getElementById('c'),x=cv.getContext('2d');
+let CX,CY; function fit(){cv.width=innerWidth;cv.height=innerHeight;CX=cv.width/2;CY=cv.height/2;}
+addEventListener('resize',fit);fit();
+const coreR=15;
+let orb,parts,phase,T,energy,last;
+function start(){
+  orb=[];
+  for(let i=0;i<6;i++) orb.push({r:66,a:i/6*6.28,spd:1.1,size:4.5,col:'138,130,117',life:1});
+  orb.push({r:120,a:1.0,spd:0.7,size:11,col:'122,106,85',life:1});
+  orb.push({r:176,a:3.6,spd:0.5,size:16,col:'143,148,152',life:1});
+  parts=[];phase='orbit';T=0;energy=0;last=0;
+  x.fillStyle='#f4f0e8';x.fillRect(0,0,cv.width,cv.height);
+}
+function frame(ts){
+  const now=ts/1000; if(!last)last=now; const dt=Math.min(now-last,0.05); last=now; T+=dt;
+  x.fillStyle='rgba(244,240,232,0.30)'; x.fillRect(0,0,cv.width,cv.height);
+  if(phase==='orbit'&&T>1.0) phase='absorb';
+  let alive=0;
+  for(const o of orb){
+    o.a += dt*o.spd*(phase==='absorb'?0.5:1);
+    const px=CX+Math.cos(o.a)*o.r, py=CY+Math.sin(o.a)*o.r;
+    if(phase==='absorb' && o.life>0){
+      alive++; o.life-=dt*0.5;
+      // shed a stream of particles toward the core (with tangential swirl for a curved stream)
+      for(let k=0;k<3;k++){
+        const dx=CX-px,dy=CY-py,d=Math.hypot(dx,dy)||1;
+        const tx=-dy/d, ty=dx/d, sw=(Math.random()-0.5)*40;
+        parts.push({x:px+(Math.random()-0.5)*o.size*2,y:py+(Math.random()-0.5)*o.size*2,
+          vx:dx/d*60+tx*sw, vy:dy/d*60+ty*sw, col:o.col, life:1});
+      }
+    }
+    if(o.life>0){ x.fillStyle=`rgb(${o.col})`; x.globalAlpha=Math.max(0,o.life);
+      x.beginPath(); x.arc(px,py,o.size*Math.max(0.2,o.life),0,7); x.fill(); x.globalAlpha=1; }
+  }
+  // particles flow in, accelerating
+  for(let i=parts.length-1;i>=0;i--){
+    const p=parts[i]; const dx=CX-p.x,dy=CY-p.y,d=Math.hypot(dx,dy)||1;
+    const acc=160/Math.max(d,30); p.vx+=dx/d*acc; p.vy+=dy/d*acc;
+    p.x+=p.vx*dt; p.y+=p.vy*dt; p.life-=dt*0.6;
+    if(d<coreR){parts.splice(i,1); energy=Math.min(1,energy+0.004); continue;}
+    x.fillStyle=`rgba(${p.col},${Math.max(0,p.life)})`; x.beginPath(); x.arc(p.x,p.y,2,0,7); x.fill();
+  }
+  // core glows as it consumes
+  const R=coreR*(2+energy*5), g=x.createRadialGradient(CX,CY,0,CX,CY,R);
+  g.addColorStop(0,`rgba(214,176,90,${0.15+energy*0.45})`); g.addColorStop(1,'rgba(214,176,90,0)');
+  x.fillStyle=g; x.beginPath(); x.arc(CX,CY,R,0,7); x.fill();
+  x.fillStyle='#1a1a1a'; x.beginPath(); x.arc(CX,CY,coreR+energy*3,0,7); x.fill();
+  requestAnimationFrame(frame);
+}
+start(); requestAnimationFrame(frame);
+</script>
+</body></html>

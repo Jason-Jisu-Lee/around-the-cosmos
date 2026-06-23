@@ -7,7 +7,7 @@ let lastTs = 0, lastSave = 0;
 function loop(ts) {
     const dt = Math.min((ts-lastTs)/1000, 0.1);
     lastTs = ts;
-    tickWithDebug(dt);
+    if (typeof accreting === 'undefined' || !accreting) tickWithDebug(dt);  // frozen during the Accretion animation
     lastSave += dt;
     if (lastSave >= 20) { lastSave=0; saveGame(); }
     draw(ts/1000);

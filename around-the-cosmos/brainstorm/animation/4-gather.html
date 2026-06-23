@@ -1,0 +1,64 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Absorb · Luminous Gather</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  html,body{margin:0;height:100%;overflow:hidden;background:#f4f0e8;font-family:'Nunito',sans-serif}
+  canvas{display:block}
+  .cap{position:absolute;top:20px;left:24px;font-size:13px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:#9a8f78}
+  .replay{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);background:#1a1a1a;color:#f4f0e8;border:none;padding:11px 26px;border-radius:7px;font:800 13px Nunito;letter-spacing:.08em;cursor:pointer}
+</style></head><body>
+<canvas id="c"></canvas>
+<div class="cap">4 · Luminous Gather</div>
+<button class="replay" onclick="start()">Replay</button>
+<script>
+const cv=document.getElementById('c'),x=cv.getContext('2d');
+let CX,CY; function fit(){cv.width=innerWidth;cv.height=innerHeight;CX=cv.width/2;CY=cv.height/2;}
+addEventListener('resize',fit);fit();
+const coreR=15;
+let orb,motes,phase,T,glow,last;
+function start(){
+  orb=[];
+  for(let i=0;i<6;i++) orb.push({r:66,a:i/6*6.28,spd:1.1,size:4.5,col:'#8a8275',dissolved:false});
+  orb.push({r:120,a:1.0,spd:0.7,size:11,col:'#7a6a55',dissolved:false});
+  orb.push({r:176,a:3.6,spd:0.5,size:16,col:'#8f9498',dissolved:false});
+  motes=[];phase='orbit';T=0;glow=0;last=0;
+}
+function dissolve(o,px,py){
+  const n=Math.round(o.size*2.4);
+  for(let i=0;i<n;i++){const a=Math.random()*6.28,sp=Math.random()*16+4;
+    motes.push({x:px,y:py,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp});}
+}
+function frame(ts){
+  const now=ts/1000; if(!last)last=now; const dt=Math.min(now-last,0.05); last=now; T+=dt;
+  x.fillStyle='#f4f0e8'; x.fillRect(0,0,cv.width,cv.height);  // clean clear — calm, no smear
+  // soft orbit guides
+  x.strokeStyle='rgba(160,150,130,0.14)'; x.lineWidth=1;
+  [66,120,176].forEach(r=>{x.beginPath();x.arc(CX,CY,r,0,7);x.stroke();});
+  if(phase==='orbit'&&T>1.1) phase='absorb';
+  for(const o of orb){
+    if(o.dissolved) continue;
+    o.a += dt*o.spd*(phase==='absorb'?0.4:1);
+    const px=CX+Math.cos(o.a)*o.r, py=CY+Math.sin(o.a)*o.r;
+    if(phase==='absorb'){ o.r -= dt*8; if(o.r < 150 - orb.indexOf(o)*0) {}
+      if(o.r<=42){ o.dissolved=true; dissolve(o,px,py); continue; } }
+    x.fillStyle=o.col; x.beginPath(); x.arc(px,py,o.size,0,7); x.fill();
+  }
+  // motes: gentle eased drift inward + slight wander, glowing warm
+  for(let i=motes.length-1;i>=0;i--){
+    const m=motes[i]; const dx=CX-m.x,dy=CY-m.y,d=Math.hypot(dx,dy)||1;
+    m.vx += dx/d*dt*46; m.vy += dy/d*dt*46; m.vx*=0.96; m.vy*=0.96;
+    m.x+=m.vx*dt*6; m.y+=m.vy*dt*6;
+    if(d<coreR){motes.splice(i,1); glow=Math.min(1,glow+0.01); continue;}
+    const a=Math.min(0.9,d<120?0.9:0.5);
+    x.fillStyle=`rgba(224,186,110,${a})`; x.beginPath(); x.arc(m.x,m.y,2.2,0,7); x.fill();
+  }
+  // Lacuna blooms a warm, breathing light as it gathers everything in
+  const breathe=glow*(0.85+0.15*Math.sin(T*2));
+  const R=coreR*(2.5+breathe*7), g=x.createRadialGradient(CX,CY,0,CX,CY,R);
+  g.addColorStop(0,`rgba(226,190,120,${0.06+breathe*0.4})`); g.addColorStop(0.5,`rgba(214,176,90,${breathe*0.18})`); g.addColorStop(1,'rgba(214,176,90,0)');
+  x.fillStyle=g; x.beginPath(); x.arc(CX,CY,R,0,7); x.fill();
+  x.fillStyle='#1a1a1a'; x.beginPath(); x.arc(CX,CY,coreR+breathe*3,0,7); x.fill();
+  requestAnimationFrame(frame);
+}
+start(); requestAnimationFrame(frame);
+</script>
+</body></html>

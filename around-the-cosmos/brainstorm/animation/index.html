@@ -1,0 +1,25 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Accretion — absorption animations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  html,body{margin:0;background:#0c0d12;color:#cdd2dc;font-family:'Nunito',sans-serif}
+  h1{font-weight:800;padding:24px 28px 2px;font-size:22px}
+  p.l{margin:0 28px 18px;color:#828a98;font-size:13px;max-width:780px;line-height:1.5}
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;padding:0 28px 40px;max-width:1320px}
+  .tile{background:#08090d;border:1px solid #242833;border-radius:10px;overflow:hidden}
+  .cap{display:flex;justify-content:space-between;align-items:center;padding:11px 16px;font-size:15px;font-weight:700}
+  .cap a{color:#9fb0ff;text-decoration:none;font-size:12px;font-weight:600}
+  .frame{position:relative;height:300px;border-top:1px solid #242833;overflow:hidden;background:#f4f0e8}
+  .frame iframe{position:absolute;top:0;left:0;width:1300px;height:730px;border:0;transform:scale(.46);transform-origin:top left}
+</style></head><body>
+  <h1>Accretion — Lacuna absorbing its orbiters</h1>
+  <p class="l">Four takes on the absorption "grand event", from dramatic to calm. They loop — open each full-size and hit <b>Replay</b> to watch it again (the thumbnails are scaled down and the motion blur doesn't survive it). All on parchment + the dark Lacuna, so they'd overlay the live sky. The real flow: confirm → Mass credited → panels hide → this plays → land on the Mass page.</p>
+  <div class="grid" id="g"></div>
+<script>
+  const M=[
+    ['1 · Accretion Spiral','orbiters spiral inward on decaying orbits, faster as they fall, swallowed into a brightening core — classic accretion disk','1-spiral.html'],
+    ['2 · Implosion & Rebirth','screen darkens to space, everything (and the stars) rushes in, white flash + shockwave, then a new universe glows — most dramatic','2-implosion.html'],
+    ['3 · Tidal Streams','each orbiter unravels into a curving stream of particles pouring into the Lacuna as it consumes them — eerie/physical','3-streams.html'],
+    ['4 · Luminous Gather','orbiters dissolve into glowing motes that drift gently in and pool into a warm, breathing light — calm, on-tone','4-gather.html'],
+  ];
+  document.getElementById('g').innerHTML=M.map(([t,d,f])=>`<div class="tile"><div class="cap"><span>${t} — <span style="color:#828a98;font-weight:400">${d}</span></span><a href="${f}" target="_blank">open ↗</a></div><div class="frame"><iframe src="${f}"></iframe></div></div>`).join('');
+</script></body></html>
