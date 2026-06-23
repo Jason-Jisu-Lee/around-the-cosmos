@@ -143,13 +143,26 @@ function startAccretionSequence() {
     G.comet = null;
     runAccretionFx(() => {
         resetUniverse();               // the collapse: full reset, keeps Mass / lifetime stardust / time
-        openAccretion();               // land on the Mass page (opaque + stars) — game stays frozen behind it
+        openAccretion();               // build the Mass page (opaque + stars) — game stays frozen behind it
+        // fade the Mass page in over 3s over the held FX final frame, then drop the FX backdrop
+        const screen = document.getElementById('accretion-screen');
+        const fx = document.getElementById('accretion-fx');
+        screen.style.opacity = '0'; screen.style.transition = 'opacity 3s ease';
+        requestAnimationFrame(() => { screen.style.opacity = '1'; });
+        setTimeout(() => { fx.style.display = 'none'; screen.style.transition = ''; screen.style.opacity = ''; }, 3100);
     });
     // the game only resumes when the player hits "Begin again" (closeAccretion)
 }
 
-// Implosion & Rebirth — the live orbiters + stars rush into the Lacuna, white flash + shockwave,
-// then a new universe glows. Runs on a full-window overlay canvas centered on the on-screen Lacuna.
+// Singularity collapse & Rebirth — choreographed to accretion-1.mp3 in 5 timed beats:
+//   WINDUP   orbiters spin up from their CURRENT speed on the bright parchment
+//   ABSORB   they spiral into the Lacuna while the background darkens (stars reveal)
+//   COLLAPSE white flash + gold shockwave (the flash lands at 19.15s)
+//   CONVERGE the starfield streams in & recycles (endless), then settles to a calm field
+//   REBIRTH  the new universe blooms, then -> onDone (reset + Mass page)
+// Runs on a full-window overlay canvas centered on the on-screen Lacuna.
+const FX_TL = { windup: 15.0, absorb: 4.15, collapse: 2.55, converge: 10.0, rebirth: 2.5 };
+const FX_HOLD = 3.0;   // hold the final calm frame (music still playing) before the Mass page fades in
 function runAccretionFx(onDone) {
     const fx = document.getElementById('accretion-fx');
     fx.style.display = 'block';
@@ -160,65 +173,104 @@ function runAccretionFx(onDone) {
     const scl = r.width / canvas.width;
     const toWin = p => ({ x: r.left + p.x * scl, y: r.top + p.y * scl });
 
-    // snapshot the orbiters as they are right now
+    const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+    const easeIn = p => p * p, easeOut = p => 1 - (1 - p) * (1 - p);
+    const BEATS = ['windup', 'absorb', 'collapse', 'converge', 'rebirth'];
+    const totalT = BEATS.reduce((s, b) => s + FX_TL[b], 0);
+    function beatAt(t) { let acc = 0; for (const b of BEATS) { const d = FX_TL[b];
+        if (t < acc + d || b === 'rebirth') return { name: b, p: clamp((t - acc) / d, 0, 1) }; acc += d; }
+        return { name: 'rebirth', p: 1 }; }
+
+    const SPIN_TOP = 14, SPIN_CAP = 34, coreR = 15, SKY_R = Math.hypot(fx.width, fx.height) * 0.6;
+
+    // snapshot the live orbiters as polar bodies around the Lacuna, each with its REAL
+    // current angular speed (clump orbit speed) so the wind-up starts from where it is now
     const bodies = [];
     for (const o of ORBITERS) {
         const list = o.list(); if (!list.length) continue;
         const c = toWin(o.clumpPos());
         const col = o.color ? o.color() : '#8a8275';
         const size = o.id === 'moon' ? 16 : o.id === 'asteroid' ? 11 : 5;
-        if (o.id === 'dust') {
-            for (let i = 0; i < list.length; i++) { const a = i / list.length * 6.283;
-                bodies.push({ x: c.x + Math.cos(a) * 11, y: c.y + Math.sin(a) * 11, size, col, v: 0 }); }
-        } else bodies.push({ x: c.x, y: c.y, size, col, v: 0 });
+        const period = (typeof PLANET_DEF !== 'undefined' && PLANET_DEF[o.ring]) ? PLANET_DEF[o.ring].period : 8;
+        const spd = (typeof o.speed === 'function') ? o.speed() : 1;
+        const w = (2 * Math.PI / period) * spd;
+        const pts = o.id === 'dust'
+            ? list.map((_, i) => { const a = i / list.length * 6.2832; return { x: c.x + Math.cos(a) * 11, y: c.y + Math.sin(a) * 11 }; })
+            : [{ x: c.x, y: c.y }];
+        for (const pt of pts) { const dx = pt.x - cx, dy = pt.y - cy, R = Math.hypot(dx, dy) || 1;
+            bodies.push({ R, R0: R, A: Math.atan2(dy, dx), w, col, size }); }
     }
+
+    // starfield — hidden on the bright background, revealed only as space darkens
     const stars = [];
-    for (let i = 0; i < 110; i++) stars.push({ x: Math.random() * fx.width, y: Math.random() * fx.height, r: Math.random() * 1.4 + 0.5 });
+    for (let i = 0; i < 150; i++) { const a = Math.random() * 6.2832, rr = 50 + Math.random() * SKY_R;
+        stars.push({ a, r: rr, v: 0, size: Math.random() * 1.5 + 0.6, tw: Math.random() * 6.28, restSet: false }); }
 
-    const coreR = 15;
-    let phase = 'implode', T = 0, dark = 0, flash = 0, shock = 0, rebirth = 0, last = 0, done = false;
-
+    let last = 0, t = 0, done = false;
     function step(ts) {
-        const now = ts / 1000; if (!last) last = now; const dt = Math.min(now - last, 0.05); last = now; T += dt;
-        // parchment fading to deep space as the universe collapses
-        dark = Math.min(1, dark + dt * 0.8);
-        X.fillStyle = `rgb(${244 - 238 * dark},${240 - 232 * dark},${232 - 216 * dark})`;
+        const now = ts / 1000; if (!last) last = now; const dt = Math.min(now - last, 0.05); last = now; t += dt;
+        const beat = beatAt(t);
+
+        // background: parchment during wind-up, darkens through absorption, deep space after
+        const dark = beat.name === 'windup' ? 0 : beat.name === 'absorb' ? clamp(beat.p / 0.7, 0, 1) : 1;
+        X.fillStyle = `rgb(${Math.round(244 - 234 * dark)},${Math.round(240 - 232 * dark)},${Math.round(232 - 216 * dark)})`;
         X.fillRect(0, 0, fx.width, fx.height);
-        // stars surface as it darkens, then get pulled in
+
+        // stars: pull in & recycle during convergence, then settle to a calm field in place
+        let part = 'static', sp = 0;
+        if (beat.name === 'converge') { const settleDur = Math.min(4, FX_TL.converge * 0.9), ssp = (FX_TL.converge - settleDur) / FX_TL.converge;
+            if (beat.p < ssp) part = 'pull'; else { part = 'settle'; sp = easeOut(clamp((beat.p - ssp) / (1 - ssp), 0, 1)); } }
         for (const s of stars) {
-            const dx = cx - s.x, dy = cy - s.y, d = Math.hypot(dx, dy) || 1;
-            if (phase !== 'rebirth') { s.x += dx / d * dt * 72; s.y += dy / d * dt * 72; }
-            X.globalAlpha = dark * 0.7; X.fillStyle = '#dfe2f0';
-            X.beginPath(); X.arc(s.x, s.y, s.r, 0, 7); X.fill();
+            const tw = 0.6 + 0.4 * Math.sin(t * 2.5 + s.tw); let fade = 1;
+            if (part === 'pull') { s.v += 130 * dt; s.r -= s.v * dt; s.a += 0.5 * dt;
+                if (s.r < coreR) { s.a = Math.random() * 6.2832; s.r = SKY_R * (0.7 + Math.random() * 0.3); s.v = 20 + Math.random() * 40; }
+            } else { if (part === 'settle') { if (!s.restSet) { s.v0 = s.v; s.restSet = true; }
+                    s.v = s.v0 * (1 - sp); s.r = Math.max(s.r - s.v * dt, coreR); s.a += 0.5 * dt * (1 - sp); }
+                fade = clamp((s.r - 30) / 50, 0, 1); }
+            X.fillStyle = `rgba(223,226,240,${0.85 * dark * tw * fade})`;
+            X.beginPath(); X.arc(cx + Math.cos(s.a) * s.r, cy + Math.sin(s.a) * s.r, s.size, 0, 6.2832); X.fill();
         }
-        X.globalAlpha = 1;
-        let alive = 0;
-        for (const b of bodies) {
-            if (b.done) continue; alive++;
-            const dx = cx - b.x, dy = cy - b.y, d = Math.hypot(dx, dy) || 1;
-            b.v += dt * 850; b.x += dx / d * b.v * dt; b.y += dy / d * b.v * dt;
-            if (d < coreR + 4) { b.done = true; continue; }
-            X.fillStyle = b.col; X.beginPath(); X.arc(b.x, b.y, b.size, 0, 7); X.fill();
+
+        // orbiters: wind-up spins them up from current speed; absorb spirals them in; gone after
+        let charge = 0;
+        if (beat.name === 'absorb') charge = easeIn(beat.p) * 0.8;
+        else if (beat.name === 'collapse') charge = 0.8 * (1 - beat.p);
+        if (beat.name === 'windup' || beat.name === 'absorb') {
+            for (const b of bodies) {
+                let w;
+                if (beat.name === 'windup') w = b.w * (1 + easeIn(beat.p) * (SPIN_TOP - 1));
+                else { b.R = b.R0 * (1 - easeIn(beat.p)); w = Math.min(b.w * SPIN_TOP * (b.R0 / Math.max(b.R, 8)), SPIN_CAP); }
+                b.A += w * dt;
+                if (b.R < coreR + 2) continue;
+                X.fillStyle = b.col; X.beginPath(); X.arc(cx + Math.cos(b.A) * b.R, cy + Math.sin(b.A) * b.R, b.size, 0, 6.2832); X.fill();
+            }
         }
-        X.fillStyle = dark > 0.5 ? '#0a0810' : '#1a1a1a';
-        X.beginPath(); X.arc(cx, cy, coreR, 0, 7); X.fill();
-        if (phase === 'implode' && alive === 0 && T > 0.7) { phase = 'flash'; flash = 1; shock = 0; }
-        if (phase === 'flash') {
-            X.fillStyle = `rgba(255,250,240,${Math.max(0, flash)})`; X.fillRect(0, 0, fx.width, fx.height);
-            flash -= dt * 1.3; shock += dt;
-            X.strokeStyle = `rgba(214,176,90,${Math.max(0, 1 - shock * 1.1)})`; X.lineWidth = 4;
-            X.beginPath(); X.arc(cx, cy, shock * Math.max(fx.width, fx.height) * 0.6, 0, 7); X.stroke();
-            if (flash <= 0) phase = 'rebirth';
-        }
-        if (phase === 'rebirth') {
-            rebirth = Math.min(1, rebirth + dt * 0.7);
-            const R = coreR * (1 + rebirth * 3.5), g = X.createRadialGradient(cx, cy, 0, cx, cy, R);
-            g.addColorStop(0, `rgba(150,130,210,${0.55 * rebirth})`); g.addColorStop(1, 'rgba(150,130,210,0)');
-            X.fillStyle = g; X.beginPath(); X.arc(cx, cy, R, 0, 7); X.fill();
-            X.fillStyle = '#0a0810'; X.beginPath(); X.arc(cx, cy, coreR, 0, 7); X.fill();
-            if (rebirth >= 1 && !done) { done = true; setTimeout(() => { fx.style.display = 'none'; onDone(); }, 600); }
-        }
-        if (!done) requestAnimationFrame(step);
+
+        // the Lacuna core (+ accretion heat building as bodies fall in)
+        if (charge > 0) { const Rg = coreR * (1 + charge * 1.6), g = X.createRadialGradient(cx, cy, 0, cx, cy, Rg * 2.5);
+            g.addColorStop(0, `rgba(230,200,140,${0.5 * charge})`); g.addColorStop(1, 'rgba(230,200,140,0)');
+            X.fillStyle = g; X.beginPath(); X.arc(cx, cy, Rg * 2.5, 0, 6.2832); X.fill(); }
+        X.fillStyle = '#0a0810'; X.beginPath(); X.arc(cx, cy, coreR, 0, 6.2832); X.fill();
+
+        // collapse: white flash + gold shockwave
+        if (beat.name === 'collapse') { const p = beat.p, flash = clamp(1 - p / 0.25, 0, 1);
+            if (flash > 0) { X.fillStyle = `rgba(255,250,240,${flash})`; X.fillRect(0, 0, fx.width, fx.height); }
+            const reach = Math.max(fx.width, fx.height) * 0.75;
+            X.strokeStyle = `rgba(214,176,90,${clamp(1 - p, 0, 1)})`; X.lineWidth = 4 * (1 - p) + 1;
+            X.beginPath(); X.arc(cx, cy, easeOut(p) * reach, 0, 6.2832); X.stroke();
+            X.strokeStyle = `rgba(214,176,90,${clamp(0.5 - p, 0, 1)})`;
+            X.beginPath(); X.arc(cx, cy, easeOut(clamp(p - 0.12, 0, 1)) * reach, 0, 6.2832); X.stroke(); }
+
+        // rebirth bloom
+        if (beat.name === 'rebirth') { const p = beat.p, Rg = coreR * (1 + easeOut(p) * 4.2), g = X.createRadialGradient(cx, cy, 0, cx, cy, Rg);
+            g.addColorStop(0, `rgba(150,130,210,${0.6 * p})`); g.addColorStop(0.5, `rgba(120,140,200,${0.3 * p})`); g.addColorStop(1, 'rgba(120,140,200,0)');
+            X.fillStyle = g; X.beginPath(); X.arc(cx, cy, Rg, 0, 6.2832); X.fill();
+            X.fillStyle = '#0a0810'; X.beginPath(); X.arc(cx, cy, coreR, 0, 6.2832); X.fill(); }
+
+        // hold the final calm frame for FX_HOLD seconds (music keeps playing), then hand off.
+        // onDone fades the Mass page in over the still-showing FX backdrop and removes it after.
+        if (t >= totalT + FX_HOLD) { if (!done) { done = true; onDone(); } return; }
+        requestAnimationFrame(step);
     }
     requestAnimationFrame(step);
 }
