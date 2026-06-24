@@ -110,18 +110,24 @@ function buildPanels() {
     updateCards();
 }
 
+// Runs every UI tick (~6.7Hz). Only touch the DOM when a value actually changes — `can-afford`
+// flips as income ticks, but level/cost/maxed rarely move, so caching skips most writes.
 function updateCards() {
     for (const ref of cardRefs) {
         const u = ref.u;
         const l = G.upgrades[u.id];
         const isMax = l >= u.maxLevel;
         const cost = isMax ? null : u.costs[l];
-        ref.card.classList.toggle('is-maxed',    isMax);
-        ref.card.classList.toggle('can-afford', !isMax && G.dust >= cost);
-        ref.cost.textContent = isMax ? 'MAX' : '✦' + fmtNum(cost);
-        ref.cost.classList.toggle('maxed', isMax);
+        const afford = !isMax && G.dust >= cost;
 
-        ref.level.textContent = `${l} / ${u.maxLevel}`;
-
+        if (ref._afford !== afford) { ref.card.classList.toggle('can-afford', afford); ref._afford = afford; }
+        if (ref._max !== isMax) {
+            ref.card.classList.toggle('is-maxed', isMax);
+            ref.cost.classList.toggle('maxed', isMax);
+            ref._max = isMax;
+        }
+        const costText = isMax ? 'MAX' : '✦' + fmtNum(cost);
+        if (ref._costText !== costText) { ref.cost.textContent = costText; ref._costText = costText; }
+        if (ref._lvl !== l) { ref.level.textContent = `${l} / ${u.maxLevel}`; ref._lvl = l; }
     }
 }

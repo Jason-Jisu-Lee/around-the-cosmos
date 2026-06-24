@@ -63,10 +63,12 @@ function openCosmoCard(target) {
 }
 function closeCosmoCard()      { pinnedTarget = null; cosmoCard.style.display = 'none'; }
 
+let _cursorSet = false;
 function updateCosmoTip() {
     const over = cosmoOver ? cosmoTargetAt(cosmoMx, cosmoMy) : null;
 
-    canvas.style.cursor = 'url(assets/cursors/needle.png?v=63) 3 3, default';
+    // The needle cursor is a fixed value — set it once, not every frame (nothing else writes it).
+    if (!_cursorSet) { canvas.style.cursor = 'url(assets/cursors/needle.png?v=63) 3 3, default'; _cursorSet = true; }
 
     if (over && !pinnedTarget) {
         const html = cosmoBody(over, false);
