@@ -265,6 +265,36 @@ Plus a one-sentence flavor line introducing the Lacuna as the protagonist.
 
 ---
 
+## Accretion (prestige)
+Collapse the whole universe into the Lacuna to bank **Mass**, then spend it on permanent upgrades
+that carry into every future universe.
+
+- **Unlocks** the first time a run reaches **200,000** stardust (and there's ≥1 Mass to claim).
+- **Mass earned** = `floor(3 × √(lifetime stardust / 200,000))` → 200k = 3, 800k = 6, 1.8M = 9, 5M = 15.
+  It's all-time-based and anti-farmed (re-earning the same stardust grants nothing). **Greater Collapse**
+  multiplies what you actually receive, going forward.
+- **What resets:** stardust + every stardust upgrade. **What you keep:** Mass and everything you bought with it.
+
+### Mass upgrades (few, powerful — 1–3 Mass per level)
+| Tab | Node | Effect / level | Lvls | Mass cost |
+|---|---|---|---|---|
+| Lacuna | **Denser Core** | +50% pulse income | 5 | 1·2·3·4·5 |
+| Lacuna | **First Light** | begin each universe with ✦ 1,000 → 5,000 → 20,000 *(unlocks after Denser Core)* | 3 | 3·6·10 |
+| Orbiters | **Heavier Bodies** | +50% to every orbiter's payout | 5 | 1·2·3·4·5 |
+| Orbiters | **Retained Companions** | start with the Dust Particle → Asteroid → Moon already formed | 3 | 2·3·5 |
+| Phenomena | **Brighter Tails** | +50% comet windfall | 4 | 1·2·3·4 |
+| Phenomena | **Comet Shower** | comets arrive ~15% sooner (gap ×0.85) | 3 | 1·2·3 |
+| Cycles | **Greater Collapse** | ×Mass per accretion (1 + level/3 → up to ×2) | 3 | 2·3·4 |
+| Cycles | **Lunar Favor** | +10% average moon payout | 3 | 1·2·3 |
+
+First Light + Retained Companions take effect at the **birth** of each universe, so they shrink the
+opening grind on every subsequent run. You can spend Mass **only on the Mass page right after an
+Accretion**; an **Undo** button (top-right) refunds any purchase made on that page, back to the start
+of the session (it never touches Mass spent in earlier accretions). The **Mass Upgrades** button
+(bottom-left, after your first Accretion) lets you *view* the tree any time, but not spend.
+
+---
+
 ## Not in yet (planned)
-Prestige (black-hole consumption → Dark Matter), center evolution stages, the Lacuna upgrade
-pillar, solar events, more orbiter types, the tabbed per-orbiter UI (once >5 orbiters).
+Center evolution stages, the Lacuna upgrade pillar, solar events, more orbiter types,
+more Mass nodes + new prestige mechanics, the tabbed per-orbiter UI (once >5 orbiters).

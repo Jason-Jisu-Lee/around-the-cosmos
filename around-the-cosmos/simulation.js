@@ -27,7 +27,7 @@ function tick(dt) {
             const w = (Math.PI*2 / PLANET_DEF[o.ring].period) * o.speed();
             clump.angle += w*dt;
             if (clump.angle >= clump.nextTop) {
-                clump.nextTop += Math.PI*2 * (o.avgPayout ? 1 + (Math.random()-0.5)*0.3 : 1);
+                clump.nextTop += Math.PI*2;   // pay once per revolution, at the top of the orbit (every orbiter)
                 const pos = o.clumpPos();
                 earn(bodies.length * o.payout(), pos.x, pos.y-12);
                 G.orbitsCompleted++;

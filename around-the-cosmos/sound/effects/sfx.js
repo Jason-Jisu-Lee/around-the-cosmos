@@ -2,8 +2,27 @@
 
 
 let orbitSfxCooldown = 0;
+let hoverSfxCooldown = 0;
 
 function sfxTap()  { if (!SND.ctx) return; tone('triangle', 700, SND.ctx.currentTime, 0.13, 0.22, SND.sfxBus, 420); }
+
+// "Warm" upgrade-hover blip — a low sine (294→250 Hz) under a 600 Hz low-pass: felt more than heard.
+// Deliberately tiny since it fires whenever the cursor crosses an upgrade; a 40 ms cooldown stops
+// fast sweeps from machine-gunning it. (tone() has no filter, so this is built by hand.)
+function sfxHover() {
+    if (!SND.ctx) return;
+    const t = SND.ctx.currentTime;
+    if (t < hoverSfxCooldown) return;
+    hoverSfxCooldown = t + 0.04;
+    const o = SND.ctx.createOscillator(), g = SND.ctx.createGain(), f = SND.ctx.createBiquadFilter();
+    o.type = 'sine'; o.frequency.setValueAtTime(294, t); o.frequency.exponentialRampToValueAtTime(250, t + 0.10);
+    f.type = 'lowpass'; f.frequency.value = 600;
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(0.055, t + 0.006);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.10);
+    o.connect(g); g.connect(f); f.connect(SND.sfxBus);
+    o.start(t); o.stop(t + 0.15);
+}
 // The Lacuna's once-a-second pulse tick — deliberately soft and low (it plays forever):
 // a warm low sine with a gentle decay and a low-pass so it sits under the music, not over it.
 function sfxPulse() {
@@ -17,7 +36,7 @@ function sfxOrbit() {
     const now = SND.ctx.currentTime;
     if (now < orbitSfxCooldown) return;
     orbitSfxCooldown = now + 0.4;
-    [[523.25,0],[659.25,0.07],[784,0.14]].forEach(([f,d]) => tone('sine',f,now+d,0.6,0.13));
+    [[523.25,0],[659.25,0.07],[784,0.14]].forEach(([f,d]) => tone('sine',f,now+d,0.6,0.10));
 }
 function sfxComet() {
     if (!SND.ctx) return;

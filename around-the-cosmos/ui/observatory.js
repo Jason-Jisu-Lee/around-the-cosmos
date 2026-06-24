@@ -49,7 +49,7 @@ function updateObservatory() {
         const name = o.id.charAt(0).toUpperCase() + o.id.slice(1);
         popParts.push(`${name} ✦${fmtNum(n * pay)}`);
     }
-    const cometVal = Math.round(10 * pulseVal + 1.25 * orbiterSum);
+    const cometVal = Math.round((10 * pulseVal + 1.25 * orbiterSum) * brighterTailsMult());   // matches catchComet
 
     const showOrbiter = totalOrbiters >= 1, showComet = G.cometSeen;
     const sig = (showOrbiter ? 'O' : '') + (showComet ? 'C' : '');

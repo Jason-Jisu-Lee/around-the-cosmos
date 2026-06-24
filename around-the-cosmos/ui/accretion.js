@@ -5,62 +5,56 @@
    real Mass economy + upgrades come later. */
 
 const ACC_CATS = ['Lacuna', 'Orbiters', 'Phenomena', 'Cycles'];
-const ACC_SUB  = {
-    Lacuna:   'The dark center, deepened.',
-    Orbiters: 'Bodies that circle and pay.',
-    Phenomena:'Comets, light, rare events.',
-    Cycles:   'Time, rhythm, automation.',
-};
 
 // ringed accreting mass — deliberately not a star
 const ACC_MASS_ICON = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none">'
     + '<ellipse cx="12" cy="12" rx="10.5" ry="3.9" transform="rotate(-22 12 12)" stroke="#a8853a" stroke-width="1.5"/>'
     + '<circle cx="12" cy="12" r="4.6" fill="#a8853a"/></svg>';
 
-// [state, level, max] — irregular tier widths + irregular availability (placeholder)
-const ACC_TREE = {
-    Lacuna: [
-        [['max',5,5]],
-        [['up',4,5],['up',2,4]],
-        [['avail',0,5],['avail',0,5]],
-        [['lock',0,3],['lock',0,5],['lock',0,5]],
-        [['lock',0,5],['lock',0,5]],
-    ],
-    Orbiters: [
-        [['max',5,5],['max',3,3]],
-        [['up',3,5],['up',1,4],['avail',0,5]],
-        [['avail',0,5],['lock',0,5]],
-        [['lock',0,5],['lock',0,5],['lock',0,5]],
-        [['lock',0,5],['lock',0,5]],
-    ],
-    Phenomena: [
-        [['max',5,5]],
-        [['up',3,5],['up',2,5]],
-        [['avail',0,5],['avail',0,5],['avail',0,5]],
-        [['avail',0,5],['avail',0,5],['lock',0,5]],
-    ],
-    Cycles: [
-        [['max',4,4]],
-        [['up',2,5]],
-        [['avail',0,5],['lock',0,5]],
-        [['lock',0,5],['lock',0,5],['lock',0,5]],
-        [['lock',0,5],['lock',0,5],['lock',0,5],['lock',0,5]],
-    ],
-};
-
 let accCat = 'Lacuna';
+// The Mass page opens in two modes: post-Accretion (accBrowse=false → game frozen, Mass spendable,
+// "Return to the Cosmos") or browse (accBrowse=true → game runs behind a translucent page, view-only,
+// "Back"). Spending is ONLY allowed in the post-Accretion mode.
+let accBrowse = false;
 
-function accTreeHTML(name) {
-    let k = 1;
-    return ACC_TREE[name].map((tier, ti) => {
-        const nodes = tier.map(([s, l, m]) => {
-            const pct = s === 'max' ? 100 : (m ? Math.round(l / m * 100) : 0);
-            const lv  = s === 'max' ? 'MAX' : `${l} / ${m}`;
-            return `<div class="acc-node ${s}"><div class="acc-nrow"><span class="acc-nm">Dummy #${k++}</span>`
-                + `<span class="acc-lv">${lv}</span></div><div class="acc-bar"><i style="width:${pct}%"></i></div></div>`;
-        }).join('');
-        return (ti ? '<div class="acc-conn"></div>' : '') + `<div class="acc-tier">${nodes}</div>`;
-    }).join('');
+const ACC_LOCK ='<svg class="acc-lock" width="14" height="14" viewBox="0 0 24 24" fill="none">'
+    + '<rect x="5" y="10.5" width="14" height="10" rx="2.2" fill="#a99f88"/>'
+    + '<path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" stroke="#a99f88" stroke-width="2.1"/></svg>';
+
+// A single Mass-upgrade node. Visibility (from mass.js) drives the whole look:
+//   locked → only the name + a lock icon (effect/cost hidden, for mystery)
+//   next   → full info but dimmed + a "NEXT TIER" tag, not buyable
+//   available → full info; gold + clickable when affordable, plain otherwise, solid gold when maxed
+function accNodeHTML(u) {
+    const vis = massNodeVis(u);
+    if (vis === 'locked') {
+        return `<div class="acc-node locked"><div class="acc-nrow"><span class="acc-nm">${u.name}</span>${ACC_LOCK}</div></div>`;
+    }
+    const l = mlvl(u.id), maxed = l >= u.max;
+    const cost = maxed ? null : u.costs[l];
+    const afford = !accBrowse && vis === 'available' && !maxed && G.mass >= cost;
+    const state = vis === 'next' ? 'next' : maxed ? 'max' : afford ? 'avail' : (l > 0 ? 'up' : '');
+    const pct = Math.round(l / u.max * 100);
+    const lv  = maxed ? 'MAX' : `${l} / ${u.max}`;
+    const costHTML = maxed
+        ? `<span class="acc-ncost done">Maxed</span>`
+        : `<span class="acc-ncost${afford ? ' ok' : ''}">${cost} Mass</span>`;
+    const eyebrow = vis === 'next' ? `<div class="acc-neyebrow">Next tier</div>` : '';
+    const idAttr  = (!accBrowse && vis === 'available') ? ` data-id="${u.id}"` : '';   // only buyable post-Accretion
+    return `<div class="acc-node ${state}"${idAttr}>${eyebrow}`
+        + `<div class="acc-nrow"><span class="acc-nm">${u.name}</span><span class="acc-lv">${lv}</span></div>`
+        + `<div class="acc-bar"><i style="width:${pct}%"></i></div>`
+        + `<div class="acc-ndesc">${u.eff(l)}</div>`
+        + `<div class="acc-nfoot"><span class="acc-nflavor">${u.flavor}</span>${costHTML}</div>`
+        + `</div>`;
+}
+
+// The category's tree: tiers stacked top→bottom (a connector between them), nodes within a tier in a row.
+function accTreeHTML(cat) {
+    return massCatTiers(cat).map((t, i) =>
+        (i ? '<div class="acc-conn"></div>' : '')
+        + `<div class="acc-tier">${massTierNodes(cat, t).map(accNodeHTML).join('')}</div>`
+    ).join('');
 }
 
 function accRender() {
@@ -73,14 +67,54 @@ function accRender() {
     tabs.querySelectorAll('.acc-tab').forEach(b =>
         b.addEventListener('click', () => { accCat = b.dataset.c; accRender(); }));
 
-    document.getElementById('acc-title').textContent = accCat;
-    document.getElementById('acc-sub').textContent   = ACC_SUB[accCat];
-    document.getElementById('acc-tree').innerHTML     = accTreeHTML(accCat);
+    const tree = document.getElementById('acc-tree');
+    tree.innerHTML = accTreeHTML(accCat);
+    tree.querySelectorAll('.acc-node').forEach(node =>
+        node.addEventListener('mouseenter', () => SoundSystem.sfxHover()));   // warm hover on every node
+    tree.querySelectorAll('.acc-node[data-id]').forEach(node =>
+        node.addEventListener('click', () => { if (buyMassUpgrade(node.dataset.id)) accRender(); }));
+
+    // Undo button — only in spend (post-Accretion) mode, only when there's a purchase to undo.
+    document.getElementById('acc-undo').style.display = (!accBrowse && canUndoMass()) ? 'block' : 'none';
 }
 
-function openAccretion()  { document.getElementById('accretion-screen').classList.add('show'); accRender(); startAccStars(); }
-// "Begin again" — leave the Mass page; the freshly-born universe resumes.
+// Post-Accretion Mass page: opaque + own starfield, game frozen behind, Mass spendable.
+function openAccretion() {
+    accBrowse = false;
+    resetMassBuyLog();             // a fresh spending session — Undo starts empty
+    const screen = document.getElementById('accretion-screen');
+    screen.classList.remove('browse');
+    document.getElementById('acc-return').textContent = 'Return to the Cosmos';
+    screen.classList.add('show'); accRender(); startAccStars();
+}
+
+// Browse mode (Mass Upgrades button): translucent page over the STILL-RUNNING game, view-only.
+function openMassBrowse() {
+    if (accreting) return;   // not during the accretion freeze
+    accBrowse = true;
+    const screen = document.getElementById('accretion-screen');
+    screen.classList.add('browse');
+    document.getElementById('acc-return').textContent = 'Back';
+    screen.classList.add('show'); accRender();   // no startAccStars — the real sky shows through; no freeze
+}
+function closeMassBrowse() {
+    const screen = document.getElementById('accretion-screen');
+    screen.classList.remove('show'); screen.classList.remove('browse');
+    accBrowse = false;
+}
+
+// The back/return button — branches on mode.
+function onAccBack() {
+    if (accBrowse) closeMassBrowse();        // browsing → just leave, game never stopped
+    else openAccLeaveConfirm();              // post-Accretion → warn before giving up the chance to spend
+}
+
+function openAccLeaveConfirm()  { document.getElementById('acc-leave-confirm').classList.add('show'); }
+function closeAccLeaveConfirm() { document.getElementById('acc-leave-confirm').classList.remove('show'); }
+
+// Actually leave the post-Accretion Mass page; the freshly-born universe resumes.
 function closeAccretion() {
+    closeAccLeaveConfirm();
     document.getElementById('accretion-screen').classList.remove('show');
     accStarsRunning = false;
     accreting = false;   // unfreeze: the new universe begins
@@ -104,17 +138,34 @@ function startAccStars() {
     })(performance.now());
 }
 
+// True when the MUSIC specifically is silenced — either the master mute is on, or the music
+// volume slider is at 0. (Effects being muted on their own does NOT count.) Used to nudge the
+// player to unmute before the music-timed collapse animation.
+function musicMuted() {
+    if (typeof SoundSystem !== 'undefined' && SoundSystem.isMuted()) return true;
+    const el = document.getElementById('vol-music');
+    return el ? parseInt(el.value, 10) === 0 : false;
+}
+
 // Plain-language confirmation before committing an Accretion.
 function accConfirmBody() {
     const gain = massGain();
+    // After claiming, massEarned reaches massEarnable(); the NEXT Mass point lands when lifetime
+    // stardust reaches the threshold for one more (massEarnable formula solved for totalDust).
+    const nextThreshold = ACCRETION_THRESHOLD * Math.pow((massEarnable() + 1) / 3, 2);
+    const needed = Math.max(0, Math.ceil(nextThreshold - G.totalDust));
+    const muteNote = musicMuted()
+        ? `<p class="acc-mutehint">♪ The collapse is set to music — we recommend unmuting to hear it.</p>`
+        : '';
     return `<p>This pulls everything in your universe into the Lacuna and collapses it.</p>
         <p class="acc-gain">You'll gain <b>${gain} Mass</b>.</p>
         <p>Mass comes from <b>all the stardust you've ever gathered</b> (${fmtNum(G.totalDust)} so far).
            The more you collect over your whole journey, the more Mass — so it grows slowly, and
            re-earning the same amount again barely adds any.</p>
+        <p class="acc-next"><b>Next Mass:</b> ✦${fmtNum(needed)} more.</p>
         <p><b>What resets:</b> your stardust drops to zero and every stardust upgrade
            (Cosmic Pulse, the orbiters, Resonance…) is undone. You start a fresh universe.</p>
-        <p><b>What you keep:</b> your Mass, and anything you spend it on.</p>`;
+        <p><b>What you keep:</b> your Mass, and anything you spend it on.</p>${muteNote}`;
 }
 function openAccConfirm() {
     document.getElementById('acc-confirm-body').innerHTML = accConfirmBody();
@@ -128,7 +179,7 @@ let accreting = false;
 
 // One-shot accretion cue, played over the (otherwise silenced) animation.
 const accretionAudio = new Audio('sound/music/accretion-1.mp3');
-accretionAudio.volume = 0.8;
+accretionAudio.volume = 0.68;   // 0.8 reduced 15%
 
 function startAccretionSequence() {
     closeAccConfirm();
@@ -283,11 +334,16 @@ function runAccretionFx(onDone) {
 }
 
 document.getElementById('accretion-btn').addEventListener('click', openAccConfirm);
-document.getElementById('acc-return').addEventListener('click', closeAccretion);
+document.getElementById('mass-upgrades-btn').addEventListener('click', openMassBrowse);
+document.getElementById('acc-undo').addEventListener('click', () => { if (undoLastMassUpgrade()) accRender(); });
+document.getElementById('acc-return').addEventListener('click', onAccBack);
 document.getElementById('acc-confirm-cancel').addEventListener('click', closeAccConfirm);
 document.getElementById('acc-confirm-go').addEventListener('click', startAccretionSequence);
+document.getElementById('acc-leave-stay').addEventListener('click', closeAccLeaveConfirm);
+document.getElementById('acc-leave-go').addEventListener('click', closeAccretion);
 document.addEventListener('keydown', e => {
     if (e.key !== 'Escape') return;
-    if (document.getElementById('acc-confirm').classList.contains('show')) closeAccConfirm();
-    else if (document.getElementById('accretion-screen').classList.contains('show')) closeAccretion();
+    if (document.getElementById('acc-leave-confirm').classList.contains('show')) closeAccLeaveConfirm();
+    else if (document.getElementById('acc-confirm').classList.contains('show')) closeAccConfirm();
+    else if (document.getElementById('accretion-screen').classList.contains('show')) onAccBack();
 });

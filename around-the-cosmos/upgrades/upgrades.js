@@ -37,7 +37,7 @@ const UPGRADES = [
     section: "MAIN",
     costs: [5000, 12000],
     flavor: "Let your own gathered weight do some of the pulling.",
-    desc: () => "+1% of all orbiter payout added to every pulse, per level.",
+    desc: (l) => `+1% of all orbiter payout added to every pulse, per level.<br><b>Current bonus:</b> +✦${fmtNum(Math.round(0.01 * l * orbiterPayoutSum()))} per pulse`,
     unlock: () => lvl("grasp") >= 3, // after Pulse Surge is maxed
   },
   {

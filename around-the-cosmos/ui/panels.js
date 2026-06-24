@@ -44,7 +44,7 @@ function makeCard(u) {
         if (visibleSig() !== lastVisibleSig) buildPanels(); else updateCards();
     });
 
-    card.addEventListener('mouseenter', () => showUpgPop(u, card));
+    card.addEventListener('mouseenter', () => { showUpgPop(u, card); SoundSystem.sfxHover(); });
     card.addEventListener('mouseleave', hideUpgPop);
     cardRefs.push({ u, card,
         cost:  card.querySelector('.upg-cost'),

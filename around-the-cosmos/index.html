@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=123">
+    <link rel="stylesheet" href="style.css?v=141">
 </head>
 <body>
     <div id="app">
@@ -72,18 +72,20 @@
         <div id="stats-list"></div>
     </div>
 
-    <div id="accretion-btn">Accretion</div>
+    <!-- Bottom-left prestige buttons: Accretion (top, when claimable) + Mass Upgrades (bottom, after 1st accretion) -->
+    <div id="prestige-btns">
+        <div id="accretion-btn">Accretion</div>
+        <div id="mass-upgrades-btn">Mass Upgrades</div>
+    </div>
 
     <!-- Accretion (prestige) screen — overlays the live page; opens from #accretion-btn -->
     <div id="accretion-screen">
         <canvas id="acc-stars"></canvas>
-        <div class="acc-eyebrow">Accretion</div>
+        <button id="acc-undo" class="acc-undo">↶ Undo</button>
         <button id="acc-return" class="acc-return">Return to the Cosmos</button>
         <div id="acc-mass" class="acc-masshdr"></div>
         <div id="acc-tabs" class="acc-tabs"></div>
         <div class="acc-stage">
-            <div id="acc-title" class="acc-stitle"></div>
-            <div id="acc-sub" class="acc-ssub"></div>
             <div id="acc-tree" class="acc-tree"></div>
         </div>
     </div>
@@ -106,45 +108,62 @@
         </div>
     </div>
 
+    <!-- Leave-confirm modal — shown when leaving the post-Accretion Mass page (where Mass can be spent) -->
+    <div id="acc-leave-confirm" class="acc-confirm">
+        <div class="acc-confirm-box">
+            <div class="acc-confirm-title">Return to the Cosmos?</div>
+            <div class="acc-confirm-body">
+                <p>You can only <b>spend Mass right after an Accretion</b> — here, now. Once you return,
+                   you'll be able to <b>view</b> the tree any time, but <b>not spend</b> until your next Accretion.</p>
+                <p>Any unspent Mass is kept safely for then.</p>
+            </div>
+            <div class="acc-confirm-actions">
+                <button id="acc-leave-stay" class="acc-btn-ghost">Keep spending</button>
+                <button id="acc-leave-go" class="acc-btn-go">Return anyway</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Shared upgrade description popup (positioned to the left of the hovered card) -->
     <div id="upg-pop"></div>
 
     <!-- Core -->
-    <script src="config.js?v=123"></script>
-    <script src="state.js?v=123"></script>
+    <script src="config.js?v=141"></script>
+    <script src="state.js?v=141"></script>
 
     <!-- Sound (engine + effects + music) -->
-    <script src="sound/core.js?v=123"></script>
-    <script src="sound/effects/sfx.js?v=123"></script>
-    <script src="sound/music/tracks.js?v=123"></script>
-    <script src="sound/sound.js?v=123"></script>
+    <script src="sound/core.js?v=141"></script>
+    <script src="sound/effects/sfx.js?v=141"></script>
+    <script src="sound/music/tracks.js?v=141"></script>
+    <script src="sound/sound.js?v=141"></script>
 
     <!-- Orbiters (one component per type) -->
-    <script src="orbiters/registry.js?v=123"></script>
-    <script src="orbiters/dust.js?v=123"></script>
-    <script src="orbiters/asteroid.js?v=123"></script>
-    <script src="orbiters/moon.js?v=123"></script>
+    <script src="orbiters/registry.js?v=141"></script>
+    <script src="orbiters/dust.js?v=141"></script>
+    <script src="orbiters/asteroid.js?v=141"></script>
+    <script src="orbiters/moon.js?v=141"></script>
 
     <!-- Upgrades -->
-    <script src="upgrades/upgrades.js?v=123"></script>
+    <script src="upgrades/upgrades.js?v=141"></script>
+    <script src="upgrades/mass.js?v=141"></script>
 
     <!-- Render + simulation -->
-    <script src="assets/click-effects/effects.js?v=123"></script>
-    <script src="render.js?v=123"></script>
-    <script src="stars.js?v=123"></script>
-    <script src="comet/comet.js?v=123"></script>
-    <script src="simulation.js?v=123"></script>
+    <script src="assets/click-effects/effects.js?v=141"></script>
+    <script src="render.js?v=141"></script>
+    <script src="stars.js?v=141"></script>
+    <script src="comet/comet.js?v=141"></script>
+    <script src="simulation.js?v=141"></script>
 
     <!-- UI -->
-    <script src="ui/panels.js?v=123"></script>
-    <script src="ui/observatory.js?v=123"></script>
-    <script src="ui/hud.js?v=123"></script>
-    <script src="ui/cosmo.js?v=123"></script>
-    <script src="ui/accretion.js?v=123"></script>
+    <script src="ui/panels.js?v=141"></script>
+    <script src="ui/observatory.js?v=141"></script>
+    <script src="ui/hud.js?v=141"></script>
+    <script src="ui/cosmo.js?v=141"></script>
+    <script src="ui/accretion.js?v=141"></script>
 
     <!-- App -->
-    <script src="settings.js?v=123"></script>
-    <script src="debug.js?v=123"></script>
-    <script src="main.js?v=123"></script>
+    <script src="settings.js?v=141"></script>
+    <script src="debug.js?v=141"></script>
+    <script src="main.js?v=141"></script>
 </body>
 </html>

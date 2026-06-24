@@ -34,9 +34,13 @@ function setPaused(p) {
 }
 
 function resetGame() {
-    if (!confirm('Reset all progress?')) return;
-    localStorage.removeItem(CFG.SAVE_KEY);
-    G = createInitialState(); buildPanels();
+    if (!confirm('Reset ALL progress? This erases everything — stardust, upgrades, AND Mass — and starts a brand-new game.')) return;
+    localStorage.clear();                          // wipe save + settings + any legacy (lacuna_*) keys
+    if (typeof accreting !== 'undefined') accreting = false;
+    G = createInitialState();                      // fresh state IN PLACE — no page reload, so the audio
+    if (typeof closeCosmoCard === 'function') closeCosmoCard();   // context survives and music keeps playing
+    if (typeof resetPanelAnimations === 'function') resetPanelAnimations();
+    buildPanels();
 }
 
 
@@ -70,24 +74,28 @@ document.getElementById('show-completed').addEventListener('change', e => {
 });
 
 
+// Browsers block AudioContext until the first user gesture (autoplay policy) — unavoidable on a fresh
+// page load. We listen on the EARLIEST gesture events (pointerdown/touchstart/keydown fire on press,
+// before a full click completes) so the very first interaction starts the music with no extra step.
 let _savedVols = { mv:75, sv:75, track:0 };
+const _BOOT_EVENTS = ['pointerdown', 'touchstart', 'mousedown', 'keydown', 'click'];
 const _bootAudio = () => {
     SoundSystem.boot(); SoundSystem.loadTrack(_savedVols.track); SoundSystem.startMusic();
     SoundSystem.setMusicVolume(_savedVols.mv); SoundSystem.setSfxVolume(_savedVols.sv);
     if (paused) SoundSystem.stopMusic();   // first gesture was the pause button — stay silent while paused
-    window.removeEventListener('click',   _bootAudio);
-    window.removeEventListener('keydown', _bootAudio);
+    _BOOT_EVENTS.forEach(ev => window.removeEventListener(ev, _bootAudio));
 };
-window.addEventListener('click',   _bootAudio);
-window.addEventListener('keydown', _bootAudio);
+_BOOT_EVENTS.forEach(ev => window.addEventListener(ev, _bootAudio));
 
 
 function initDraggable(el) {
     el.addEventListener('mousedown', e => {
         if (e.target.closest('button, input, a')) return;
         const rect=el.getBoundingClientRect(), ox=e.clientX-rect.left, oy=e.clientY-rect.top;
+        // Pin to pixel coords AND clear any centering transform — otherwise a panel positioned with
+        // translateX(-50%) (the debug panel) lurches left by half its width when a drag starts.
         el.style.left=rect.left+'px'; el.style.top=rect.top+'px';
-        el.style.bottom='auto'; el.style.right='auto';
+        el.style.bottom='auto'; el.style.right='auto'; el.style.transform='none';
         const onMove=mv => { el.style.left=(mv.clientX-ox)+'px'; el.style.top=(mv.clientY-oy)+'px'; };
         const onUp=() => { document.removeEventListener('mousemove',onMove); document.removeEventListener('mouseup',onUp); };
         document.addEventListener('mousemove',onMove); document.addEventListener('mouseup',onUp); e.preventDefault();

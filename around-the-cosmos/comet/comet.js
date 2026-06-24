@@ -3,7 +3,8 @@
 
 
 function randCometGap() {
-    return CFG.COMET_MIN_GAP + Math.random()*(CFG.COMET_MAX_GAP-CFG.COMET_MIN_GAP);
+    // Comet Shower (Mass upgrade) shrinks the gap so comets arrive sooner.
+    return (CFG.COMET_MIN_GAP + Math.random()*(CFG.COMET_MAX_GAP-CFG.COMET_MIN_GAP)) * cometShowerMult();
 }
 
 function spawnComet() {
@@ -21,7 +22,7 @@ function catchComet() {
 
     let combined = 0;
     for (const o of ORBITERS) combined += o.list().length * o.payout();
-    const windfall = Math.round(10 * pulseValue() + 1.25 * combined);
+    const windfall = Math.round((10 * pulseValue() + 1.25 * combined) * brighterTailsMult());   // Brighter Tails (Mass)
     earn(windfall, c.x, c.y-20, true);
     G.cometsCaught++; G.cometSeen = true; SoundSystem.sfxComet();
     burst(c.x, c.y, 'rgba(60,80,70,', 26, 180);

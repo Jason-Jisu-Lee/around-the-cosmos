@@ -47,8 +47,8 @@ function initStars(n) {
         const idle = 3500 + rnd() * 6000;
         // base size, then a per-star 75%–125% scale for more size variety
         const size = (16 + rnd() * 26) * (0.75 + rnd() * 0.5);
-        // per-star shine-duration scale 80%–120% so they don't all twinkle in lockstep
-        const sscale = 0.8 + rnd() * 0.4;
+        // per-star shine-duration scale 120%–140% so they don't all twinkle in lockstep
+        const sscale = 1.2 + rnd() * 0.2;
         _stars.push({ fx, fy, size, sscale, idle, off: rnd() * (STAR_TOTAL * sscale + idle) });
     }
 }

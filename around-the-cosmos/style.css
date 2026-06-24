@@ -22,7 +22,7 @@
 html, body { cursor: var(--cursor); }
 button, label, input, select, textarea, a,
 .upgrade-card, .acc-head, .track-btn, .stat-pop-row, .vol-val,
-#observatory, #accretion-btn, #show-completed, #show-completed-wrap {
+#observatory, #accretion-btn, #mass-upgrades-btn, #show-completed, #show-completed-wrap {
     cursor: var(--cursor) !important;
 }
 /* Themed text selection (parchment/gold), not browser blue. */
@@ -218,9 +218,14 @@ body {
 
 /* Accretion (prestige) button — fixed at the bottom-left of the screen (not movable).
    The 10% accent "pop": a saturated teal that stands out against the parchment 60%. */
-#accretion-btn {
-    display: none;  /* shown by JS once lifetime stardust first passes 200k */
+/* Bottom-left prestige button stack: Accretion (top) over Mass Upgrades (bottom).
+   The container is bottom-anchored, so items grow upward → Mass Upgrades sits lowest. */
+#prestige-btns {
     position: fixed; bottom: 18px; left: 18px; z-index: 50; user-select: none;
+    display: flex; flex-direction: column; gap: 10px; align-items: flex-start;
+}
+#accretion-btn {
+    display: none;  /* shown by JS when an Accretion is claimable */
     background: var(--accretion); border: none; color: #f6f3ec;
     padding: 13px 26px; border-radius: 7px; letter-spacing: 0.14em; font-weight: 700;
     font-family: 'Optima','Candara','Century Gothic',sans-serif; font-size: 15px;
@@ -229,6 +234,17 @@ body {
 }
 #accretion-btn:hover { background: var(--accretion-hi); box-shadow: 0 6px 20px rgba(74,130,168,0.5); }
 #accretion-btn:active { transform: translateY(1px); }
+
+#mass-upgrades-btn {
+    display: none;  /* shown by JS after the first Accretion (G.massEarned > 0) */
+    background: rgba(244,240,232,0.92); border: 1.5px solid var(--accretion); color: var(--accretion);
+    padding: 10px 22px; border-radius: 7px; letter-spacing: 0.1em; font-weight: 700;
+    font-family: 'Optima','Candara','Century Gothic',sans-serif; font-size: 13.5px;
+    box-shadow: 0 3px 10px rgba(74,130,168,0.18);
+    transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
+}
+#mass-upgrades-btn:hover { background: #fff; box-shadow: 0 5px 14px rgba(74,130,168,0.28); }
+#mass-upgrades-btn:active { transform: translateY(1px); }
 
 .upgrade-card {
     position: relative;
@@ -376,18 +392,29 @@ body {
     font-family: 'Nunito','Segoe UI',sans-serif; color: #1a1a1a;
 }
 #accretion-screen.show { display: flex; }
+/* Browse mode (opened from the Mass Upgrades button): translucent so the still-running game shows
+   faintly behind, and no star canvas (the real sky is what shows through). */
+#accretion-screen.browse { background: rgba(244,240,232,0.8); }
+#accretion-screen.browse #acc-stars { display: none; }
 #acc-stars { position: absolute; inset: 0; z-index: 0; pointer-events: none; }   /* background stars */
 /* keep all UI above the star canvas */
 .acc-masshdr, .acc-tabs, .acc-stage { position: relative; z-index: 1; }
-.acc-eyebrow, .acc-return { z-index: 1; }
-
-.acc-eyebrow { position: absolute; top: 24px; left: 28px; font-size: 12px; font-weight: 800; letter-spacing: 0.36em; text-transform: uppercase; color: #9a8f78; }
 .acc-return {
-    position: absolute; top: 18px; right: 22px; background: var(--accretion); color: #f6f3ec; border: none;
-    padding: 11px 22px; border-radius: 7px; font: 800 13px 'Nunito'; letter-spacing: 0.06em; cursor: pointer;
-    box-shadow: 0 4px 14px rgba(74,130,168,0.34); transition: background 0.15s;
+    position: absolute; bottom: 150px; left: 50%; transform: translateX(-50%);
+    z-index: 5;   /* above .acc-stage (z1) — its box overlaps the button and was eating the clicks */
+    background: var(--accretion); color: #f6f3ec; border: none;
+    padding: 16px 44px; border-radius: 10px; font: 800 18px 'Nunito'; letter-spacing: 0.06em; cursor: pointer;
+    box-shadow: 0 6px 20px rgba(74,130,168,0.38); transition: background 0.15s;
 }
 .acc-return:hover { background: var(--accretion-hi); }
+
+.acc-undo {
+    display: none; position: absolute; top: 20px; right: 24px; z-index: 5;
+    background: rgba(244,240,232,0.92); border: 1.5px solid var(--accretion); color: var(--accretion);
+    padding: 9px 20px; border-radius: 8px; font: 800 13.5px 'Nunito'; letter-spacing: 0.04em; cursor: pointer;
+    transition: background 0.15s;
+}
+.acc-undo:hover { background: #fff; }
 
 .acc-masshdr { margin-top: 18px; display: flex; align-items: center; gap: 13px; }
 .acc-masshdr svg { display: block; width: 42px; height: 42px; }
@@ -400,15 +427,13 @@ body {
 .acc-tab.on { background: #f4f0e8; color: #1a1a1a; box-shadow: 0 1px 4px rgba(0,0,0,0.12); }
 
 /* tree starts at the TOP (below the header row), fills downward — no vertical centering */
-.acc-stage { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; width: 100%; padding-top: 22px; }
-.acc-stitle { font-size: 28px; font-weight: 800; letter-spacing: 0.22em; text-transform: uppercase; }
-.acc-ssub { font-size: 15px; color: #9a8f78; font-weight: 600; margin-top: 6px; margin-bottom: 28px; }
+.acc-stage { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; width: 100%; padding-top: 34px; }
 
-.acc-tree { display: flex; flex-direction: column; align-items: center; }
+.acc-tree { display: flex; flex-direction: column; align-items: center; gap: 14px; padding-bottom: 40px; }
 .acc-tier { display: flex; gap: 20px; justify-content: center; }
 .acc-conn { width: 2px; height: 26px; background: #cdbfa0; margin: 6px 0; }
 
-.acc-node { position: relative; width: 210px; background: #f4f0e8; border: 2px solid #d8cdb5; border-radius: 11px; padding: 14px 18px 15px; }
+.acc-node { position: relative; width: 252px; background: #f4f0e8; border: 2px solid #d8cdb5; border-radius: 11px; padding: 14px 18px 15px; }
 .acc-nrow { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
 .acc-nm { font-size: 16px; font-weight: 700; color: #6b6150; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .acc-lv { font-size: 12.5px; font-weight: 800; color: #b0a589; flex-shrink: 0; font-variant-numeric: tabular-nums; }
@@ -423,6 +448,32 @@ body {
 .acc-node.max { background: #a8853a; border-color: #a8853a; }
 .acc-node.max .acc-nm { color: #fbf8f1; } .acc-node.max .acc-lv { color: #fbf8f1; }
 .acc-node.max .acc-bar { background: rgba(255,255,255,0.32); } .acc-node.max .acc-bar i { background: #fbf8f1; }
+
+/* Real Mass-upgrade node internals */
+.acc-ndesc { margin-top: 10px; font-size: 13px; font-weight: 600; color: #6b6150; }
+.acc-nfoot { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-top: 9px; }
+.acc-nflavor { font-size: 11.5px; font-style: italic; color: #a99f88; line-height: 1.35; }
+.acc-ncost { flex-shrink: 0; font-size: 12px; font-weight: 800; color: #b0a589; padding: 3px 9px; border-radius: 7px; background: #ece3cf; font-variant-numeric: tabular-nums; }
+.acc-ncost.ok { color: #fbf8f1; background: #a8853a; }
+.acc-ncost.done { color: #9a8f78; background: transparent; padding-left: 0; padding-right: 0; }
+.acc-node.avail { cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; }
+.acc-node.avail:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(168,133,58,0.22); }
+.acc-node.max .acc-ndesc { color: #fbf3e2; }
+.acc-node.max .acc-nflavor { color: #f3e6c8; }
+.acc-node.up .acc-ndesc { color: #5a5040; }
+
+/* "next" tier — visible preview, dimmed and not buyable */
+.acc-node.next { border-style: dashed; border-color: #cdbfa0; opacity: 0.78; }
+.acc-node.next .acc-nm { color: #8a8071; }
+.acc-node.next .acc-ndesc { color: #9a8f78; }
+.acc-node.next .acc-ncost { color: #a99f88; background: #efe9db; }
+.acc-neyebrow { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 800; color: #b5a98c; margin-bottom: 7px; }
+
+/* "locked" tier — title + lock icon only (effect & cost hidden for mystery) */
+.acc-node.locked { border-style: dashed; border-color: #ddd3bd; background: #f0ebe0; opacity: 0.72; }
+.acc-node.locked .acc-nrow { align-items: center; }
+.acc-node.locked .acc-nm { color: #aaa08a; font-weight: 700; }
+.acc-lock { flex-shrink: 0; opacity: 0.85; }
 
 /* Absorption animation overlay canvas (Implosion & Rebirth) */
 #accretion-fx { display: none; position: fixed; inset: 0; z-index: 110; pointer-events: none; }
@@ -443,6 +494,8 @@ body {
 .acc-confirm-body b { color: #1a1a1a; font-weight: 700; }
 .acc-confirm-body .acc-gain { font-size: 17px; color: var(--accretion); font-weight: 700; }
 .acc-confirm-body .acc-gain b { color: var(--accretion); }
+.acc-confirm-body .acc-next { padding: 8px 12px; border-radius: 8px; background: rgba(168,133,58,0.07); border: 1px solid rgba(168,133,58,0.18); font-size: 13.5px; }
+.acc-confirm-body .acc-mutehint { margin-top: 15px; padding: 9px 13px; border-radius: 8px; background: rgba(74,130,168,0.08); border: 1px solid rgba(74,130,168,0.22); font-size: 13px; font-style: italic; color: #4a82a8; }
 .acc-confirm-actions { display: flex; justify-content: flex-end; gap: 11px; margin-top: 20px; }
 .acc-btn-ghost { background: none; border: 1.5px solid #cfc6b4; color: #6b6150; border-radius: 9px; padding: 11px 24px; font: 800 13.5px 'Nunito'; letter-spacing: 0.04em; cursor: pointer; transition: all 0.12s; }
 .acc-btn-ghost:hover { border-color: #b0a589; color: #1a1a1a; background: rgba(168,133,58,0.06); }

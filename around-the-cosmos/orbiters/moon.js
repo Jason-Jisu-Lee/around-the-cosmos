@@ -13,9 +13,9 @@ function newMoonBody() {
     return { localPhase: 0, localR: 0, localSpin: 0, pulse: 0 };
 }
 
-function moonPayout()    { return Math.round((200 + 200 * lvl('moonpay')) * moonPhaseMult() * resonanceMult()); }
+function moonPayout()    { return Math.round((200 + 200 * lvl('moonpay')) * moonPhaseMult() * resonanceMult() * lunarFavorMult()); }
 
-function moonAvgPayout() { return Math.round((200 + 200 * lvl('moonpay')) * (1 + 0.10 * lvl('moonphase')) * resonanceMult()); }
+function moonAvgPayout() { return Math.round((200 + 200 * lvl('moonpay')) * (1 + 0.10 * lvl('moonphase')) * resonanceMult() * lunarFavorMult()); }
 
 function moonSpeed()        { return 0.663 * upg('moonspd').mult(lvl('moonspd')); }
 function moonOrbitsPerMin() { return 60 * moonSpeed() / PLANET_DEF[2].period; }

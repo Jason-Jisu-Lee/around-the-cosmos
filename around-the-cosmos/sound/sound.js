@@ -7,5 +7,5 @@ const SoundSystem = {
     toggleMute, isMuted,
     setMusicVolume, setSfxVolume,
     setTrack, loadTrack, getTrack,
-    sfxTap, sfxPulse, sfxOrbit, sfxBuy, sfxComet, sfxComplete,
+    sfxTap, sfxPulse, sfxOrbit, sfxBuy, sfxComet, sfxComplete, sfxHover,
 };

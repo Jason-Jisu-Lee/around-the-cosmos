@@ -18,6 +18,10 @@ function updateUI(now) {
     const accShown = !frozen && G.runDust >= ACCRETION_THRESHOLD && massGain() >= 1;
     document.getElementById('accretion-btn').style.display = accShown ? 'block' : 'none';
 
+    // Mass Upgrades (browse) button: appears once the player has ever accreted (earned any Mass).
+    const massBtnShown = !frozen && G.massEarned > 0;
+    document.getElementById('mass-upgrades-btn').style.display = massBtnShown ? 'block' : 'none';
+
     // "Hide completed" toggle only appears once the Moon has ever been owned (CSS default is flex).
     document.getElementById('upg-controls').style.display = G.moonEverOwned ? '' : 'none';
 

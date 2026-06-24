@@ -29,7 +29,7 @@ function initDebug() {
     btn('+ ✦ 1M',     () => earn(1e6));
     btn('+ ✦ 10M',    () => earn(1e7));
     btn('Spawn Comet', () => { G.comet=null; G.cometTimer=0; });
-    btn('Reset',       () => { localStorage.removeItem(CFG.SAVE_KEY); G=createInitialState(); resetPanelAnimations(); buildPanels(); });
+    btn('Reset',       () => { localStorage.clear(); if (typeof accreting !== 'undefined') accreting = false; G=createInitialState(); resetPanelAnimations(); buildPanels(); });
 
 
     const speedRow = document.createElement('div');
