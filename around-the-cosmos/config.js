@@ -5,8 +5,8 @@
 const CFG = {
     SAVE_KEY:      'around_the_cosmos_v1',
     MAX_PLANETS:   8,
-    COMET_MIN_GAP: 25,
-    COMET_MAX_GAP: 55,
+    COMET_MIN_GAP: 20,
+    COMET_MAX_GAP: 45,
     COMET_LIFE:    8,
 };
 

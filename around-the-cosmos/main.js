@@ -4,16 +4,33 @@
 
 let lastTs = 0, lastSave = 0;
 
+// gameClock is the single animation clock the whole game draws from. It advances ONLY while the
+// game is live — so pausing (or the Accretion freeze) stops the sim AND every visual (orbits,
+// twinkles, glow, the pulse bounce) at once. simulation.js triggers the pulse FX off this clock too.
+let gameClock = 0, paused = false;
+
 function loop(ts) {
     const dt = Math.min((ts-lastTs)/1000, 0.1);
     lastTs = ts;
-    if (typeof accreting === 'undefined' || !accreting) tickWithDebug(dt);  // frozen during the Accretion animation
+    const frozen = (typeof accreting !== 'undefined' && accreting) || paused;
+    if (!frozen) { gameClock += dt; tickWithDebug(dt); }   // both sim + clock stop when frozen
     lastSave += dt;
     if (lastSave >= 20) { lastSave=0; saveGame(); }
-    draw(ts/1000);
+    draw(gameClock);
     updateUI(ts);
     updateCosmoTip();
     requestAnimationFrame(loop);
+}
+
+function setPaused(p) {
+    if (paused === p) return;
+    paused = p;
+    document.getElementById('pause-overlay').classList.toggle('show', p);
+    const btn = document.getElementById('pause-btn');
+    btn.classList.toggle('paused', p);
+    btn.innerHTML = p ? '&#9654;' : '&#10074;&#10074;';   // ▶ resume  /  ❚❚ pause
+    btn.title = p ? 'Resume' : 'Pause';
+    if (typeof SoundSystem !== 'undefined') { if (p) SoundSystem.stopMusic(); else SoundSystem.startMusic(); }
 }
 
 function resetGame() {
@@ -23,47 +40,29 @@ function resetGame() {
 }
 
 
-function canvasClick(x, y) {
-    if (G.comet) {
-        const dx=G.comet.x-x, dy=G.comet.y-y;
-        if (dx*dx+dy*dy < 48*48) { catchComet(); return; }
-    }
-    if (lvl('pulse') >= 1) return;
-    earn(clickValue(), x, y-14);
-    G.taps++; SoundSystem.sfxTap(); burst(x,y,'rgba(100,80,50,',5,80);
-
-    if (clickFxRandom) clickFxId = randomClickFxId();
-    const ddx=x-CX, ddy=y-CY, dl=Math.hypot(ddx,ddy)||1;
-    triggerClickFx(performance.now()/1000, ddx/dl, ddy/dl);
-}
-
-
-let holdTimer = null, holdX = 0, holdY = 0;
+// This is an idle game — clicking never harvests. A click only catches a nearby comet
+// (the one interactive moment) or opens a body's info card. Income comes from the pulse.
 function canvasXY(e) { const r=canvas.getBoundingClientRect(); return [e.clientX-r.left, e.clientY-r.top]; }
-function stopHold() { if (holdTimer) { clearInterval(holdTimer); holdTimer = null; } }
 canvas.addEventListener('mousedown', e => {
-    [holdX, holdY] = canvasXY(e);
-
-    const cometNear = G.comet && ((G.comet.x-holdX)**2 + (G.comet.y-holdY)**2 < 48*48);
-    const tgt = cosmoTargetAt(holdX, holdY);
-    if (tgt && !cometNear) { openCosmoCard(tgt); return; }
-    canvasClick(holdX, holdY);
-    stopHold();
-    holdTimer = setInterval(() => canvasClick(holdX, holdY), 333);
+    const [mx, my] = canvasXY(e);
+    const cometNear = G.comet && ((G.comet.x-mx)**2 + (G.comet.y-my)**2 < 48*48);
+    if (cometNear) { catchComet(); return; }
+    const tgt = cosmoTargetAt(mx, my);
+    if (tgt) openCosmoCard(tgt);
 });
 canvas.addEventListener('mousemove', e => {
     [cosmoMx, cosmoMy] = canvasXY(e); cosmoOver = true;
-    if (holdTimer) [holdX, holdY] = [cosmoMx, cosmoMy];
 });
-canvas.addEventListener('mouseleave', () => { stopHold(); cosmoOver = false; });
-window.addEventListener('mouseup', stopHold);
-window.addEventListener('blur', stopHold);
+canvas.addEventListener('mouseleave', () => { cosmoOver = false; });
 
 
 document.getElementById('mute-btn').addEventListener('click', () => {
     const m=SoundSystem.toggleMute();
     document.getElementById('mute-btn').classList.toggle('muted',m);
 });
+
+document.getElementById('pause-btn').addEventListener('click', () => setPaused(!paused));
+document.getElementById('pause-overlay').addEventListener('click', () => setPaused(false));
 
 document.getElementById('show-completed').addEventListener('change', e => {
     showCompleted = !e.target.checked;
@@ -75,6 +74,7 @@ let _savedVols = { mv:75, sv:75, track:0 };
 const _bootAudio = () => {
     SoundSystem.boot(); SoundSystem.loadTrack(_savedVols.track); SoundSystem.startMusic();
     SoundSystem.setMusicVolume(_savedVols.mv); SoundSystem.setSfxVolume(_savedVols.sv);
+    if (paused) SoundSystem.stopMusic();   // first gesture was the pause button — stay silent while paused
     window.removeEventListener('click',   _bootAudio);
     window.removeEventListener('keydown', _bootAudio);
 };

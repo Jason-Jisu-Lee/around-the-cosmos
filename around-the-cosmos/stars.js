@@ -1,7 +1,9 @@
 'use strict';
 
 
-const STAR_SEQ = [[1,40],[2,40],[3,42],[0,70],[4,55],[5,58],[6,60],[7,62],[8,58],[9,42],[10,40],[11,40],[12,40],[13,48],[1,40],[2,40],[3,42]];
+const STAR_SHINE_SCALE = 1.2;   // lengthen the shine (fade in/out) by 20%
+const STAR_SEQ = [[1,40],[2,40],[3,42],[0,70],[4,55],[5,58],[6,60],[7,62],[8,58],[9,42],[10,40],[11,40],[12,40],[13,48],[1,40],[2,40],[3,42]]
+    .map(([f, d]) => [f, Math.round(d * STAR_SHINE_SCALE)]);
 const STAR_TOTAL = STAR_SEQ.reduce((s, p) => s + p[1], 0);
 const STAR_EDGE = [168, 144, 92], STAR_CORE = [210, 186, 130];
 const STAR_ALPHA = 0.42;
@@ -43,20 +45,25 @@ function initStars(n) {
         while (Math.hypot(fx - 0.5, fy - 0.5) < 0.16);
 
         const idle = 3500 + rnd() * 6000;
-        _stars.push({ fx, fy, size: 16 + rnd() * 26, idle, off: rnd() * (STAR_TOTAL + idle) });
+        // base size, then a per-star 75%–125% scale for more size variety
+        const size = (16 + rnd() * 26) * (0.75 + rnd() * 0.5);
+        // per-star shine-duration scale 80%–120% so they don't all twinkle in lockstep
+        const sscale = 0.8 + rnd() * 0.4;
+        _stars.push({ fx, fy, size, sscale, idle, off: rnd() * (STAR_TOTAL * sscale + idle) });
     }
 }
 
 // Defaults to the game canvas (ctx/W/H); the Accretion page passes its own context + dims
 // so the exact same looping stars render behind the Mass UI.
 function drawStars(t, g = ctx, w = W, h = H) {
-    if (!_stars) initStars(10);
+    if (!_stars) initStars(22);
     const ms = t * 1000;
     g.save(); g.globalAlpha = STAR_ALPHA;
     for (const st of _stars) {
-        const phase = (ms + st.off) % (STAR_TOTAL + st.idle);
-        if (phase >= STAR_TOTAL) continue;
-        const f = starFrameAt(phase);
+        const total = STAR_TOTAL * st.sscale;                 // this star's shine length (80–120% of base)
+        const phase = (ms + st.off) % (total + st.idle);
+        if (phase >= total) continue;
+        const f = starFrameAt(phase / st.sscale);             // unscale before mapping into STAR_SEQ frames
         if (!f) continue;
         const img = STAR_TINTED[f];
         if (!img) continue;

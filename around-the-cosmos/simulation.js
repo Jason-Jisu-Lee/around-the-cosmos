@@ -1,20 +1,21 @@
 'use strict';
 
-const PULSE_INTERVAL = 3, PULSE_CLICKS = 12;
+const PULSE_INTERVAL = 1;   // the Lacuna auto-generates stardust every second (no clicking)
 let pulseTimer = 0;
 
 function tick(dt) {
     G.gameTime += dt;
     G.universeTime += dt;
 
-
-    if (lvl('pulse') >= 1) {
+    // Core income: once Cosmic Pulse is owned, the Lacuna pulses every PULSE_INTERVAL seconds,
+    // earning pulseValue(), bouncing gently (pulseBeat), and giving a soft non-intrusive tick.
+    if (lvl('touch') >= 1) {
         pulseTimer += dt;
         while (pulseTimer >= PULSE_INTERVAL) {
             pulseTimer -= PULSE_INTERVAL;
-            earn(PULSE_CLICKS * clickValue(), CX, CY - 20);
-            clickFxId = 'pulseBeat'; triggerClickFx(performance.now()/1000, 0, -1);
-            SoundSystem.sfxTap();
+            earn(pulseValue(), CX, CY - 20);
+            clickFxId = 'pulseBeat'; triggerClickFx(gameClock, 0, -1);   // same clock draw() uses
+            SoundSystem.sfxPulse();
         }
     }
 

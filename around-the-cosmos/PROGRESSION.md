@@ -1,16 +1,17 @@
 # Around the Cosmos — Progression & Upgrade Reference
 
-> Living design doc for the **current build** (`feature/moon`). Numbers here
+> Living design doc for the **current build** (`feature/accretion_v.4_upgrades`). Numbers here
 > mirror `config.js` / `state.js`. Updated alongside any balance/structure change.
 
 ---
 
 ## The loop in one line
-Click the Lacuna (center) to earn **stardust (✦)** → buy **Star Touch** to earn more per click
-→ buy **Dust Particles** (orbiters) that pay on every orbit → catch **comets** for bursts.
+Buy **Cosmic Pulse** so the Lacuna **auto-generates stardust (✦) every second** → buy **Dust Particles**
+(orbiters) that pay on every orbit → catch **comets** for bursts.
 
-- **Clicking:** each click earns the current click value (Star Touch + Star Grasp). **Hold the mouse** to auto-click **~3×/sec**.
-- **No passive income yet** — early game is active (clicking + comets). Orbiters add the first "idle" income.
+- **This is an idle game, not a clicker.** Clicking never harvests. Income is the Lacuna's **pulse** (once Cosmic Pulse is owned) plus orbiters and comets.
+- **You start with 10 ✦** — exactly enough to buy the first Cosmic Pulse and kick off the income.
+- **Clicking** only **catches a passing comet** (within ~48px) or **opens a body's info card**.
 
 ---
 
@@ -18,15 +19,15 @@ Click the Lacuna (center) to earn **stardust (✦)** → buy **Star Touch** to e
 
 | Step | Trigger | What happens |
 |---|---|---|
-| Start | t = 0 | Just the Lacuna. Click to earn **1 ✦**/click. Only **Star Touch** is shown. |
-| First comet | ~**7–13 s** in | A comet crosses — tap it for a burst. Unlocks the **Comet Value** stat. After this, comets recur every **25–55 s**. |
-| Star Touch ×1 | buy (✦10) | Click now earns **2** (+1). |
-| Star Touch ×2 | buy (✦50) | Click earns **3**. → **Dust Particle** upgrade appears (creates your first orbiter). |
+| Start | t = 0 | Just the Lacuna and **10 ✦**. No income yet. Only **Cosmic Pulse** is shown. |
+| First comet | ~**7–13 s** in | A comet crosses — click it for a burst. Unlocks the **Comet Value** stat. After this, comets recur every **20–45 s**. |
+| Cosmic Pulse ×1 | buy (✦10) | The Lacuna begins **auto-generating 5 ✦/sec**, bouncing gently on each pulse. |
+| Cosmic Pulse ×2 | buy (✦50) | Now **10 ✦/sec**. → **Dust Particle** upgrade appears (creates your first orbiter). |
 | First Dust Particle | buy (✦100) | Your first **orbiter** appears, paying **10 ✦** per orbit. One-time buy. Unlocks **Dust Particle Count**, **Dust Particle Payout**, **Dust Particle Speed**, and the **All Orbiters Payout** stat. |
 | 2nd Dust Particle | buy Dust Particle Count (✦500) | A second dust particle joins the clump → unlocks the **Asteroid** (a single body). |
-| Star Touch ×6 | buy (✦600) | → **Star Grasp** appears in MAIN (a stronger per-click upgrade). |
+| Cosmic Pulse ×6 | buy (✦600) | → **Pulse Surge** appears in MAIN (a stronger per-pulse upgrade). |
 | The Asteroid | buy (✦1,500) | A single bigger, slower **asteroid** appears on a wider orbit, paying **50 ✦** per orbit. Unlocks **Asteroid Payout**, **Asteroid Speed**, **Asteroid Composition**. |
-| Star Grasp maxed | buy (lvl 3) | → **Gravitational Pull**, **Resonance**, and **Pulse** all appear in MAIN at once (clicks scale with orbiter payout; Resonance is a global orbit payout boost that lights the Lacuna glow; Pulse is the ✦100,000 auto-clicker). |
+| Pulse Surge maxed | buy (lvl 3) | → **Gravitational Pull** and **Resonance** appear in MAIN together (the pulse scales with orbiter payout; Resonance is a global orbit payout boost that lights the Lacuna glow). |
 | The Moon | buy (✦8,000) | A large pale **moon** appears on the widest, slowest orbit (ring 2), sitting right on the orbit line and visibly waxing/waning. Pays **200 ✦** per orbit (varying with its phase by default, most at full moon). Unlocks **Moon Payout**, **Moon Speed**, and **Lunar Phases**. |
 | … | … | Buy more dust particles (max 5), pump payout/speed, grab **Resonance**, develop the Moon, keep catching comets. |
 
@@ -39,44 +40,41 @@ Click the Lacuna (center) to earn **stardust (✦)** → buy **Star Touch** to e
 
 ### MAIN
 
-**Star Touch** — *always available* · max **8** levels · **+1 ✦ per click each level** (additive, not doubling)
-| Level | Cost ✦ | Click value |
+**Cosmic Pulse** — *always available* · max **8** levels · **+5 ✦/sec each level** (additive, not doubling) — the core income
+Once owned, the Lacuna **auto-generates stardust every second** (it bounces gently on each pulse and plays a soft tick).
+| Level | Cost ✦ | ✦ generated / sec |
 |---|---|---|
-| (base) | — | 1 |
-| 1 | 10 | 2 |
-| 2 | 50 | 3 |
-| 3 | 150 | 4 |
-| 4 | 250 | 5 |
-| 5 | 400 | 6 |
-| 6 | 600 | 7 |
-| 7 | 800 | 8 |
-| 8 | 1,000 | 9 |
+| (base) | — | 0 (no income) |
+| 1 | 10 | 5 |
+| 2 | 50 | 10 |
+| 3 | 150 | 15 |
+| 4 | 250 | 20 |
+| 5 | 400 | 25 |
+| 6 | 600 | 30 |
+| 7 | 800 | 35 |
+| 8 | 1,000 | 40 |
 
 > Buying level 2 is what reveals the DUST PARTICLES section (Dust Particle).
 
-**Star Grasp** — *unlocks after Star Touch lvl 6* · max **3** · **+2 ✦ per click each level** (stacks on Star Touch)
-| Level | Cost ✦ | Adds to each click |
+**Pulse Surge** — *unlocks after Cosmic Pulse lvl 6* · max **3** · **+10 ✦ per pulse each level** (stacks on Cosmic Pulse)
+| Level | Cost ✦ | Adds to each pulse |
 |---|---|---|
-| 1 | 500 | +2 |
-| 2 | 1,000 | +4 |
-| 3 | 1,500 | +6 |
+| 1 | 500 | +10 |
+| 2 | 1,000 | +20 |
+| 3 | 1,500 | +30 |
 
-> Total click value = Star Touch value + 2 × Star Grasp level (+ Gravitational Pull, below), via `clickValue()`.
+> Pulse value (✦ per second) = 5 × Cosmic Pulse + 10 × Pulse Surge (+ Gravitational Pull, below), via `pulseValue()`.
 
-**Pulse** — *unlocks after Star Grasp is maxed (lvl 3), alongside Gravitational Pull + Resonance* · max **1** · one-time **✦100,000** · the **auto-clicker**.
-A slow heartbeat every **3 seconds** auto-harvests **12 clicks** worth of stardust (≈**4 clicks/sec**), with a gentle beat on the Lacuna.
-**Trade-off:** once bought you **can no longer harvest by clicking** — it's hands-free (comets and info cards still respond to clicks).
-
-**Gravitational Pull** — *unlocks after Star Grasp is maxed* · max **2** · each level adds **+1% of total orbiter payout to every click**
-| Level | Cost ✦ | Click bonus |
+**Gravitational Pull** — *unlocks after Pulse Surge is maxed* · max **2** · each level adds **+1% of total orbiter payout to every pulse**
+| Level | Cost ✦ | Pulse bonus |
 |---|---|---|
-| 1 | 2,000 | +1% of all orbiter payout |
-| 2 | 4,000 | +2% of all orbiter payout |
+| 1 | 5,000 | +1% of all orbiter payout |
+| 2 | 12,000 | +2% of all orbiter payout |
 
-> Ties active clicking to your idle income — the more your orbiters pay, the more each click is worth.
+> Ties the pulse to your idle income — the more your orbiters pay, the more each pulse is worth.
 > Combos with **Resonance** (which raises orbiter payout, so it raises this bonus too).
 
-**Resonance** — *unlocks after Star Grasp is maxed (appears alongside Gravitational Pull)* · max **5** · **global** payout multiplier on **every** orbiter
+**Resonance** — *unlocks after Pulse Surge is maxed (appears alongside Gravitational Pull)* · max **5** · **global** payout multiplier on **every** orbiter
 Adds **+10% per level (additive)** to all orbiter payout — ×1.10 → ×1.50 at level 5 — and is the only thing
 that lights the **Lacuna's glow** (off by default; brightens marginally per level, but stays *very* faint
 even at max). Combos with Gravitational Pull.
@@ -201,19 +199,19 @@ asteroid it is **not a count upgrade** — there's only ever one Moon.
 ---
 
 ## Comets
-- First appears **~7–13 s** in; afterward every **25–55 s** (`COMET_MIN_GAP`–`COMET_MAX_GAP`).
-- On screen for **8 s** (`COMET_LIFE`); tap within ~48px to catch. Hovering it shows a **targeting reticle** and a "Comet" label.
-- **Windfall = round( (10 × click value) + 1.25 × every orbiter's payout combined ).**
-  - Click value = Star Touch + Star Grasp (`clickValue()`); combined = `Σ each orbiter's count × payout` (dust + asteroid + moon).
+- First appears **~7–13 s** in; afterward every **20–45 s** (`COMET_MIN_GAP`–`COMET_MAX_GAP`).
+- On screen for **8 s** (`COMET_LIFE`); click within ~48px to catch. Hovering it shows a **targeting reticle** and a "Comet" label.
+- **Windfall = round( (10 × pulse value) + 1.25 × every orbiter's payout combined ).**
+  - Pulse value = 5 × Cosmic Pulse + 10 × Pulse Surge (`pulseValue()`); combined = `Σ each orbiter's count × payout` (dust + asteroid + moon).
   - Rounded so the 1.25× never leaves a fractional stardust amount.
-  - Example: click value 3, three dust particles at Payout lvl 1 (20 each) → `10×3 + 1.25×(3×20)` = 30 + 75 = **105 ✦**.
+  - Example: pulse value 15, three dust particles at Payout lvl 1 (20 each) → `10×15 + 1.25×(3×20)` = 150 + 75 = **225 ✦**.
 
 ---
 
 ## Observatory stats (the draggable panel, top-left)
 | Stat | Shows | Appears |
 |---|---|---|
-| Star Touch Value | ✦ per click (Star Touch + Star Grasp) | always |
+| Cosmic Pulse / s | ✦ generated each second (Cosmic Pulse + Pulse Surge) | always |
 | All Orbiters Payout | combined payout of all orbiters per orbit (hover → formula) | after first orbiter |
 | All Orbiters Payout / min | that combined payout × how often the clumps orbit (payout × orbits per minute) | after first orbiter |
 | Comet Value | what the next comet pays (hover → formula) | after first comet caught |
@@ -227,7 +225,7 @@ asteroid it is **not a count upgrade** — there's only ever one Moon.
 - Orbiters clump on their own rings around it (dust ring 0, asteroid ring 1, moon ring 2); more orbiter types / rings come later.
 
 ## Cosmic info
-**Hover** the Lacuna or a dust particle for a quick tooltip that follows your cursor. **Click** it to pin the full card in the **center of the sky** — it stays put so you can read it, and closes with the **× button** or **Escape**. (Clicking a body opens its card instead of harvesting; comets are still caught on click.) All values come from a small physics model (`PHYS` in `config.js`) so the upcoming **science-based upgrades** can grow them; numbers are kept clean (≤2 decimals, intuitive units).
+**Hover** the Lacuna or a dust particle for a quick tooltip that follows your cursor. **Click** it to pin the full card in the **center of the sky** — it stays put so you can read it, and closes with the **× button** or **Escape**. (Clicking a body opens its card; clicking never harvests; comets are still caught on click.) All values come from a small physics model (`PHYS` in `config.js`) so the upcoming **science-based upgrades** can grow them; numbers are kept clean (≤2 decimals, intuitive units).
 
 **The Lacuna (center):**
 | Stat | Base value |

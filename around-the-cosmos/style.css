@@ -48,6 +48,7 @@ body {
     background: var(--bg);
     flex-shrink: 0;
     position: relative;
+    z-index: 106;            /* above the pause overlay (z105) so header controls stay usable while paused */
 }
 
 #logo {
@@ -81,6 +82,29 @@ body {
 }
 #mute-btn:hover { color: var(--text-dim); border-color: var(--border2); }
 #mute-btn.muted { color: var(--text-faint); opacity: 0.45; }
+
+#pause-btn {
+    background: none; border: 1px solid var(--border); color: var(--text-faint);
+    border-radius: 2px; padding: 4px 9px; font-size: 11px; line-height: 1; cursor: pointer;
+    letter-spacing: 1px; font-family: 'Segoe UI', sans-serif;
+    transition: color 0.15s, border-color 0.15s; margin-right: 6px;
+}
+#pause-btn:hover { color: var(--text-dim); border-color: var(--border2); }
+#pause-btn.paused { color: var(--accretion); border-color: var(--accretion); }
+
+/* Pause overlay — covers everything, dims the frozen game, shows PAUSED. Click anywhere to resume. */
+#pause-overlay {
+    display: none; position: fixed; inset: 0; z-index: 105;
+    background: rgba(244, 240, 232, 0.55);
+    align-items: center; justify-content: center; cursor: pointer;
+}
+#pause-overlay.show { display: flex; }
+#pause-overlay span {
+    font-family: 'Georgia', serif; font-size: 30px; letter-spacing: 0.32em;
+    color: var(--text-dim); padding-left: 0.32em;
+    border: 1px solid var(--border2); border-radius: 3px; padding: 14px 26px;
+    background: rgba(244, 240, 232, 0.7);
+}
 
 #settings-wrap { position: relative; display: inline-flex; align-items: center; margin-right: 6px; }
 #settings-btn {

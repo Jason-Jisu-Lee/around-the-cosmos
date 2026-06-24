@@ -12,35 +12,23 @@
 const UPGRADES = [
   {
     id: "touch",
-    name: "Star Touch",
+    name: "Cosmic Pulse",
     maxLevel: 8,
     section: "MAIN",
     costs: [10, 50, 150, 250, 400, 600, 800, 1000],
-    tapYield: [1, 2, 3, 4, 5, 6, 7, 8, 9], // +1 ✦ per click per level
-    flavor: "Reach into the dark and take what little light answers.",
-    desc: () => "+1 ✦ to every click, per level.",
-    unlock: () => true, // always visible (the first thing seen)
+    flavor: "The Lacuna stirs, drawing a slow, steady breath of light.",
+    desc: () => "+5 ✦ generated every second, per level.",
+    unlock: () => true, // always visible (the first thing bought — the core income)
   },
   {
     id: "grasp",
-    name: "Star Grasp",
+    name: "Pulse Surge",
     maxLevel: 3,
     section: "MAIN",
     costs: [500, 1000, 1500],
-    flavor: "A surer hand closes on the falling stardust.",
-    desc: () => "+2 ✦ to every click, per level (stacks on Star Touch).",
-    unlock: () => lvl("touch") >= 6, // after the 6th Star Touch
-  },
-  {
-    id: "pulse",
-    name: "Pulse",
-    maxLevel: 1,
-    section: "MAIN",
-    costs: [100000], // one-time buy
-    flavor: "A steady heartbeat to keep the gathering going on its own.",
-    desc: () =>
-      "Every 3s the Lacuna pulses for 12 clicks of stardust (about 4 / sec). Hands-free: you no longer harvest by clicking.",
-    unlock: () => lvl("grasp") >= 3, // after Star Grasp is maxed (with Gravitational Pull + Resonance)
+    flavor: "Each breath reaches deeper, and takes more.",
+    desc: () => "+10 ✦ generated every second, per level.",
+    unlock: () => lvl("touch") >= 6, // after the 6th Cosmic Pulse
   },
   {
     id: "gravpull",
@@ -49,8 +37,8 @@ const UPGRADES = [
     section: "MAIN",
     costs: [5000, 12000],
     flavor: "Let your own gathered weight do some of the pulling.",
-    desc: () => "+1% of all orbiter payout added to every click, per level.",
-    unlock: () => lvl("grasp") >= 3, // after Star Grasp is maxed
+    desc: () => "+1% of all orbiter payout added to every pulse, per level.",
+    unlock: () => lvl("grasp") >= 3, // after Pulse Surge is maxed
   },
   {
     id: "resonance",
@@ -61,7 +49,7 @@ const UPGRADES = [
     flavor: "Tune the whole quiet system until it hums.",
     desc: () =>
       "+10% to every orbiter’s payout, per level. Also lights the Lacuna’s glow.",
-    unlock: () => lvl("pulse") >= 1,
+    unlock: () => lvl("grasp") >= 3, // after Pulse Surge is maxed (with Gravitational Pull)
   },
   {
     id: "dust",

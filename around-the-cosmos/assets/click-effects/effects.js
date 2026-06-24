@@ -8,9 +8,11 @@ const CLICK_FX = {
         fn: p => { const s = 1 + 0.34 * Math.sin(Math.PI * p); return { sx: s, sy: s }; },
     },
 
+    // The Lacuna's once-a-second "breath" when it pulses out stardust. Slow + gentle +
+    // non-intrusive: swells a touch faster than it settles (eased rise, softer fall).
     pulseBeat: {
-        name: 'Heartbeat', dur: 0.5,
-        fn: p => { const s = 1 + 0.16 * Math.sin(Math.PI * p); return { sx: s, sy: s }; },
+        name: 'Pulse', dur: 0.62,
+        fn: p => { const s = 1 + 0.15 * Math.sin(Math.PI * Math.pow(p, 0.72)); return { sx: s, sy: s }; },
     },
 };
 const CLICK_FX_LIST = ['bouncePop'];

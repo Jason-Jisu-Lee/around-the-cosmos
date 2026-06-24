@@ -4,7 +4,7 @@ let G = createInitialState();
 
 function createInitialState() {
     return {
-        dust:0, runDust:0, totalDust:0,
+        dust:10, runDust:0, totalDust:0,
         mass:0, massEarned:0, moonEverOwned:false,
         orbitsCompleted:0, taps:0, cometsCaught:0, gameTime:0, universeTime:0,
         upgrades: { touch:0, grasp:0, pulse:0, gravpull:0, dust:0, dustcount:0, dustpay:0, dustspd:0, asteroid:0, astpay:0, astspd:0, astcomp:0, moon:0, moonpay:0, moonspd:0, moonphase:0, resonance:0, charm:0 },
@@ -49,8 +49,10 @@ function upg(id) { return UPGRADES.find(u => u.id === id); }
 function lvl(id) { return G.upgrades[id]; }
 
 
-function clickValue() {
-    const base = upg('touch').tapYield[lvl('touch')] + 2 * lvl('grasp');
+// The stardust the Lacuna generates on each ~1s pulse (the game's core income; no clicking).
+// = Cosmic Pulse (+5/lvl) + Pulse Surge (+10/lvl) + Gravitational Pull (+1% orbiter payout/lvl).
+function pulseValue() {
+    const base = 5 * lvl('touch') + 10 * lvl('grasp');
     const pull = 0.01 * lvl('gravpull') * orbiterPayoutSum();
     return Math.round(base + pull);
 }

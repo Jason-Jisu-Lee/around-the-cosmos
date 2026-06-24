@@ -21,7 +21,7 @@ function catchComet() {
 
     let combined = 0;
     for (const o of ORBITERS) combined += o.list().length * o.payout();
-    const windfall = Math.round(10 * clickValue() + 1.25 * combined);
+    const windfall = Math.round(10 * pulseValue() + 1.25 * combined);
     earn(windfall, c.x, c.y-20, true);
     G.cometsCaught++; G.cometSeen = true; SoundSystem.sfxComet();
     burst(c.x, c.y, 'rgba(60,80,70,', 26, 180);

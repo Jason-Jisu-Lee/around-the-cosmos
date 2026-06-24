@@ -20,7 +20,7 @@ function buildStats(showOrbiter, showComet) {
         list.appendChild(row);
         return { val: row.querySelector('.stat-val'), pop: row.querySelector('.stat-pop') };
     };
-    statEls.touch = mk('Star Touch Value');
+    statEls.touch = mk('Cosmic Pulse / s');
     if (showOrbiter) {
         const r = mkPop('All Orbiters Payout'); statEls.orbiter = r.val; statEls.orbiterPop = r.pop;
         statEls.orbiterMin = mk('All Orbiters Payout / min');
@@ -33,7 +33,7 @@ function buildStats(showOrbiter, showComet) {
 
 
 function updateObservatory() {
-    const touchVal = clickValue();
+    const pulseVal = pulseValue();
 
     let orbiterSum = 0, orbiterPerMin = 0, totalOrbiters = 0;
     const popParts = [];
@@ -49,13 +49,13 @@ function updateObservatory() {
         const name = o.id.charAt(0).toUpperCase() + o.id.slice(1);
         popParts.push(`${name} ✦${fmtNum(n * pay)}`);
     }
-    const cometVal = Math.round(10 * touchVal + 1.25 * orbiterSum);
+    const cometVal = Math.round(10 * pulseVal + 1.25 * orbiterSum);
 
     const showOrbiter = totalOrbiters >= 1, showComet = G.cometSeen;
     const sig = (showOrbiter ? 'O' : '') + (showComet ? 'C' : '');
     if (sig !== statsSig) { buildStats(showOrbiter, showComet); statsSig = sig; }
 
-    statEls.touch.textContent = '✦' + fmtNum(touchVal);
+    statEls.touch.textContent = '✦' + fmtNum(pulseVal) + ' / s';
     if (statEls.orbiter) {
         statEls.orbiter.textContent = '✦' + fmtNum(orbiterSum);
         statEls.orbiterPop.innerHTML = `${popParts.join(' + ')} = <b>✦${fmtNum(orbiterSum)}</b>`;
@@ -63,7 +63,7 @@ function updateObservatory() {
     }
     if (statEls.comet) {
         statEls.comet.textContent = '✦' + fmtNum(cometVal);
-        statEls.cometPop.innerHTML = `10 × click (${fmtNum(touchVal)}) + 1.25 × orbiters (${fmtNum(orbiterSum)}) = <b>✦${fmtNum(cometVal)}</b>`;
+        statEls.cometPop.innerHTML = `10 × pulse (${fmtNum(pulseVal)}) + 1.25 × orbiters (${fmtNum(orbiterSum)}) = <b>✦${fmtNum(cometVal)}</b>`;
     }
     statEls.total.textContent = '✦' + fmtNum(G.runDust);
     statEls.totalPop.innerHTML = 'All stardust earned in the current universe (resets on prestige).';

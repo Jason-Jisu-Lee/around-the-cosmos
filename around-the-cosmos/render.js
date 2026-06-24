@@ -48,6 +48,17 @@ function drawClump(list, cp, pr, color, t) {
             g.addColorStop(0.5,'rgba(20,16,12,0.10)');
             g.addColorStop(1,'rgba(20,16,12,0.34)');
             ctx.fillStyle=g; ctx.fillRect(-pr*2.5,-pr*2.5,pr*5,pr*5);
+        } else {
+            // Dust pebbles get a much fainter take on the asteroid's far-side shadow — just a
+            // touch of roundness, light from the same fixed upper-left so they read as little stones.
+            ctx.clip();
+            ctx.rotate(-la*1.5);
+            const lx=-pr*0.45, ly=-pr*0.55;
+            const g=ctx.createRadialGradient(lx,ly,pr*0.15, lx,ly,pr*2.1);
+            g.addColorStop(0,'rgba(0,0,0,0)');
+            g.addColorStop(0.55,'rgba(20,16,12,0.05)');
+            g.addColorStop(1,'rgba(20,16,12,0.20)');
+            ctx.fillStyle=g; ctx.fillRect(-pr*2.5,-pr*2.5,pr*5,pr*5);
         }
         ctx.restore();
 
@@ -64,48 +75,65 @@ function drawClump(list, cp, pr, color, t) {
 }
 
 
-const MOON_RIDGES  = [[3, 0.020, 0.6], [7, 0.013, 2.1], [12, 0.008, 4.0]];
-const MOON_CRATERS = [[-0.30,-0.26,0.17],[0.30,0.12,0.13],[0.04,0.36,0.10],[0.36,-0.30,0.085],[-0.20,0.28,0.075],[-0.40,0.04,0.06]];
-function moonOutline(cx, cy, r) {
-    ctx.beginPath();
-    const N = 80;
-    for (let i = 0; i <= N; i++) {
-        const th = i / N * 2 * Math.PI;
-        let rr = r;
-        for (const [f, a, ph] of MOON_RIDGES) rr += r * a * Math.sin(f * th + ph);
-        const x = cx + rr * Math.cos(th), y = cy + rr * Math.sin(th);
-        i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
-    }
-    ctx.closePath();
+// ---- Moon: "Studio" — a strong directional sphere lit from a fixed upper-left, a clean crisp rim,
+// crisp depth-shaded craters, a soft feathered phase terminator drawn semi-transparent (so the ball
+// shading reads through it), and limb darkening that rounds the flat disc into a sphere.
+const MOON_LX = -0.62, MOON_LY = -0.55;            // fixed light vector toward the viewer's upper-left
+const MOON_LANG = Math.atan2(MOON_LY, MOON_LX);
+const MOON_CRATERS = [[-0.30,-0.26,0.16],[0.30,0.12,0.12],[0.05,0.36,0.10],[0.36,-0.30,0.08],[-0.22,0.30,0.075],[-0.42,0.06,0.055],[0.16,-0.12,0.06]];
+
+// a crater with depth: dark floor + a rim catching light toward MOON_LANG and a rim in shadow away from it.
+function moonCrater(cx, cy, r, dx, dy, cr) {
+    const x = cx + dx*r, y = cy + dy*r, rad = cr*r;
+    ctx.fillStyle = 'rgba(44,48,54,0.16)';
+    ctx.beginPath(); ctx.arc(x, y, rad, 0, 7); ctx.fill();
+    ctx.lineWidth = Math.max(0.6, rad*0.34);
+    ctx.strokeStyle = 'rgba(228,230,232,0.40)';   // rim catching light
+    ctx.beginPath(); ctx.arc(x, y, rad*0.92, MOON_LANG-1.0, MOON_LANG+1.0); ctx.stroke();
+    ctx.strokeStyle = 'rgba(26,29,34,0.30)';      // rim in shadow
+    ctx.beginPath(); ctx.arc(x, y, rad*0.92, MOON_LANG+Math.PI-1.0, MOON_LANG+Math.PI+1.0); ctx.stroke();
 }
-function drawMoonDisc(cx, cy, r, phase, lit, dark) {
-    moonOutline(cx, cy, r); ctx.fillStyle = lit; ctx.fill();
 
+function drawMoonDisc(cx, cy, r, phase) {
     ctx.save();
-    moonOutline(cx, cy, r); ctx.clip();
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, 7); ctx.clip();
 
-    ctx.fillStyle = 'rgba(58,64,70,0.10)';
-    for (const [dx, dy, cr] of MOON_CRATERS) { ctx.beginPath(); ctx.arc(cx + dx*r, cy + dy*r, cr*r, 0, Math.PI*2); ctx.fill(); }
+    // base ball: bright sub-light highlight -> mid -> dark far limb
+    const g = ctx.createRadialGradient(cx+MOON_LX*r*0.5, cy+MOON_LY*r*0.5, r*0.08, cx-MOON_LX*r*0.3, cy-MOON_LY*r*0.3, r*1.35);
+    g.addColorStop(0,    '#d3d6d8');
+    g.addColorStop(0.45, '#9aa0a4');
+    g.addColorStop(0.8,  '#6a7075');
+    g.addColorStop(1,    '#454b51');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, r, 0, 7); ctx.fill();
 
-    ctx.fillStyle = dark;
-    const rs = r * 1.05;
+    for (const [dx, dy, cr] of MOON_CRATERS) moonCrater(cx, cy, r, dx, dy, cr);
+
+    // soft, feathered phase terminator, semi-transparent so the ball shading reads through
     const a = r * Math.cos(2*Math.PI*phase);
     const waxing = phase < 0.5;
     const bulgeRight = waxing ? (a > 0) : (a < 0);
+    ctx.save();
+    ctx.filter = `blur(${(r*0.06).toFixed(2)}px)`;
+    ctx.fillStyle = 'rgba(20,22,28,0.80)';
+    const rs = r * 1.06;
     ctx.beginPath();
     ctx.arc(cx, cy, rs, -Math.PI/2, Math.PI/2, waxing);
     if (bulgeRight) ctx.ellipse(cx, cy, Math.abs(a), rs, 0, Math.PI/2, -Math.PI/2, true);
     else            ctx.ellipse(cx, cy, Math.abs(a), rs, 0, Math.PI/2, Math.PI*1.5, false);
     ctx.closePath(); ctx.fill();
-
-
-    const lg = ctx.createRadialGradient(cx, cy, r*0.55, cx, cy, r*1.02);
-    lg.addColorStop(0,    'rgba(0,0,0,0)');
-    lg.addColorStop(0.78, 'rgba(0,0,0,0)');
-    lg.addColorStop(1,    'rgba(18,20,24,0.32)');
-    ctx.fillStyle = lg;
-    ctx.beginPath(); ctx.arc(cx, cy, r*1.12, 0, Math.PI*2); ctx.fill();
     ctx.restore();
+
+    // limb darkening: the outer rim falls into shadow, rounding the flat disc into a sphere
+    const lg = ctx.createRadialGradient(cx, cy, r*0.5, cx, cy, r*1.02);
+    lg.addColorStop(0,    'rgba(0,0,0,0)');
+    lg.addColorStop(0.72, 'rgba(0,0,0,0)');
+    lg.addColorStop(1,    'rgba(12,14,18,0.30)');
+    ctx.fillStyle = lg; ctx.beginPath(); ctx.arc(cx, cy, r, 0, 7); ctx.fill();
+    ctx.restore();
+
+    // crisp rim
+    ctx.strokeStyle = 'rgba(60,64,70,0.35)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, 7); ctx.stroke();
 }
 
 
@@ -116,13 +144,12 @@ function drawRoundClump(o, t) {
             ctx.beginPath(); ctx.arc(cp.x, cp.y, pr+3+(1-b.pulse)*12, 0, Math.PI*2);
             ctx.strokeStyle = `rgba(100,90,80,${b.pulse*0.45})`; ctx.lineWidth = 1.5; ctx.stroke();
         }
-        drawMoonDisc(cp.x, cp.y, pr, moonPhase(), o.color(), MOON_SHADOW);
+        drawMoonDisc(cp.x, cp.y, pr, moonPhase());
     }
 }
 
 
-function drawReticle(x, y, t) {
-    const s = 18 + Math.sin(t*4)*1.5;
+function drawReticle(x, y, s) {
     const a = 7;
     ctx.strokeStyle = 'rgba(60,80,70,0.85)';
     ctx.lineWidth = 1.5;
@@ -191,8 +218,17 @@ function draw(t) {
         ctx.beginPath(); ctx.arc(c.x,c.y,6,0,Math.PI*2); ctx.fillStyle='#2a2a2a'; ctx.fill();
         ctx.beginPath(); ctx.arc(c.x,c.y,16+3*Math.sin(t*6),0,Math.PI*2);
         ctx.strokeStyle='rgba(60,80,70,0.28)'; ctx.lineWidth=1.5; ctx.stroke();
+    }
 
-        if (cosmoOver && Math.hypot(cosmoMx-c.x, cosmoMy-c.y) < COMET_HOVER_R) drawReticle(c.x, c.y, t);
+    // Hover targeting reticle — the same corner-bracket crosshair on whatever the cursor is over
+    // (comet, the Lacuna, or any orbiter), sized to that body. cosmoTargetAt does the hit-testing.
+    if (cosmoOver) {
+        const breathe = Math.sin(t*4) * 1.5;
+        const tgt = cosmoTargetAt(cosmoMx, cosmoMy);
+        if (tgt === 'comet' && G.comet)      drawReticle(G.comet.x, G.comet.y, 18 + breathe);
+        else if (tgt === 'lacuna')           drawReticle(CX, CY, 20 + breathe);
+        else if (tgt) { const o = ORBITER_BY_ID[tgt]; if (o) { const p = o.clumpPos();
+            drawReticle(p.x, p.y, Math.max(o.pebbleR() + 8, 16) + breathe); } }
     }
 
     for (const pt of G.particles) {

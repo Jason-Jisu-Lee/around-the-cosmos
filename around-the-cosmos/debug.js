@@ -32,15 +32,6 @@ function initDebug() {
     btn('Reset',       () => { localStorage.removeItem(CFG.SAVE_KEY); G=createInitialState(); resetPanelAnimations(); buildPanels(); });
 
 
-    let autoHold = null;
-    const autoBtn = btn('Auto Hold: OFF', () => {
-        if (autoHold) { clearInterval(autoHold); autoHold = null; autoBtn.textContent = 'Auto Hold: OFF'; return; }
-        const click = () => { const r = canvas.getBoundingClientRect(); canvasClick(r.width/2, r.height/2); };
-        click();
-        autoHold = setInterval(click, 333);
-        autoBtn.textContent = 'Auto Hold: ON';
-    });
-
     const speedRow = document.createElement('div');
     speedRow.style.cssText = 'display:flex;align-items:center;gap:6px;margin-top:2px';
     speedRow.innerHTML = '<span style="font-size:12px">Speed</span>';
@@ -64,7 +55,7 @@ function initDebug() {
     };
     mkFxBtn('random', 'Random', () => { clickFxRandom = true; });
     CLICK_FX_LIST.forEach(id => mkFxBtn(id, CLICK_FX[id].name,
-        () => { clickFxRandom = false; clickFxId = id; triggerClickFx(performance.now() / 1000, 0, -1); }));
+        () => { clickFxRandom = false; clickFxId = id; triggerClickFx(gameClock, 0, -1); }));
     paint();
     panel.appendChild(fxRow);
 

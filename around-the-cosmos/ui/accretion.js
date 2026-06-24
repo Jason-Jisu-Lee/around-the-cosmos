@@ -113,7 +113,7 @@ function accConfirmBody() {
            The more you collect over your whole journey, the more Mass — so it grows slowly, and
            re-earning the same amount again barely adds any.</p>
         <p><b>What resets:</b> your stardust drops to zero and every stardust upgrade
-           (Star Touch, the orbiters, Resonance…) is undone. You start a fresh universe.</p>
+           (Cosmic Pulse, the orbiters, Resonance…) is undone. You start a fresh universe.</p>
         <p><b>What you keep:</b> your Mass, and anything you spend it on.</p>`;
 }
 function openAccConfirm() {
@@ -144,12 +144,14 @@ function startAccretionSequence() {
     runAccretionFx(() => {
         resetUniverse();               // the collapse: full reset, keeps Mass / lifetime stardust / time
         openAccretion();               // build the Mass page (opaque + stars) — game stays frozen behind it
-        // fade the Mass page in over 3s over the held FX final frame, then drop the FX backdrop
+        // gently fade the Mass page in over 5s over the held FX final frame, then drop the FX backdrop
+        const FADE = 5;                // seconds
         const screen = document.getElementById('accretion-screen');
         const fx = document.getElementById('accretion-fx');
-        screen.style.opacity = '0'; screen.style.transition = 'opacity 3s ease';
-        requestAnimationFrame(() => { screen.style.opacity = '1'; });
-        setTimeout(() => { fx.style.display = 'none'; screen.style.transition = ''; screen.style.opacity = ''; }, 3100);
+        screen.style.opacity = '0'; screen.style.transition = `opacity ${FADE}s ease-in-out`;
+        // double rAF: the first commits opacity:0 on the just-shown element, the second flips to 1 so the transition runs
+        requestAnimationFrame(() => requestAnimationFrame(() => { screen.style.opacity = '1'; }));
+        setTimeout(() => { fx.style.display = 'none'; screen.style.transition = ''; screen.style.opacity = ''; }, FADE * 1000 + 200);
     });
     // the game only resumes when the player hits "Begin again" (closeAccretion)
 }
@@ -206,9 +208,14 @@ function runAccretionFx(onDone) {
     for (let i = 0; i < 150; i++) { const a = Math.random() * 6.2832, rr = 50 + Math.random() * SKY_R;
         stars.push({ a, r: rr, v: 0, size: Math.random() * 1.5 + 0.6, tw: Math.random() * 6.28, restSet: false }); }
 
-    let last = 0, t = 0, done = false;
+    // Beat clock is ABSOLUTE WALL TIME (t0-anchored), never an accumulation of clamped deltas —
+    // the music runs on the same real-time clock, so the two stay locked regardless of frame rate,
+    // GC/decode hitches, or how many orbiters are on screen. `dt` (clamped) is used ONLY for the
+    // smooth star/body physics integration, where a frame skip shouldn't teleport things.
+    let t0 = 0, last = 0, t = 0, done = false;
     function step(ts) {
-        const now = ts / 1000; if (!last) last = now; const dt = Math.min(now - last, 0.05); last = now; t += dt;
+        const now = ts / 1000; if (!t0) { t0 = now; last = now; }
+        const dt = Math.min(now - last, 0.05); last = now; t = now - t0;
         const beat = beatAt(t);
 
         // background: parchment during wind-up, darkens through absorption, deep space after

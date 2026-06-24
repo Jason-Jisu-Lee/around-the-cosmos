@@ -4,6 +4,14 @@
 let orbitSfxCooldown = 0;
 
 function sfxTap()  { if (!SND.ctx) return; tone('triangle', 700, SND.ctx.currentTime, 0.13, 0.22, SND.sfxBus, 420); }
+// The Lacuna's once-a-second pulse tick — deliberately soft and low (it plays forever):
+// a warm low sine with a gentle decay and a low-pass so it sits under the music, not over it.
+function sfxPulse() {
+    if (!SND.ctx) return;
+    const t = SND.ctx.currentTime;
+    tone('sine', 196, t, 0.42, 0.075, SND.sfxBus, 520);
+    tone('sine', 294, t + 0.015, 0.30, 0.045, SND.sfxBus, 700);
+}
 function sfxOrbit() {
     if (!SND.ctx) return;
     const now = SND.ctx.currentTime;
