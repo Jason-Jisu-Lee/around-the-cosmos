@@ -281,7 +281,7 @@ body {
 
 /* The name|cost row is a fixed-height zone that flex-centres its content — so the title sits
    centred between the card top and the progress bar regardless of Baloo 2's tall line metrics. */
-.upg-top  { display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 10px; }
+.upg-top  { display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 10px; transform: translateY(3px); }  /* nudge down — Baloo 2's tall ascenders read optically high */
 .upg-name { font-family: 'Baloo 2', sans-serif; font-size: 16px; font-weight: 600; color: var(--text); line-height: 1.15; }
 .upg-cost { font-size: 15px; color: var(--ink); font-weight: 800; font-variant-numeric: tabular-nums; flex-shrink: 0; white-space: nowrap; line-height: 1.15; }
 .upg-cost.maxed { color: var(--text-faint); font-weight: 700; }
