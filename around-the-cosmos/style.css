@@ -249,7 +249,7 @@ body {
     position: relative;
     background: var(--surface2); border: 1px solid var(--border);
     border-radius: 13px;
-    padding: 18px 16px 14px;  /* top pad tuned (Baloo 2 sits high) so the title centres above the bar */
+    padding: 12px 16px 11px;  /* compact; title centres above the bar (see .upg-name line-height) */
     margin-bottom: 10px; cursor: pointer;
     transition: border-color 0.12s, background 0.12s;
 }
@@ -282,11 +282,11 @@ body {
 /* The name|cost row is a fixed-height zone that flex-centres its content — so the title sits
    centred between the card top and the progress bar regardless of Baloo 2's tall line metrics. */
 .upg-top  { display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 10px; }
-.upg-name { font-family: 'Baloo 2', sans-serif; font-size: 16px; font-weight: 600; color: var(--text); }
-.upg-cost { font-size: 15px; color: var(--ink); font-weight: 800; font-variant-numeric: tabular-nums; flex-shrink: 0; white-space: nowrap; }
+.upg-name { font-family: 'Baloo 2', sans-serif; font-size: 16px; font-weight: 600; color: var(--text); line-height: 1.15; }
+.upg-cost { font-size: 15px; color: var(--ink); font-weight: 800; font-variant-numeric: tabular-nums; flex-shrink: 0; white-space: nowrap; line-height: 1.15; }
 .upg-cost.maxed { color: var(--text-faint); font-weight: 700; }
 /* Bottom row: full-width dusty-blue level progress bar + the level count at its right end. */
-.upg-botrow { display: flex; align-items: center; gap: 10px; margin-top: 9px; }
+.upg-botrow { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
 .upg-bar { flex: 1; height: 5px; border-radius: 4px; background: rgba(74,130,168,0.14); overflow: hidden; }
 .upg-bar > i { display: block; height: 100%; border-radius: 4px; background: var(--accretion); width: 0; transition: width 0.18s ease; }
 .upg-level { flex: none; font-size: 11px; font-weight: 700; color: var(--text-faint); font-variant-numeric: tabular-nums; letter-spacing: 0.06em; }
