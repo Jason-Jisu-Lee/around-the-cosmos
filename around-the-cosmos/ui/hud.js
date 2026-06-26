@@ -16,11 +16,13 @@ function updateUI(now) {
     // Hidden during the animation. ('block' is explicit — '' falls back to the CSS display:none.)
     const frozen = typeof accreting !== 'undefined' && accreting;
     const accShown = !frozen && G.runDust >= ACCRETION_THRESHOLD && massGain() >= 1;
-    document.getElementById('accretion-btn').style.display = accShown ? 'block' : 'none';
+    const accEl = document.getElementById('accretion-btn');   // a MAIN-column card now (built by panels.js)
+    if (accEl) accEl.style.display = accShown ? 'block' : 'none';
 
-    // Mass Upgrades (browse) button: appears once the player has ever accreted (earned any Mass).
+    // Mass Upgrades (browse) card: appears once the player has ever accreted (earned any Mass).
     const massBtnShown = !frozen && G.massEarned > 0;
-    document.getElementById('mass-upgrades-btn').style.display = massBtnShown ? 'block' : 'none';
+    const massEl = document.getElementById('mass-upgrades-btn');
+    if (massEl) massEl.style.display = massBtnShown ? 'block' : 'none';
 
     // "Hide completed" toggle only appears once the Moon has ever been owned (CSS default is flex).
     document.getElementById('upg-controls').style.display = G.moonEverOwned ? '' : 'none';

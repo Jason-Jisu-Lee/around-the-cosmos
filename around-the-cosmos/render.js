@@ -2,7 +2,11 @@
 
 const canvas = document.getElementById('sky');
 const ctx    = canvas.getContext('2d');
+// Full-window overlay the comet is drawn on (so it shows over the side panels). Window coordinates.
+const cometLayer = document.getElementById('comet-layer');
+const cometCtx   = cometLayer.getContext('2d');
 let W=0, H=0, CX=0, CY=0, MAXR=0;
+let winMx=-999, winMy=-999;   // window-space mouse (set in main.js) — for comet hover over panels
 const COMET_HOVER_R = 40;
 
 function resize() {
@@ -11,7 +15,12 @@ function resize() {
     canvas.width = Math.round(W*dpr); canvas.height = Math.round(H*dpr);
     ctx.setTransform(dpr,0,0,dpr,0,0);
     CX=W/2; CY=H/2; MAXR=Math.min(W,H)/2-36;
+    cometLayer.width = Math.round(innerWidth*dpr); cometLayer.height = Math.round(innerHeight*dpr);
+    cometCtx.setTransform(dpr,0,0,dpr,0,0);
 }
+
+// The on-screen (window-space) center of the Lacuna — where comets aim. Used by comet.js.
+function lacunaScreen() { const r = canvas.getBoundingClientRect(); return { x: r.left + CX, y: r.top + CY }; }
 
 function orbitR(i) { return MAXR*(i+1.9)/(CFG.MAX_PLANETS+1.9); }
 
@@ -149,20 +158,52 @@ function drawRoundClump(o, t) {
 }
 
 
-function drawReticle(x, y, s) {
+function drawReticle(x, y, s, g = ctx) {
     const a = 7;
-    ctx.strokeStyle = 'rgba(60,80,70,0.85)';
-    ctx.lineWidth = 1.5;
+    g.strokeStyle = 'rgba(60,80,70,0.85)';
+    g.lineWidth = 1.5;
     for (const [sx, sy] of [[-1,-1],[1,-1],[1,1],[-1,1]]) {
         const cx = x + sx*s, cy = y + sy*s;
-        ctx.beginPath();
-        ctx.moveTo(cx - sx*a, cy); ctx.lineTo(cx, cy); ctx.lineTo(cx, cy - sy*a);
-        ctx.stroke();
+        g.beginPath();
+        g.moveTo(cx - sx*a, cy); g.lineTo(cx, cy); g.lineTo(cx, cy - sy*a);
+        g.stroke();
+    }
+}
+
+// The comet lives on the full-window overlay (window coords), so it travels over the side panels.
+// Draws the comet, its hover reticle/label, and any catch FX (cometFx, defined in comet.js).
+function drawComet(t) {
+    const g = cometCtx;
+    g.clearRect(0, 0, innerWidth, innerHeight);
+    const c = G.comet;
+    if (c) {
+        for (let i=0; i<14; i++) {
+            const f=i/14;
+            g.beginPath(); g.arc(c.x-c.vx*f*0.45, c.y-c.vy*f*0.45,(1-f)*4,0,Math.PI*2);
+            g.fillStyle=`rgba(60,80,70,${(1-f)*0.22})`; g.fill();
+        }
+        g.beginPath(); g.arc(c.x,c.y,6,0,Math.PI*2); g.fillStyle='#2a2a2a'; g.fill();
+        g.beginPath(); g.arc(c.x,c.y,16+3*Math.sin(t*6),0,Math.PI*2);
+        g.strokeStyle='rgba(60,80,70,0.28)'; g.lineWidth=1.5; g.stroke();
+        if (Math.hypot(winMx-c.x, winMy-c.y) < COMET_HOVER_R) {   // hovered (window-space)
+            drawReticle(c.x, c.y, 18 + Math.sin(t*4)*1.5, g);
+            g.fillStyle='rgba(60,80,70,0.9)'; g.font="600 12px 'Segoe UI',sans-serif";
+            g.textAlign='center'; g.textBaseline='alphabetic';
+            g.fillText('Comet', c.x, c.y - 28);
+        }
+    }
+    for (const fx of cometFx) {
+        const a = Math.max(0, 1 - fx.age/fx.maxAge);
+        g.beginPath(); g.arc(fx.x, fx.y, 14 + (1-a)*42, 0, Math.PI*2);
+        g.strokeStyle=`rgba(60,80,70,${a*0.4})`; g.lineWidth=2; g.stroke();
+        g.fillStyle=`rgba(26,26,26,${a})`; g.font="600 22px 'Segoe UI',sans-serif";
+        g.textAlign='center'; g.textBaseline='middle';
+        g.fillText(fx.text, fx.x, fx.y - fx.age*38);
     }
 }
 
 function draw(t) {
-    ctx.fillStyle = '#f4f0e8';
+    ctx.fillStyle = '#f4efe4';   // demo1 "Warm Parchment" background
     ctx.fillRect(0,0,W,H);
 
     drawStars(t);
@@ -208,25 +249,14 @@ function draw(t) {
         else         drawClump(o.list(), o.clumpPos(), o.pebbleR(), o.color(), t);
     }
 
-    if (G.comet) {
-        const c=G.comet;
-        for (let i=0; i<14; i++) {
-            const f=i/14;
-            ctx.beginPath(); ctx.arc(c.x-c.vx*f*0.45, c.y-c.vy*f*0.45,(1-f)*4,0,Math.PI*2);
-            ctx.fillStyle=`rgba(60,80,70,${(1-f)*0.22})`; ctx.fill();
-        }
-        ctx.beginPath(); ctx.arc(c.x,c.y,6,0,Math.PI*2); ctx.fillStyle='#2a2a2a'; ctx.fill();
-        ctx.beginPath(); ctx.arc(c.x,c.y,16+3*Math.sin(t*6),0,Math.PI*2);
-        ctx.strokeStyle='rgba(60,80,70,0.28)'; ctx.lineWidth=1.5; ctx.stroke();
-    }
+    // The comet + its reticle/catch FX are drawn on the full-window #comet-layer overlay (drawComet),
+    // so it can travel over the side panels and stay clickable there.
 
-    // Hover targeting reticle — the same corner-bracket crosshair on whatever the cursor is over
-    // (comet, the Lacuna, or any orbiter), sized to that body. cosmoTargetAt does the hit-testing.
+    // Hover targeting reticle — corner-bracket crosshair on the Lacuna or any orbiter (canvas-space).
     if (cosmoOver) {
         const breathe = Math.sin(t*4) * 1.5;
         const tgt = cosmoTargetAt(cosmoMx, cosmoMy);
-        if (tgt === 'comet' && G.comet)      drawReticle(G.comet.x, G.comet.y, 18 + breathe);
-        else if (tgt === 'lacuna')           drawReticle(CX, CY, 20 + breathe);
+        if (tgt === 'lacuna')           drawReticle(CX, CY, 20 + breathe);
         else if (tgt) { const o = ORBITER_BY_ID[tgt]; if (o) { const p = o.clumpPos();
             drawReticle(p.x, p.y, Math.max(o.pebbleR() + 8, 16) + breathe); } }
     }

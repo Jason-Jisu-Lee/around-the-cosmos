@@ -29,6 +29,7 @@ function initDebug() {
     btn('+ ✦ 1M',     () => earn(1e6));
     btn('+ ✦ 10M',    () => earn(1e7));
     btn('Spawn Comet', () => { G.comet=null; G.cometTimer=0; });
+    btn('Spawn Vortex', () => { if (typeof vortexSpawn === 'function' && !VTX.active) vortexSpawn(); });
     btn('Reset',       () => { localStorage.clear(); if (typeof accreting !== 'undefined') accreting = false; G=createInitialState(); resetPanelAnimations(); buildPanels(); });
 
 

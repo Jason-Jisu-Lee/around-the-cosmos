@@ -8,4 +8,5 @@ const SoundSystem = {
     setMusicVolume, setSfxVolume,
     setTrack, loadTrack, getTrack,
     sfxTap, sfxPulse, sfxOrbit, sfxBuy, sfxComet, sfxComplete, sfxHover,
+    sfxVortexAppear, sfxVortexAbsorb,
 };

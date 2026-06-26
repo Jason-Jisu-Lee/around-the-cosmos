@@ -40,6 +40,7 @@ function tick(dt) {
     }
 
     cometTick(dt);
+    vortexTick(dt);   // the rare Vortex event
 
     for (let i = G.particles.length-1; i >= 0; i--) {
         const pt = G.particles[i];

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Quicksand:wght@500;600;700&family=Comfortaa:wght@500;600;700&family=Varela+Round&family=Baloo+2:wght@500;600;700&family=Fredoka:wght@500;600&family=M+PLUS+Rounded+1c:wght@500;700&family=Rubik:wght@500;600&family=Poppins:wght@500;600&family=Sniglet:wght@400;800&family=Dongle:wght@700&family=Mali:wght@500;600&family=Nunito+Sans:wght@600;700&family=Hind:wght@500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#222a3a;color:#efe2c4;font-family:sans-serif;padding:18px 24px}
+.top{position:sticky;top:0;background:#222a3a;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,.12);z-index:2}
+.top h2{font:700 13px 'Segoe UI';color:#9fb0bd;letter-spacing:.08em;margin:0 0 8px}
+.top img{width:248px;border:1px solid rgba(255,255,255,.18);border-radius:6px;display:block}
+.note{font:13px/1.5 'Segoe UI';color:#aeb8c8;margin:6px 0 0;max-width:780px}
+.row{display:flex;align-items:center;gap:16px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.num{width:26px;flex:none;text-align:right;font:800 14px 'Segoe UI';color:#7f8aa3}
+.meta{width:200px;flex:none}
+.fn{font:700 13px 'Segoe UI';color:#cfd7e3}
+.st{font:700 10px 'Segoe UI';letter-spacing:.04em;margin-top:2px}
+.ok{color:#7bd88f}.bad{color:#e08b5a}
+.smp{flex:1;font-size:21px;font-weight:600;color:#efe2c4}
+.smp .c{color:#e08b5a}
+</style></head><body>
+<div class="top">
+  <h2>YOUR DEMO SCREENSHOT (soft / round font)</h2>
+  <img src="demoFont.png">
+  <p class="note">All <b>rounded sans-serif</b> now (no serifs). Each renders the same words; <b>loaded ✓</b> = it really applied.
+     Find the row that matches your screenshot <i>and</i> shows loaded ✓, then tell me its <b>number</b>.</p>
+</div>
+<div id="g"></div>
+<script>
+const F=['Nunito','Quicksand','Comfortaa','Varela Round','Baloo 2','Fredoka','M PLUS Rounded 1c','Rubik','Poppins','Sniglet','Dongle','Mali','Nunito Sans','Hind'];
+const g=document.getElementById('g');
+(async()=>{
+  await Promise.all(F.map(f=>document.fonts.load(`600 24px "${f}"`).catch(()=>{})));
+  await document.fonts.ready;
+  F.forEach((f,i)=>{
+    const ok=document.fonts.check(`600 24px "${f}"`);
+    const r=document.createElement('div'); r.className='row';
+    r.innerHTML=`<div class="num">${i+1}</div>
+      <div class="meta"><div class="fn">${f}</div><div class="st ${ok?'ok':'bad'}">${ok?'loaded ✓':'✗ not available'}</div></div>
+      <div class="smp" style="font-family:'${f}',sans-serif">Star Touch · Resonance · Particle Count · Composition <span class="c">· Iron</span></div>`;
+    g.appendChild(r);
+  });
+})();
+</script></body></html>

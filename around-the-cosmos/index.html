@@ -6,13 +6,12 @@
     <title>Around the Cosmos</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=141">
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=163">
 </head>
 <body>
     <div id="app">
         <header id="header">
-            <div id="logo">AROUND THE COSMOS</div>
             <div id="header-right">
                 <button id="pause-btn" title="Pause">&#10074;&#10074;</button>
                 <button id="mute-btn">&#9834;</button>
@@ -42,8 +41,13 @@
             </div>
         </header>
         <main id="main">
-            <!-- Left column (reserved) -->
-            <aside id="left-col"></aside>
+            <!-- Left column: stardust HUD + MAIN upgrades at top; observatory floats bottom-left -->
+            <aside id="left-col">
+                <div id="dust-hud">
+                    <div id="dust-display"><span id="dust-icon">✦</span> <span id="dust-amount">0</span></div>
+                </div>
+                <div id="main-upgrades"></div>
+            </aside>
 
             <!-- Center: sky canvas -->
             <section id="sky-section">
@@ -52,33 +56,30 @@
                 <div id="cosmo-card"></div>
             </section>
 
-            <!-- Right column: upgrades -->
+            <!-- Right column: orbiter upgrades -->
             <aside id="right-col">
-                <div id="dust-hud">
-                    <div id="dust-display"><span id="dust-icon">✦</span> <span id="dust-amount">0</span></div>
-                </div>
                 <div id="upgrades-list"></div>
                 <div id="upg-controls">
                     <label id="show-completed-wrap">
-                        <input type="checkbox" id="show-completed" checked> Hide completed
+                        <input type="checkbox" id="show-completed"> Hide completed
                     </label>
                 </div>
             </aside>
         </main>
     </div>
 
-    <!-- Draggable observatory panel — default top-left -->
-    <div id="observatory">
-        <div id="stats-list"></div>
-    </div>
+    <!-- Vortex event overlay — full-window, below the comet layer; the rare spiral event is drawn here -->
+    <canvas id="vortex-layer"></canvas>
 
-    <!-- Bottom-left prestige buttons: Accretion (top, when claimable) + Mass Upgrades (bottom, after 1st accretion) -->
-    <div id="prestige-btns">
-        <div id="accretion-btn">Accretion</div>
-        <div id="mass-upgrades-btn">Mass Upgrades</div>
-    </div>
+    <!-- Comet overlay — full-window, above the panels (pointer-events:none); the comet is drawn here so it can fly over the side panels and stay clickable -->
+    <canvas id="comet-layer"></canvas>
 
-    <!-- Accretion (prestige) screen — overlays the live page; opens from #accretion-btn -->
+    <!-- Observatory — draggable stats panel, default bottom-left; floats over the left column -->
+    <div id="observatory"><div id="stats-list"></div></div>
+
+    <!-- Accretion + Mass Upgrades are rendered as special cards at the bottom of the MAIN upgrades (panels.js) -->
+
+    <!-- Accretion (prestige) screen — overlays the live page; opens from the Accretion card -->
     <div id="accretion-screen">
         <canvas id="acc-stars"></canvas>
         <button id="acc-undo" class="acc-undo">↶ Undo</button>
@@ -99,11 +100,10 @@
     <!-- Accretion confirm modal — top-level so it shows over the live game when the button is pressed -->
     <div id="acc-confirm" class="acc-confirm">
         <div class="acc-confirm-box">
-            <div class="acc-confirm-title">Accrete this universe?</div>
             <div id="acc-confirm-body" class="acc-confirm-body"></div>
             <div class="acc-confirm-actions">
-                <button id="acc-confirm-cancel" class="acc-btn-ghost">Stay</button>
-                <button id="acc-confirm-go" class="acc-btn-go">Accrete</button>
+                <button id="acc-confirm-go" class="acc-btn-go"><canvas class="acc-go-fx"></canvas><span class="acc-go-label">Collapse</span></button>
+                <button id="acc-confirm-cancel" class="acc-btn-ghost">Not yet</button>
             </div>
         </div>
     </div>
@@ -128,42 +128,43 @@
     <div id="upg-pop"></div>
 
     <!-- Core -->
-    <script src="config.js?v=141"></script>
-    <script src="state.js?v=141"></script>
+    <script src="config.js?v=163"></script>
+    <script src="state.js?v=163"></script>
 
     <!-- Sound (engine + effects + music) -->
-    <script src="sound/core.js?v=141"></script>
-    <script src="sound/effects/sfx.js?v=141"></script>
-    <script src="sound/music/tracks.js?v=141"></script>
-    <script src="sound/sound.js?v=141"></script>
+    <script src="sound/core.js?v=163"></script>
+    <script src="sound/effects/sfx.js?v=163"></script>
+    <script src="sound/music/tracks.js?v=163"></script>
+    <script src="sound/sound.js?v=163"></script>
 
     <!-- Orbiters (one component per type) -->
-    <script src="orbiters/registry.js?v=141"></script>
-    <script src="orbiters/dust.js?v=141"></script>
-    <script src="orbiters/asteroid.js?v=141"></script>
-    <script src="orbiters/moon.js?v=141"></script>
+    <script src="orbiters/registry.js?v=163"></script>
+    <script src="orbiters/dust.js?v=163"></script>
+    <script src="orbiters/asteroid.js?v=163"></script>
+    <script src="orbiters/moon.js?v=163"></script>
 
     <!-- Upgrades -->
-    <script src="upgrades/upgrades.js?v=141"></script>
-    <script src="upgrades/mass.js?v=141"></script>
+    <script src="upgrades/upgrades.js?v=163"></script>
+    <script src="upgrades/mass.js?v=163"></script>
 
     <!-- Render + simulation -->
-    <script src="assets/click-effects/effects.js?v=141"></script>
-    <script src="render.js?v=141"></script>
-    <script src="stars.js?v=141"></script>
-    <script src="comet/comet.js?v=141"></script>
-    <script src="simulation.js?v=141"></script>
+    <script src="assets/click-effects/effects.js?v=163"></script>
+    <script src="render.js?v=163"></script>
+    <script src="stars.js?v=163"></script>
+    <script src="comet/comet.js?v=163"></script>
+    <script src="event/vortex.js?v=163"></script>
+    <script src="simulation.js?v=163"></script>
 
     <!-- UI -->
-    <script src="ui/panels.js?v=141"></script>
-    <script src="ui/observatory.js?v=141"></script>
-    <script src="ui/hud.js?v=141"></script>
-    <script src="ui/cosmo.js?v=141"></script>
-    <script src="ui/accretion.js?v=141"></script>
+    <script src="ui/panels.js?v=163"></script>
+    <script src="ui/observatory.js?v=163"></script>
+    <script src="ui/hud.js?v=163"></script>
+    <script src="ui/cosmo.js?v=163"></script>
+    <script src="ui/accretion.js?v=163"></script>
 
     <!-- App -->
-    <script src="settings.js?v=141"></script>
-    <script src="debug.js?v=141"></script>
-    <script src="main.js?v=141"></script>
+    <script src="settings.js?v=163"></script>
+    <script src="debug.js?v=163"></script>
+    <script src="main.js?v=163"></script>
 </body>
 </html>

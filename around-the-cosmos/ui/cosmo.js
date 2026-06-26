@@ -10,7 +10,7 @@ const LACUNA_DESC = 'A small absence at the heart of everything, patient and hol
 
 
 function cosmoTargetAt(x, y) {
-    if (G.comet && Math.hypot(x-G.comet.x, y-G.comet.y) < COMET_HOVER_R) return 'comet';
+    // (the comet is hit-tested in window space by main.js — it can be over a side panel)
     if (Math.hypot(x-CX, y-CY) < 22) return 'lacuna';
     for (const o of ORBITERS) {
         if (o.list().length && Math.hypot(x-o.clumpPos().x, y-o.clumpPos().y) < o.hoverR) return o.id;

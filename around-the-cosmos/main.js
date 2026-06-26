@@ -17,6 +17,8 @@ function loop(ts) {
     lastSave += dt;
     if (lastSave >= 20) { lastSave=0; saveGame(); }
     draw(gameClock);
+    drawVortexLayer();      // full-window Vortex event overlay
+    drawComet(gameClock);   // full-window comet overlay (over the panels)
     updateUI(ts);
     updateCosmoTip();
     requestAnimationFrame(loop);
@@ -49,15 +51,25 @@ function resetGame() {
 function canvasXY(e) { const r=canvas.getBoundingClientRect(); return [e.clientX-r.left, e.clientY-r.top]; }
 canvas.addEventListener('mousedown', e => {
     const [mx, my] = canvasXY(e);
-    const cometNear = G.comet && ((G.comet.x-mx)**2 + (G.comet.y-my)**2 < 48*48);
-    if (cometNear) { catchComet(); return; }
     const tgt = cosmoTargetAt(mx, my);
-    if (tgt) openCosmoCard(tgt);
+    if (tgt) openCosmoCard(tgt);   // comet catching is handled window-wide below (it can be over a panel)
 });
 canvas.addEventListener('mousemove', e => {
     [cosmoMx, cosmoMy] = canvasXY(e); cosmoOver = true;
 });
 canvas.addEventListener('mouseleave', () => { cosmoOver = false; });
+
+// The comet rides a full-window overlay, so catch it with a WINDOW-level click in window coords —
+// UNLESS the click landed on a real control (a button, an upgrade card, a panel control), which wins.
+// Capture phase + stopPropagation so a successful catch pre-empts the canvas info-card handler.
+const COMET_CATCH_R = 48;
+window.addEventListener('mousemove', e => { winMx = e.clientX; winMy = e.clientY; });
+window.addEventListener('mousedown', e => {
+    if (!G.comet) return;
+    if (e.target.closest('button, input, label, a, .upgrade-card, .acc-node, #observatory, #settings-panel, #upg-pop, #cosmo-card, .acc-confirm, #accretion-screen')) return;
+    const dx = e.clientX - G.comet.x, dy = e.clientY - G.comet.y;
+    if (dx*dx + dy*dy < COMET_CATCH_R*COMET_CATCH_R) { catchComet(); e.stopPropagation(); }
+}, true);
 
 
 document.getElementById('mute-btn').addEventListener('click', () => {
@@ -107,5 +119,6 @@ window.addEventListener('resize', resize);
 window.addEventListener('beforeunload', saveGame);
 document.getElementById('reset-btn').addEventListener('click', resetGame);
 loadGame(); resize(); buildPanels(); initDebug(); _savedVols=initSettings();
+vortexInit();   // Vortex event: overlay + window press/hold + lazy bitmap prerender
 initDraggable(document.getElementById('observatory'));
 requestAnimationFrame(ts => { lastTs=ts; requestAnimationFrame(loop); });

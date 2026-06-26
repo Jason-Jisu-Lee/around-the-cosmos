@@ -1,7 +1,7 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-    --bg:         #f4f0e8;
+    --bg:         #f4efe4;   /* demo1 "Warm Parchment" background */
     --surface2:   #ffffff;
     --border:     #d4d0c8;
     --border2:    #dedad2;
@@ -15,6 +15,7 @@
     /* 10% accent pop — Dusty Blue (Ghibli sky); the cool pop against the parchment 60% */
     --accretion:    #4a82a8;
     --accretion-hi: #3d6f92;
+    --accretion-dim: #a9c4d6;   /* faint dusty-blue — affordable-card border + progress-bar track */
     --cursor:     url(assets/cursors/needle.png?v=63) 3 3, auto;
 }
 
@@ -49,15 +50,6 @@ body {
     flex-shrink: 0;
     position: relative;
     z-index: 106;            /* above the pause overlay (z105) so header controls stay usable while paused */
-}
-
-#logo {
-    font-size: 11px;
-    font-weight: 400;
-    letter-spacing: 0.5em;
-    color: var(--ink);
-    font-family: 'Segoe UI', sans-serif;
-    flex: 1;
 }
 
 #header-right { display: flex; justify-content: flex-end; margin-left: auto; }
@@ -151,9 +143,12 @@ body {
 #main { display: flex; flex: 1; overflow: hidden; }
 
 #left-col {
-    width: 196px; flex-shrink: 0; padding: 22px 18px;
-    overflow-y: auto; display: flex; flex-direction: column;
+    width: 308px; flex-shrink: 0; padding: 22px 16px;
+    display: flex; flex-direction: column; min-height: 0; overflow: hidden;
 }
+/* Stardust HUD + MAIN upgrades live at the TOP of the left column; the observatory floats at the
+   bottom-left below them (see #observatory). MAIN sizes to its content and scrolls if it ever needs to. */
+#main-upgrades { flex: 0 1 auto; min-height: 0; overflow-y: auto; }
 
 .col-label {
     font-size: 8px; font-weight: 400; letter-spacing: 0.28em; color: var(--text-faint);
@@ -165,6 +160,10 @@ body {
 #dust-icon  { font-size: 30px; }
 
 #sky-section { flex: 1; position: relative; min-width: 0; }
+/* Vortex event overlay — full window, above the app but below the comet/observatory; press/hold is a window handler */
+#vortex-layer { position: fixed; inset: 0; z-index: 40; pointer-events: none; }
+/* Comet overlay — full window, above the panels, never blocks clicks (catch is a window handler) */
+#comet-layer { position: fixed; inset: 0; z-index: 60; pointer-events: none; }
 #sky { display: block; width: 100%; height: 100%; cursor: url(assets/cursors/needle.png?v=63) 3 3, default; }
 
 #right-col { width: 308px; flex-shrink: 0; padding: 22px 16px; display: flex; flex-direction: column; min-height: 0; }
@@ -200,8 +199,11 @@ body {
 .acc.open .acc-body { display: block; }
 
 
+/* Observatory — draggable floating stats panel, default BOTTOM-LEFT (bottom-anchored so it grows
+   UPWARD with more metrics; bottom:125px clears the fixed prestige buttons below it). Floating means
+   its hover popups aren't clipped by any overflow container. */
 #observatory {
-    position: fixed; top: 56px; left: 16px;
+    position: fixed; bottom: 20px; left: 16px;
     background: rgba(244,240,232,0.92); padding: 16px 16px 12px;
     z-index: 50; cursor: grab; min-width: 262px; user-select: none;
     transition: background 0.15s;
@@ -216,53 +218,50 @@ body {
 #observatory:hover::before { background: var(--accent-dim); }
 #observatory:active { cursor: grabbing; }
 
-/* Accretion (prestige) button — fixed at the bottom-left of the screen (not movable).
-   The 10% accent "pop": a saturated teal that stands out against the parchment 60%. */
-/* Bottom-left prestige button stack: Accretion (top) over Mass Upgrades (bottom).
-   The container is bottom-anchored, so items grow upward → Mass Upgrades sits lowest. */
-#prestige-btns {
-    position: fixed; bottom: 18px; left: 18px; z-index: 50; user-select: none;
-    display: flex; flex-direction: column; gap: 10px; align-items: flex-start;
-}
-#accretion-btn {
-    display: none;  /* shown by JS when an Accretion is claimable */
-    background: var(--accretion); border: none; color: #f6f3ec;
-    padding: 13px 26px; border-radius: 7px; letter-spacing: 0.14em; font-weight: 700;
-    font-family: 'Optima','Candara','Century Gothic',sans-serif; font-size: 15px;
-    box-shadow: 0 4px 14px rgba(74,130,168,0.38);
+/* Accretion — a SPECIAL accentuated card at the bottom of the MAIN upgrades (shown by hud.js when
+   claimable). Dusty-blue tint + accent border + soft glow so it stands out as the prestige action. */
+#accretion-btn.accretion-card {
+    display: none;   /* shown by hud.js when an Accretion is claimable */
+    text-align: center; cursor: pointer; user-select: none;
+    margin: 8px 0 10px; padding: 14px 18px; border-radius: 13px;
+    background: rgba(74,130,168,0.10); border: 2px solid var(--accretion); color: var(--accretion);
+    font-family: 'Optima','Candara','Century Gothic',sans-serif; font-size: 15px; font-weight: 700; letter-spacing: 0.10em;
+    box-shadow: 0 3px 14px rgba(74,130,168,0.22);
     transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
 }
-#accretion-btn:hover { background: var(--accretion-hi); box-shadow: 0 6px 20px rgba(74,130,168,0.5); }
-#accretion-btn:active { transform: translateY(1px); }
+#accretion-btn.accretion-card:hover { background: rgba(74,130,168,0.18); box-shadow: 0 5px 18px rgba(74,130,168,0.34); }
+#accretion-btn.accretion-card:active { transform: translateY(1px); }
 
-#mass-upgrades-btn {
-    display: none;  /* shown by JS after the first Accretion (G.massEarned > 0) */
-    background: rgba(244,240,232,0.92); border: 1.5px solid var(--accretion); color: var(--accretion);
-    padding: 10px 22px; border-radius: 7px; letter-spacing: 0.1em; font-weight: 700;
-    font-family: 'Optima','Candara','Century Gothic',sans-serif; font-size: 13.5px;
-    box-shadow: 0 3px 10px rgba(74,130,168,0.18);
-    transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
+/* Mass Upgrades — a smaller secondary card just below it (shown after the first Accretion). */
+#mass-upgrades-btn.mass-upg-card {
+    display: none;
+    text-align: center; cursor: pointer; user-select: none;
+    margin-bottom: 10px; padding: 9px 16px; border-radius: 11px;
+    background: transparent; border: 1.5px solid rgba(74,130,168,0.5); color: var(--accretion);
+    font-family: 'Optima','Candara','Century Gothic',sans-serif; font-size: 12.5px; font-weight: 700; letter-spacing: 0.06em;
+    transition: background 0.15s, border-color 0.15s;
 }
-#mass-upgrades-btn:hover { background: #fff; box-shadow: 0 5px 14px rgba(74,130,168,0.28); }
+#mass-upgrades-btn.mass-upg-card:hover { background: rgba(74,130,168,0.08); border-color: var(--accretion); }
 #mass-upgrades-btn:active { transform: translateY(1px); }
 
+/* Demo-3 "A" layout: name|cost on top, a dusty-blue level progress bar + count along the bottom. */
 .upgrade-card {
     position: relative;
-    display: flex; align-items: center;          /* vertically centre the name|cost row */
     background: var(--surface2); border: 1px solid var(--border);
-    padding: 16px 18px 24px;                     /* extra bottom room for the corner level */
-    margin-bottom: 9px; cursor: pointer;
+    border-radius: 13px;
+    padding: 14px 16px;
+    margin-bottom: 10px; cursor: pointer;
     transition: border-color 0.12s, background 0.12s;
 }
-.upgrade-card:hover:not(.is-maxed) { background: #f8f6f0; }
-.upgrade-card.can-afford { border-color: var(--accent-dim); }
-.upgrade-card.can-afford:hover { border-color: var(--accent); }
-/* Completed: stay greyed (even on hover). We dim only the FACE (.upg-top/.upg-level),
+.upgrade-card:hover:not(.is-maxed) { background: #fbfcfd; border-color: var(--accretion-dim); }
+.upgrade-card.can-afford { border-color: var(--accretion-dim); }
+.upgrade-card.can-afford:hover { border-color: var(--accretion); }
+/* Completed: stay greyed (even on hover). We dim only the FACE (.upg-top/.upg-botrow),
    NOT the card — so the description popup keeps full opacity and isn't trapped in a
    faded stacking context behind sibling cards. */
 .upgrade-card.is-maxed { cursor: default; background: #f6f4ee; border-color: var(--border2); }
 .upgrade-card.is-maxed .upg-top,
-.upgrade-card.is-maxed .upg-level { opacity: 0.34; }
+.upgrade-card.is-maxed .upg-botrow { opacity: 0.4; }
 
 /* Newly-unlocked card: a simple yellow highlight that flashes twice, then clears
    (the card's `animationend` handler removes .upg-new once it's transparent again). */
@@ -280,12 +279,17 @@ body {
     100% { opacity: 0; }
 }
 
-.upg-top  { display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 10px; }
-.upg-name { font-size: 15px; font-weight: 400; color: var(--text); font-family: 'Optima','Candara','Century Gothic',sans-serif; letter-spacing: 0.02em; }
-.upg-cost { font-size: 15px; color: var(--ink); font-weight: 700; font-family: 'Segoe UI', sans-serif; font-variant-numeric: tabular-nums; flex-shrink: 0; }
-.upg-cost.maxed { color: var(--text-faint); font-weight: 400; }
-/* Level: small, tucked into the card's bottom-right corner (out of flow). */
-.upg-level { position: absolute; right: 16px; bottom: 8px; font-size: 9px; color: var(--text-faint); font-family: 'Segoe UI', sans-serif; font-variant-numeric: tabular-nums; letter-spacing: 0.08em; }
+/* line-height:1 hugs the text so Baloo 2's tall built-in line box doesn't push the title high;
+   the name|cost row then sits centred between the card top and the progress bar. */
+.upg-top  { display: flex; justify-content: space-between; align-items: baseline; width: 100%; gap: 10px; line-height: 1; }
+.upg-name { font-family: 'Baloo 2', sans-serif; font-size: 16px; font-weight: 600; color: var(--text); }
+.upg-cost { font-size: 15px; color: var(--ink); font-weight: 800; font-variant-numeric: tabular-nums; flex-shrink: 0; white-space: nowrap; }
+.upg-cost.maxed { color: var(--text-faint); font-weight: 700; }
+/* Bottom row: full-width dusty-blue level progress bar + the level count at its right end. */
+.upg-botrow { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
+.upg-bar { flex: 1; height: 5px; border-radius: 4px; background: rgba(74,130,168,0.14); overflow: hidden; }
+.upg-bar > i { display: block; height: 100%; border-radius: 4px; background: var(--accretion); width: 0; transition: width 0.18s ease; }
+.upg-level { flex: none; font-size: 11px; font-weight: 700; color: var(--text-faint); font-variant-numeric: tabular-nums; letter-spacing: 0.06em; }
 
 /* Description popup — a single shared element, JS-positioned to the LEFT of the hovered
    card (fixed, so it escapes the right column's overflow clip and hides nothing in the list). */
@@ -318,13 +322,14 @@ body {
 }
 #upg-pop .upg-pop-fn  { font-size: 0.9em; }
 
-/* Soft modern font (Nunito) across all upgrade UI — cards, accordion, popup, toggle. */
-#upgrades-list, .upgrade-card, .upg-name, .upg-cost, .upg-level,
+/* Soft modern font (Nunito) across the upgrade UI — cost/level/accordion/popup/toggle.
+   (.upg-name is excluded so its Baloo 2 rounded font applies — the Demo-3 name treatment.) */
+#upgrades-list, .upgrade-card, .upg-cost, .upg-level,
 .acc-head, .acc-label, #upg-pop, #show-completed-wrap {
     font-family: 'Nunito','Segoe UI',sans-serif !important;
 }
 
-.stat-row { display: flex; justify-content: space-between; align-items: baseline; gap: 14px; padding: 6px 0; border-bottom: 1px solid var(--border2); font-size: 13px; font-family: 'Segoe UI', sans-serif; }
+.stat-row { display: flex; justify-content: space-between; align-items: baseline; gap: 14px; padding: 6px 0; border-bottom: 1px solid var(--border2); font-size: 13px; font-family: 'Nunito', 'Segoe UI', sans-serif; }
 .stat-label { color: var(--text-dim); flex: 1; }
 .stat-val   { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
 
@@ -482,22 +487,48 @@ body {
    Top-level fixed (shown over the live game directly from the Accretion button). */
 .acc-confirm { display: none; position: fixed; inset: 0; z-index: 130; background: rgba(26,22,18,0.32); align-items: center; justify-content: center; font-family: 'Nunito','Segoe UI',sans-serif; }
 .acc-confirm.show { display: flex; }
+/* V4 "ledger": warm rounded card, centred, minimal — show, don't tell. */
 .acc-confirm-box {
-    background: #f4f0e8; border: none; border-radius: 16px;
-    width: 460px; max-width: 90%; padding: 30px 32px 24px;
-    box-shadow: 0 24px 64px rgba(20,16,10,0.34);
+    background: linear-gradient(180deg,#fbf8f1,#f3eee2); border: 1px solid rgba(120,108,86,0.16); border-radius: 20px;
+    width: 360px; max-width: 90%; padding: 26px 26px 22px; text-align: center;
+    box-shadow: 0 22px 60px -18px rgba(40,32,22,0.5), 0 2px 0 rgba(255,255,255,0.6) inset;
     font-family: 'Nunito','Segoe UI',sans-serif;
 }
-.acc-confirm-title { font-family: 'Nunito',sans-serif; font-size: 21px; font-weight: 800; letter-spacing: 0.01em; color: #1a1a1a; margin-bottom: 14px; }
-.acc-confirm-body { font-family: 'Nunito',sans-serif; font-size: 14px; line-height: 1.65; color: #5a5346; }
-.acc-confirm-body p { margin: 0 0 11px; }
-.acc-confirm-body b { color: #1a1a1a; font-weight: 700; }
-.acc-confirm-body .acc-gain { font-size: 17px; color: var(--accretion); font-weight: 700; }
-.acc-confirm-body .acc-gain b { color: var(--accretion); }
-.acc-confirm-body .acc-next { padding: 8px 12px; border-radius: 8px; background: rgba(168,133,58,0.07); border: 1px solid rgba(168,133,58,0.18); font-size: 13.5px; }
-.acc-confirm-body .acc-mutehint { margin-top: 15px; padding: 9px 13px; border-radius: 8px; background: rgba(74,130,168,0.08); border: 1px solid rgba(74,130,168,0.22); font-size: 13px; font-style: italic; color: #4a82a8; }
-.acc-confirm-actions { display: flex; justify-content: flex-end; gap: 11px; margin-top: 20px; }
-.acc-btn-ghost { background: none; border: 1.5px solid #cfc6b4; color: #6b6150; border-radius: 9px; padding: 11px 24px; font: 800 13.5px 'Nunito'; letter-spacing: 0.04em; cursor: pointer; transition: all 0.12s; }
-.acc-btn-ghost:hover { border-color: #b0a589; color: #1a1a1a; background: rgba(168,133,58,0.06); }
-.acc-btn-go { background: var(--accretion); border: none; color: #f6f3ec; border-radius: 9px; padding: 11px 26px; font: 800 13.5px 'Nunito'; letter-spacing: 0.06em; cursor: pointer; box-shadow: 0 4px 14px rgba(74,130,168,0.34); transition: background 0.15s; }
+.acc-sentence { font-size: 18px; font-weight: 900; color: #1a1a1a; letter-spacing: 0.035em; text-transform: uppercase; margin: 2px 0 0; }
+.acc-explain { font-size: 13px; line-height: 1.5; color: #6b6150; margin: 8px auto 0; max-width: 290px; }
+.acc-star { color: #a8853a; font-weight: 900; }
+.acc-up { vertical-align: -2px; color: #6b6150; }
+/* ledger: Resets ⟶ Mass gained */
+.acc-ledger { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: stretch; margin: 18px 0 4px; }
+.acc-col { padding: 13px 11px; border-radius: 13px; display: flex; flex-direction: column; }
+.acc-col.lose { background: rgba(120,108,86,0.06); border: 1px solid rgba(120,108,86,0.13); }
+.acc-col.keep { background: rgba(74,130,168,0.08); border: 1px solid rgba(74,130,168,0.22); }
+.acc-colh { font-size: 9.5px; letter-spacing: 0.2em; font-weight: 800; text-transform: uppercase; color: #8a8071; margin-bottom: 9px; }
+.acc-col.keep .acc-colh { color: var(--accretion); }
+.acc-colbody { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.acc-it { display: flex; align-items: center; justify-content: center; gap: 7px; font-size: 13px; font-weight: 700; color: #5a5346; margin: 6px 0; }
+.acc-orb { width: 40px; height: 40px; border-radius: 50%; margin: 2px auto 6px; position: relative;
+    background: radial-gradient(circle at 34% 30%,#86b4d4 0%,#5a90b6 38%,#4a82a8 62%,#34607f 100%);
+    box-shadow: 0 0 0 1px rgba(52,96,127,0.4), 0 4px 16px rgba(74,130,168,0.45), 0 0 22px rgba(74,130,168,0.35); }
+.acc-orb::after { content:""; position:absolute; top:16%; left:22%; width:30%; height:24%; border-radius:50%; background:rgba(255,255,255,0.55); filter:blur(1px); }
+.acc-amt { font-size: 26px; font-weight: 900; color: var(--accretion); line-height: 1; }
+.acc-arrowmid { font-size: 22px; color: var(--accretion); align-self: center; }
+/* next-Mass progress */
+.acc-next2 { margin-top: 16px; text-align: left; }
+.acc-nextrow { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+.acc-nextt { font-size: 10px; letter-spacing: 0.22em; font-weight: 800; color: #8a8071; text-transform: uppercase; }
+.acc-nextv { font-size: 12px; font-weight: 800; color: #5a5346; }
+.acc-bar { height: 8px; border-radius: 6px; background: rgba(120,108,86,0.13); overflow: hidden; }
+.acc-bar > i { display: block; height: 100%; border-radius: 6px; background: linear-gradient(90deg, rgba(168,133,58,0.55), #a8853a); }
+.acc-mutehint { margin-top: 14px; font-size: 12px; font-style: italic; color: var(--accretion); }
+/* actions — vertical: Collapse on top, a quiet "Not yet" under it */
+.acc-confirm-actions { display: flex; flex-direction: column; gap: 8px; margin-top: 18px; }
+.acc-btn-go { position: relative; overflow: hidden; width: 100%; background: var(--accretion); border: none; color: #f6f3ec; border-radius: 12px; padding: 14px; font: 900 14.5px 'Nunito'; letter-spacing: 0.06em; cursor: pointer; box-shadow: 0 6px 18px -4px rgba(74,130,168,0.5); transition: background 0.15s; user-select: none; touch-action: none; }
 .acc-btn-go:hover { background: var(--accretion-hi); }
+.acc-go-fx { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+.acc-go-label { position: relative; z-index: 1; }
+/* "Skip animation" — appears in the confirm body only after the first Accretion; checked = skip */
+.acc-skip { display: flex; align-items: center; justify-content: center; gap: 7px; margin-top: 15px; font-size: 12.5px; font-weight: 700; color: #8a8071; cursor: pointer; }
+.acc-skip input { width: 14px; height: 14px; accent-color: var(--accretion); cursor: pointer; }
+.acc-btn-ghost { width: 100%; background: none; border: none; color: #8a8071; border-radius: 10px; padding: 5px; font: 800 12px 'Nunito'; letter-spacing: 0.04em; cursor: pointer; transition: color 0.12s; }
+.acc-btn-ghost:hover { color: #1a1a1a; }

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Dwarf Planet — 5 designs</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Nunito',sans-serif;background:#f4efe4;color:#2c2820;padding:40px 32px 60px}
+  h1{font-family:'Fraunces',serif;font-weight:600;font-size:30px;letter-spacing:.01em;margin-bottom:6px}
+  .sub{color:#8a8071;font-size:14.5px;max-width:760px;margin-bottom:34px;line-height:1.55}
+  .sub b{color:#4a82a8;font-weight:700}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:22px;max-width:1180px}
+  .tile{background:#fffdf8;border:1px solid #e3dccc;border-radius:16px;padding:18px 18px 20px;
+    box-shadow:0 4px 18px rgba(70,58,34,.08);display:flex;flex-direction:column;align-items:center}
+  canvas{display:block;border-radius:12px;background:radial-gradient(120% 110% at 38% 30%,#f7f2e8,#ece4d4)}
+  .nm{font-family:'Fraunces',serif;font-weight:600;font-size:19px;margin-top:14px}
+  .insp{font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#b09a6a;margin-top:3px}
+  .desc{font-size:13px;color:#7a7165;text-align:center;margin-top:9px;line-height:1.5}
+  .pal{display:flex;gap:5px;margin-top:12px}
+  .pal span{width:18px;height:18px;border-radius:5px;border:1px solid rgba(0,0,0,.06)}
+  footer{margin-top:40px;color:#a59a88;font-size:12.5px;max-width:760px;line-height:1.6}
+</style>
+</head>
+<body>
+  <h1>The Dwarf Planet — five looks</h1>
+  <div class="sub">The 4th orbiter: grander and slower than the Moon, on the widest ring yet. Each design below is grounded in a real dwarf planet so they read as <b>distinct</b> from the pale-grey Moon, the lumpy Asteroid, and the dusty pebbles. They rotate slowly so you can see the whole surface. Hover nothing — just watch.</div>
+  <div class="grid" id="grid"></div>
+  <footer>Rendered in the same painterly style as the in-game Moon (radial-gradient sphere · clipped surface features · limb darkening · soft rim). Pick a look — or mix features across them — and I'll wire the real orbiter component to match.</footer>
+
+<script>
+const DPR = Math.min(2, window.devicePixelRatio||1);
+const SIZE = 230, R = 74;
+
+// ---- shared sphere helpers -------------------------------------------------
+// light fixed at upper-left
+const LX=-0.42, LY=-0.5;
+
+function clipCircle(c, cx, cy, r){ c.beginPath(); c.arc(cx,cy,r,0,7); c.clip(); }
+
+function sphereBase(c, cx, cy, r, stops){
+  const g=c.createRadialGradient(cx+LX*r*0.5, cy+LY*r*0.5, r*0.06, cx-LX*r*0.3, cy-LY*r*0.3, r*1.35);
+  for(const [p,col] of stops) g.addColorStop(p,col);
+  c.fillStyle=g; c.beginPath(); c.arc(cx,cy,r,0,7); c.fill();
+}
+
+function limbAndRim(c, cx, cy, r, rim){
+  const lg=c.createRadialGradient(cx,cy,r*0.5, cx,cy,r*1.02);
+  lg.addColorStop(0,'rgba(0,0,0,0)'); lg.addColorStop(0.72,'rgba(0,0,0,0)'); lg.addColorStop(1,'rgba(12,10,8,0.34)');
+  c.fillStyle=lg; c.beginPath(); c.arc(cx,cy,r,0,7); c.fill();
+  c.restore(); // un-clip
+  c.strokeStyle=rim||'rgba(60,52,40,0.30)'; c.lineWidth=1;
+  c.beginPath(); c.arc(cx,cy,r,0,7); c.stroke();
+}
+
+// project a feature at (lon,lat) on a sphere rotated by phase; returns null if on far side
+function proj(cx, cy, r, lon, lat, phase){
+  const el=lon+phase;
+  const z=Math.cos(lat)*Math.cos(el);
+  if(z<=0.04) return null;                // back hemisphere (small margin)
+  const x=cx + r*Math.cos(lat)*Math.sin(el);
+  const y=cy - r*Math.sin(lat);
+  return {x,y,z, fore:Math.min(1,z*1.25)}; // fore = foreshorten/visibility factor
+}
+
+// soft round patch
+function patch(c, cx, cy, r, f, phase, lon, lat, size, color){
+  const p=proj(cx,cy,r,lon,lat,phase); if(!p) return;
+  const rad=size*r*(0.55+0.45*p.fore);
+  const a=Math.min(1, p.z*1.6);
+  const g=c.createRadialGradient(p.x,p.y,0, p.x,p.y,rad);
+  g.addColorStop(0,color.replace('A',(0.9*a).toFixed(2)));
+  g.addColorStop(0.65,color.replace('A',(0.5*a).toFixed(2)));
+  g.addColorStop(1,color.replace('A','0'));
+  c.fillStyle=g; c.beginPath(); c.arc(p.x,p.y,rad,0,7); c.fill();
+}
+
+// bright glowing spot (Ceres faculae)
+function brightSpot(c, cx, cy, r, phase, lon, lat, size){
+  const p=proj(cx,cy,r,lon,lat,phase); if(!p) return;
+  const a=Math.min(1,p.z*1.7);
+  const rad=size*r*(0.5+0.5*p.fore);
+  const g=c.createRadialGradient(p.x,p.y,0, p.x,p.y,rad);
+  g.addColorStop(0,'rgba(255,255,250,'+(0.95*a)+')');
+  g.addColorStop(0.4,'rgba(244,246,250,'+(0.55*a)+')');
+  g.addColorStop(1,'rgba(244,246,250,0)');
+  c.fillStyle=g; c.beginPath(); c.arc(p.x,p.y,rad,0,7); c.fill();
+}
+
+// heart-shaped pale plain (Pluto / Tombaugh Regio)
+function heart(c, cx, cy, r, phase, lon, lat, size, color){
+  const p=proj(cx,cy,r,lon,lat,phase); if(!p) return;
+  const a=Math.min(1,(p.z-0.1)*1.7); if(a<=0) return;
+  const s=size*r*(0.6+0.4*p.fore);
+  c.save(); c.globalAlpha=a; c.translate(p.x,p.y); c.scale(1,1);
+  c.fillStyle=color;
+  c.beginPath();
+  c.moveTo(0, s*0.62);
+  c.bezierCurveTo(-s*1.15, -s*0.25, -s*0.5, -s*0.95, 0, -s*0.32);
+  c.bezierCurveTo(s*0.5, -s*0.95, s*1.15, -s*0.25, 0, s*0.62);
+  c.closePath(); c.fill();
+  c.restore();
+}
+
+// ---- the five designs ------------------------------------------------------
+const DESIGNS = [
+ {
+   key:'pluto', name:'Tombaugh', insp:'Pluto', spin:0.10,
+   desc:'Warm tan ices with reddish tholin blotches and a pale heart-shaped plain. Friendly, characterful — the most recognisable dwarf.',
+   pal:['#c9a878','#9c6f4a','#e8e0cd','#7a5236'],
+   draw(c,cx,cy,r,ph){
+     c.save(); clipCircle(c,cx,cy,r);
+     sphereBase(c,cx,cy,r,[[0,'#e0c79c'],[0.5,'#c7a575'],[0.82,'#9e7a4f'],[1,'#6f4f33']]);
+     patch(c,cx,cy,r,1,ph, 2.1,0.25, 0.7,'rgba(120,78,46,A)');
+     patch(c,cx,cy,r,1,ph, -1.2,-0.5, 0.55,'rgba(150,98,60,A)');
+     patch(c,cx,cy,r,1,ph, 3.6,-0.2, 0.5,'rgba(110,70,42,A)');
+     heart(c,cx,cy,r,ph, 0.1,-0.15, 0.62,'#efe7d2');
+     limbAndRim(c,cx,cy,r);
+   }
+ },
+ {
+   key:'ceres', name:'Occator', insp:'Ceres', spin:0.13,
+   desc:'Dark carbonaceous slate with two brilliant salt-white bright spots that glint as they rotate past. Mysterious, high-contrast.',
+   pal:['#6a665e','#46433c','#fbfaf4','#2e2c27'],
+   draw(c,cx,cy,r,ph){
+     c.save(); clipCircle(c,cx,cy,r);
+     sphereBase(c,cx,cy,r,[[0,'#7c776d'],[0.5,'#5d5950'],[0.82,'#403d36'],[1,'#26241f']]);
+     patch(c,cx,cy,r,1,ph, 1.4,0.3, 0.6,'rgba(40,38,33,A)');
+     patch(c,cx,cy,r,1,ph, -1.8,-0.3, 0.5,'rgba(48,45,39,A)');
+     brightSpot(c,cx,cy,r,ph, 0.0,-0.05, 0.34);
+     brightSpot(c,cx,cy,r,ph, 0.55,0.25, 0.2);
+     limbAndRim(c,cx,cy,r,'rgba(40,38,33,0.4)');
+   }
+ },
+ {
+   key:'haumea', name:'Haumea', insp:'Haumea', spin:0.42, ellipse:1.42,
+   desc:'A fast spinning egg-shaped world wrapped in a thin dark ring — the only orbiter that is not a circle. Strange and elegant.',
+   pal:['#dcd8cc','#b9b3a3','#3a352c','#f1eee5'],
+   draw(c,cx,cy,r,ph){
+     const rx=r*1.32, ry=r*0.82;
+     // back half of ring
+     c.save();
+     c.strokeStyle='rgba(58,52,42,0.55)'; c.lineWidth=4.2;
+     c.beginPath(); c.ellipse(cx,cy, rx*1.34, ry*0.34, -0.18, Math.PI, 0); c.stroke();
+     c.restore();
+     // body (ellipse) with shaded sphere look
+     c.save();
+     c.beginPath(); c.ellipse(cx,cy,rx,ry,-0.05,0,7); c.clip();
+     const g=c.createRadialGradient(cx+LX*rx*0.5, cy+LY*ry*0.5, ry*0.06, cx-LX*rx*0.3, cy-LY*ry*0.3, rx*1.3);
+     g.addColorStop(0,'#efece2'); g.addColorStop(0.5,'#cfc9bb'); g.addColorStop(0.85,'#a9a292'); g.addColorStop(1,'#7d7666');
+     c.fillStyle=g; c.fillRect(cx-rx,cy-ry,rx*2,ry*2);
+     // a couple of faint banded patches that streak past quickly (fast spin)
+     for(let i=0;i<3;i++){ patch(c,cx,cy,rx,1,ph*1.0, i*2.1, -0.1+i*0.18, 0.5,'rgba(150,142,126,A)'); }
+     const lg=c.createRadialGradient(cx,cy,rx*0.5, cx,cy,rx*1.0);
+     lg.addColorStop(0,'rgba(0,0,0,0)'); lg.addColorStop(0.7,'rgba(0,0,0,0)'); lg.addColorStop(1,'rgba(14,12,9,0.3)');
+     c.fillStyle=lg; c.fillRect(cx-rx,cy-ry,rx*2,ry*2);
+     c.restore();
+     c.strokeStyle='rgba(60,52,40,0.3)'; c.lineWidth=1;
+     c.beginPath(); c.ellipse(cx,cy,rx,ry,-0.05,0,7); c.stroke();
+     // front half of ring
+     c.strokeStyle='rgba(48,42,34,0.78)'; c.lineWidth=4.2;
+     c.beginPath(); c.ellipse(cx,cy, rx*1.34, ry*0.34, -0.18, 0, Math.PI); c.stroke();
+   }
+ },
+ {
+   key:'eris', name:'Eris', insp:'Eris', spin:0.07,
+   desc:'A pristine, almost blinding ice-white world with the faintest cold blue cast — the brightest, most distant and remote of all.',
+   pal:['#f3f4f2','#d6dee0','#c2cdd2','#aebac2'],
+   draw(c,cx,cy,r,ph){
+     // faint cold halo
+     const h=c.createRadialGradient(cx,cy,r*0.85, cx,cy,r*1.3);
+     h.addColorStop(0,'rgba(190,210,220,0.25)'); h.addColorStop(1,'rgba(190,210,220,0)');
+     c.fillStyle=h; c.beginPath(); c.arc(cx,cy,r*1.3,0,7); c.fill();
+     c.save(); clipCircle(c,cx,cy,r);
+     sphereBase(c,cx,cy,r,[[0,'#ffffff'],[0.55,'#e6ecee'],[0.85,'#cdd7db'],[1,'#a9b7c0']]);
+     // very subtle pale-blue fracture mottling
+     patch(c,cx,cy,r,1,ph, 1.0,0.2, 0.7,'rgba(150,175,190,A)');
+     patch(c,cx,cy,r,1,ph, -1.5,-0.35, 0.6,'rgba(160,182,196,A)');
+     patch(c,cx,cy,r,1,ph, 3.0,0.0, 0.5,'rgba(170,190,200,A)');
+     limbAndRim(c,cx,cy,r,'rgba(120,140,150,0.35)');
+   }
+ },
+ {
+   key:'makemake', name:'Makemake', insp:'Makemake', spin:0.11,
+   desc:'A rich rust-red methane-frost world, deep reddish-brown mottled with darker patches. The warmest, moodiest palette.',
+   pal:['#a85a3a','#7a3b27','#c98a5e','#522418'],
+   draw(c,cx,cy,r,ph){
+     c.save(); clipCircle(c,cx,cy,r);
+     sphereBase(c,cx,cy,r,[[0,'#c47a4e'],[0.5,'#a3563a'],[0.82,'#7c3a27'],[1,'#521f15']]);
+     patch(c,cx,cy,r,1,ph, 1.6,0.25, 0.65,'rgba(82,33,22,A)');
+     patch(c,cx,cy,r,1,ph, -1.3,-0.4, 0.55,'rgba(70,28,18,A)');
+     patch(c,cx,cy,r,1,ph, 3.4,-0.1, 0.5,'rgba(200,140,96,A)');
+     patch(c,cx,cy,r,1,ph, 0.3,0.5, 0.4,'rgba(90,40,26,A)');
+     limbAndRim(c,cx,cy,r,'rgba(70,30,20,0.4)');
+   }
+ },
+];
+
+// ---- build tiles + animate -------------------------------------------------
+const grid=document.getElementById('grid');
+const insts=[];
+for(const d of DESIGNS){
+  const tile=document.createElement('div'); tile.className='tile';
+  const cv=document.createElement('canvas');
+  cv.width=SIZE*DPR; cv.height=SIZE*DPR; cv.style.width=SIZE+'px'; cv.style.height=SIZE+'px';
+  const c=cv.getContext('2d'); c.scale(DPR,DPR);
+  tile.appendChild(cv);
+  const nm=document.createElement('div'); nm.className='nm'; nm.textContent=d.name; tile.appendChild(nm);
+  const insp=document.createElement('div'); insp.className='insp'; insp.textContent='inspired by '+d.insp; tile.appendChild(insp);
+  const ds=document.createElement('div'); ds.className='desc'; ds.textContent=d.desc; tile.appendChild(ds);
+  const pal=document.createElement('div'); pal.className='pal';
+  for(const col of d.pal){ const s=document.createElement('span'); s.style.background=col; pal.appendChild(s); }
+  tile.appendChild(pal);
+  grid.appendChild(tile);
+  insts.push({d,c});
+}
+
+let t0=performance.now();
+function frame(now){
+  const t=(now-t0)/1000;
+  for(const {d,c} of insts){
+    c.clearRect(0,0,SIZE,SIZE);
+    d.draw(c, SIZE/2, SIZE/2, R, t*d.spin);
+  }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

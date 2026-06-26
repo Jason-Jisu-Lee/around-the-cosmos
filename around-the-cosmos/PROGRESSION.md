@@ -201,14 +201,15 @@ asteroid it is **not a count upgrade** — there's only ever one Moon.
 ## Comets
 - First appears **~7–13 s** in; afterward every **20–45 s** (`COMET_MIN_GAP`–`COMET_MAX_GAP`).
 - On screen for **8 s** (`COMET_LIFE`); click within ~48px to catch. Hovering it shows a **targeting reticle** and a "Comet" label.
-- **Windfall = round( (10 × pulse value) + 1.25 × every orbiter's payout combined ).**
+- Each comet flies at a **random speed** — ×1, ×1.5, ×2, or ×2.5 of base. Faster ones are harder to catch but pay more.
+- **Windfall = round( ( (10 × pulse value) + 1 × every orbiter's payout combined ) × comet speed × Brighter Tails ).**
   - Pulse value = 5 × Cosmic Pulse + 10 × Pulse Surge (`pulseValue()`); combined = `Σ each orbiter's count × payout` (dust + asteroid + moon).
-  - Rounded so the 1.25× never leaves a fractional stardust amount.
-  - Example: pulse value 15, three dust particles at Payout lvl 1 (20 each) → `10×15 + 1.25×(3×20)` = 150 + 75 = **225 ✦**.
+  - Rounded so it never leaves a fractional stardust amount.
+  - Example: pulse value 15, three dust particles at Payout lvl 1 (20 each), a ×2 comet → `(10×15 + 1×(3×20)) × 2` = (150 + 60) × 2 = **420 ✦**.
 
 ---
 
-## Observatory stats (the draggable panel, top-left)
+## Observatory stats (draggable panel, default bottom-left)
 | Stat | Shows | Appears |
 |---|---|---|
 | Cosmic Pulse / s | ✦ generated each second (Cosmic Pulse + Pulse Surge) | always |

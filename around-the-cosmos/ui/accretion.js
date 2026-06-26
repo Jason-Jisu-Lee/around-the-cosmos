@@ -147,25 +147,47 @@ function musicMuted() {
     return el ? parseInt(el.value, 10) === 0 : false;
 }
 
-// Plain-language confirmation before committing an Accretion.
+// Themed confirmation before committing an Accretion — V4 "ledger": minimal, centred, show-don't-tell.
 function accConfirmBody() {
     const gain = massGain();
-    // After claiming, massEarned reaches massEarnable(); the NEXT Mass point lands when lifetime
-    // stardust reaches the threshold for one more (massEarnable formula solved for totalDust).
-    const nextThreshold = ACCRETION_THRESHOLD * Math.pow((massEarnable() + 1) / 3, 2);
-    const needed = Math.max(0, Math.ceil(nextThreshold - G.totalDust));
-    const muteNote = musicMuted()
-        ? `<p class="acc-mutehint">♪ The collapse is set to music — we recommend unmuting to hear it.</p>`
-        : '';
-    return `<p>This pulls everything in your universe into the Lacuna and collapses it.</p>
-        <p class="acc-gain">You'll gain <b>${gain} Mass</b>.</p>
-        <p>Mass comes from <b>all the stardust you've ever gathered</b> (${fmtNum(G.totalDust)} so far).
-           The more you collect over your whole journey, the more Mass — so it grows slowly, and
-           re-earning the same amount again barely adds any.</p>
-        <p class="acc-next"><b>Next Mass:</b> ✦${fmtNum(needed)} more.</p>
-        <p><b>What resets:</b> your stardust drops to zero and every stardust upgrade
-           (Cosmic Pulse, the orbiters, Resonance…) is undone. You start a fresh universe.</p>
-        <p><b>What you keep:</b> your Mass, and anything you spend it on.</p>${muteNote}`;
+    // Progress toward the NEXT Mass point (massEarnable formula solved for totalDust).
+    const me = massEarnable();
+    const curThresh  = ACCRETION_THRESHOLD * Math.pow(me / 3, 2);
+    const nextThresh = ACCRETION_THRESHOLD * Math.pow((me + 1) / 3, 2);
+    const needed = Math.max(0, Math.ceil(nextThresh - G.totalDust));
+    const prog   = Math.max(0.02, Math.min(1, (G.totalDust - curThresh) / Math.max(1, nextThresh - curThresh)));
+    // First Accretion ever → the animation always plays (and we hint to unmute for it).
+    // After that → a "Skip animation" checkbox (default checked = skip; uncheck to watch it again).
+    const tail = (G.massEarned > 0)
+        ? `<label class="acc-skip"><input type="checkbox" id="acc-skip-anim" checked> Skip animation</label>`
+        : (musicMuted() ? `<p class="acc-mutehint">♪ The collapse is set to music — recommend unmuting to hear it.</p>` : '');
+    const UP = `<svg class="acc-up" width="13" height="13" viewBox="0 0 16 16"><g fill="currentColor">`
+             + `<rect x="1" y="1" width="6" height="6" rx="1.4"/><rect x="9" y="1" width="6" height="6" rx="1.4"/>`
+             + `<rect x="1" y="9" width="6" height="6" rx="1.4"/><rect x="9" y="9" width="6" height="6" rx="1.4"/></g></svg>`;
+    return `
+        <p class="acc-sentence">Collapse this universe</p>
+        <p class="acc-explain">All the Stardust and orbiters collapse into Mass that can be used for permanent upgrades</p>
+        <div class="acc-ledger">
+            <div class="acc-col lose">
+                <div class="acc-colh">Resets</div>
+                <div class="acc-colbody">
+                    <div class="acc-it"><span class="acc-star">✦</span> Stardust</div>
+                    <div class="acc-it">${UP} Upgrades</div>
+                </div>
+            </div>
+            <div class="acc-arrowmid">⟶</div>
+            <div class="acc-col keep">
+                <div class="acc-colh">Mass gained</div>
+                <div class="acc-colbody">
+                    <div class="acc-orb"></div>
+                    <div class="acc-amt">+${gain}</div>
+                </div>
+            </div>
+        </div>
+        <div class="acc-next2">
+            <div class="acc-nextrow"><span class="acc-nextt">Next Mass</span><span class="acc-nextv"><span class="acc-star">✦</span> ${fmtNum(needed)} to go</span></div>
+            <div class="acc-bar"><i style="width:${(prog*100).toFixed(0)}%"></i></div>
+        </div>${tail}`;
 }
 function openAccConfirm() {
     document.getElementById('acc-confirm-body').innerHTML = accConfirmBody();
@@ -182,16 +204,29 @@ const accretionAudio = new Audio('sound/music/accretion-1.mp3');
 accretionAudio.volume = 0.68;   // 0.8 reduced 15%
 
 function startAccretionSequence() {
+    // Read the skip-animation checkbox BEFORE we close the modal (only present after the 1st Accretion).
+    const skipAnim = (() => { const cb = document.getElementById('acc-skip-anim'); return !!(cb && cb.checked); })();
     closeAccConfirm();
     if (typeof closeCosmoCard === 'function') closeCosmoCard();  // dismiss any pinned info card
     if (typeof SoundSystem !== 'undefined') SoundSystem.stopMusic();  // silence — music + (frozen) SFX
+    commitAccretion();                 // Mass credited NOW — the major event has happened
+    accreting = true;                  // freeze the sim (no earning/comets) — stays frozen through the Mass page
+    G.comet = null;
+
+    if (skipAnim) {                    // skip the collapse animation → straight to the Mass page (quick fade)
+        resetUniverse();
+        openAccretion();
+        const screen = document.getElementById('accretion-screen');
+        screen.style.transition = 'opacity 0.4s ease'; screen.style.opacity = '0';
+        requestAnimationFrame(() => requestAnimationFrame(() => { screen.style.opacity = '1'; }));
+        setTimeout(() => { screen.style.transition = ''; screen.style.opacity = ''; }, 700);
+        return;
+    }
+
     // play the accretion cue once (respect the mute button)
     if (typeof SoundSystem === 'undefined' || !SoundSystem.isMuted()) {
         try { accretionAudio.currentTime = 0; accretionAudio.play().catch(() => {}); } catch (_) {}
     }
-    commitAccretion();                 // Mass credited NOW — the major event has happened
-    accreting = true;                  // freeze the sim (no earning/comets) — stays frozen through the Mass page
-    G.comet = null;
     runAccretionFx(() => {
         resetUniverse();               // the collapse: full reset, keeps Mass / lifetime stardust / time
         openAccretion();               // build the Mass page (opaque + stars) — game stays frozen behind it
@@ -333,12 +368,68 @@ function runAccretionFx(onDone) {
     requestAnimationFrame(step);
 }
 
-document.getElementById('accretion-btn').addEventListener('click', openAccConfirm);
-document.getElementById('mass-upgrades-btn').addEventListener('click', openMassBrowse);
+// (#accretion-btn / #mass-upgrades-btn are now MAIN-column cards built + wired in ui/panels.js)
 document.getElementById('acc-undo').addEventListener('click', () => { if (undoLastMassUpgrade()) accRender(); });
 document.getElementById('acc-return').addEventListener('click', onAccBack);
 document.getElementById('acc-confirm-cancel').addEventListener('click', closeAccConfirm);
-document.getElementById('acc-confirm-go').addEventListener('click', startAccretionSequence);
+
+// "Collapse" is a HOLD-to-confirm button: hold ~1s while a flurry of tiny stars gather into the
+// button's centre, then the Accretion fires. Releasing early cancels (the stars disperse).
+(function initCollapseHold() {
+    const btn = document.getElementById('acc-confirm-go');
+    if (!btn) return;
+    const fx = btn.querySelector('.acc-go-fx'), ctx = fx.getContext('2d');
+    const HOLD_MS = 1000, TAU = Math.PI * 2;
+    let holding = false, holdStart = 0, raf = null, parts = [];
+
+    function frame(now) {
+        const r = btn.getBoundingClientRect(), W = r.width, H = r.height, cx = W/2, cy = H/2;
+        const dpr = window.devicePixelRatio || 1;
+        if (fx.width !== Math.round(W*dpr)) { fx.width = Math.round(W*dpr); fx.height = Math.round(H*dpr); }
+        ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,W,H);
+        const elapsed = now - holdStart, p = Math.min(1, elapsed/HOLD_MS);
+
+        if (holding) {
+            const n = 3 + Math.round(p*6);                       // quite a lot, intensifying
+            for (let i=0;i<n;i++) {
+                const a = Math.random()*TAU, rad = (W*0.5)*(0.4 + Math.random()*0.55);
+                parts.push({ x: cx+Math.cos(a)*rad, y: cy+Math.sin(a)*rad*(H/W), sz: 0.5+Math.random()*1.4, life: 0, max: 0.45+Math.random()*0.4 });
+            }
+        }
+        for (let i=parts.length-1;i>=0;i--) {
+            const q = parts[i]; q.life += 0.0166; const k = q.life/q.max;
+            if (k>=1) { parts.splice(i,1); continue; }
+            q.x += (cx-q.x)*0.14; q.y += (cy-q.y)*0.14;          // ease into the centre — gathering
+            ctx.fillStyle = `rgba(255,251,236,${Math.sin(k*Math.PI)*0.95})`;
+            ctx.beginPath(); ctx.arc(q.x, q.y, q.sz*(1-k*0.4), 0, TAU); ctx.fill();
+        }
+        if (holding && p>0.05) {                                  // a soft gathered glow at the centre
+            const g = ctx.createRadialGradient(cx,cy,0,cx,cy,W*0.42*p);
+            g.addColorStop(0, `rgba(255,250,235,${0.45*p})`); g.addColorStop(1,'rgba(255,250,235,0)');
+            ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx,cy,W*0.42*p,0,TAU); ctx.fill();
+        }
+        if (holding && elapsed >= HOLD_MS) {                      // held long enough → collapse
+            holding = false; parts.length = 0; ctx.clearRect(0,0,W,H);
+            cancelAnimationFrame(raf); raf = null;
+            startAccretionSequence();
+            return;
+        }
+        if (!holding && parts.length === 0) { ctx.clearRect(0,0,W,H); cancelAnimationFrame(raf); raf = null; return; }
+        raf = requestAnimationFrame(frame);
+    }
+    function start(e) {
+        if (holding) return;
+        e.preventDefault();
+        holding = true; holdStart = performance.now(); parts = [];
+        cancelAnimationFrame(raf); raf = requestAnimationFrame(frame);
+    }
+    const stop = () => { holding = false; };                     // RAF disperses the stars, then stops
+    btn.addEventListener('mousedown', start);
+    btn.addEventListener('touchstart', start, { passive:false });
+    btn.addEventListener('mouseleave', stop);
+    window.addEventListener('mouseup', stop);
+    window.addEventListener('touchend', stop);
+})();
 document.getElementById('acc-leave-stay').addEventListener('click', closeAccLeaveConfirm);
 document.getElementById('acc-leave-go').addEventListener('click', closeAccretion);
 document.addEventListener('keydown', e => {

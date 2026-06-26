@@ -3,7 +3,7 @@
 
 
 let lastVisibleSig = '';
-let showCompleted  = false;
+let showCompleted  = true;   // default: SHOW completed upgrades (the "Hide completed" toggle is opt-in)
 const sectionOpen  = {};
 const cardRefs     = [];
 const seenUpg      = new Set();
@@ -37,7 +37,7 @@ function makeCard(u) {
     }
     seenUpg.add(u.id);
     card.innerHTML = `<div class="upg-top"><span class="upg-name">${u.name}</span><span class="upg-cost"></span></div>`
-        + `<span class="upg-level"></span>`;
+        + `<div class="upg-botrow"><div class="upg-bar"><i></i></div><span class="upg-level"></span></div>`;
 
     card.addEventListener('click', () => {
         if (!buyUpgrade(u)) return;
@@ -48,7 +48,8 @@ function makeCard(u) {
     card.addEventListener('mouseleave', hideUpgPop);
     cardRefs.push({ u, card,
         cost:  card.querySelector('.upg-cost'),
-        level: card.querySelector('.upg-level') });
+        level: card.querySelector('.upg-level'),
+        bar:   card.querySelector('.upg-bar > i') });
     return card;
 }
 
@@ -76,12 +77,21 @@ function hideUpgPop() { upgPop.style.display = 'none'; }
 function resetPanelAnimations() { seenUpg.clear(); }
 
 function buildPanels() {
+    // MAIN goes in the left column (under the observatory); every orbiter section goes on the right.
+    const mainList = document.getElementById('main-upgrades');
     const list = document.getElementById('upgrades-list');
-    list.innerHTML = ''; cardRefs.length = 0;
+    mainList.innerHTML = ''; list.innerHTML = ''; cardRefs.length = 0;
 
     for (const sec of SECTION_ORDER) {
         const ups = UPGRADES.filter(u => u.section === sec && isShown(u));
         if (!ups.length) continue;
+
+        // MAIN renders as plain cards on the left — no "MAIN" label, arrow, or collapse
+        // (it's on its own side, so the heading is redundant).
+        if (sec === 'MAIN') {
+            for (const u of ups) mainList.appendChild(makeCard(u));
+            continue;
+        }
 
         const open = sectionOpen[sec] !== false;
         const section = document.createElement('div');
@@ -105,9 +115,28 @@ function buildPanels() {
         list.appendChild(section);
     }
 
+    // Prestige entries live at the very bottom of the MAIN column as special cards (shown/hidden by hud.js).
+    appendPrestigeCards(mainList);
+
     lastVisibleSig = visibleSig();
     firstPanelBuild = false;
     updateCards();
+}
+
+// Accretion (accentuated) + Mass Upgrades (secondary) cards, pinned below the MAIN upgrades.
+// They keep their ids so hud.js can show/hide them by claimable/accreted state; clicks open the flows.
+function appendPrestigeCards(mainList) {
+    const acc = document.createElement('div');
+    acc.id = 'accretion-btn'; acc.className = 'accretion-card'; acc.textContent = 'Accretion';
+    acc.addEventListener('click', () => { if (typeof openAccConfirm === 'function') openAccConfirm(); });
+    acc.addEventListener('mouseenter', () => SoundSystem.sfxHover());
+    mainList.appendChild(acc);
+
+    const mass = document.createElement('div');
+    mass.id = 'mass-upgrades-btn'; mass.className = 'mass-upg-card'; mass.textContent = 'Mass Upgrades';
+    mass.addEventListener('click', () => { if (typeof openMassBrowse === 'function') openMassBrowse(); });
+    mass.addEventListener('mouseenter', () => SoundSystem.sfxHover());
+    mainList.appendChild(mass);
 }
 
 // Runs every UI tick (~6.7Hz). Only touch the DOM when a value actually changes — `can-afford`
@@ -128,6 +157,10 @@ function updateCards() {
         }
         const costText = isMax ? 'MAX' : '✦' + fmtNum(cost);
         if (ref._costText !== costText) { ref.cost.textContent = costText; ref._costText = costText; }
-        if (ref._lvl !== l) { ref.level.textContent = `${l} / ${u.maxLevel}`; ref._lvl = l; }
+        if (ref._lvl !== l) {
+            ref.level.textContent = `${l} / ${u.maxLevel}`;
+            ref.bar.style.width = (l / u.maxLevel * 100) + '%';   // dusty-blue level progress
+            ref._lvl = l;
+        }
     }
 }
