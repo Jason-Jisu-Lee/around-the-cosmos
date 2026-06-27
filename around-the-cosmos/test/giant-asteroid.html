@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Giant rock - corner fly-by (v4, dark eclipse)</title>
+<style>
+  :root { --bg:#f4efe4; --ink:#1a1a1a; --muted:#6f6657; --accent:#4a82a8; }
+  * { box-sizing:border-box; }
+  html,body { margin:0; height:100%; overflow:hidden; background:var(--bg); color:var(--ink); font-family:Georgia,serif; }
+  canvas#cv { display:block; position:fixed; inset:0; }
+  #panel { position:fixed; bottom:16px; right:16px; z-index:10; background:rgba(251,248,241,0.94); border:1px solid #e0d7c6;
+           border-radius:12px; padding:14px 16px; width:286px; box-shadow:0 6px 22px -8px rgba(60,45,25,.3); }
+  h1 { font-size:16px; margin:0 0 3px; } .sub { font-size:12px; color:var(--muted); line-height:1.45; margin:0 0 12px; }
+  .seg { display:flex; gap:6px; margin:0 0 10px; }
+  .seg button { flex:1; padding:8px 4px; border:1.5px solid #ddd3c0; border-radius:8px; background:#fbf8f1; cursor:pointer; font-family:inherit; font-size:12px; font-weight:bold; }
+  .seg button.on { border-color:var(--accent); background:#fff; color:var(--accent); }
+  .btn { width:100%; padding:10px; border:none; border-radius:9px; background:var(--accent); color:#fff; font-family:inherit; font-size:13px; font-weight:bold; cursor:pointer; }
+  .btn:hover { background:#3d6f91; }
+  .row { display:flex; align-items:center; justify-content:space-between; font-size:12.5px; margin:11px 0 5px; }
+  .row .v { color:var(--accent); font-weight:bold; font-variant-numeric:tabular-nums; }
+  input[type=range]{ width:100%; accent-color:var(--accent); }
+  label.chk { display:flex; align-items:center; gap:8px; font-size:12.5px; margin:8px 0 0; cursor:pointer; }
+  label.chk input{ accent-color:#777; width:15px; height:15px; }
+  #mined { margin-top:12px; font-size:13px; } #mined b { color:#b8923a; font-size:18px; font-variant-numeric:tabular-nums; }
+  .hint { font-size:11.5px; color:var(--muted); margin-top:10px; line-height:1.4; }
+  #gen { position:fixed; inset:0; display:none; align-items:center; justify-content:center; font:16px Georgia; color:#8a8071; z-index:5; }
+</style>
+</head>
+<body>
+<canvas id="cv"></canvas>
+<div id="gen">sculpting the rock…</div>
+<div id="panel">
+  <h1>Giant rock - corner fly-by</h1>
+  <p class="sub">A sliver of a colossal rock in a top corner, descending <b>diagonally</b> from the top (one way, ~10s). Dark mass, glowing craggy rim. <b>Press &amp; drag</b> to mine (+1 pulse / 0.1s).</p>
+  <div class="seg" id="cornerSeg">
+    <button data-c="tl" class="on">Top-left</button>
+    <button data-c="tr">Top-right</button>
+  </div>
+  <button class="btn" id="trigger">Trigger a pass</button>
+  <div class="row"><span>Coverage</span><span class="v"><span id="covv">17</span>%</span></div>
+  <input type="range" id="cov" min="10" max="28" value="17" step="1">
+  <div class="row"><span>Pass duration</span><span class="v"><span id="durv">10</span>s</span></div>
+  <input type="range" id="dur" min="6" max="16" value="10" step="1">
+  <label class="chk"><input type="checkbox" id="loop" checked> Auto-replay</label>
+  <div id="mined">Mined this pass: <b id="minedN">0</b> ✦</div>
+  <p class="hint">Diagonal motion, corner toggle, coverage all adjustable - tell me what to dial.</p>
+</div>
+<script>
+'use strict';
+const cv=document.getElementById('cv'), g=cv.getContext('2d'); let W,H,DPR;
+function resize(){ DPR=Math.min(devicePixelRatio||1,2); W=innerWidth; H=innerHeight; cv.width=W*DPR; cv.height=H*DPR; g.setTransform(DPR,0,0,DPR,0,0); }
+
+// noise
+function hsh(x,y){ let n=(x|0)*374761393+(y|0)*668265263; n=(n^(n>>>13))>>>0; n=Math.imul(n,1274126177)>>>0; return((n^(n>>>16))>>>0)/4294967295; }
+function vn(x,y){ const xi=Math.floor(x),yi=Math.floor(y),xf=x-xi,yf=y-yi,u=xf*xf*(3-2*xf),v=yf*yf*(3-2*yf);
+  const a=hsh(xi,yi),b=hsh(xi+1,yi),c=hsh(xi,yi+1),d=hsh(xi+1,yi+1); return a+(b-a)*u+(c-a)*v+(a-b-c+d)*u*v; }
+function fbm(x,y){ return 0.55*vn(x,y)+0.25*vn(x*2.07+13,y*2.07-7)+0.13*vn(x*4.1-5,y*4.1+9)+0.07*vn(x*8.3+3,y*8.3-11); }
+
+// ---- dark, relief-shaded rock texture (mode B interior; the bright rim is drawn per-frame) ----
+let tex=null, TS=0, seed=0;
+function buildTex(){
+  TS=Math.round(Math.min(W,H)*1.15); const c=document.createElement('canvas'); c.width=TS; c.height=TS; const x=c.getContext('2d');
+  const fH=new Float32Array(TS*TS), F=1/130; seed=Math.random()*500;
+  for(let y=0;y<TS;y++){ const row=y*TS; for(let xx=0;xx<TS;xx++) fH[row+xx]=fbm(xx*F+seed,y*F-seed)*0.85+vn(xx*0.5,y*0.5)*0.12; }
+  const nC=Math.round(TS*TS/24000);
+  for(let i=0;i<nC;i++){ const cr=8+Math.pow(Math.random(),1.7)*90,cx=Math.random()*TS,cy=Math.random()*TS,st=0.55+Math.random()*0.5;
+    const x0=Math.max(1,(cx-cr-2)|0),x1=Math.min(TS-2,(cx+cr+2)|0),y0=Math.max(1,(cy-cr-2)|0),y1=Math.min(TS-2,(cy+cr+2)|0);
+    for(let y=y0;y<=y1;y++){ const row=y*TS; for(let xx=x0;xx<=x1;xx++){ const d=Math.hypot(xx-cx,y-cy); if(d>cr)continue; const t=d/cr;
+      const bowl=t<0.80?-0.34*(1-(t/0.80)*(t/0.80)):0, rim=Math.exp(-((t-0.84)*(t-0.84))/0.013)*0.26; fH[row+xx]+=(bowl+rim)*st; } } }
+  const img=x.createImageData(TS,TS), d=img.data; const Lx=-0.46,Ly=-0.6,Lz=0.66, REL=190;
+  const sh=(a,b)=>{ a=a<1?1:a>TS-2?TS-2:a; b=b<1?1:b>TS-2?TS-2:b; return fH[b*TS+a]; };
+  for(let y=0;y<TS;y++){ const row=y*TS; for(let xx=0;xx<TS;xx++){ const i=(row+xx)*4;
+    let nx=-(sh(xx+1,y)-sh(xx-1,y))*REL, ny=-(sh(xx,y+1)-sh(xx,y-1))*REL, nz=1; const il=1/Math.hypot(nx,ny,nz); nx*=il;ny*=il;nz*=il;
+    const diff=Math.max(0,nx*Lx+ny*Ly+nz*Lz), ao=0.6+0.4*Math.min(1,Math.max(0,fH[row+xx]));
+    const v=(0.12+0.42*diff)*ao, fres=Math.pow(1-nz,3)*7, base=60;
+    let r=base*v+fres, gc=base*v*0.99+fres, b=base*v*0.96+fres*1.1;
+    d[i]=r>255?255:r; d[i+1]=gc>255?255:gc; d[i+2]=b>255?255:b; d[i+3]=255; } }
+  x.putImageData(img,0,0); tex=c;
+}
+
+// ---- craggy circle cap ----
+let corner='tl', edgeSeed=0;
+// craggy edge: fixed-px perturbation, high freq in theta (the visible cap is a tiny arc of a huge circle)
+function craggyR(R, th){ return R + 46*((fbm(th*18+edgeSeed,2)-0.5)*1.2 + (fbm(th*55+edgeSeed,4)-0.5)*0.8); }
+function geom(p){
+  const cov=+document.getElementById('cov').value/100;
+  const R=Math.hypot(W,H)*2.0, cd=Math.sqrt(cov*W*H), s2=Math.SQRT1_2;   // R huge -> nearly-straight colossal limb; cd = corner penetration
+  let corn,ox,oy,tx,ty;
+  if(corner==='tl'){ corn=[0,0]; ox=-s2;oy=-s2; tx=-s2;ty=s2; }   // centre off up-left; slide the cap down-left
+  else             { corn=[W,0]; ox= s2;oy=-s2; tx= s2;ty=s2; }   // off up-right; slide down-right
+  const bx=corn[0]+ox*(R-cd), by=corn[1]+oy*(R-cd), RANGE=(W+H)*0.95;
+  const cx=bx+tx*(p-0.5)*RANGE, cy=by+ty*(p-0.5)*RANGE;
+  return { cx, cy, R, cd, gx:cx-ox*R, gy:cy-oy*R };                // gx,gy = cap apex (anchor for the texture)
+}
+
+const pass={active:false,t:0,dur:10,_gap:0}; let mined=0,mining=false,payT=0,mx=-9,my=-9,mdown=false,debris=[],dust=[],floats=[];
+const PULSE=50;
+function startPass(){ document.getElementById('gen').style.display='flex';
+  setTimeout(()=>{ if(!tex||tex.width!==Math.round(Math.min(W,H)*1.15)) buildTex(); edgeSeed=Math.random()*400; document.getElementById('gen').style.display='none';
+    pass.active=true; pass.t=0; pass.dur=+document.getElementById('dur').value; mined=0; document.getElementById('minedN').textContent='0'; },20); }
+function onRock(){ if(!pass.active)return false; const {cx,cy,R}=geom(pass.t/pass.dur); const dx=mx-cx,dy=my-cy,d=Math.hypot(dx,dy); return d<=craggyR(R,Math.atan2(dy,dx)); }
+
+function frame(ts){
+  const dt=Math.min((ts-(frame._l||ts))/1000,0.05); frame._l=ts;
+  g.fillStyle='#f4efe4'; g.fillRect(0,0,W,H);
+  if(pass.active){
+    pass.t+=dt; const p=pass.t/pass.dur; const {cx,cy,R,cd,gx,gy}=geom(p);
+    // craggy circle polygon
+    const pts=[]; const N=160; for(let i=0;i<=N;i++){ const th=i/N*Math.PI*2, rr=craggyR(R,th); pts.push([cx+Math.cos(th)*rr, cy+Math.sin(th)*rr]); }
+    g.save(); g.beginPath(); pts.forEach((q,i)=> i?g.lineTo(q[0],q[1]):g.moveTo(q[0],q[1])); g.closePath(); g.clip();
+    g.drawImage(tex, gx-TS/2, gy-TS/2);                           // texture anchored to the cap apex, scrolls rigidly with the rock
+    // limb darkening: light at the inner cap, dark toward the silhouette edge
+    const ld=g.createRadialGradient(cx,cy,R-cd,cx,cy,R+30); ld.addColorStop(0,'rgba(6,6,9,0)'); ld.addColorStop(1,'rgba(5,5,8,0.72)');
+    g.fillStyle=ld; g.fillRect(0,0,W,H);
+    g.restore();
+    // bright cold rim along the visible craggy limb + a thin warm leading (lowest) segment
+    g.save(); g.lineJoin='round';
+    g.lineWidth=5; g.strokeStyle='rgba(150,168,190,0.20)'; g.beginPath(); pts.forEach((q,i)=> i?g.lineTo(q[0],q[1]):g.moveTo(q[0],q[1])); g.stroke();
+    g.lineWidth=1.7; g.strokeStyle='rgba(196,212,230,0.78)'; g.beginPath(); pts.forEach((q,i)=> i?g.lineTo(q[0],q[1]):g.moveTo(q[0],q[1])); g.stroke();
+    // warm entry-heat on the leading edge (the lowest arc, in the direction of travel)
+    g.globalCompositeOperation='lighter'; g.lineWidth=2.2;
+    for(let i=0;i<pts.length-1;i++){ const q=pts[i]; const th=Math.atan2(q[1]-cy,q[0]-cx);
+      const heat=Math.max(0, Math.sin(th));                       // strongest at the bottom (leading) edge - a thin sliver only
+      if(heat>0.80){ g.strokeStyle=`rgba(235,150,90,${(heat-0.80)*3.4})`; g.beginPath(); g.moveTo(q[0],q[1]); g.lineTo(pts[i+1][0],pts[i+1][1]); g.stroke(); } }
+    g.restore();
+    if(p>=1){ pass.active=false; pass._gap=document.getElementById('loop').checked?2.4:1e9; }
+  } else if(document.getElementById('loop').checked){ pass._gap-=dt; if(pass._gap<=0) startPass(); }
+
+  // mining
+  const on=onRock(); document.body.style.cursor=on?(mdown?'grabbing':'grab'):'default'; mining=mdown&&on;
+  if(mining){
+    payT+=dt; while(payT>=0.1){ payT-=0.1; mined+=PULSE; document.getElementById('minedN').textContent=mined.toLocaleString(); floats.push({x:mx+(Math.random()*14-7),y:my-8,t:0,v:'+✦'+PULSE}); }
+    for(let i=0;i<3;i++){ const a=Math.random()*7,sp=30+Math.random()*120,gr=70+Math.random()*55|0;
+      debris.push({x:mx+(Math.random()*8-4),y:my+(Math.random()*8-4),vx:Math.cos(a)*sp*0.3+(Math.random()*24-12),vy:25+Math.random()*70,life:0,max:0.5+Math.random()*0.6,sz:1.5+Math.random()*3,rot:Math.random()*7,spin:(Math.random()-0.5)*9,g:gr}); }
+    if(Math.random()<0.6) dust.push({x:mx+(Math.random()*16-8),y:my+(Math.random()*16-8),life:0,max:0.5+Math.random()*0.4,r:5+Math.random()*9});
+  } else payT=0;
+  for(let i=dust.length-1;i>=0;i--){ const u=dust[i]; u.life+=dt; if(u.life>=u.max){dust.splice(i,1);continue;} const a=(1-u.life/u.max)*0.34; g.fillStyle=`rgba(118,114,106,${a})`; g.beginPath(); g.arc(u.x,u.y-u.life*12,u.r*(1+u.life*1.5),0,7); g.fill(); }
+  for(let i=debris.length-1;i>=0;i--){ const k=debris[i]; k.life+=dt; if(k.life>=k.max){debris.splice(i,1);continue;} k.x+=k.vx*dt; k.y+=k.vy*dt; k.vy+=340*dt; k.rot+=k.spin*dt; const a=1-k.life/k.max;
+    g.save(); g.translate(k.x,k.y); g.rotate(k.rot); g.fillStyle=`rgba(${k.g},${k.g-3},${k.g-9},${a})`; g.beginPath(); g.moveTo(-k.sz,-k.sz*0.6); g.lineTo(k.sz,-k.sz*0.4); g.lineTo(k.sz*0.6,k.sz); g.lineTo(-k.sz*0.7,k.sz*0.5); g.closePath(); g.fill(); g.restore(); }
+  // GOLD value text (with a dark stroke so it reads on rock or sky)
+  g.textAlign='center'; g.textBaseline='middle'; g.font='bold 18px Georgia'; g.lineWidth=3;
+  for(let i=floats.length-1;i>=0;i--){ const f=floats[i]; f.t+=dt; if(f.t>=1.2){floats.splice(i,1);continue;} const a=1-f.t/1.2, yy=f.y-f.t*42;
+    g.strokeStyle=`rgba(40,30,12,${a*0.6})`; g.strokeText(f.v,f.x,yy); g.fillStyle=`rgba(230,178,74,${a})`; g.fillText(f.v,f.x,yy); }
+
+  if(!pass.active && !document.getElementById('loop').checked && debris.length===0 && document.getElementById('gen').style.display!=='flex'){ g.fillStyle='#9a9180'; g.font='15px Georgia'; g.textAlign='center'; g.fillText('press "Trigger a pass"',W/2,H/2); }
+  requestAnimationFrame(frame);
+}
+
+addEventListener('resize', ()=>{ resize(); buildTex(); });
+addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
+addEventListener('mousedown',e=>{ if(e.target.closest('#panel'))return; mdown=true; mx=e.clientX; my=e.clientY; });
+addEventListener('mouseup',()=>mdown=false);
+document.getElementById('trigger').addEventListener('click',startPass);
+document.getElementById('dur').addEventListener('input',e=>document.getElementById('durv').textContent=e.target.value);
+document.getElementById('cov').addEventListener('input',e=>document.getElementById('covv').textContent=e.target.value);
+document.getElementById('cornerSeg').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b)return; corner=b.dataset.c; document.querySelectorAll('#cornerSeg button').forEach(x=>x.classList.toggle('on',x===b)); });
+
+resize(); buildTex(); startPass(); requestAnimationFrame(frame);
+</script>
+</body>
+</html>

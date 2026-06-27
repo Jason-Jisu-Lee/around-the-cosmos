@@ -16,11 +16,16 @@ function cosmoTargetAt(x, y) {
 }
 
 function mawRows() {
-    return tipRow('Diameter',        fmtNice(2*PHYS.mawRadius/1000) + ' km')
-         + tipRow('Mass',            fmtSci(mawMass()) + ' kg')
-         + tipRow('Surface gravity', fmtNice(mawGravity()/9.81*100) + '% of Earth')
-         + tipRow('Escape velocity', fmtNice(mawEscapeVel()) + ' m/s')
-         + tipRow('Density',         fmtNice(PHYS.mawDensity/1000) + ' g/cm³');
+    const pv = pulseValue(), avg = deepBreathAvgMult();
+    const ag = (typeof afterglowActive === 'function' && afterglowActive()) ? 20 * lvl('afterglow') : 0;
+    const perSec = pulseIncomePerSec();
+    let calc = `✦${fmtNum(pv)}/pulse`;
+    if (deepBreathInterval() > 0) calc += ` × ${avg.toFixed(2)} Deep Breath`;
+    if (ag > 0)                   calc += ` + ✦${fmtNum(ag)} Afterglow`;
+    return tipRow('Cosmic Pulse / s',   '✦' + fmtNum(perSec))
+         + tipRow('Cosmic Pulse / min', '✦' + fmtNum(perSec * 60))
+         + ((deepBreathInterval() > 0 || ag > 0)
+             ? `<div class="tip-calc">${calc} = ✦${fmtNum(perSec)}/s</div>` : '');
 }
 function cosmoBody(target, withClose) {
     if (target === 'comet') return `<div class="cosmo-solo">Comet</div>`;

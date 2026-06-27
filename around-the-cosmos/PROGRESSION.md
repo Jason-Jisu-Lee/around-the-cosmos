@@ -143,8 +143,8 @@ Adds one more particle to the clump per level (+10 base payout each).
 | (1st, via Dust Particle) | 100 | 1 |
 | Count ×1 | 500 | 2 |
 | Count ×2 | 1,200 | 3 |
-| Count ×3 | 2,500 | 4 |
-| Count ×4 | 4,000 | 5 |
+| Count ×3 | 3,100 | 4 |
+| Count ×4 | 5,600 | 5 |
 
 **Dust Particle Payout** - *unlocks after the first dust particle* · max **5**
 Adds **+10** to **every** dust particle's payout per level (additive, not doubling).
@@ -153,9 +153,9 @@ Adds **+10** to **every** dust particle's payout per level (additive, not doubli
 | (base) | - | 10 |
 | 1 | 150 | 20 |
 | 2 | 500 | 30 |
-| 3 | 1,200 | 40 |
-| 4 | 2,000 | 50 |
-| 5 | 3,000 | 60 |
+| 3 | 1,500 | 40 |
+| 4 | 3,300 | 50 |
+| 5 | 6,000 | 60 |
 
 > One dust particle pays `10 + 10×lvl`; five particles pay `5 × that`.
 
@@ -166,10 +166,10 @@ so the *actual* orbit speed is the column below - i.e. **82% → 164%**.
 |---|---|---|
 | (base) | - | 82 % |
 | 1 | 200 | 98 % |
-| 2 | 600 | 115 % |
-| 3 | 1,500 | 131 % |
-| 4 | 2,500 | 148 % |
-| 5 | 4,200 | 164 % |
+| 2 | 800 | 115 % |
+| 3 | 2,000 | 131 % |
+| 4 | 3,850 | 148 % |
+| 5 | 7,000 | 164 % |
 
 > Faster orbit = the clump crosses the top more often = more payouts per minute.
 
@@ -184,13 +184,15 @@ identity comes from its unique **Asteroid Composition** upgrade (below).
 **Asteroid Payout** - *unlocks after the first asteroid* · max **5** - adds **+50** to the asteroid's payout per level (additive).
 | Level | (base) | 1 | 2 | 3 | 4 | 5 |
 |---|---|---|---|---|---|---|
-| Cost ✦ | - | 2,000 | 4,500 | 10,000 | 20,000 | 36,000 |
+| Cost ✦ | - | 3,000 | 10,000 | 30,000 | 66,000 | 120,000 |
 | Payout (Rock) | 50 | 100 | 150 | 200 | 250 | 300 |
+
+> Costs follow the **same ratio as the dust-particle payout upgrade, scaled ×20** (asteroid's 2,000 start ÷ dust's 100 start).
 
 **Asteroid Speed** - *unlocks after the first asteroid* · max **5** - +20% per level, with a **0.88 base-speed factor** (base reduced 12%) → effective **88% → 176%**.
 | Level | (base) | 1 | 2 | 3 | 4 | 5 |
 |---|---|---|---|---|---|---|
-| Cost ✦ | - | 2,000 | 4,500 | 9,000 | 17,000 | 30,000 |
+| Cost ✦ | - | 4,000 | 16,000 | 40,000 | 77,000 | 140,000 |
 | Speed (×0.88) | 88% | 106% | 123% | 141% | 158% | 176% |
 
 **Asteroid Composition** - *unlocks after the asteroid* · max **3** - the asteroid's **unique** upgrade.
@@ -215,13 +217,15 @@ asteroid it is **not a count upgrade** - there's only ever one Moon.
 **Moon Payout** - *unlocks after the moon* · max **5** - adds **+200** to the moon's payout per level (additive).
 | Level | (base) | 1 | 2 | 3 | 4 | 5 |
 |---|---|---|---|---|---|---|
-| Cost ✦ | - | 8,000 | 18,000 | 36,000 | 70,000 | 120,000 |
+| Cost ✦ | - | 15,000 | 50,000 | 150,000 | 330,000 | 600,000 |
 | Payout | 200 | 400 | 600 | 800 | 1,000 | 1,200 |
+
+> Costs follow the **same ratio as the dust-particle payout upgrade, scaled ×100** (moon's 10,000 start ÷ dust's 100 start).
 
 **Moon Speed** - *unlocks after the moon* · max **5** - +20% per level, with a **0.663 base-speed factor** (slowed 15% from 0.78; the slowest orbiter) → effective **66.3% → 132.6%**.
 | Level | (base) | 1 | 2 | 3 | 4 | 5 |
 |---|---|---|---|---|---|---|
-| Cost ✦ | - | 9,000 | 18,000 | 35,000 | 60,000 | 100,000 |
+| Cost ✦ | - | 20,000 | 80,000 | 200,000 | 385,000 | 700,000 |
 | Speed (×0.663) | 66% | 80% | 93% | 106% | 119% | 133% |
 
 **Phase-varying payout** - the moon's payout swings with its phase **by default** (no upgrade needed): from **×0.75 at the new moon up to ×1.25 at the full moon**. It visibly waxes and wanes on a 16-second cycle (a terminator shadow sweeps across it), and whatever the payout reads when it completes an orbit is what it pays.
@@ -255,12 +259,11 @@ asteroid it is **not a count upgrade** - there's only ever one Moon.
 ## Observatory stats (draggable panel, default bottom-left)
 | Stat | Shows | Appears |
 |---|---|---|
-| Cosmic Pulse / s | ✦ generated each second (Cosmic Pulse + Pulse Surge) | always |
-| Cosmic Pulse / min | that same pulse income over a minute (×60) | always |
 | All Orbiters Payout | combined payout of all orbiters per orbit (hover → formula) | after first orbiter |
 | All Orbiters Payout / min | that combined payout × how often the clumps orbit (payout × orbits per minute) | after first orbiter |
-| Total income / min | whole passive economy: pulse / min + orbiters / min (hover → breakdown) | always |
+| Total income / min | whole passive economy: pulse / min (Deep Breath avg + Afterglow folded in) + orbiters / min (hover → breakdown) | always |
 | Comet Value | what the next comet pays (hover → formula) | after first comet caught |
+| Vortex Value | what a vortex absorb pays (= comet base × 4; hover → breakdown) | after first vortex appears |
 | Total Stardust Collected | all stardust earned this universe (`runDust`; hover → note that it resets on prestige) | always |
 | Time on Current Universe | run timer (resets on prestige, later) | always |
 | Total time played | lifetime clear-time (`gameTime`; only the Reset button clears it) | after first Accretion |
@@ -272,18 +275,15 @@ asteroid it is **not a count upgrade** - there's only ever one Moon.
 - Orbiters clump on their own rings around it (dust ring 0, asteroid ring 1, moon ring 2); more orbiter types / rings come later.
 
 ## Cosmic info
-**Hover** Maw or a dust particle for a quick tooltip that follows your cursor. **Click** it to pin the full card in the **center of the sky** - it stays put so you can read it, and closes with the **× button** or **Escape**. (Clicking a body opens its card; clicking never harvests; comets are still caught on click.) All values come from a small physics model (`PHYS` in `config.js`) so the upcoming **science-based upgrades** can grow them; numbers are kept clean (≤2 decimals, intuitive units).
+**Hover** Maw or a dust particle for a quick tooltip that follows your cursor. **Click** it to pin the full card in the **center of the sky** - it stays put so you can read it, and closes with the **× button** or **Escape**. (Clicking a body opens its card; clicking never harvests; comets are still caught on click.)
 
-**Maw (center):**
-| Stat | Base value |
+**Maw (center)** - the card shows your live pulse income (the physical stats it used to show were removed):
+| Stat | Shows |
 |---|---|
-| Diameter | 240 km |
-| Mass | 1.81 × 10¹⁹ kg |
-| Surface gravity | 0.85% of Earth |
-| Escape velocity | 142 m/s |
-| Density | 2.5 g/cm³ |
+| Cosmic Pulse / s | effective ✦ per second = base pulse × **Deep Breath average** + **Afterglow** (while active) |
+| Cosmic Pulse / min | that × 60 |
 
-Plus a one-sentence flavor line introducing Maw as the protagonist.
+Under them, a concise breakdown line spells out the math (e.g. `✦90/pulse × 1.80 Deep Breath + ✦100 Afterglow = ✦262/s`), then a one-sentence flavor line introducing Maw as the protagonist.
 
 **A dust particle (ring 0):**
 | Stat | Value |

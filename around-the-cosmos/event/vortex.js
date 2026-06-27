@@ -3,8 +3,9 @@
 const VTAU = Math.PI * 2;
 
 const VX = {
-    SPAWN_MIN: 4.5 * 60,
-    SPAWN_MAX: 8.5 * 60,
+    SPAWN_MIN: 3 * 60,
+    SPAWN_MAX: 4 * 60,
+    FIRST_DELAY: 2 * 60,   // the first vortex of a session appears 2 min later than the usual cadence
     FADE_IN:   1.0,
     STAY:      5.0,
     HOLD:      3.0,
@@ -12,14 +13,14 @@ const VX = {
     FADE_OUT:  2.0,
     SPIN_MAX:  1.1,
     RENDER_R:  150,
-    REWARD_MULT: 10,
+    REWARD_MULT: 4,
     GRAB_FRAC: 1.15,
     SIZE_MIN: 0.085,
     SIZE_MAX: 0.125,
 };
 
 let vortexBitmap = null, vortexBitmapDiscR = 0;
-let vortexTimer = VX.SPAWN_MIN + Math.random() * (VX.SPAWN_MAX - VX.SPAWN_MIN);
+let vortexTimer = VX.FIRST_DELAY + VX.SPAWN_MIN + Math.random() * (VX.SPAWN_MAX - VX.SPAWN_MIN);
 const vortexFx = [];
 const VTX = { active:false, phase:'idle', t:0, fade:0, spin:0, spinRate:0,
               stayLeft:0, hold:0, shrink:0, holding:false, cx:0, cy:0, R:0, grabR:0, flash:0 };
@@ -152,7 +153,7 @@ function vortexTick(dt){
 
     if (!VTX.active){
         vortexTimer -= dt;
-        if (vortexTimer <= 0) vortexSpawn();
+        if (vortexTimer <= 0 && !anyEventActive()) vortexSpawn();
         return;
     }
 
@@ -202,6 +203,7 @@ function startAbsorb(){
     VTX.phase = 'absorb'; VTX.t = 0; VTX.holding = false; VTX.flash = 1;
     const reward = vortexReward();
     earn(reward);
+    G.vortexSeen = true;   // gates the observatory's Vortex Value row - only after the first successful grab
     vortexFx.push({ x:VTX.cx, y:VTX.cy, text:'+✦'+fmtNum(reward), age:0, maxAge:2.0 });
     if (typeof SoundSystem !== 'undefined' && SoundSystem.sfxVortexAbsorb) SoundSystem.sfxVortexAbsorb();
 }

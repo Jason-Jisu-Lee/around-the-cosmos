@@ -371,12 +371,15 @@ body {
        is the SAME size, matched to the longest description (empty space is fine). */
 }
 .cosmo-close {
-    position: absolute; top: 8px; right: 9px;
-    background: none; border: none; color: #9a9486; cursor: pointer;
-    font-size: 21px; line-height: 1; padding: 2px 7px;
-    font-family: 'Segoe UI', sans-serif; transition: color 0.12s;
+    position: absolute; top: 9px; right: 10px;
+    width: 40px; height: 40px; border-radius: 50%; padding: 0 0 3px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,0.07); border: none; color: #c2bbac; cursor: pointer;
+    font-size: 30px; line-height: 1;
+    font-family: 'Segoe UI', sans-serif; transition: background 0.14s, color 0.14s, transform 0.1s;
 }
-.cosmo-close:hover { color: #f4f0e8; }
+.cosmo-close:hover  { background: rgba(255,255,255,0.16); color: #fff; }
+.cosmo-close:active { transform: scale(0.9); }
 .cosmo-title {
     font-family: 'Nunito','Segoe UI',sans-serif; font-weight: 700;
     color: #e8dcc0; margin-bottom: 9px; padding: 0 20px 6px 0; letter-spacing: 0.01em;
@@ -395,6 +398,9 @@ body {
 .tip-v   { color: #f4f0e8; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .tip-note { margin-top: 10px; font-size: 12px; font-style: italic; color: #b0a894; line-height: 1.5; }
 #cosmo-card .tip-note { font-size: 16px; margin-top: 14px; }
+/* Maw card: the concise pulse-income breakdown line under the rows */
+.tip-calc { margin-top: 9px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08); font-size: 11px; color: #9a927f; line-height: 1.45; font-variant-numeric: tabular-nums; }
+#cosmo-card .tip-calc { font-size: 13px; }
 
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -507,6 +513,10 @@ body {
 }
 .acc-sentence { font-size: 18px; font-weight: 900; color: #1a1a1a; letter-spacing: 0.035em; text-transform: uppercase; margin: 2px 0 0; }
 .acc-explain { font-size: 13px; line-height: 1.5; color: #6b6150; margin: 8px auto 0; max-width: 290px; }
+/* leave-confirm: a big dominant title with a small note under it */
+.acc-confirm-title { font-size: 27px; font-weight: 900; color: #1a1a1a; letter-spacing: 0.01em; line-height: 1.12; margin: 2px 0 0; }
+.acc-confirm-body { font-size: 13px; line-height: 1.5; color: #6b6150; margin: 12px auto 0; max-width: 280px; }
+.acc-confirm-body p { margin: 0; }
 .acc-star { color: #a8853a; font-weight: 900; }
 .acc-up { vertical-align: -2px; color: #6b6150; }
 /* ledger: Resets ⟶ Mass gained */

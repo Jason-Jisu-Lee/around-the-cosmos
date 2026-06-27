@@ -12,11 +12,11 @@ const UPGRADES = [
     unlock: () => true,
   },
   {
-    id: "grasp",
+    id: "surge",
     name: "Pulse Surge",
     maxLevel: 5,
     section: "MAIN",
-    costs: [1500, 2200, 3000, 4000, 5200],
+    costs: [1000, 1800, 2800, 4700, 7050],
     flavor: "Each breath reaches deeper, and takes more.",
     desc: () => "+10 ✦ generated every second, per level.",
     unlock: () => lvl("touch") >= 6,
@@ -26,7 +26,7 @@ const UPGRADES = [
     name: "Afterglow",
     maxLevel: 5,
     section: "MAIN",
-    costs: [2000, 3000, 4500, 6600, 9200],
+    costs: [2000, 4000, 6650, 9200, 14000],
     flavor: "Catch the light, and Maw keeps its warmth a while.",
     desc: (l) =>
       `For <b>60s</b> after catching a comet, every pulse gains <b>+${20 * l || 20}</b> ✦ (+20 / level). Catching another comet refreshes the timer.`,
@@ -37,9 +37,8 @@ const UPGRADES = [
     name: "Deep Breath",
     maxLevel: 8,
     section: "MAIN",
-    costs: [2500, 4500, 8500, 16000, 32000, 65000, 135000, 290000],
-    flavor:
-      "Now and then Maw draws a deeper breath, and takes twice as much.",
+    costs: [2500, 5850, 11000, 16000, 32000, 65000, 135000, 290000],
+    flavor: "Now and then Maw draws a deeper breath, and takes twice as much.",
     desc: (l) => {
       const cur = l >= 1 ? 13 - l : 12;
       let s = `Every <b>${cur}th</b> breath becomes a <b>Deep Breath</b> worth <b>×${deepBreathMult().toFixed(1)}</b> a normal pulse.`;
@@ -57,11 +56,10 @@ const UPGRADES = [
     maxLevel: 15,
     section: "MAIN",
     costs: [
-      2000, 3000, 4500, 7000, 11000, 16000, 25000, 38000, 57000, 87000, 130000,
-      200000, 305000, 460000, 700000,
+      3000, 5000, 8000, 11000, 16000, 25000, 38000, 57000, 87000, 130000,
+      200000, 305000, 460000, 700000, 1200000,
     ],
-    flavor:
-      "Each deep breath reaches further down, into the dark Maw keeps.",
+    flavor: "Each deep breath reaches further down, into the dark Maw keeps.",
     desc: (l) => {
       const mult = 2 + 0.2 * l;
       let s = `Empowers <b>Deep Breath</b>: +0.2× per level. Deep Breaths currently pay <b>×${mult.toFixed(1)}</b> a normal pulse.`;
@@ -115,7 +113,7 @@ const UPGRADES = [
     name: "Dust Particle Count",
     maxLevel: 4,
     section: "DUST PARTICLES",
-    costs: [500, 1200, 2500, 4000],
+    costs: [500, 1200, 3100, 5600],
     desc: () =>
       "+1 dust particle in the clump, up to 5 (+10 base payout each).",
     unlock: () => lvl("dust") >= 1,
@@ -125,7 +123,7 @@ const UPGRADES = [
     name: "Dust Particle Payout",
     maxLevel: 5,
     section: "DUST PARTICLES",
-    costs: [150, 500, 1200, 2000, 3000],
+    costs: [150, 500, 1500, 3300, 6000],
     desc: () => "+10 to every dust particle’s payout, per level.",
     unlock: () => lvl("dust") >= 1,
   },
@@ -134,7 +132,7 @@ const UPGRADES = [
     name: "Dust Particle Speed",
     maxLevel: 5,
     section: "DUST PARTICLES",
-    costs: [200, 600, 1500, 2500, 4200],
+    costs: [200, 800, 2000, 3850, 7000],
     mult: (lvl) => 1 + 0.2 * lvl,
     desc: () => "+20% dust orbit speed, per level.",
     unlock: () => lvl("dust") >= 1,
@@ -155,7 +153,7 @@ const UPGRADES = [
     name: "Asteroid Payout",
     maxLevel: 5,
     section: "ASTEROID",
-    costs: [2000, 4500, 10000, 20000, 36000],
+    costs: [3000, 10000, 30000, 66000, 120000],
     desc: () => "+50 to the asteroid’s payout, per level.",
     unlock: () => lvl("asteroid") >= 1,
   },
@@ -164,7 +162,7 @@ const UPGRADES = [
     name: "Asteroid Speed",
     maxLevel: 5,
     section: "ASTEROID",
-    costs: [2000, 4500, 9000, 17000, 30000],
+    costs: [4000, 16000, 40000, 77000, 140000],
     mult: (lvl) => 1 + 0.2 * lvl,
     desc: () => "+20% asteroid orbit speed, per level.",
     unlock: () => lvl("asteroid") >= 1,
@@ -198,7 +196,7 @@ const UPGRADES = [
     name: "Moon Payout",
     maxLevel: 5,
     section: "MOON",
-    costs: [8000, 18000, 36000, 70000, 120000],
+    costs: [15000, 50000, 150000, 330000, 600000],
     desc: () => "+200 to the moon’s base payout, per level.",
     unlock: () => lvl("moon") >= 1,
   },
@@ -207,7 +205,7 @@ const UPGRADES = [
     name: "Moon Speed",
     maxLevel: 5,
     section: "MOON",
-    costs: [9000, 18000, 35000, 60000, 100000],
+    costs: [20000, 80000, 200000, 385000, 700000],
     mult: (lvl) => 1 + 0.2 * lvl,
     desc: () => "+20% moon orbit speed, per level.",
     unlock: () => lvl("moon") >= 1,

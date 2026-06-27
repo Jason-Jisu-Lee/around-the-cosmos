@@ -11,14 +11,14 @@ function createInitialState() {
         mass:0, massEarned:0, moonEverOwned:false,
         massUpgrades: blankMassUpgrades(),
         orbitsCompleted:0, taps:0, cometsCaught:0, gameTime:0, universeTime:0,
-        upgrades: { touch:0, grasp:0, deepbreath:0, abyssal:0, afterglow:0, pulse:0, gravpull:0, dust:0, dustcount:0, dustpay:0, dustspd:0, asteroid:0, astpay:0, astspd:0, astcomp:0, moon:0, moonpay:0, moonspd:0, moonphase:0, resonance:0, charm:0 },
+        upgrades: { touch:0, surge:0, deepbreath:0, abyssal:0, afterglow:0, pulse:0, gravpull:0, dust:0, dustcount:0, dustpay:0, dustspd:0, asteroid:0, astpay:0, astspd:0, astcomp:0, moon:0, moonpay:0, moonspd:0, moonphase:0, resonance:0, charm:0 },
         planets:  [],
         clump:    newClump(),
         asteroids: [],
         asteroidClump: newClump(),
         moons:     [],
         moonClump: newClump(),
-        comet:null, cometTimer:7 + Math.random()*6, cometSeen:false,
+        comet:null, cometTimer:7 + Math.random()*6, cometSeen:false, vortexSeen:false,
         particles:[], floatingTexts:[],
     };
 }
@@ -49,7 +49,7 @@ function upg(id) { return UPGRADES.find(u => u.id === id); }
 function lvl(id) { return G.upgrades[id]; }
 
 function pulseValue() {
-    const base = 5 * lvl('touch') + 10 * lvl('grasp');
+    const base = 5 * lvl('touch') + 10 * lvl('surge');
     const pull = 0.01 * lvl('gravpull') * orbiterPayoutSum();
     return Math.round((base + pull) * denserCoreMult());
 }
@@ -58,9 +58,11 @@ function deepBreathInterval() { const l = lvl('deepbreath'); return l ? 13 - l :
 
 function deepBreathMult() { return 2 + 0.2 * lvl('abyssal'); }
 
-function mawMass()     { const r = PHYS.mawRadius; return PHYS.mawDensity * (4/3)*Math.PI * r*r*r; }
-function mawGravity()  { return PHYS.G * mawMass() / (PHYS.mawRadius*PHYS.mawRadius); }
-function mawEscapeVel(){ return Math.sqrt(2 * PHYS.G * mawMass() / PHYS.mawRadius); }
+function deepBreathAvgMult() { const n = deepBreathInterval(); return n > 0 ? 1 + (deepBreathMult() - 1) / n : 1; }
+function pulseIncomePerSec() {
+    const ag = (typeof afterglowActive === 'function' && afterglowActive()) ? 20 * lvl('afterglow') : 0;
+    return pulseValue() * deepBreathAvgMult() + ag;
+}
 
 function fmtNice(n) {
     if (!isFinite(n)) return '∞';
@@ -118,7 +120,7 @@ function saveGame() {
             massUpgrades:{...G.massUpgrades},
             orbitsCompleted:G.orbitsCompleted, taps:G.taps,
             cometsCaught:G.cometsCaught, gameTime:G.gameTime, universeTime:G.universeTime,
-            cometSeen:G.cometSeen,
+            cometSeen:G.cometSeen, vortexSeen:G.vortexSeen,
             upgrades:{...G.upgrades},
         }));
     } catch(_) {}
@@ -137,13 +139,15 @@ function loadGame() {
         G.orbitsCompleted=def('orbitsCompleted',0); G.taps=def('taps',0);
         G.cometsCaught=def('cometsCaught',0); G.gameTime=def('gameTime',0);
         G.universeTime=def('universeTime', G.gameTime);
-        G.upgrades = Object.assign({ touch:0, grasp:0, deepbreath:0, abyssal:0, afterglow:0, pulse:0, gravpull:0, dust:0, dustcount:0, dustpay:0, dustspd:0, asteroid:0, astpay:0, astspd:0, astcomp:0, moon:0, moonpay:0, moonspd:0, moonphase:0, resonance:0, charm:0 }, d.upgrades);
+        G.upgrades = Object.assign({ touch:0, surge:0, deepbreath:0, abyssal:0, afterglow:0, pulse:0, gravpull:0, dust:0, dustcount:0, dustpay:0, dustspd:0, asteroid:0, astpay:0, astspd:0, astcomp:0, moon:0, moonpay:0, moonspd:0, moonphase:0, resonance:0, charm:0 }, d.upgrades);
+        if (G.upgrades.grasp != null) { G.upgrades.surge = G.upgrades.surge || G.upgrades.grasp; delete G.upgrades.grasp; }   // migrate old 'grasp' id -> 'surge'
 
         if (G.upgrades.dust > 1) {
             G.upgrades.dustcount = Math.min(4, Math.max(G.upgrades.dustcount, G.upgrades.dust - 1));
             G.upgrades.dust = 1;
         }
         G.cometSeen = def('cometSeen', G.cometsCaught > 0);
+        G.vortexSeen = def('vortexSeen', false);
 
         for (const o of ORBITERS) {
             const arr = o.list();

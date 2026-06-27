@@ -3,7 +3,7 @@
 let statsSig = null;
 let statEls  = {};
 
-function buildStats(showOrbiter, showComet, showPlayed) {
+function buildStats(showOrbiter, showComet, showVortex, showPlayed) {
     const list = document.getElementById('stats-list');
     list.innerHTML = ''; statEls = {};
     const mk = label => {
@@ -18,14 +18,13 @@ function buildStats(showOrbiter, showComet, showPlayed) {
         list.appendChild(row);
         return { val: row.querySelector('.stat-val'), pop: row.querySelector('.stat-pop') };
     };
-    statEls.touch    = mk('Cosmic Pulse / s');
-    statEls.touchMin = mk('Cosmic Pulse / min');
     if (showOrbiter) {
         const r = mkPop('All Orbiters Payout'); statEls.orbiter = r.val; statEls.orbiterPop = r.pop;
         statEls.orbiterMin = mk('All Orbiters Payout / min');
     }
     { const r = mkPop('Total income / min'); statEls.totalMin = r.val; statEls.totalMinPop = r.pop; }
     if (showComet)   { const r = mkPop('Comet Value');         statEls.comet   = r.val; statEls.cometPop   = r.pop; }
+    if (showVortex)  { const r = mkPop('Vortex Value');        statEls.vortex  = r.val; statEls.vortexPop  = r.pop; }
     { const r = mkPop('Total Stardust Collected'); statEls.total = r.val; statEls.totalPop = r.pop; }
     statEls.time   = mk('Time on Current Universe');
     if (showPlayed) statEls.played = mk('Total time played');
@@ -48,24 +47,28 @@ function updateObservatory() {
     }
     const cometVal = Math.round((10 * pulseVal + orbiterSum) * brighterTailsMult());
 
-    const showOrbiter = totalOrbiters >= 1, showComet = G.cometSeen, showPlayed = G.massEarned > 0;
-    const sig = (showOrbiter ? 'O' : '') + (showComet ? 'C' : '') + (showPlayed ? 'P' : '');
-    if (sig !== statsSig) { buildStats(showOrbiter, showComet, showPlayed); statsSig = sig; }
+    const showOrbiter = totalOrbiters >= 1, showComet = G.cometSeen, showVortex = G.vortexSeen, showPlayed = G.massEarned > 0;
+    const sig = (showOrbiter ? 'O' : '') + (showComet ? 'C' : '') + (showVortex ? 'V' : '') + (showPlayed ? 'P' : '');
+    if (sig !== statsSig) { buildStats(showOrbiter, showComet, showVortex, showPlayed); statsSig = sig; }
 
-    statEls.touch.textContent = '✦' + fmtNum(pulseVal) + ' / s';
     if (statEls.orbiter) {
         statEls.orbiter.textContent = '✦' + fmtNum(orbiterSum);
         statEls.orbiterPop.innerHTML = `${popParts.join(' + ')} = <b>✦${fmtNum(orbiterSum)}</b>`;
         statEls.orbiterMin.textContent = '✦' + fmtNum(orbiterPerMin) + ' / min';
     }
-    const pulsePerMin = (60 / PULSE_INTERVAL) * pulseVal;
-    statEls.touchMin.textContent = '✦' + fmtNum(pulsePerMin) + ' / min';
+    const pulsePerMin = 60 * pulseIncomePerSec();
     const totalPerMin = pulsePerMin + orbiterPerMin;
     statEls.totalMin.textContent = '✦' + fmtNum(totalPerMin) + ' / min';
     statEls.totalMinPop.innerHTML = `pulse (✦${fmtNum(pulsePerMin)}) + orbiters (✦${fmtNum(orbiterPerMin)}) = <b>✦${fmtNum(totalPerMin)}</b> / min`;
     if (statEls.comet) {
         statEls.comet.textContent = '✦' + fmtNum(cometVal);
-        statEls.cometPop.innerHTML = `10 × pulse (${fmtNum(pulseVal)}) + orbiters (${fmtNum(orbiterSum)}) = <b>✦${fmtNum(cometVal)}</b> · ×1–2 by speed`;
+        statEls.cometPop.innerHTML = `Scaled by your pulse and orbiter payout.`;
+    }
+    if (statEls.vortex) {
+        const RM = (typeof VX !== 'undefined') ? VX.REWARD_MULT : 10;
+        const vortexVal = cometVal * RM;
+        statEls.vortex.textContent = '✦' + fmtNum(vortexVal);
+        statEls.vortexPop.innerHTML = `Scaled by your pulse and orbiter payout — far larger than a comet.`;
     }
     statEls.total.textContent = '✦' + fmtNum(G.runDust);
     statEls.totalPop.innerHTML = 'All stardust earned in the current universe (resets on prestige).';

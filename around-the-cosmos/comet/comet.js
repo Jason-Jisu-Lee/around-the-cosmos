@@ -7,6 +7,13 @@ function randCometGap() {
 const COMET_SPEEDS = [1.0, 1.5, 2.0];
 const cometFx = [];
 
+// No two events overlap. Each event checks this before spawning (its own flag is still off then).
+function anyEventActive() {
+    return !!G.comet
+        || (typeof VTX !== 'undefined' && VTX.active)
+        || (typeof BIGROCK !== 'undefined' && BIGROCK.active);
+}
+
 const AFTERGLOW_DUR = 60;
 let afterglowUntil = -1;
 function afterglowActive() { return lvl('afterglow') > 0 && gameClock < afterglowUntil; }
@@ -50,6 +57,6 @@ function cometTick(dt) {
         }
     } else {
         G.cometTimer -= dt;
-        if (G.cometTimer <= 0) spawnComet();
+        if (G.cometTimer <= 0 && !anyEventActive()) spawnComet();
     }
 }
