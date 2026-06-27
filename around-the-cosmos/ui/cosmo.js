@@ -1,6 +1,5 @@
 'use strict';
 
-
 const cosmoTip  = document.getElementById('cosmo-tip');
 const cosmoCard = document.getElementById('cosmo-card');
 let cosmoMx = 0, cosmoMy = 0, cosmoOver = false;
@@ -8,9 +7,7 @@ let pinnedTarget = null;
 
 const LACUNA_DESC = 'A small absence at the heart of everything, patient and hollow, quietly gathering a universe back together.';
 
-
 function cosmoTargetAt(x, y) {
-    // (the comet is hit-tested in window space by main.js — it can be over a side panel)
     if (Math.hypot(x-CX, y-CY) < 22) return 'lacuna';
     for (const o of ORBITERS) {
         if (o.list().length && Math.hypot(x-o.clumpPos().x, y-o.clumpPos().y) < o.hoverR) return o.id;
@@ -35,7 +32,6 @@ function cosmoBody(target, withClose) {
         + `<div class="tip-note">${desc}</div>`;
 }
 
-
 let _uniformSet = false;
 function setUniformCardSize() {
     _uniformSet = true;
@@ -55,7 +51,6 @@ function setUniformCardSize() {
     c.style.left = sL; c.style.top = sT; c.style.display = sD || 'none';
 }
 
-
 function openCosmoCard(target) {
     if (target === 'comet') return;
     if (!_uniformSet) setUniformCardSize();
@@ -67,7 +62,6 @@ let _cursorSet = false;
 function updateCosmoTip() {
     const over = cosmoOver ? cosmoTargetAt(cosmoMx, cosmoMy) : null;
 
-    // The needle cursor is a fixed value — set it once, not every frame (nothing else writes it).
     if (!_cursorSet) { canvas.style.cursor = 'url(assets/cursors/needle.png?v=63) 3 3, default'; _cursorSet = true; }
 
     if (over && !pinnedTarget) {
@@ -84,9 +78,7 @@ function updateCosmoTip() {
         cosmoTip.style.display = 'none';
     }
 
-
     if (pinnedTarget) {
-
         if (cosmoCard._pinned !== pinnedTarget) {
             cosmoCard.innerHTML = '<button class="cosmo-close" aria-label="Close">×</button><div class="cosmo-content"></div>';
             cosmoCard._content = cosmoCard.querySelector('.cosmo-content');

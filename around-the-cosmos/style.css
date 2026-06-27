@@ -12,14 +12,14 @@
     --ink-dim:    #888880;
     --accent:     #7a6848;
     --accent-dim: #c0b498;
-    /* 10% accent pop — Dusty Blue (Ghibli sky); the cool pop against the parchment 60% */
+    /* 10% accent pop - Dusty Blue (Ghibli sky); the cool pop against the parchment 60% */
     --accretion:    #4a82a8;
     --accretion-hi: #3d6f92;
-    --accretion-dim: #a9c4d6;   /* faint dusty-blue — affordable-card border + progress-bar track */
+    --accretion-dim: #a9c4d6;   /* faint dusty-blue - affordable-card border + progress-bar track */
     --cursor:     url(assets/cursors/needle.png?v=63) 3 3, auto;
 }
 
-/* The custom needle cursor everywhere — never the default OS arrow/hand. */
+/* The custom needle cursor everywhere - never the default OS arrow/hand. */
 html, body { cursor: var(--cursor); }
 button, label, input, select, textarea, a,
 .upgrade-card, .acc-head, .track-btn, .stat-pop-row, .vol-val,
@@ -84,7 +84,7 @@ body {
 #pause-btn:hover { color: var(--text-dim); border-color: var(--border2); }
 #pause-btn.paused { color: var(--accretion); border-color: var(--accretion); }
 
-/* Pause overlay — covers everything, dims the frozen game, shows PAUSED. Click anywhere to resume. */
+/* Pause overlay - covers everything, dims the frozen game, shows PAUSED. Click anywhere to resume. */
 #pause-overlay {
     display: none; position: fixed; inset: 0; z-index: 105;
     background: rgba(244, 240, 232, 0.55);
@@ -160,16 +160,16 @@ body {
 #dust-icon  { font-size: 30px; }
 
 #sky-section { flex: 1; position: relative; min-width: 0; }
-/* Vortex event overlay — full window, above the app but below the comet/observatory; press/hold is a window handler */
+/* Vortex event overlay - full window, above the app but below the comet/observatory; press/hold is a window handler */
 #vortex-layer { position: fixed; inset: 0; z-index: 40; pointer-events: none; }
-/* Comet overlay — full window, above the panels, never blocks clicks (catch is a window handler) */
+/* Comet overlay - full window, above the panels, never blocks clicks (catch is a window handler) */
 #comet-layer { position: fixed; inset: 0; z-index: 60; pointer-events: none; }
 #sky { display: block; width: 100%; height: 100%; cursor: url(assets/cursors/needle.png?v=63) 3 3, default; }
 
 #right-col { width: 308px; flex-shrink: 0; padding: 22px 16px; display: flex; flex-direction: column; min-height: 0; }
 #upgrades-list { flex: 1; min-height: 0; overflow-y: auto; }
 
-/* "Hide completed" toggle — pinned at the bottom-right of the panel */
+/* "Hide completed" toggle - pinned at the bottom-right of the panel */
 #upg-controls { display: flex; justify-content: flex-end; margin-top: 14px; padding-top: 10px; border-top: 1px solid var(--border2); flex-shrink: 0; }
 #show-completed-wrap {
     display: inline-flex; align-items: center; gap: 7px; cursor: pointer;
@@ -199,7 +199,7 @@ body {
 .acc.open .acc-body { display: block; }
 
 
-/* Observatory — draggable floating stats panel, default BOTTOM-LEFT (bottom-anchored so it grows
+/* Observatory - draggable floating stats panel, default BOTTOM-LEFT (bottom-anchored so it grows
    UPWARD with more metrics; bottom:125px clears the fixed prestige buttons below it). Floating means
    its hover popups aren't clipped by any overflow container. */
 #observatory {
@@ -218,7 +218,7 @@ body {
 #observatory:hover::before { background: var(--accent-dim); }
 #observatory:active { cursor: grabbing; }
 
-/* Accretion — a SPECIAL accentuated card at the bottom of the MAIN upgrades (shown by hud.js when
+/* Accretion - a SPECIAL accentuated card at the bottom of the MAIN upgrades (shown by hud.js when
    claimable). Dusty-blue tint + accent border + soft glow so it stands out as the prestige action. */
 #accretion-btn.accretion-card {
     display: none;   /* shown by hud.js when an Accretion is claimable */
@@ -232,7 +232,7 @@ body {
 #accretion-btn.accretion-card:hover { background: rgba(74,130,168,0.18); box-shadow: 0 5px 18px rgba(74,130,168,0.34); }
 #accretion-btn.accretion-card:active { transform: translateY(1px); }
 
-/* Mass Upgrades — a smaller secondary card just below it (shown after the first Accretion). */
+/* Mass Upgrades - a smaller secondary card just below it (shown after the first Accretion). */
 #mass-upgrades-btn.mass-upg-card {
     display: none;
     text-align: center; cursor: pointer; user-select: none;
@@ -246,7 +246,7 @@ body {
 
 /* Demo-3 "A" layout: name|cost on top, a dusty-blue level progress bar + count along the bottom. */
 .upgrade-card {
-    position: relative;
+    position: relative; overflow: hidden;
     background: var(--surface2); border: 1px solid var(--border);
     border-radius: 13px;
     padding: 12px 16px 11px;  /* compact; title centres above the bar (see .upg-name line-height) */
@@ -257,7 +257,7 @@ body {
 .upgrade-card.can-afford { border-color: var(--accretion-dim); }
 .upgrade-card.can-afford:hover { border-color: var(--accretion); }
 /* Completed: stay greyed (even on hover). We dim only the FACE (.upg-top/.upg-botrow),
-   NOT the card — so the description popup keeps full opacity and isn't trapped in a
+   NOT the card - so the description popup keeps full opacity and isn't trapped in a
    faded stacking context behind sibling cards. */
 .upgrade-card.is-maxed { cursor: default; background: #f6f4ee; border-color: var(--border2); }
 .upgrade-card.is-maxed .upg-top,
@@ -268,7 +268,7 @@ body {
 .upgrade-card.upg-new::after {
     content: ''; position: absolute; inset: 0; pointer-events: none;
     background: rgba(240,200,40,0.6);
-    /* two slow, smooth swells — ease-in-out on each segment makes it glow rather than blink */
+    /* two slow, smooth swells - ease-in-out on each segment makes it glow rather than blink */
     animation: upg-flash 2.2s ease-in-out forwards;
 }
 @keyframes upg-flash {
@@ -279,9 +279,9 @@ body {
     100% { opacity: 0; }
 }
 
-/* The name|cost row is a fixed-height zone that flex-centres its content — so the title sits
+/* The name|cost row is a fixed-height zone that flex-centres its content - so the title sits
    centred between the card top and the progress bar regardless of Baloo 2's tall line metrics. */
-.upg-top  { display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 10px; transform: translateY(3px); }  /* nudge down — Baloo 2's tall ascenders read optically high */
+.upg-top  { display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 10px; transform: translateY(3px); }  /* nudge down - Baloo 2's tall ascenders read optically high */
 .upg-name { font-family: 'Baloo 2', sans-serif; font-size: 16px; font-weight: 600; color: var(--text); line-height: 1.15; }
 .upg-cost { font-size: 15px; color: var(--ink); font-weight: 800; font-variant-numeric: tabular-nums; flex-shrink: 0; white-space: nowrap; line-height: 1.15; }
 .upg-cost.maxed { color: var(--text-faint); font-weight: 700; }
@@ -291,13 +291,24 @@ body {
 .upg-bar > i { display: block; height: 100%; border-radius: 4px; background: var(--accretion); width: 0; transition: width 0.18s ease; }
 .upg-level { flex: none; font-size: 11px; font-weight: 700; color: var(--text-faint); font-variant-numeric: tabular-nums; letter-spacing: 0.06em; }
 
-/* Description popup — a single shared element, JS-positioned to the LEFT of the hovered
+/* Afterglow buff: while the 60s comet window is live the card lights warm-gold + a drain bar
+   along its bottom edge empties; goes burnt-orange and flashes in the final ~18%. */
+.upg-drain { position: absolute; left: 0; bottom: 0; height: 3px; width: 100%;
+    background: #c8922f; transform-origin: left; transform: scaleX(0); pointer-events: none; }
+.upgrade-card.afterglow-on { border-color: #c8922f; background: #fffaf0;
+    box-shadow: 0 0 0 1px #c8922f, 0 0 13px rgba(200,146,47,0.32); }
+.upgrade-card.afterglow-on.afterglow-low { border-color: #bf5a2c;
+    box-shadow: 0 0 0 1px #bf5a2c, 0 0 13px rgba(191,90,44,0.40); animation: afterglow-flash 1s infinite; }
+.upgrade-card.afterglow-on.afterglow-low .upg-drain { background: #bf5a2c; }
+@keyframes afterglow-flash { 0%, 100% { opacity: 1; } 50% { opacity: 0.62; } }
+
+/* Description popup - a single shared element, JS-positioned to the LEFT of the hovered
    card (fixed, so it escapes the right column's overflow clip and hides nothing in the list). */
 #upg-pop {
     display: none;
     position: fixed;
     max-width: 346px;                    /* +20% again (240 → 288 → 346) */
-    background: rgba(26,26,26,0.82);     /* slightly transparent — maintained */
+    background: rgba(26,26,26,0.82);     /* slightly transparent - maintained */
     backdrop-filter: blur(1.5px);
     color: var(--bg);
     font-size: 17.3px;                   /* +20% again (12 → 14.4 → 17.3) */
@@ -322,8 +333,8 @@ body {
 }
 #upg-pop .upg-pop-fn  { font-size: 0.9em; }
 
-/* Soft modern font (Nunito) across the upgrade UI — cost/level/accordion/popup/toggle.
-   (.upg-name is excluded so its Baloo 2 rounded font applies — the Demo-3 name treatment.) */
+/* Soft modern font (Nunito) across the upgrade UI - cost/level/accordion/popup/toggle.
+   (.upg-name is excluded so its Baloo 2 rounded font applies - the Demo-3 name treatment.) */
 #upgrades-list, .upgrade-card, .upg-cost, .upg-level,
 .acc-head, .acc-label, #upg-pop, #show-completed-wrap {
     font-family: 'Nunito','Segoe UI',sans-serif !important;
@@ -344,7 +355,7 @@ body {
 .stat-pop b { color: #d8c8a4; font-weight: 600; }
 .stat-pop-row:hover .stat-pop { display: block; }
 
-/* Cosmic info — hover tooltip (#cosmo-tip, follows cursor) + click card (#cosmo-card, pinned center) */
+/* Cosmic info - hover tooltip (#cosmo-tip, follows cursor) + click card (#cosmo-card, pinned center) */
 #cosmo-tip, #cosmo-card {
     display: none; position: absolute; z-index: 80;
     color: #f4f0e8; font-family: 'Segoe UI', sans-serif; line-height: 1.55; letter-spacing: 0.02em;
@@ -373,7 +384,7 @@ body {
 }
 #cosmo-tip  .cosmo-title { font-size: 14px; }
 #cosmo-card .cosmo-title { font-size: 21px; }
-/* Comet hover label — just the word, no rows/border. Shrink the box to fit it. */
+/* Comet hover label - just the word, no rows/border. Shrink the box to fit it. */
 .cosmo-solo {
     font-family: 'Optima','Candara','Century Gothic',sans-serif; font-size: 14px;
     color: #e8dcc0; letter-spacing: 0.06em; white-space: nowrap;
@@ -389,7 +400,7 @@ body {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); }
 
-/* ===== Accretion (prestige) Mass page — opaque (hides the game) + same looping stars ===== */
+/* ===== Accretion (prestige) Mass page - opaque (hides the game) + same looping stars ===== */
 #accretion-screen {
     display: none; position: fixed; inset: 0; z-index: 120;
     background: #f4f0e8;                       /* opaque: nothing of the game shows behind it */
@@ -406,7 +417,7 @@ body {
 .acc-masshdr, .acc-tabs, .acc-stage { position: relative; z-index: 1; }
 .acc-return {
     position: absolute; bottom: 150px; left: 50%; transform: translateX(-50%);
-    z-index: 5;   /* above .acc-stage (z1) — its box overlaps the button and was eating the clicks */
+    z-index: 5;   /* above .acc-stage (z1) - its box overlaps the button and was eating the clicks */
     background: var(--accretion); color: #f6f3ec; border: none;
     padding: 16px 44px; border-radius: 10px; font: 800 18px 'Nunito'; letter-spacing: 0.06em; cursor: pointer;
     box-shadow: 0 6px 20px rgba(74,130,168,0.38); transition: background 0.15s;
@@ -431,7 +442,7 @@ body {
 .acc-tab:hover { color: #1a1a1a; }
 .acc-tab.on { background: #f4f0e8; color: #1a1a1a; box-shadow: 0 1px 4px rgba(0,0,0,0.12); }
 
-/* tree starts at the TOP (below the header row), fills downward — no vertical centering */
+/* tree starts at the TOP (below the header row), fills downward - no vertical centering */
 .acc-stage { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; width: 100%; padding-top: 34px; }
 
 .acc-tree { display: flex; flex-direction: column; align-items: center; gap: 14px; padding-bottom: 40px; }
@@ -467,14 +478,14 @@ body {
 .acc-node.max .acc-nflavor { color: #f3e6c8; }
 .acc-node.up .acc-ndesc { color: #5a5040; }
 
-/* "next" tier — visible preview, dimmed and not buyable */
+/* "next" tier - visible preview, dimmed and not buyable */
 .acc-node.next { border-style: dashed; border-color: #cdbfa0; opacity: 0.78; }
 .acc-node.next .acc-nm { color: #8a8071; }
 .acc-node.next .acc-ndesc { color: #9a8f78; }
 .acc-node.next .acc-ncost { color: #a99f88; background: #efe9db; }
 .acc-neyebrow { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 800; color: #b5a98c; margin-bottom: 7px; }
 
-/* "locked" tier — title + lock icon only (effect & cost hidden for mystery) */
+/* "locked" tier - title + lock icon only (effect & cost hidden for mystery) */
 .acc-node.locked { border-style: dashed; border-color: #ddd3bd; background: #f0ebe0; opacity: 0.72; }
 .acc-node.locked .acc-nrow { align-items: center; }
 .acc-node.locked .acc-nm { color: #aaa08a; font-weight: 700; }
@@ -483,11 +494,11 @@ body {
 /* Absorption animation overlay canvas (Implosion & Rebirth) */
 #accretion-fx { display: none; position: fixed; inset: 0; z-index: 110; pointer-events: none; }
 
-/* Accretion confirmation modal — themed (Nunito + parchment), not an OS warning box.
+/* Accretion confirmation modal - themed (Nunito + parchment), not an OS warning box.
    Top-level fixed (shown over the live game directly from the Accretion button). */
 .acc-confirm { display: none; position: fixed; inset: 0; z-index: 130; background: rgba(26,22,18,0.32); align-items: center; justify-content: center; font-family: 'Nunito','Segoe UI',sans-serif; }
 .acc-confirm.show { display: flex; }
-/* V4 "ledger": warm rounded card, centred, minimal — show, don't tell. */
+/* V4 "ledger": warm rounded card, centred, minimal - show, don't tell. */
 .acc-confirm-box {
     background: linear-gradient(180deg,#fbf8f1,#f3eee2); border: 1px solid rgba(120,108,86,0.16); border-radius: 20px;
     width: 360px; max-width: 90%; padding: 26px 26px 22px; text-align: center;
@@ -521,13 +532,13 @@ body {
 .acc-bar { height: 8px; border-radius: 6px; background: rgba(120,108,86,0.13); overflow: hidden; }
 .acc-bar > i { display: block; height: 100%; border-radius: 6px; background: linear-gradient(90deg, rgba(168,133,58,0.55), #a8853a); }
 .acc-mutehint { margin-top: 14px; font-size: 12px; font-style: italic; color: var(--accretion); }
-/* actions — vertical: Collapse on top, a quiet "Not yet" under it */
+/* actions - vertical: Collapse on top, a quiet "Not yet" under it */
 .acc-confirm-actions { display: flex; flex-direction: column; gap: 8px; margin-top: 18px; }
 .acc-btn-go { position: relative; overflow: hidden; width: 100%; background: var(--accretion); border: none; color: #f6f3ec; border-radius: 12px; padding: 14px; font: 900 14.5px 'Nunito'; letter-spacing: 0.06em; cursor: pointer; box-shadow: 0 6px 18px -4px rgba(74,130,168,0.5); transition: background 0.15s; user-select: none; touch-action: none; }
 .acc-btn-go:hover { background: var(--accretion-hi); }
 .acc-go-fx { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
 .acc-go-label { position: relative; z-index: 1; }
-/* "Skip animation" — appears in the confirm body only after the first Accretion; checked = skip */
+/* "Skip animation" - appears in the confirm body only after the first Accretion; checked = skip */
 .acc-skip { display: flex; align-items: center; justify-content: center; gap: 7px; margin-top: 15px; font-size: 12.5px; font-weight: 700; color: #8a8071; cursor: pointer; }
 .acc-skip input { width: 14px; height: 14px; accent-color: var(--accretion); cursor: pointer; }
 .acc-btn-ghost { width: 100%; background: none; border: none; color: #8a8071; border-radius: 10px; padding: 5px; font: 800 12px 'Nunito'; letter-spacing: 0.04em; cursor: pointer; transition: color 0.12s; }

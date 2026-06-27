@@ -1,4 +1,4 @@
-// Hex Bloom layout — single color, ~10 hexes/category, irregular availability.
+// Hex Bloom layout - single color, ~10 hexes/category, irregular availability.
 (function(){
   const W=58, H=64, RH=H*0.75;
   // pointy-top axial -> pixel

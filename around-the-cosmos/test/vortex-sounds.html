@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Vortex - emergence sounds</title>
+<style>
+  :root { --bg:#f4efe4; --ink:#1a1a1a; --muted:#6f6657; --gold:#b8923a; --accent:#4a82a8; --accent-dim:#a9c4d6; }
+  * { box-sizing: border-box; }
+  html, body { margin:0; height:100%; background:var(--bg); color:var(--ink); font-family: Georgia, 'Times New Roman', serif; }
+  #wrap { display:flex; height:100%; }
+  #stage { flex:1; position:relative; }
+  canvas#sky { display:block; width:100%; height:100%; }
+  #panel { width:344px; flex:none; padding:22px 20px; background:#efe8da; border-left:1px solid #e0d7c6; overflow-y:auto; }
+  h1 { font-size:19px; margin:0 0 2px; }
+  .sub { color:var(--muted); font-size:12.5px; margin:0 0 16px; line-height:1.45; }
+  .card { border:1.6px solid #ddd3c0; border-radius:11px; background:#fbf8f1; padding:13px 14px; margin:0 0 11px; cursor:pointer; transition:border-color .12s, background .12s, transform .05s; }
+  .card:hover { border-color:var(--accent-dim); }
+  .card:active { transform:translateY(1px); }
+  .card.cur { background:#f1ece0; border-style:dashed; }
+  .card .t { font-size:15px; font-weight:bold; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .card .tag { font-size:10px; letter-spacing:.07em; text-transform:uppercase; color:#fff; background:var(--gold); border-radius:5px; padding:2px 6px; }
+  .card.cur .tag { background:#a99f88; }
+  .card .d { font-size:12px; color:var(--muted); line-height:1.4; margin-top:6px; }
+  .card .len { font-size:11px; color:var(--gold); margin-top:5px; font-variant-numeric:tabular-nums; }
+  .btnrow { display:flex; gap:8px; margin-top:14px; }
+  .btn { flex:1; padding:10px; border:none; border-radius:9px; background:var(--accent); color:#fff; font-family:inherit; font-size:13px; font-weight:bold; cursor:pointer; }
+  .btn:hover { background:#3d6f91; }
+  .btn.ghost { background:#e7decd; color:var(--ink); }
+  .hint { font-size:11.5px; color:var(--muted); margin-top:14px; line-height:1.5; }
+  code { background:#e4dccb; padding:1px 4px; border-radius:3px; font-size:11px; }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div id="stage"><canvas id="sky"></canvas></div>
+  <div id="panel">
+    <h1>Vortex - emergence</h1>
+    <p class="sub">Take 2 - real cinematic <b>instruments</b> this time (gong, brass, choir), not oscillator bleeps. Click a card to hear it against the disc's fade-in.</p>
+
+    <div class="card" data-s="braam">
+      <div class="t">A · Braam <span class="tag">grand · dread</span></div>
+      <div class="d">A colossal low-brass cluster swells out of the dark - the trailer-horn of something vast arriving.</div>
+      <div class="len">~1.2s</div>
+    </div>
+    <div class="card" data-s="gong">
+      <div class="t">B · Gong <span class="tag">mysterious · shock</span></div>
+      <div class="d">A struck temple gong: a sharp metallic strike blooming into a shimmering, inharmonic wash.</div>
+      <div class="len">~1.6s ring</div>
+    </div>
+    <div class="card" data-s="veil">
+      <div class="t">C · Veil <span class="tag">majestic · eerie</span></div>
+      <div class="d">A dark choir swells open over a sub-bass drop - vast, awed, otherworldly, faintly wrong.</div>
+      <div class="len">~1.4s</div>
+    </div>
+
+    <div class="card cur" data-s="current">
+      <div class="t">Current <span class="tag">replace</span></div>
+      <div class="d">The present in-game sound, for A/B only.</div>
+    </div>
+
+    <div class="btnrow"><button class="btn ghost" id="playAll">▶ Play all in order</button></div>
+    <p class="hint">Click the page once to enable audio. Tell me A / B / C (or "B, but shorter / scarier") and I'll wire it into <code>sfxVortexAppear</code>.</p>
+  </div>
+</div>
+
+<script>
+'use strict';
+// ============================ audio engine ============================
+let ctx = null, master = null, verb = null;
+function audio() {
+  if (ctx) return ctx;
+  ctx = new (window.AudioContext || window.webkitAudioContext)();
+  master = ctx.createGain(); master.gain.value = 0.9;
+  const comp = ctx.createDynamicsCompressor();
+  comp.threshold.value = -8; comp.knee.value = 6; comp.ratio.value = 14; comp.attack.value = 0.004; comp.release.value = 0.28;
+  master.connect(comp); comp.connect(ctx.destination);
+  // a generous hall reverb for grandeur
+  const conv = ctx.createConvolver();
+  const len = Math.floor(ctx.sampleRate * 3.0), buf = ctx.createBuffer(2, len, ctx.sampleRate);
+  for (let c = 0; c < 2; c++) { const d = buf.getChannelData(c); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.4); }
+  conv.buffer = buf;
+  verb = ctx.createGain(); verb.gain.value = 1; verb.connect(conv); conv.connect(master);
+  return ctx;
+}
+// shape a source node with an attack/decay envelope, route dry + reverb
+function shape(node, start, dur, peak, atk, wet) {
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0.0001, start);
+  g.gain.linearRampToValueAtTime(peak, start + atk);
+  g.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+  node.connect(g); g.connect(master);
+  if (wet > 0) { const w = ctx.createGain(); w.gain.value = wet; g.connect(w); w.connect(verb); }
+}
+
+// ---- the trailer "braam": a detuned saw brass cluster through an opening lowpass ----
+function braam(root, start, dur, peak, o = {}) {
+  const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.Q.value = o.q || 0.9;
+  lp.frequency.setValueAtTime(o.lp0 || 200, start);
+  lp.frequency.linearRampToValueAtTime(o.lp1 || 1500, start + (o.open || 0.45));
+  lp.frequency.linearRampToValueAtTime((o.lp1 || 1500) * 0.55, start + dur);
+  const voices = [[root,1],[root,1],[root,0.9],[root,0.9],[root*1.5,0.6],[root*1.5,0.55],[root*1.5,0.5],[root*2,0.5],[root*2,0.45]];
+  const total = voices.reduce((s, v) => s + v[1], 0);
+  for (const [f, amp] of voices) {
+    const osc = ctx.createOscillator(); osc.type = 'sawtooth'; osc.frequency.value = f;
+    osc.detune.value = (Math.random() * 2 - 1) * (o.detune || 13);
+    const vg = ctx.createGain(); vg.gain.value = amp / total;
+    osc.connect(vg); vg.connect(lp); osc.start(start); osc.stop(start + dur + 0.06);
+  }
+  shape(lp, start, dur, peak, o.atk != null ? o.atk : 0.09, o.wet != null ? o.wet : 0.45);
+  const sub = ctx.createOscillator(); sub.type = 'sine'; sub.frequency.value = root / 2;
+  shape(sub, start, dur, peak * 0.8, o.atk != null ? o.atk : 0.09, 0.3);
+  sub.start(start); sub.stop(start + dur + 0.06);
+}
+
+// ---- struck gong / tam-tam: additive inharmonic sine partials, staggered decay ----
+function gong(fund, start, peak, dur, o = {}) {
+  const ratios = [1, 1.52, 2.0, 2.74, 3.46, 4.21, 5.0, 6.1, 7.4, 9.1];
+  const amps   = [1, 0.72, 0.85, 0.5, 0.55, 0.36, 0.32, 0.24, 0.18, 0.12];
+  const total = amps.reduce((s, a) => s + a, 0);
+  ratios.forEach((r, i) => {
+    const osc = ctx.createOscillator(); osc.type = 'sine';
+    osc.frequency.value = fund * r * (1 + (Math.random() * 2 - 1) * 0.004);
+    const d = Math.max(0.3, dur * (1 - i * 0.07));
+    shape(osc, start + i * 0.004, d, peak * (amps[i] / total) * 1.5, 0.002, o.wet != null ? o.wet : 0.6);
+    osc.start(start + i * 0.004); osc.stop(start + i * 0.004 + d + 0.06);
+  });
+  const sub = ctx.createOscillator(); sub.type = 'sine'; sub.frequency.value = fund * 0.5;
+  shape(sub, start, 0.75, peak * 0.6, 0.004, 0.4); sub.start(start); sub.stop(start + 0.85);
+}
+
+// ---- choir-ish pad: detuned triangle voices forming a chord, soft swell ----
+function pad(freqs, start, dur, peak, o = {}) {
+  const per = peak / (freqs.length * 2);
+  freqs.forEach((f, i) => {
+    for (let v = 0; v < 2; v++) {
+      const osc = ctx.createOscillator(); osc.type = 'triangle'; osc.frequency.value = f;
+      osc.detune.value = (v ? 7 : -7) + (Math.random() * 2 - 1) * 3;
+      const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = o.lp || 1200; lp.Q.value = 0.5;
+      osc.connect(lp);
+      shape(lp, start, dur, per * (1 - i * 0.1), o.atk != null ? o.atk : 0.4, o.wet != null ? o.wet : 0.6);
+      osc.start(start); osc.stop(start + dur + 0.06);
+    }
+  });
+}
+
+// ---- soft filtered-noise air rush (lowpass - air, not a whistle) ----
+function air(start, dur, o = {}) {
+  const n = Math.floor(ctx.sampleRate * dur), b = ctx.createBuffer(1, n, ctx.sampleRate), d = b.getChannelData(0);
+  for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
+  const src = ctx.createBufferSource(); src.buffer = b;
+  const f = ctx.createBiquadFilter(); f.type = 'lowpass'; f.Q.value = 0.7;
+  f.frequency.setValueAtTime(o.f0 || 300, start);
+  f.frequency.linearRampToValueAtTime(o.f1 || 1200, start + dur);
+  src.connect(f);
+  shape(f, start, dur, o.peak || 0.1, dur * 0.7, o.wet != null ? o.wet : 0.4);
+  src.start(start); src.stop(start + dur + 0.06);
+}
+
+// ---- deep sub-bass arrival thud (fast drop - reads as impact, not a glide) ----
+function boom(start, o = {}) {
+  const dur = o.dur || 0.5;
+  const osc = ctx.createOscillator(); osc.type = 'sine';
+  osc.frequency.setValueAtTime(o.f0 || 60, start);
+  osc.frequency.exponentialRampToValueAtTime(Math.max(20, o.f1 || 32), start + dur * 0.55);
+  shape(osc, start, dur, o.peak || 0.6, 0.004, o.wet != null ? o.wet : 0.32);
+  osc.start(start); osc.stop(start + dur + 0.06);
+}
+
+// ============================ the candidates ============================
+const SOUNDS = {
+  braam() {
+    const t = audio().currentTime;
+    air(t, 0.5, { f0: 280, f1: 950, peak: 0.12, wet: 0.4 });
+    boom(t + 0.02, { f0: 64, f1: 34, peak: 0.55, dur: 0.5 });
+    braam(49, t, 1.2, 0.6, { lp0: 200, lp1: 1450, open: 0.42, atk: 0.10, detune: 14, wet: 0.45 });
+  },
+  gong() {
+    const t = audio().currentTime;
+    air(t, 0.26, { f0: 700, f1: 2600, peak: 0.09, wet: 0.4 });
+    gong(58, t + 0.13, 0.95, 1.6, { wet: 0.62 });
+  },
+  veil() {
+    const t = audio().currentTime;
+    boom(t, { f0: 55, f1: 30, peak: 0.42, dur: 0.6 });
+    air(t, 0.7, { f0: 220, f1: 1100, peak: 0.08, wet: 0.5 });
+    pad([73.42, 87.31, 110.0, 146.83], t, 1.4, 0.5, { lp: 1100, atk: 0.40, wet: 0.65 });
+    pad([587.33, 880.0], t + 0.18, 1.2, 0.07, { lp: 3200, atk: 0.5, wet: 0.78 });
+  },
+  current() {
+    const t = audio().currentTime;
+    const tone = (ty, f0, f1, s, du, pk, w) => { const o = ctx.createOscillator(); o.type = ty; o.frequency.setValueAtTime(f0, s); if (f1 !== f0) o.frequency.exponentialRampToValueAtTime(f1, s + du); shape(o, s, du, pk, 0.02, w); o.start(s); o.stop(s + du + 0.05); };
+    tone('sine', 147, 196, t, 1.6, 0.10, 0.3); tone('sine', 220, 294, t + 0.2, 1.4, 0.06, 0.3); tone('triangle', 587, 740, t + 0.45, 1.1, 0.025, 0.3);
+  },
+};
+
+// ============================ visual (emergence) ============================
+const cv = document.getElementById('sky'), g = cv.getContext('2d');
+let W, H, CX, CY;
+function resize() {
+  const r = cv.parentElement.getBoundingClientRect(), dpr = Math.min(devicePixelRatio || 1, 2);
+  cv.width = r.width * dpr; cv.height = r.height * dpr; g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  W = r.width; H = r.height; CX = W / 2; CY = H / 2;
+}
+addEventListener('resize', resize); resize();
+let animStart = -10, flash = 0, spin = 0, shake = 0;
+function trigger() { animStart = performance.now() / 1000; flash = 1; shake = 1; }
+function smooth(x) { x = Math.max(0, Math.min(1, x)); return x * x * (3 - 2 * x); }
+function frame() {
+  const now = performance.now() / 1000, dt = 1 / 60;
+  g.fillStyle = '#f4efe4'; g.fillRect(0, 0, W, H);
+  const p = (now - animStart) / 1.0;
+  spin += (0.5 + 2.6 * Math.max(0, 1 - p)) * dt; shake *= 0.86; flash *= 0.9;
+  const cx = CX + (Math.random() - 0.5) * shake * 8, cy = CY + (Math.random() - 0.5) * shake * 8, R = Math.min(W, H) * 0.17;
+  if (p >= 0 && p <= 2.4) {
+    const fade = p < 1 ? smooth(p) : Math.max(0, 1 - (p - 1) / 1.3), scale = 0.55 + 0.45 * smooth(p);
+    g.save(); g.globalAlpha = fade; g.translate(cx, cy); g.rotate(spin);
+    for (let arm = 0; arm < 2; arm++) {
+      g.rotate(Math.PI);
+      for (let i = 0; i < 130; i++) {
+        const th = i * 0.19, rad = Math.min(R * scale, R * scale * (i / 130) * 1.15);
+        const x = Math.cos(th) * rad, y = Math.sin(th) * rad;
+        g.fillStyle = `rgba(${60 + i * 0.7}, ${46 + i * 0.4}, 28, ${0.5 * (1 - i / 130)})`;
+        g.fillRect(x, y, 2.3, 2.3);
+      }
+    }
+    const grd = g.createRadialGradient(0, 0, 0, 0, 0, R * scale);
+    grd.addColorStop(0, `rgba(212,176,96,${0.5 * fade})`); grd.addColorStop(0.5, `rgba(150,110,50,${0.2 * fade})`); grd.addColorStop(1, 'rgba(150,110,50,0)');
+    g.fillStyle = grd; g.beginPath(); g.arc(0, 0, R * scale, 0, 7); g.fill();
+    g.fillStyle = '#15130f'; g.beginPath(); g.arc(0, 0, R * scale * 0.13, 0, 7); g.fill();
+    g.restore();
+  } else { g.fillStyle = '#9a9180'; g.font = '15px Georgia'; g.textAlign = 'center'; g.fillText('click a sound →', CX, CY); }
+  if (flash > 0.01) { g.fillStyle = `rgba(255,250,240,${flash * 0.45})`; g.fillRect(0, 0, W, H); }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+// ============================ wire up ============================
+function play(name) { audio(); if (ctx.state === 'suspended') ctx.resume(); trigger(); (SOUNDS[name] || SOUNDS.braam)(); }
+document.querySelectorAll('.card').forEach(c => c.addEventListener('click', () => play(c.dataset.s)));
+document.getElementById('playAll').addEventListener('click', async () => {
+  for (const n of ['braam', 'gong', 'veil']) { play(n); await new Promise(r => setTimeout(r, 2400)); }
+});
+addEventListener('pointerdown', () => { if (ctx && ctx.state === 'suspended') ctx.resume(); });
+</script>
+</body>
+</html>

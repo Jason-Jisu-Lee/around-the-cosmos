@@ -61,7 +61,7 @@
   <div class="clusters" id="c"></div>
   <button class="accrete">Accrete</button>
 <script>
-  // subtle parchment starfield (outlined dots, sparse + faint) — echoes the main page sky
+  // subtle parchment starfield (outlined dots, sparse + faint) - echoes the main page sky
   const cv=document.getElementById('stars'),x=cv.getContext('2d');let S=[];
   function gen(){cv.width=innerWidth;cv.height=innerHeight;S=[];for(let i=0;i<48;i++)S.push({x:Math.random()*cv.width,y:Math.random()*cv.height,r:Math.random()*1.5+.8,p:Math.random()*6.28});}
   function draw(t){x.clearRect(0,0,cv.width,cv.height);for(const s of S){const a=.22+.16*Math.sin(t/850+s.p);
@@ -69,7 +69,7 @@
     x.globalAlpha=Math.min(.6,a+.25);x.lineWidth=.6;x.strokeStyle='#5a5038';x.stroke();}requestAnimationFrame(draw);}
   addEventListener('resize',gen);gen();requestAnimationFrame(draw);
 
-  // [state, level, max]  — irregular tier widths + irregular availability per category
+  // [state, level, max]  - irregular tier widths + irregular availability per category
   const TREE=[
    {name:'Lacuna', tiers:[
      [['max',5,5]],

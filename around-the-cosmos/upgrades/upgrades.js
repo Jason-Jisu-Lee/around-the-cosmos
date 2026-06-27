@@ -1,44 +1,92 @@
 "use strict";
 
-// ── Upgrade definitions ──────────────────────────────────────────────────────
-// All purchasable upgrades and the order their sections render in. Effects are
-// kept ADDITIVE (fixed +amount per level) rather than doubling, so the economy
-// scales predictably (see orbiters/* for how payout/speed read these levels).
-//
-//   unlock: fn  -> card is visible when fn() returns true.
-//   section:    -> heading the card is grouped under (see SECTION_ORDER).
-//   flavor:     -> optional lore line (the upper "description" area of the popup).
-//   desc:       -> the actual function/effect (the lower "Effect" area). fn of level.
 const UPGRADES = [
   {
     id: "touch",
     name: "Cosmic Pulse",
     maxLevel: 8,
     section: "MAIN",
-    costs: [10, 50, 150, 250, 400, 600, 800, 1000],
+    costs: [10, 50, 120, 250, 500, 750, 1000, 1300],
     flavor: "The Lacuna stirs, drawing a slow, steady breath of light.",
     desc: () => "+5 ✦ generated every second, per level.",
-    unlock: () => true, // always visible (the first thing bought — the core income)
+    unlock: () => true,
   },
   {
     id: "grasp",
     name: "Pulse Surge",
-    maxLevel: 3,
+    maxLevel: 5,
     section: "MAIN",
-    costs: [500, 1000, 1500],
+    costs: [1500, 2200, 3000, 4000, 5200],
     flavor: "Each breath reaches deeper, and takes more.",
     desc: () => "+10 ✦ generated every second, per level.",
-    unlock: () => lvl("touch") >= 6, // after the 6th Cosmic Pulse
+    unlock: () => lvl("touch") >= 6,
+  },
+  {
+    id: "afterglow",
+    name: "Afterglow",
+    maxLevel: 5,
+    section: "MAIN",
+    costs: [2000, 3000, 4500, 6600, 9200],
+    flavor: "Catch the light, and the Lacuna keeps its warmth a while.",
+    desc: (l) =>
+      `For <b>60s</b> after catching a comet, every pulse gains <b>+${20 * l || 20}</b> ✦ (+20 / level). Catching another comet refreshes the timer.`,
+    unlock: () => lvl("touch") >= 6,
+  },
+  {
+    id: "deepbreath",
+    name: "Deep Breath",
+    maxLevel: 8,
+    section: "MAIN",
+    costs: [2500, 4500, 8500, 16000, 32000, 65000, 135000, 290000],
+    flavor:
+      "Now and then the Lacuna draws a deeper breath, and takes twice as much.",
+    desc: (l) => {
+      const cur = l >= 1 ? 13 - l : 12;
+      let s = `Every <b>${cur}th</b> breath becomes a <b>Deep Breath</b> worth <b>×${deepBreathMult().toFixed(1)}</b> a normal pulse.`;
+      if (l >= 1 && l < 8)
+        s += `<br><b>Next level:</b> every ${12 - l}th breath.`;
+      else if (l === 0)
+        s += `<br>Each level triggers it one breath sooner, down to every 5th.`;
+      return s;
+    },
+    unlock: () => G.runDust >= 10000,
+  },
+  {
+    id: "abyssal",
+    name: "Abyssal Breath",
+    maxLevel: 15,
+    section: "MAIN",
+    costs: [
+      2000, 3000, 4500, 7000, 11000, 16000, 25000, 38000, 57000, 87000, 130000,
+      200000, 305000, 460000, 700000,
+    ],
+    flavor:
+      "Each deep breath reaches further down, into the dark the Lacuna keeps.",
+    desc: (l) => {
+      const mult = 2 + 0.2 * l;
+      let s = `Empowers <b>Deep Breath</b>: +0.2× per level. Deep Breaths currently pay <b>×${mult.toFixed(1)}</b> a normal pulse.`;
+      if (l < 15) s += `<br><b>Next level:</b> ×${(mult + 0.2).toFixed(1)}.`;
+      return s;
+    },
+    unlock: () => G.runDust >= 10000,
   },
   {
     id: "gravpull",
     name: "Gravitational Pull",
-    maxLevel: 2,
+    maxLevel: 5,
     section: "MAIN",
-    costs: [5000, 12000],
+    costs: [12000, 20000, 40000, 93000, 200000],
     flavor: "Let your own gathered weight do some of the pulling.",
-    desc: (l) => `+1% of all orbiter payout added to every pulse, per level.<br><b>Current bonus:</b> +✦${fmtNum(Math.round(0.01 * l * orbiterPayoutSum()))} per pulse`,
-    unlock: () => lvl("grasp") >= 3, // after Pulse Surge is maxed
+    desc: (l) => {
+      const sum = orbiterPayoutSum();
+      let s =
+        `+1% of all orbiter payout added to every pulse, per level.` +
+        `<br><b>Current bonus:</b> +✦${fmtNum(Math.round(0.01 * l * sum))} per pulse`;
+      if (l < 5)
+        s += `<br><b>Next level:</b> +✦${fmtNum(Math.round(0.01 * (l + 1) * sum))} per pulse`;
+      return s;
+    },
+    unlock: () => G.runDust >= 50000,
   },
   {
     id: "resonance",
@@ -49,28 +97,28 @@ const UPGRADES = [
     flavor: "Tune the whole quiet system until it hums.",
     desc: () =>
       "+10% to every orbiter’s payout, per level. Also lights the Lacuna’s glow.",
-    unlock: () => lvl("grasp") >= 3, // after Pulse Surge is maxed (with Gravitational Pull)
+    unlock: () => G.runDust >= 50000,
   },
   {
     id: "dust",
     name: "Dust Particle",
     maxLevel: 1,
     section: "DUST PARTICLES",
-    costs: [100], // one-time: creates the first dust particle
+    costs: [100],
     flavor: "The first grain of dust to settle into the Lacuna’s quiet orbit.",
     desc: () =>
       "Adds your first dust particle on the inner orbit. +10 base payout per orbit.",
-    unlock: () => lvl("touch") >= 2, // after the second Star Touch
+    unlock: () => lvl("touch") >= 2,
   },
   {
     id: "dustcount",
     name: "Dust Particle Count",
     maxLevel: 4,
     section: "DUST PARTICLES",
-    costs: [500, 1200, 2500, 4000], // adds dust particles 2-5 (cap 5 total)
+    costs: [500, 1200, 2500, 4000],
     desc: () =>
       "+1 dust particle in the clump, up to 5 (+10 base payout each).",
-    unlock: () => lvl("dust") >= 1, // after the first dust particle exists
+    unlock: () => lvl("dust") >= 1,
   },
   {
     id: "dustpay",
@@ -87,7 +135,7 @@ const UPGRADES = [
     maxLevel: 5,
     section: "DUST PARTICLES",
     costs: [200, 600, 1500, 2500, 4200],
-    mult: (lvl) => 1 + 0.2 * lvl, // multiplier; dustSpeed() scales it by 0.82
+    mult: (lvl) => 1 + 0.2 * lvl,
     desc: () => "+20% dust orbit speed, per level.",
     unlock: () => lvl("dust") >= 1,
   },
@@ -96,18 +144,18 @@ const UPGRADES = [
     name: "Asteroid",
     maxLevel: 1,
     section: "ASTEROID",
-    costs: [1500], // a single body, NOT a count upgrade
+    costs: [2000],
     flavor: "A wandering chunk of old rock, heavy and slow.",
     desc: () =>
       "Adds the asteroid on a wider, slower orbit. +50 base payout per orbit.",
-    unlock: () => lvl("dustcount") >= 1, // after the second dust particle
+    unlock: () => G.runDust >= 5000,
   },
   {
     id: "astpay",
     name: "Asteroid Payout",
     maxLevel: 5,
     section: "ASTEROID",
-    costs: [1500, 4500, 10000, 20000, 36000],
+    costs: [2000, 4500, 10000, 20000, 36000],
     desc: () => "+50 to the asteroid’s payout, per level.",
     unlock: () => lvl("asteroid") >= 1,
   },
@@ -117,7 +165,7 @@ const UPGRADES = [
     maxLevel: 5,
     section: "ASTEROID",
     costs: [2000, 4500, 9000, 17000, 30000],
-    mult: (lvl) => 1 + 0.2 * lvl, // multiplier; asteroidSpeed() scales it by 0.88
+    mult: (lvl) => 1 + 0.2 * lvl,
     desc: () => "+20% asteroid orbit speed, per level.",
     unlock: () => lvl("asteroid") >= 1,
   },
@@ -126,24 +174,24 @@ const UPGRADES = [
     name: "Asteroid Composition",
     maxLevel: 3,
     section: "ASTEROID",
-    costs: [3000, 8000, 18000], // reforge into richer material
+    costs: [3000, 8000, 18000],
     flavor: "Reforge the rock into denser, richer stuff.",
     desc: (l) =>
       l >= 3
         ? `Composition: ${ASTEROID_COMP.names[3]}. Asteroid payout x${ASTEROID_COMP.mult[3]}.`
         : `Reforge ${ASTEROID_COMP.names[l]} to ${ASTEROID_COMP.names[l + 1]}. Asteroid payout x${ASTEROID_COMP.mult[l + 1]}.`,
-    unlock: () => lvl("asteroid") >= 1, // the asteroid's unique upgrade
+    unlock: () => lvl("asteroid") >= 1,
   },
   {
     id: "moon",
     name: "Moon",
     maxLevel: 1,
     section: "MOON",
-    costs: [8000], // a single body, NOT a count upgrade
+    costs: [10000],
     flavor: "A pale companion, heavy enough to hold its own slow circle.",
     desc: () =>
       "Adds the moon on the widest, slowest orbit. Pays 200 per orbit at base, scaled by its lunar phase (x0.75 at the new moon up to x1.25 at the full). Whatever the payout reads when it completes an orbit is what it pays.",
-    unlock: () => lvl("asteroid") >= 1, // after you own the asteroid
+    unlock: () => G.runDust >= 32000,
   },
   {
     id: "moonpay",
@@ -160,7 +208,7 @@ const UPGRADES = [
     maxLevel: 5,
     section: "MOON",
     costs: [9000, 18000, 35000, 60000, 100000],
-    mult: (lvl) => 1 + 0.2 * lvl, // multiplier; moonSpeed() scales it by 0.663
+    mult: (lvl) => 1 + 0.2 * lvl,
     desc: () => "+20% moon orbit speed, per level.",
     unlock: () => lvl("moon") >= 1,
   },
@@ -168,10 +216,9 @@ const UPGRADES = [
     id: "moonphase",
     name: "Lunar Phases",
     maxLevel: 5,
-    section: "MOON", // the moon's unique upgrade
+    section: "MOON",
     costs: [12000, 28000, 55000, 90000, 140000],
     flavor: "Learn the tides the moon answers to, and widen them.",
-    // Shifts the moon's phase payout range up by 0.10 on BOTH ends per level.
     desc: (l) =>
       `Moon payout swings x${(0.75 + 0.1 * l).toFixed(2)} at the new moon to x${(1.25 + 0.1 * l).toFixed(2)} at the full moon. Each level adds +0.10 to both ends.`,
     unlock: () => lvl("moon") >= 1,
@@ -184,9 +231,8 @@ const UPGRADES = [
     costs: [30, 80, 200],
     bonus: (lvl) => 1 + 0.25 * lvl,
     desc: (lvl) => `Comet windfall x${(1 + 0.25 * lvl).toFixed(2)}.`,
-    unlock: () => false, // comet upgrades disabled for now
+    unlock: () => false,
   },
 ];
 
-// Display order of upgrade sections — one per orbiter (a future tab each), MAIN first.
 const SECTION_ORDER = ["MAIN", "DUST PARTICLES", "ASTEROID", "MOON", "COMETS"];

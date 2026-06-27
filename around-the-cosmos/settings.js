@@ -1,8 +1,5 @@
 'use strict';
 
-
-
-
 const SETTINGS_KEY = 'around_the_cosmos_settings_v2';
 
 function loadSettings() {

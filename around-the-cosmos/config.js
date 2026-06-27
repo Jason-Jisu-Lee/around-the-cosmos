@@ -1,15 +1,12 @@
 'use strict';
 
-
-
 const CFG = {
     SAVE_KEY:      'around_the_cosmos_v1',
     MAX_PLANETS:   8,
-    COMET_MIN_GAP: 20,
-    COMET_MAX_GAP: 45,
+    COMET_MIN_GAP: 16,
+    COMET_MAX_GAP: 41,
     COMET_LIFE:    8,
 };
-
 
 const PLANET_DEF = [];
 for (let i = 0; i < CFG.MAX_PLANETS; i++) {
@@ -18,7 +15,6 @@ for (let i = 0; i < CFG.MAX_PLANETS; i++) {
         radius: 7 + i * 1.4,
     });
 }
-
 
 const PHYS = {
     G:                  6.674e-11,

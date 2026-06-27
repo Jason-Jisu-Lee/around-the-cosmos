@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Orbit payout sound - 3 less-intrusive ideas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#ece5d8;--ink:#1a1a1a;--muted:#5a5346;--faint:#8a8071;--accretion:#4a82a8;--accretion-hi:#3d6f92;--gold:#a8853a}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:'Nunito',sans-serif;padding:30px 30px 70px}
+h1{font:600 28px 'Fraunces',serif;color:#2c2820}
+.lead{font-size:14px;line-height:1.6;color:var(--muted);max-width:780px;margin:10px 0 0}
+.lead b{color:var(--ink)}
+.bar{display:flex;align-items:center;gap:16px;margin:20px 0 6px}
+.vol{display:flex;align-items:center;gap:9px;font-size:12px;font-weight:700;color:var(--faint)}
+.vol input{width:130px;accent-color:var(--accretion)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:18px;margin-top:14px;max-width:1180px}
+.card{background:#f6f1e6;border:1px solid #ddd5c4;border-radius:16px;padding:18px 18px 16px}
+.card.ref{background:#efe9dc;border-style:dashed}
+.card .nm{font:700 18px 'Nunito';color:#2c2820}
+.card .tag{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--accretion);margin-top:2px}
+.card.ref .tag{color:var(--faint)}
+.card .ds{font-size:12.5px;line-height:1.55;color:var(--faint);margin:10px 0 14px;min-height:72px}
+.row{display:flex;gap:9px}
+.b{flex:1;border:none;border-radius:11px;padding:11px;font:800 13px 'Nunito';letter-spacing:.03em;cursor:pointer;transition:.13s}
+.b1{background:var(--accretion);color:#f6f3ec}.b1:hover{background:var(--accretion-hi)}
+.b2{background:rgba(120,108,86,.1);border:1px solid rgba(120,108,86,.2);color:var(--muted)}.b2:hover{background:rgba(120,108,86,.16);color:var(--ink)}
+.hint{font-size:12px;color:var(--faint);margin-top:18px;max-width:780px;line-height:1.6}
+</style>
+</head>
+<body>
+  <h1>Orbit payout sound</h1>
+  <p class="lead">Three softer, shorter ideas for the per-orbit payout blip - built to stay pleasant when <b>~9 orbiters</b>
+     are paying out constantly. Each <b>Play</b> is one payout; <b>Rapid ×12</b> fires it fast (like a screen full of orbiters)
+     so you can judge how intrusive it gets. The <i>Current</i> card (dashed) is what's in the game now, for comparison.</p>
+
+  <div class="bar"><label class="vol">VOL <input type="range" id="vol" min="0" max="100" value="80"></label></div>
+  <div class="cards" id="cards"></div>
+
+  <p class="hint">Idea: most of these pick a different note from a <b>pentatonic scale</b> each payout, so many orbiters become a
+     gentle little melody instead of one repeated beep. Tell me which you like (or "Pluck but lower", "Drop softer", etc.).</p>
+
+<script>
+let ctx, master, limiter, reverb, revGain;
+function ensure(){
+  if(ctx){ if(ctx.state==='suspended') ctx.resume(); return; }
+  ctx=new (window.AudioContext||window.webkitAudioContext)();
+  master=ctx.createGain(); master.gain.value=0.8;
+  limiter=ctx.createDynamicsCompressor(); limiter.threshold.value=-3; limiter.ratio.value=12; limiter.attack.value=0.004; limiter.release.value=0.2;
+  master.connect(limiter); limiter.connect(ctx.destination);
+  // small reverb for air
+  const len=ctx.sampleRate*1.4, buf=ctx.createBuffer(2,len,ctx.sampleRate);
+  for(let c=0;c<2;c++){const d=buf.getChannelData(c);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,3.2);}
+  reverb=ctx.createConvolver(); reverb.buffer=buf; revGain=ctx.createGain(); revGain.gain.value=0.6; reverb.connect(revGain); revGain.connect(master);
+}
+// one voice: osc -> (lowpass) -> env -> master (+ reverb send)
+function v(type,f,t,dur,vol,lp,send,bendTo){
+  const o=ctx.createOscillator(), g=ctx.createGain();
+  o.type=type; o.frequency.setValueAtTime(f,t); if(bendTo) o.frequency.exponentialRampToValueAtTime(bendTo,t+dur*0.6);
+  g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(vol,t+0.006); g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  let head=o;
+  if(lp){const fl=ctx.createBiquadFilter();fl.type='lowpass';fl.frequency.value=lp;o.connect(fl);head=fl;}
+  head.connect(g); g.connect(master);
+  if(send){const s=ctx.createGain();s.gain.value=send;g.connect(s);s.connect(reverb);}
+  o.start(t); o.stop(t+dur+0.05);
+}
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const PENT_MID=[523.25,587.33,659.25,783.99,880.00];      // C5 D5 E5 G5 A5
+const PENT_LOW=[261.63,293.66,329.63,392.00,440.00];      // C4 D4 E4 G4 A4
+const PENT_HI =[1046.50,1174.66,1318.51,1567.98,1760.00]; // C6 D6 E6 G6 A6
+
+// ---- the candidates ----
+const SOUNDS={
+  pluck(){ const t=ctx.currentTime, f=pick(PENT_MID);
+    v('triangle', f, t, 0.20, 0.06, 1700, 0.16);     // soft marimba/kalimba pluck
+    v('sine', f*2, t, 0.10, 0.018, 0, 0.16); },       // tiny shimmer
+  drop(){ const t=ctx.currentTime, f=pick(PENT_LOW);
+    v('sine', f, t, 0.26, 0.07, 700, 0.10, f*0.92); }, // warm low "bloop" with a small downward bend
+  glass(){ const t=ctx.currentTime, f=pick(PENT_HI);
+    v('sine', f, t, 0.30, 0.038, 0, 0.45);            // delicate glassy ping
+    v('sine', f*2.01, t, 0.16, 0.012, 0, 0.45); },     // soft inharmonic = glass
+  current(){ const t=ctx.currentTime;                  // the existing game sound (reference)
+    [[523.25,0],[659.25,0.07],[784,0.14]].forEach(([f,d])=>v('sine',f,t+d,0.6,0.10,0,0.12)); },
+};
+
+const CARDS=[
+  ['pluck','Soft Pluck','soft · melodic · pentatonic','A short marimba/kalimba pluck. Each payout is a different pentatonic note, so a screen of orbiters turns into a gentle melody rather than one repeated beep. Soft and quick.'],
+  ['drop','Warm Drop','low · rounded · felt','A low, rounded "bloop" with a tiny downward bend - felt more than heard. Warm and very unobtrusive; tucks under the music even when it fires constantly.'],
+  ['glass','Glass Ping','high · delicate · airy','A delicate, high glassy ping with a touch of reverb. Sparkly but quiet - many at once sound like distant wind chimes. Pentatonic, so it stays pretty.'],
+  ['current','Current (in game)','reference · 3-note chord','What\'s in the game now: a 3-note ascending major chord, ~0.6s each. Pleasant for 1–3 orbiters, but busy/repetitive at 9.','ref'],
+];
+const wrap=document.getElementById('cards');
+for(const [key,nm,tag,ds,ref] of CARDS){
+  const el=document.createElement('div'); el.className='card'+(ref?' ref':'');
+  el.innerHTML=`<div class="nm">${nm}</div><div class="tag">${tag}</div><div class="ds">${ds}</div>
+    <div class="row"><button class="b b1">▶ Play</button><button class="b b2">▶▶ Rapid ×12</button></div>`;
+  el.querySelector('.b1').onclick=()=>{ ensure(); SOUNDS[key](); };
+  el.querySelector('.b2').onclick=()=>{ ensure(); for(let i=0;i<12;i++) setTimeout(()=>SOUNDS[key](), i*160); };
+  wrap.appendChild(el);
+}
+document.getElementById('vol').addEventListener('input',e=>{ if(master) master.gain.setTargetAtTime((+e.target.value)/100, ctx.currentTime, 0.05); });
+</script>
+</body>
+</html>

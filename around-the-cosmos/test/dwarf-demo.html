@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Dwarf Planet — 5 designs</title>
+<title>Dwarf Planet - 5 designs</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
@@ -23,10 +23,10 @@
 </style>
 </head>
 <body>
-  <h1>The Dwarf Planet — five looks</h1>
-  <div class="sub">The 4th orbiter: grander and slower than the Moon, on the widest ring yet. Each design below is grounded in a real dwarf planet so they read as <b>distinct</b> from the pale-grey Moon, the lumpy Asteroid, and the dusty pebbles. They rotate slowly so you can see the whole surface. Hover nothing — just watch.</div>
+  <h1>The Dwarf Planet - five looks</h1>
+  <div class="sub">The 4th orbiter: grander and slower than the Moon, on the widest ring yet. Each design below is grounded in a real dwarf planet so they read as <b>distinct</b> from the pale-grey Moon, the lumpy Asteroid, and the dusty pebbles. They rotate slowly so you can see the whole surface. Hover nothing - just watch.</div>
   <div class="grid" id="grid"></div>
-  <footer>Rendered in the same painterly style as the in-game Moon (radial-gradient sphere · clipped surface features · limb darkening · soft rim). Pick a look — or mix features across them — and I'll wire the real orbiter component to match.</footer>
+  <footer>Rendered in the same painterly style as the in-game Moon (radial-gradient sphere · clipped surface features · limb darkening · soft rim). Pick a look - or mix features across them - and I'll wire the real orbiter component to match.</footer>
 
 <script>
 const DPR = Math.min(2, window.devicePixelRatio||1);
@@ -106,7 +106,7 @@ function heart(c, cx, cy, r, phase, lon, lat, size, color){
 const DESIGNS = [
  {
    key:'pluto', name:'Tombaugh', insp:'Pluto', spin:0.10,
-   desc:'Warm tan ices with reddish tholin blotches and a pale heart-shaped plain. Friendly, characterful — the most recognisable dwarf.',
+   desc:'Warm tan ices with reddish tholin blotches and a pale heart-shaped plain. Friendly, characterful - the most recognisable dwarf.',
    pal:['#c9a878','#9c6f4a','#e8e0cd','#7a5236'],
    draw(c,cx,cy,r,ph){
      c.save(); clipCircle(c,cx,cy,r);
@@ -134,7 +134,7 @@ const DESIGNS = [
  },
  {
    key:'haumea', name:'Haumea', insp:'Haumea', spin:0.42, ellipse:1.42,
-   desc:'A fast spinning egg-shaped world wrapped in a thin dark ring — the only orbiter that is not a circle. Strange and elegant.',
+   desc:'A fast spinning egg-shaped world wrapped in a thin dark ring - the only orbiter that is not a circle. Strange and elegant.',
    pal:['#dcd8cc','#b9b3a3','#3a352c','#f1eee5'],
    draw(c,cx,cy,r,ph){
      const rx=r*1.32, ry=r*0.82;
@@ -164,7 +164,7 @@ const DESIGNS = [
  },
  {
    key:'eris', name:'Eris', insp:'Eris', spin:0.07,
-   desc:'A pristine, almost blinding ice-white world with the faintest cold blue cast — the brightest, most distant and remote of all.',
+   desc:'A pristine, almost blinding ice-white world with the faintest cold blue cast - the brightest, most distant and remote of all.',
    pal:['#f3f4f2','#d6dee0','#c2cdd2','#aebac2'],
    draw(c,cx,cy,r,ph){
      // faint cold halo

@@ -1,51 +1,31 @@
 'use strict';
 
-// ============================================================================
-//  The Vortex — a rare hold-to-claim background event (much rarer than comets).
-//  A small, DISTANT sepia spiral vortex spins up at a RANDOM spot in the sky,
-//  well OUTSIDE the Lacuna's orbit system. ~1s before it appears, an ominous
-//  "incoming" cue warns idle players. It lingers ~4s. Press & HOLD it for 3s to
-//  absorb it (the spiral spirals down into its void) for a big windfall
-//  (×15 a comet's value). Holding FREEZES the linger timer; releasing resumes it
-//  (and snaps the collapse back). Ignore it and it fades quickly — once it begins
-//  fading it can no longer be grabbed.
-//
-//  Self-contained like the comet: its own full-window overlay (#vortex-layer),
-//  window-level press/hold detection, and a cached procedurally-rendered bitmap
-//  (the recreation validated in test/galaxy.html — a per-pixel dust field).
-// ============================================================================
-
 const VTAU = Math.PI * 2;
 
 const VX = {
-    SPAWN_MIN: 8 * 60,   // seconds between spawns (random in [MIN, MAX]) — ~10 min avg
-    SPAWN_MAX: 12 * 60,
-    FADE_IN:   1.0,      // slow fade-in as it appears (+ spin-up)
-    STAY:      5.0,      // linger window — the 5s available to grab it (counts down only while NOT holding)
-    HOLD:      3.0,      // continuous hold needed to absorb
-    ABSORB:    0.8,      // success collapse + flash
-    FADE_OUT:  2.0,      // ignored → slow fade out (not grabbable). total visible ≈ 1 + 5 + 2 = 8s
-    SPIN_MAX:  1.1,      // rad/s at full speed (a bit faster — it's small & distant)
-    RENDER_R:  150,      // bitmap rendered once at this disc radius, scaled DOWN to the small screen size
-    REWARD_MULT: 10,     // ×10 a comet's (base) value
-    GRAB_FRAC: 1.15,     // grab radius vs the on-screen disc radius (a touch generous — it's small)
-    SIZE_MIN: 0.085,     // on-screen disc radius as a fraction of min(W,H) — small & distant
+    SPAWN_MIN: 4.5 * 60,
+    SPAWN_MAX: 8.5 * 60,
+    FADE_IN:   1.0,
+    STAY:      5.0,
+    HOLD:      3.0,
+    ABSORB:    0.8,
+    FADE_OUT:  2.0,
+    SPIN_MAX:  1.1,
+    RENDER_R:  150,
+    REWARD_MULT: 10,
+    GRAB_FRAC: 1.15,
+    SIZE_MIN: 0.085,
     SIZE_MAX: 0.125,
 };
 
-// ---- module state ----
 let vortexBitmap = null, vortexBitmapDiscR = 0;
 let vortexTimer = VX.SPAWN_MIN + Math.random() * (VX.SPAWN_MAX - VX.SPAWN_MIN);
-const vortexFx = [];   // rising reward floats (window coords)
+const vortexFx = [];
 const VTX = { active:false, phase:'idle', t:0, fade:0, spin:0, spinRate:0,
               stayLeft:0, hold:0, shrink:0, holding:false, cx:0, cy:0, R:0, grabR:0, flash:0 };
 
 let vortexLayer = null, vortexCtx = null;
 
-// ============================================================================
-//  Procedural vortex bitmap (rendered once, cached, reused) — ported from
-//  test/galaxy.html (the recreation validated against the reference image).
-// ============================================================================
 function vxSmooth(a, b, x){ const t = Math.max(0, Math.min(1, (x-a)/(b-a))); return t*t*(3-2*t); }
 function vxMul(a){ return function(){ a|=0; a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return((t^t>>>14)>>>0)/4294967296; }; }
 function vxHash(x,y){ let h=(x|0)*374761393+(y|0)*668265263; h=Math.imul(h^(h>>>13),1274126177); return((h^(h>>>16))>>>0)/4294967296; }
@@ -62,7 +42,7 @@ function vxBlur(buf,W,H,w){ const tmp=new Float32Array(buf.length);
     for(let c=0;c<3;c++)for(let y=0;y<H;y++)for(let x=0;x<W;x++){let s=0,n=0;for(let k=-w;k<=w;k++){const xx=x+k;if(xx<0||xx>=W)continue;s+=buf[(y*W+xx)*3+c];n++;}tmp[(y*W+x)*3+c]=s/n;}
     for(let c=0;c<3;c++)for(let y=0;y<H;y++)for(let x=0;x<W;x++){let s=0,n=0;for(let k=-w;k<=w;k++){const yy=y+k;if(yy<0||yy>=H)continue;s+=tmp[(yy*W+x)*3+c];n++;}buf[(y*W+x)*3+c]=s/n;} }
 
-const VX_BG = [244, 239, 228];   // EXACTLY the sky parchment (#f4efe4) so the disc is seamless over it
+const VX_BG = [244, 239, 228];
 function renderVortexBitmap(R){
     const S=Math.ceil(R*2.8), W=S, H=S, cx=S/2, cy=S/2;
     const buf=new Float32Array(W*H*3);
@@ -120,16 +100,12 @@ function renderVortexBitmap(R){
 }
 function ensureVortexBitmap(){
     if (vortexBitmap) return;
-    vortexBitmap = renderVortexBitmap(VX.RENDER_R);   // one-time (~0.4s), cached & reused
+    vortexBitmap = renderVortexBitmap(VX.RENDER_R);
     vortexBitmapDiscR = VX.RENDER_R;
 }
 
-// ============================================================================
-//  Lifecycle
-// ============================================================================
-function vortexInteractive(){ return VTX.active && VTX.phase === 'stay'; }   // grabbable only while lingering
+function vortexInteractive(){ return VTX.active && VTX.phase === 'stay'; }
 
-// ×15 a comet's BASE value (same formula as catchComet minus the speed multiplier).
 function vortexReward(){
     let combined = 0;
     for (const o of ORBITERS) combined += o.list().length * o.payout();
@@ -137,14 +113,13 @@ function vortexReward(){
     return Math.max(1, base * VX.REWARD_MULT);
 }
 
-// Pick a random spot in the SKY, well outside the Lacuna's orbit system.
 function pickVortexSpot(){
     const mn = Math.min(innerWidth, innerHeight);
     VTX.R = mn * (VX.SIZE_MIN + Math.random()*(VX.SIZE_MAX - VX.SIZE_MIN));
     VTX.grabR = VTX.R * VX.GRAB_FRAC;
     const L = (typeof lacunaScreen === 'function') ? lacunaScreen() : { x:innerWidth/2, y:innerHeight/2 };
     const orbitOuter = (typeof orbitR === 'function') ? orbitR(2) : mn*0.18;
-    const KO = orbitOuter + 55 + VTX.R;                 // keep the whole disc clear of the orbit system
+    const KO = orbitOuter + 55 + VTX.R;
     const r = (typeof canvas !== 'undefined' && canvas.getBoundingClientRect) ? canvas.getBoundingClientRect()
               : { left:0, top:0, width:innerWidth, height:innerHeight, right:innerWidth, bottom:innerHeight };
     const m = VTX.R + 12;
@@ -154,7 +129,7 @@ function pickVortexSpot(){
         const y = r.top  + m + Math.random()*Math.max(1, r.height - 2*m);
         const d = Math.hypot(x-L.x, y-L.y);
         if (d >= KO){ best = {x,y}; break; }
-        if (d > bestD){ bestD = d; best = {x,y}; }       // farthest sampled = fallback on tiny screens
+        if (d > bestD){ bestD = d; best = {x,y}; }
     }
     VTX.cx = best.x; VTX.cy = best.y;
 }
@@ -186,7 +161,7 @@ function vortexTick(dt){
     if (VTX.phase === 'in'){
         const p = Math.min(1, VTX.t / VX.FADE_IN);
         VTX.fade = p*p*(3-2*p);
-        VTX.spinRate = VX.SPIN_MAX * p;                 // spin up to max as it arrives
+        VTX.spinRate = VX.SPIN_MAX * p;
         VTX.spin += VTX.spinRate * dt;
         if (VTX.t >= VX.FADE_IN){ VTX.phase = 'stay'; VTX.t = 0; VTX.fade = 1; }
     }
@@ -196,8 +171,8 @@ function vortexTick(dt){
             VTX.hold += dt;
             if (VTX.hold >= VX.HOLD){ VTX.hold = VX.HOLD; startAbsorb(); }
         } else {
-            VTX.hold = 0;                               // hold must be continuous; reset on release
-            VTX.stayLeft -= dt;                         // linger only counts down when NOT held
+            VTX.hold = 0;
+            VTX.stayLeft -= dt;
             if (VTX.stayLeft <= 0){ VTX.phase = 'out'; VTX.t = 0; }
         }
         const target = VTX.holding ? (VTX.hold / VX.HOLD) : 0;
@@ -207,7 +182,7 @@ function vortexTick(dt){
         VTX.spin += VTX.spinRate * dt;
     }
     else if (VTX.phase === 'absorb'){
-        VTX.shrink = Math.min(1, 0.92 + 0.08*Math.min(1, VTX.t/0.32));   // ease the last of the spiral into the void
+        VTX.shrink = Math.min(1, 0.92 + 0.08*Math.min(1, VTX.t/0.32));
         VTX.spinRate = VX.SPIN_MAX * 4.2;
         VTX.spin += VTX.spinRate * dt;
         VTX.flash = Math.max(0, 1 - VTX.t/0.45);
@@ -226,14 +201,11 @@ function vortexTick(dt){
 function startAbsorb(){
     VTX.phase = 'absorb'; VTX.t = 0; VTX.holding = false; VTX.flash = 1;
     const reward = vortexReward();
-    earn(reward);                                       // no x/y — float is drawn on the vortex overlay (window coords)
+    earn(reward);
     vortexFx.push({ x:VTX.cx, y:VTX.cy, text:'+✦'+fmtNum(reward), age:0, maxAge:2.0 });
     if (typeof SoundSystem !== 'undefined' && SoundSystem.sfxVortexAbsorb) SoundSystem.sfxVortexAbsorb();
 }
 
-// ============================================================================
-//  Draw (full-window overlay, window coords) — called every frame from the loop
-// ============================================================================
 function drawVortexLayer(){
     if (!vortexCtx) return;
     const g = vortexCtx;
@@ -246,21 +218,18 @@ function drawVortexLayer(){
             const fade = VTX.fade;
             const scale = (R / vortexBitmapDiscR) * (1 - VTX.shrink);
             if (scale > 0.0015){
-                const clipR = (vortexBitmap.width/2) * scale;   // clip the cream square corners → seamless disc
+                const clipR = (vortexBitmap.width/2) * scale;
                 g.save(); g.globalAlpha = fade;
                 g.beginPath(); g.arc(cx, cy, clipR, 0, VTAU); g.clip();
                 g.translate(cx, cy); g.rotate(VTX.spin);
                 g.scale(scale, scale); g.drawImage(vortexBitmap, -vortexBitmap.width/2, -vortexBitmap.height/2);
                 g.restore();
             }
-            // the central void — the sink the spiral collapses into (stays put as the disc shrinks).
-            // Holding shrinks the spiral into this void — that collapse IS the only feedback (no ring/hint).
             g.save(); g.globalAlpha = fade;
             const dotR = Math.max(2, R*0.055*(1 + VTX.shrink*0.55));
             g.fillStyle = '#15130f'; g.beginPath(); g.arc(cx, cy, dotR, 0, VTAU); g.fill();
             g.restore();
 
-            // absorb flash — a white bloom + an expanding gold shock at the moment of collapse
             if (VTX.flash > 0){
                 const f = VTX.flash;
                 const grd = g.createRadialGradient(cx, cy, 0, cx, cy, R*0.7);
@@ -272,7 +241,6 @@ function drawVortexLayer(){
         }
     }
 
-    // reward floats (rise + fade)
     g.textAlign = 'center'; g.textBaseline = 'middle';
     for (const fx of vortexFx){
         const a = Math.max(0, 1 - fx.age/fx.maxAge);
@@ -281,10 +249,6 @@ function drawVortexLayer(){
     }
 }
 
-// ============================================================================
-//  Input — window-level press/hold detection (over the overlay & panels alike).
-//  Registered at load (capture phase) so it pre-empts the comet catch / info card.
-// ============================================================================
 function vortexHitTest(e){
     if (!vortexInteractive()) return false;
     if (e.target.closest('button, input, label, a, #observatory, #settings-panel, #upg-pop, #cosmo-card, .acc-confirm, #accretion-screen, #debug-panel')) return false;
@@ -309,7 +273,7 @@ function vortexInit(){
         resizeVortexLayer();
         window.addEventListener('resize', resizeVortexLayer);
     }
-    setTimeout(ensureVortexBitmap, 2500);   // pre-render so the first spawn (and debug spawns) are instant
+    setTimeout(ensureVortexBitmap, 2500);
 }
 function resizeVortexLayer(){
     if (!vortexLayer) return;

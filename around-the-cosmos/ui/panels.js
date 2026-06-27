@@ -1,9 +1,7 @@
 'use strict';
 
-
-
 let lastVisibleSig = '';
-let showCompleted  = true;   // default: SHOW completed upgrades (the "Hide completed" toggle is opt-in)
+let showCompleted  = true;
 const sectionOpen  = {};
 const cardRefs     = [];
 const seenUpg      = new Set();
@@ -11,14 +9,11 @@ let firstPanelBuild = true;
 
 function upgradeVisible(u) { return u.unlock ? u.unlock() : false; }
 
-
 function isShown(u) {
     if (!upgradeVisible(u)) return false;
     const maxed = G.upgrades[u.id] >= u.maxLevel;
-    // Before the Moon is ever owned, completed cards are never hidden (and the toggle isn't shown).
     return !maxed || showCompleted || !G.moonEverOwned;
 }
-
 
 function visibleSig() {
     let s = (showCompleted ? 'C' : '_') + (G.moonEverOwned ? 'M' : '_') + '|';
@@ -32,12 +27,13 @@ function makeCard(u) {
 
     if (!firstPanelBuild && !seenUpg.has(u.id)) {
         card.classList.add('upg-new');
-
         card.addEventListener('animationend', () => card.classList.remove('upg-new'), { once: true });
     }
     seenUpg.add(u.id);
     card.innerHTML = `<div class="upg-top"><span class="upg-name">${u.name}</span><span class="upg-cost"></span></div>`
         + `<div class="upg-botrow"><div class="upg-bar"><i></i></div><span class="upg-level"></span></div>`;
+    let drain = null;
+    if (u.id === 'afterglow') { drain = document.createElement('div'); drain.className = 'upg-drain'; card.appendChild(drain); }
 
     card.addEventListener('click', () => {
         if (!buyUpgrade(u)) return;
@@ -46,17 +42,15 @@ function makeCard(u) {
 
     card.addEventListener('mouseenter', () => { showUpgPop(u, card); SoundSystem.sfxHover(); });
     card.addEventListener('mouseleave', hideUpgPop);
-    cardRefs.push({ u, card,
+    cardRefs.push({ u, card, drain,
         cost:  card.querySelector('.upg-cost'),
         level: card.querySelector('.upg-level'),
         bar:   card.querySelector('.upg-bar > i') });
     return card;
 }
 
-
 const upgPop = document.getElementById('upg-pop');
 function showUpgPop(u, cardEl) {
-
     const l = G.upgrades[u.id];
     const flavor = typeof u.flavor === 'function' ? u.flavor(l) : u.flavor;
     upgPop.innerHTML = (flavor ? `<div class="upg-pop-flavor">${flavor}</div>` : '')
@@ -73,11 +67,9 @@ function showUpgPop(u, cardEl) {
 }
 function hideUpgPop() { upgPop.style.display = 'none'; }
 
-
 function resetPanelAnimations() { seenUpg.clear(); }
 
 function buildPanels() {
-    // MAIN goes in the left column (under the observatory); every orbiter section goes on the right.
     const mainList = document.getElementById('main-upgrades');
     const list = document.getElementById('upgrades-list');
     mainList.innerHTML = ''; list.innerHTML = ''; cardRefs.length = 0;
@@ -86,8 +78,6 @@ function buildPanels() {
         const ups = UPGRADES.filter(u => u.section === sec && isShown(u));
         if (!ups.length) continue;
 
-        // MAIN renders as plain cards on the left — no "MAIN" label, arrow, or collapse
-        // (it's on its own side, so the heading is redundant).
         if (sec === 'MAIN') {
             for (const u of ups) mainList.appendChild(makeCard(u));
             continue;
@@ -115,7 +105,6 @@ function buildPanels() {
         list.appendChild(section);
     }
 
-    // Prestige entries live at the very bottom of the MAIN column as special cards (shown/hidden by hud.js).
     appendPrestigeCards(mainList);
 
     lastVisibleSig = visibleSig();
@@ -123,8 +112,6 @@ function buildPanels() {
     updateCards();
 }
 
-// Accretion (accentuated) + Mass Upgrades (secondary) cards, pinned below the MAIN upgrades.
-// They keep their ids so hud.js can show/hide them by claimable/accreted state; clicks open the flows.
 function appendPrestigeCards(mainList) {
     const acc = document.createElement('div');
     acc.id = 'accretion-btn'; acc.className = 'accretion-card'; acc.textContent = 'Accretion';
@@ -139,8 +126,6 @@ function appendPrestigeCards(mainList) {
     mainList.appendChild(mass);
 }
 
-// Runs every UI tick (~6.7Hz). Only touch the DOM when a value actually changes — `can-afford`
-// flips as income ticks, but level/cost/maxed rarely move, so caching skips most writes.
 function updateCards() {
     for (const ref of cardRefs) {
         const u = ref.u;
@@ -159,8 +144,15 @@ function updateCards() {
         if (ref._costText !== costText) { ref.cost.textContent = costText; ref._costText = costText; }
         if (ref._lvl !== l) {
             ref.level.textContent = `${l} / ${u.maxLevel}`;
-            ref.bar.style.width = (l / u.maxLevel * 100) + '%';   // dusty-blue level progress
+            ref.bar.style.width = (l / u.maxLevel * 100) + '%';
             ref._lvl = l;
+        }
+        if (ref.drain) {   // Afterglow buff: light the card + drain the bar over the 60s window
+            const on = typeof afterglowActive === 'function' && afterglowActive();
+            const fr = on ? afterglowFrac() : 0, low = on && fr < 0.18;
+            if (ref._glowOn  !== on)  { ref.card.classList.toggle('afterglow-on', on);   ref._glowOn = on; }
+            if (ref._glowLow !== low) { ref.card.classList.toggle('afterglow-low', low); ref._glowLow = low; }
+            ref.drain.style.transform = `scaleX(${fr})`;
         }
     }
 }

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Color — 60·30·10 palettes</title>
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Color - 60·30·10 palettes</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -27,17 +27,17 @@
   .mbtn{align-self:flex-start;background:var(--acc);color:#fff;border:none;border-radius:7px;padding:11px 22px;font:800 13px 'Nunito';letter-spacing:.08em;cursor:pointer;box-shadow:0 3px 10px color-mix(in srgb,var(--acc) 45%,transparent)}
   .mnote{padding:0 18px 16px;font-size:11.5px;color:#7e8696;line-height:1.5}
 </style></head><body>
-  <h1>Color — the 60·30·10 rule</h1>
-  <p class="l">Each palette keeps the <b>parchment 60%</b> dominant (you like the theme), uses an ink/earth <b>30% secondary</b>, and a single saturated <b>10% accent</b> for the pop — buttons, the Mass figure, "available" highlights. The accent is what makes the Accretion button noticeable. None are yellow. The mini-mock shows each applied to a slice of the real UI.</p>
+  <h1>Color - the 60·30·10 rule</h1>
+  <p class="l">Each palette keeps the <b>parchment 60%</b> dominant (you like the theme), uses an ink/earth <b>30% secondary</b>, and a single saturated <b>10% accent</b> for the pop - buttons, the Mass figure, "available" highlights. The accent is what makes the Accretion button noticeable. None are yellow. The mini-mock shows each applied to a slice of the real UI.</p>
   <div class="grid" id="g"></div>
 <script>
   // [name, vibe, 60 dominant, 30 secondary, 10 accent, note]
   const P=[
    ['Teal Pop','cool complement','#f4f0e8','#2b2b2b','#2f7d77','Cool teal is the complement of warm cream, so it pops the hardest with the least area. Cleanest "modern indie" read.'],
-   ['Terracotta','warm analogous','#f4f0e8','#3a3330','#c2562f','Warm rust stays in the parchment family — cohesive and editorial, a touch softer/less punchy than teal.'],
+   ['Terracotta','warm analogous','#f4f0e8','#3a3330','#c2562f','Warm rust stays in the parchment family - cohesive and editorial, a touch softer/less punchy than teal.'],
    ['Dusty Blue','Ghibli sky','#f4f0e8','#2f3a44','#4a82a8','That soft Ghibli sky-blue over slate. Calm and airy; reads friendly rather than urgent.'],
    ['Sage & Clay','earthy duo','#f1ede2','#5b6452','#bf5a3c','Secondary shifts to muted sage so the whole thing feels more grown/organic; clay accent ties back to warmth.'],
-   ['Plum Dusk','muted jewel','#f4f0e8','#39323f','#8a5a8c','A dusty plum accent — unusual, slightly melancholy (fits "lacuna"), still calm. The most distinctive.'],
+   ['Plum Dusk','muted jewel','#f4f0e8','#39323f','#8a5a8c','A dusty plum accent - unusual, slightly melancholy (fits "lacuna"), still calm. The most distinctive.'],
   ];
   document.getElementById('g').innerHTML=P.map(([nm,vibe,bg,sec,acc,note])=>`
     <div class="card">

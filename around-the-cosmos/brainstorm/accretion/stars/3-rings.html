@@ -8,7 +8,7 @@
   <div class="clusters" id="c"></div>
   <button class="accrete">Accrete</button>
 <script>
-  // Variation 3: cartographic markers — hollow ink rings (varying size) + a few solid dots.
+  // Variation 3: cartographic markers - hollow ink rings (varying size) + a few solid dots.
   const cv=document.getElementById('stars'),x=cv.getContext('2d');let S=[];
   function gen(){cv.width=innerWidth;cv.height=innerHeight;S=[];for(let i=0;i<80;i++){
     const ring=Math.random()<.62;S.push({x:Math.random()*cv.width,y:Math.random()*cv.height,r:ring?Math.random()*2.6+1.4:Math.random()*1.3+.8,ring,p:Math.random()*6.28});}}

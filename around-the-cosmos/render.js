@@ -2,12 +2,13 @@
 
 const canvas = document.getElementById('sky');
 const ctx    = canvas.getContext('2d');
-// Full-window overlay the comet is drawn on (so it shows over the side panels). Window coordinates.
 const cometLayer = document.getElementById('comet-layer');
 const cometCtx   = cometLayer.getContext('2d');
 let W=0, H=0, CX=0, CY=0, MAXR=0;
-let winMx=-999, winMy=-999;   // window-space mouse (set in main.js) — for comet hover over panels
+let winMx=-999, winMy=-999;
 const COMET_HOVER_R = 40;
+let deepBreathFlash = -1;
+const DEEP_FLARE_DUR = 0.62;
 
 function resize() {
     const dpr = window.devicePixelRatio || 1;
@@ -19,7 +20,6 @@ function resize() {
     cometCtx.setTransform(dpr,0,0,dpr,0,0);
 }
 
-// The on-screen (window-space) center of the Lacuna — where comets aim. Used by comet.js.
 function lacunaScreen() { const r = canvas.getBoundingClientRect(); return { x: r.left + CX, y: r.top + CY }; }
 
 function orbitR(i) { return MAXR*(i+1.9)/(CFG.MAX_PLANETS+1.9); }
@@ -29,7 +29,6 @@ function clumpPos() { const r=orbitR(0); return { x:CX+Math.cos(G.clump.angle)*r
 function asteroidClumpPos() { const r=orbitR(1); return { x:CX+Math.cos(G.asteroidClump.angle)*r, y:CY+Math.sin(G.asteroidClump.angle)*r }; }
 
 function moonClumpPos() { const r=orbitR(2); return { x:CX+Math.cos(G.moonClump.angle)*r, y:CY+Math.sin(G.moonClump.angle)*r }; }
-
 
 function drawClump(list, cp, pr, color, t) {
     for (const o of list) {
@@ -58,8 +57,6 @@ function drawClump(list, cp, pr, color, t) {
             g.addColorStop(1,'rgba(20,16,12,0.34)');
             ctx.fillStyle=g; ctx.fillRect(-pr*2.5,-pr*2.5,pr*5,pr*5);
         } else {
-            // Dust pebbles get a much fainter take on the asteroid's far-side shadow — just a
-            // touch of roundness, light from the same fixed upper-left so they read as little stones.
             ctx.clip();
             ctx.rotate(-la*1.5);
             const lx=-pr*0.45, ly=-pr*0.55;
@@ -70,7 +67,6 @@ function drawClump(list, cp, pr, color, t) {
             ctx.fillStyle=g; ctx.fillRect(-pr*2.5,-pr*2.5,pr*5,pr*5);
         }
         ctx.restore();
-
 
         if (o.motes) {
             for (const mte of o.motes) {
@@ -83,23 +79,18 @@ function drawClump(list, cp, pr, color, t) {
     }
 }
 
-
-// ---- Moon: "Studio" — a strong directional sphere lit from a fixed upper-left, a clean crisp rim,
-// crisp depth-shaded craters, a soft feathered phase terminator drawn semi-transparent (so the ball
-// shading reads through it), and limb darkening that rounds the flat disc into a sphere.
-const MOON_LX = -0.62, MOON_LY = -0.55;            // fixed light vector toward the viewer's upper-left
+const MOON_LX = -0.62, MOON_LY = -0.55;
 const MOON_LANG = Math.atan2(MOON_LY, MOON_LX);
 const MOON_CRATERS = [[-0.30,-0.26,0.16],[0.30,0.12,0.12],[0.05,0.36,0.10],[0.36,-0.30,0.08],[-0.22,0.30,0.075],[-0.42,0.06,0.055],[0.16,-0.12,0.06]];
 
-// a crater with depth: dark floor + a rim catching light toward MOON_LANG and a rim in shadow away from it.
 function moonCrater(cx, cy, r, dx, dy, cr) {
     const x = cx + dx*r, y = cy + dy*r, rad = cr*r;
     ctx.fillStyle = 'rgba(44,48,54,0.16)';
     ctx.beginPath(); ctx.arc(x, y, rad, 0, 7); ctx.fill();
     ctx.lineWidth = Math.max(0.6, rad*0.34);
-    ctx.strokeStyle = 'rgba(228,230,232,0.40)';   // rim catching light
+    ctx.strokeStyle = 'rgba(228,230,232,0.40)';
     ctx.beginPath(); ctx.arc(x, y, rad*0.92, MOON_LANG-1.0, MOON_LANG+1.0); ctx.stroke();
-    ctx.strokeStyle = 'rgba(26,29,34,0.30)';      // rim in shadow
+    ctx.strokeStyle = 'rgba(26,29,34,0.30)';
     ctx.beginPath(); ctx.arc(x, y, rad*0.92, MOON_LANG+Math.PI-1.0, MOON_LANG+Math.PI+1.0); ctx.stroke();
 }
 
@@ -107,7 +98,6 @@ function drawMoonDisc(cx, cy, r, phase) {
     ctx.save();
     ctx.beginPath(); ctx.arc(cx, cy, r, 0, 7); ctx.clip();
 
-    // base ball: bright sub-light highlight -> mid -> dark far limb
     const g = ctx.createRadialGradient(cx+MOON_LX*r*0.5, cy+MOON_LY*r*0.5, r*0.08, cx-MOON_LX*r*0.3, cy-MOON_LY*r*0.3, r*1.35);
     g.addColorStop(0,    '#d3d6d8');
     g.addColorStop(0.45, '#9aa0a4');
@@ -117,7 +107,6 @@ function drawMoonDisc(cx, cy, r, phase) {
 
     for (const [dx, dy, cr] of MOON_CRATERS) moonCrater(cx, cy, r, dx, dy, cr);
 
-    // soft, feathered phase terminator, semi-transparent so the ball shading reads through
     const a = r * Math.cos(2*Math.PI*phase);
     const waxing = phase < 0.5;
     const bulgeRight = waxing ? (a > 0) : (a < 0);
@@ -132,7 +121,6 @@ function drawMoonDisc(cx, cy, r, phase) {
     ctx.closePath(); ctx.fill();
     ctx.restore();
 
-    // limb darkening: the outer rim falls into shadow, rounding the flat disc into a sphere
     const lg = ctx.createRadialGradient(cx, cy, r*0.5, cx, cy, r*1.02);
     lg.addColorStop(0,    'rgba(0,0,0,0)');
     lg.addColorStop(0.72, 'rgba(0,0,0,0)');
@@ -140,11 +128,9 @@ function drawMoonDisc(cx, cy, r, phase) {
     ctx.fillStyle = lg; ctx.beginPath(); ctx.arc(cx, cy, r, 0, 7); ctx.fill();
     ctx.restore();
 
-    // crisp rim
     ctx.strokeStyle = 'rgba(60,64,70,0.35)'; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.arc(cx, cy, r, 0, 7); ctx.stroke();
 }
-
 
 function drawRoundClump(o, t) {
     const cp = o.clumpPos(), pr = o.pebbleR();
@@ -156,7 +142,6 @@ function drawRoundClump(o, t) {
         drawMoonDisc(cp.x, cp.y, pr, moonPhase());
     }
 }
-
 
 function drawReticle(x, y, s, g = ctx) {
     const a = 7;
@@ -170,8 +155,6 @@ function drawReticle(x, y, s, g = ctx) {
     }
 }
 
-// The comet lives on the full-window overlay (window coords), so it travels over the side panels.
-// Draws the comet, its hover reticle/label, and any catch FX (cometFx, defined in comet.js).
 function drawComet(t) {
     const g = cometCtx;
     g.clearRect(0, 0, innerWidth, innerHeight);
@@ -185,7 +168,7 @@ function drawComet(t) {
         g.beginPath(); g.arc(c.x,c.y,6,0,Math.PI*2); g.fillStyle='#2a2a2a'; g.fill();
         g.beginPath(); g.arc(c.x,c.y,16+3*Math.sin(t*6),0,Math.PI*2);
         g.strokeStyle='rgba(60,80,70,0.28)'; g.lineWidth=1.5; g.stroke();
-        if (Math.hypot(winMx-c.x, winMy-c.y) < COMET_HOVER_R) {   // hovered (window-space)
+        if (Math.hypot(winMx-c.x, winMy-c.y) < COMET_HOVER_R) {
             drawReticle(c.x, c.y, 18 + Math.sin(t*4)*1.5, g);
             g.fillStyle='rgba(60,80,70,0.9)'; g.font="600 12px 'Segoe UI',sans-serif";
             g.textAlign='center'; g.textBaseline='alphabetic';
@@ -203,11 +186,10 @@ function drawComet(t) {
 }
 
 function draw(t) {
-    ctx.fillStyle = '#f4efe4';   // demo1 "Warm Parchment" background
+    ctx.fillStyle = '#f4efe4';
     ctx.fillRect(0,0,W,H);
 
     drawStars(t);
-
 
     for (const o of ORBITERS) if (o.list().length) {
         ctx.beginPath(); ctx.arc(CX,CY,orbitR(o.ring),0,Math.PI*2);
@@ -218,9 +200,8 @@ function draw(t) {
 
     const reso = lvl('resonance');
     if (reso > 0) {
-        const a = 0.08 + 0.025 * (reso - 1);
+        const a = 0.09 + 0.03 * (reso - 1);
         const R = sunR * 5.6;
-
         const blobs = [
             [0, 0, 1.0, 1.0, 0.5, 0.0],
             [Math.cos(t*0.37)*sunR*0.9,      Math.sin(t*0.31)*sunR*0.8,  0.72, 0.6, 0.8, 1.7],
@@ -238,21 +219,28 @@ function draw(t) {
         }
     }
 
+    if (deepBreathFlash >= 0) {
+        const fp = (t - deepBreathFlash) / DEEP_FLARE_DUR;
+        if (fp >= 0 && fp < 1) {
+            const env = Math.sin(fp * Math.PI);
+            const R = sunR * (3.0 + fp * 3.0);
+            const g = ctx.createRadialGradient(CX, CY, 0, CX, CY, R);
+            g.addColorStop(0,   `rgba(202,162,74,${0.30 * env})`);
+            g.addColorStop(0.55,`rgba(202,162,74,${0.12 * env})`);
+            g.addColorStop(1,   'rgba(202,162,74,0)');
+            ctx.beginPath(); ctx.arc(CX, CY, R, 0, Math.PI*2); ctx.fillStyle=g; ctx.fill();
+        }
+    }
 
     const fx = clickFxTransform(t);
     ctx.beginPath(); ctx.ellipse(CX+fx.dx, CY+fx.dy, sunR*fx.sx, sunR*fx.sy, 0, 0, Math.PI*2);
     ctx.fillStyle='#1a1a1a'; ctx.fill();
-
 
     for (const o of ORBITERS) if (o.list().length) {
         if (o.round) drawRoundClump(o, t);
         else         drawClump(o.list(), o.clumpPos(), o.pebbleR(), o.color(), t);
     }
 
-    // The comet + its reticle/catch FX are drawn on the full-window #comet-layer overlay (drawComet),
-    // so it can travel over the side panels and stay clickable there.
-
-    // Hover targeting reticle — corner-bracket crosshair on the Lacuna or any orbiter (canvas-space).
     if (cosmoOver) {
         const breathe = Math.sin(t*4) * 1.5;
         const tgt = cosmoTargetAt(cosmoMx, cosmoMy);

@@ -29,7 +29,7 @@ function dissolve(o,px,py){
 }
 function frame(ts){
   const now=ts/1000; if(!last)last=now; const dt=Math.min(now-last,0.05); last=now; T+=dt;
-  x.fillStyle='#f4f0e8'; x.fillRect(0,0,cv.width,cv.height);  // clean clear — calm, no smear
+  x.fillStyle='#f4f0e8'; x.fillRect(0,0,cv.width,cv.height);  // clean clear - calm, no smear
   // soft orbit guides
   x.strokeStyle='rgba(160,150,130,0.14)'; x.lineWidth=1;
   [66,120,176].forEach(r=>{x.beginPath();x.arc(CX,CY,r,0,7);x.stroke();});

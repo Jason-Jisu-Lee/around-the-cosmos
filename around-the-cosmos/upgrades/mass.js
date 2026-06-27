@@ -1,16 +1,6 @@
 'use strict';
 
-/* Mass (prestige) upgrades — bought with Mass on the Accretion screen, persist across every
-   Accretion (stored in G.massUpgrades, kept by resetUniverse + save/load). Few, powerful nodes:
-   1–3 Mass per level. Effects hook into the live economy via the accessors below. */
-
-// Each node has a `tier` (0 = first, unlocked from the start). A tier becomes available only once
-// every node in the previous tier is maxed; the tier just past the current one is shown as a dim
-// "next" preview, and anything beyond that is locked (title + lock icon only — its effect is hidden).
-// `placeholder:true` nodes are scaffolding to demonstrate the tiers; they'll be replaced with real
-// upgrades over time (their effects aren't wired into the economy yet).
 const MASS_UPGRADES = [
-  // ---- LACUNA ----
   { id:'denserCore', cat:'Lacuna', tier:0, name:'Denser Core', max:5, costs:[1,2,3,4,5],
     flavor:'The core draws a deeper breath.',
     eff:l => `×${(1 + 0.5*l).toFixed(1)} pulse income` },
@@ -23,20 +13,18 @@ const MASS_UPGRADES = [
   { id:'lacunaT2', cat:'Lacuna', tier:2, placeholder:true, name:'Naked Singularity', max:5, costs:[8,14,22,32,44],
     flavor:'', eff:() => '' },
 
-  // ---- ORBITERS ----
   { id:'heavierBodies', cat:'Orbiters', tier:0, name:'Heavier Bodies', max:5, costs:[1,2,3,4,5],
     flavor:'Give every orbit more to carry.',
     eff:l => `×${(1 + 0.5*l).toFixed(1)} orbiter payout` },
   { id:'retainedComp', cat:'Orbiters', tier:0, name:'Retained Companions', max:3, costs:[2,3,5],
     flavor:'Companions that survive the collapse.',
-    eff:l => ['—','start with the Dust Particle','start with Dust + Asteroid','start with Dust + Asteroid + Moon'][l] },
+    eff:l => ['-','start with the Dust Particle','start with Dust + Asteroid','start with Dust + Asteroid + Moon'][l] },
   { id:'swifterOrbits', cat:'Orbiters', tier:1, placeholder:true, name:'Swifter Orbits', max:5, costs:[3,5,8,12,17],
     flavor:'Every body comes around sooner.',
     eff:l => `+${15*l}% orbiter speed` },
   { id:'orbitersT2', cat:'Orbiters', tier:2, placeholder:true, name:'Tidal Lock', max:3, costs:[8,14,22],
     flavor:'', eff:() => '' },
 
-  // ---- PHENOMENA ----
   { id:'brighterTails', cat:'Phenomena', tier:0, name:'Brighter Tails', max:4, costs:[1,2,3,4],
     flavor:'Longer, brighter tails.',
     eff:l => `×${(1 + 0.5*l).toFixed(1)} comet windfall` },
@@ -49,7 +37,6 @@ const MASS_UPGRADES = [
   { id:'phenomenaT2', cat:'Phenomena', tier:2, placeholder:true, name:'Aurora', max:5, costs:[8,14,22,32,44],
     flavor:'', eff:() => '' },
 
-  // ---- CYCLES ----
   { id:'greaterCollapse', cat:'Cycles', tier:0, name:'Greater Collapse', max:3, costs:[2,3,4],
     flavor:'Collapse harder; gather more.',
     eff:l => `×${(1 + l/3).toFixed(2)} Mass per accretion` },
@@ -64,24 +51,19 @@ const MASS_UPGRADES = [
 ];
 
 const MASS_BY_ID  = Object.fromEntries(MASS_UPGRADES.map(u => [u.id, u]));
-const FIRST_LIGHT = [10, 1000, 5000, 20000];   // starting stardust per First Light level (0 = base 10)
+const FIRST_LIGHT = [10, 1000, 5000, 20000];
 
 function mlvl(id)        { return (G.massUpgrades && G.massUpgrades[id]) || 0; }
 function massUpgCost(u)  { const l = mlvl(u.id); return l >= u.max ? null : u.costs[l]; }
 
-// ---- tier progression ----
 function massCatTiers(cat)       { return [...new Set(MASS_UPGRADES.filter(u => u.cat === cat).map(u => u.tier))].sort((a,b) => a-b); }
 function massTierNodes(cat, t)   { return MASS_UPGRADES.filter(u => u.cat === cat && u.tier === t); }
 function massTierMaxed(cat, t)   { const ns = massTierNodes(cat, t); return ns.length > 0 && ns.every(u => mlvl(u.id) >= u.max); }
-// The current (buyable) tier = the first tier in the category that isn't fully maxed.
 function massCurrentTier(cat) {
     const tiers = massCatTiers(cat);
     for (const t of tiers) if (!massTierMaxed(cat, t)) return t;
     return tiers[tiers.length - 1] + 1;
 }
-// 'available' = buyable now (current tier or any cleared tier behind it),
-// 'next' = the one tier just ahead (visible preview, not buyable),
-// 'locked' = two+ tiers ahead (only the title + a lock icon show; effect hidden).
 function massNodeVis(u) {
     const cur = massCurrentTier(u.cat);
     if (u.tier <= cur)     return 'available';
@@ -89,26 +71,21 @@ function massNodeVis(u) {
     return 'locked';
 }
 
-// ---- effect accessors (read by the live economy) ----
-function denserCoreMult()      { return 1 + 0.5 * mlvl('denserCore'); }       // pulse income ×
-function firstLightDust()      { return FIRST_LIGHT[mlvl('firstLight')]; }     // starting ✦ each universe
-function heavierBodiesMult()   { return 1 + 0.5 * mlvl('heavierBodies'); }     // global orbiter payout ×
-function brighterTailsMult()   { return 1 + 0.5 * mlvl('brighterTails'); }     // comet windfall ×
-function cometShowerMult()     { return Math.pow(0.85, mlvl('cometShower')); } // comet gap ×  (shorter = sooner)
-function greaterCollapseMult() { return 1 + mlvl('greaterCollapse') / 3; }     // Mass per accretion ×
-function lunarFavorMult()      { return 1 + 0.1 * mlvl('lunarFavor'); }        // moon payout ×
+function denserCoreMult()      { return 1 + 0.5 * mlvl('denserCore'); }
+function firstLightDust()      { return FIRST_LIGHT[mlvl('firstLight')]; }
+function heavierBodiesMult()   { return 1 + 0.5 * mlvl('heavierBodies'); }
+function brighterTailsMult()   { return 1 + 0.5 * mlvl('brighterTails'); }
+function cometShowerMult()     { return Math.pow(0.85, mlvl('cometShower')); }
+function greaterCollapseMult() { return 1 + mlvl('greaterCollapse') / 3; }
+function lunarFavorMult()      { return 1 + 0.1 * mlvl('lunarFavor'); }
 
-// Applied at the birth of each universe (resetUniverse) and re-applied on every Mass-page buy,
-// since those purchases should shape the universe the player is about to return to.
 function applyMassUniverseStart() {
     G.dust = firstLightDust();
     const rc = mlvl('retainedComp');
-    // Deterministic (set, not max) so undoing Retained Companions correctly REMOVES the pre-owned body.
-    // Safe because this only runs on a freshly-reset/frozen universe — there are no earned levels to clobber.
     G.upgrades.dust     = rc >= 1 ? 1 : 0;
     G.upgrades.asteroid = rc >= 2 ? 1 : 0;
     G.upgrades.moon     = rc >= 3 ? 1 : 0;
-    if (rc >= 3) G.moonEverOwned = true;   // persistent milestone (never un-set)
+    if (rc >= 3) G.moonEverOwned = true;
     if (typeof ORBITERS !== 'undefined') {
         for (const o of ORBITERS) {
             const arr = o.list(); arr.length = 0;
@@ -118,22 +95,19 @@ function applyMassUniverseStart() {
     }
 }
 
-// Purchases made during THIS Accretion's Mass-page session (a stack for Undo). Reset when the page
-// opens after an accretion (resetMassBuyLog); cleared on Return. Undo never touches levels bought in
-// previous accretions — only what was spent here, now.
 const accBuyLog = [];
 function resetMassBuyLog() { accBuyLog.length = 0; }
 function canUndoMass()     { return accBuyLog.length > 0; }
 
 function buyMassUpgrade(id) {
     const u = MASS_BY_ID[id]; if (!u) return false;
-    if (massNodeVis(u) !== 'available') return false;   // can't buy a previewed/locked tier yet
+    if (massNodeVis(u) !== 'available') return false;
     const l = mlvl(id); if (l >= u.max) return false;
     const cost = u.costs[l]; if (G.mass < cost) return false;
     G.mass -= cost;
     G.massUpgrades[id] = l + 1;
-    accBuyLog.push({ id, cost });                   // record for Undo
-    applyMassUniverseStart();                       // shape the about-to-resume universe
+    accBuyLog.push({ id, cost });
+    applyMassUniverseStart();
     if (typeof buildPanels === 'function') buildPanels();
     if (typeof SoundSystem !== 'undefined') {
         (l + 1 >= u.max) ? SoundSystem.sfxComplete() : SoundSystem.sfxBuy();
@@ -142,13 +116,11 @@ function buyMassUpgrade(id) {
     return true;
 }
 
-// Undo the most recent purchase from this session: refund the Mass and drop the level back one.
-// Can be repeated back to the session's start (refunding everything spent on this page).
 function undoLastMassUpgrade() {
     const last = accBuyLog.pop();
     if (!last) return false;
     G.massUpgrades[last.id] = Math.max(0, mlvl(last.id) - 1);
-    G.mass += last.cost;                            // refund
+    G.mass += last.cost;
     applyMassUniverseStart();
     if (typeof buildPanels === 'function') buildPanels();
     if (typeof SoundSystem !== 'undefined') SoundSystem.sfxBuy();

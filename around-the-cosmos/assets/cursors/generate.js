@@ -1,6 +1,6 @@
 'use strict';
 // Pure-Node PNG generator for the in-game cursor (no dependencies).
-// A simple, clean triangle pointer — slim blade aimed at the top-left.
+// A simple, clean triangle pointer - slim blade aimed at the top-left.
 // 32x32, single flat ink color, crisp anti-aliased edges (supersampled).
 // Hotspot = the tip at 3,3.  Run: node assets/cursors/generate.js
 const zlib = require('zlib'), fs = require('fs'), path = require('path');

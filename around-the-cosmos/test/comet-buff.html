@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Comet buff - duration display ideas</title>
+<style>
+  :root { --bg:#f4efe4; --ink:#1a1a1a; --muted:#6f6657; --accent:#4a82a8; --accent-dim:#a9c4d6;
+          --buff:#c8922f; --buff-soft:#e7c489; --warn:#bf5a2c; }
+  * { box-sizing:border-box; }
+  html,body { margin:0; height:100%; background:var(--bg); color:var(--ink); font-family:Georgia,serif; }
+  #wrap { display:flex; height:100%; }
+  #stage { flex:1; position:relative; overflow:hidden; }
+  canvas#sky { display:block; width:100%; height:100%; }
+
+  /* HUD (top-left) */
+  #hud { position:absolute; top:18px; left:20px; }
+  #hud .amt { font-size:30px; font-weight:bold; letter-spacing:.5px; }
+  #hud .rate { font-size:13px; color:var(--muted); margin-top:2px; }
+  #hud .rate b { color:var(--buff); }
+
+  /* Idea 2: floating timer pill (top-center) */
+  #pill { position:absolute; top:18px; left:50%; transform:translateX(-50%);
+          background:#fffdf8; border:1.5px solid var(--buff); border-radius:999px;
+          padding:7px 15px 9px; min-width:210px; box-shadow:0 2px 10px rgba(120,90,30,.16);
+          opacity:0; transition:opacity .25s; }
+  #pill.on { opacity:1; }
+  #pill .prow { display:flex; align-items:center; gap:8px; font-size:13px; font-weight:bold; }
+  #pill .prow .lbl { color:var(--buff); }
+  #pill .prow .val { margin-left:auto; font-variant-numeric:tabular-nums; color:var(--ink); }
+  #pill .pbar { height:4px; margin-top:6px; background:#eadfca; border-radius:3px; overflow:hidden; }
+  #pill .pbar > i { display:block; height:100%; width:100%; background:var(--buff); border-radius:3px; transition:background .2s; }
+  #pill.low { border-color:var(--warn); animation:flash 1s infinite; }
+  #pill.low .lbl { color:var(--warn); }
+  #pill.low .pbar > i { background:var(--warn); }
+  @keyframes flash { 0%,100%{opacity:1;} 50%{opacity:.55;} }
+
+  #panel { width:330px; flex:none; padding:22px 20px; background:#efe8da; border-left:1px solid #e0d7c6; overflow-y:auto; }
+  h1 { font-size:18px; margin:0 0 2px; }
+  .sub { color:var(--muted); font-size:12.5px; margin:0 0 14px; line-height:1.45; }
+  .glabel { font-size:11px; text-transform:uppercase; letter-spacing:1.1px; color:var(--muted); margin:16px 0 8px; }
+
+  /* the upgrade card (Idea 1 lives here) */
+  .upgrade-card { position:relative; background:#fff; border:1.5px solid #e0d7c6; border-radius:11px;
+                  padding:12px 15px 11px; overflow:hidden; transition:border-color .2s, box-shadow .25s; }
+  .upgrade-card .top { display:flex; justify-content:space-between; align-items:center; }
+  .upgrade-card .nm { font-family:'Baloo 2',Verdana,sans-serif; font-weight:700; font-size:16px; }
+  .upgrade-card .cost { font-weight:800; color:var(--accent); font-size:13px; }
+  .upgrade-card .lvlrow { display:flex; align-items:center; gap:8px; margin-top:9px; }
+  .upgrade-card .lbar { flex:1; height:7px; background:#eee6d6; border-radius:4px; overflow:hidden; }
+  .upgrade-card .lbar > i { display:block; height:100%; width:100%; background:var(--accent); }
+  .upgrade-card .lvl { font-size:12px; color:var(--muted); }
+  /* Idea 1 active state: warm aura + a drain bar pinned to the card's bottom edge */
+  .upgrade-card .drain { position:absolute; left:0; bottom:0; height:4px; width:100%;
+                         background:var(--buff); transform-origin:left; transform:scaleX(0); }
+  .upgrade-card.active { border-color:var(--buff); box-shadow:0 0 0 1px var(--buff), 0 0 16px rgba(200,146,47,.35); background:#fffaf0; }
+  .upgrade-card.active.low { border-color:var(--warn); box-shadow:0 0 0 1px var(--warn), 0 0 16px rgba(191,90,44,.4); animation:flash 1s infinite; }
+  .upgrade-card.active.low .drain { background:var(--warn); }
+  .upgrade-card .when { font-size:11.5px; color:var(--buff); margin-top:8px; font-style:italic; display:none; }
+  .upgrade-card.active .when { display:block; }
+  .upgrade-card.active.low .when { color:var(--warn); }
+
+  .btn { width:100%; padding:11px; border:none; border-radius:9px; background:var(--accent); color:#fff;
+         font-family:inherit; font-size:14px; font-weight:bold; cursor:pointer; }
+  .btn:hover { background:#3d6f91; }
+  .row { display:flex; align-items:center; justify-content:space-between; font-size:13px; margin:12px 0 6px; }
+  .row .v { color:var(--accent); font-weight:bold; font-variant-numeric:tabular-nums; }
+  input[type=range] { width:100%; accent-color:var(--accent); }
+  label.chk { display:flex; align-items:center; gap:9px; font-size:13px; cursor:pointer; margin:7px 0; }
+  label.chk input { accent-color:var(--buff); width:16px; height:16px; }
+  label.chk .sw { font-size:11px; color:var(--muted); }
+  .legend { font-size:11.5px; color:var(--muted); line-height:1.5; margin-top:6px; }
+  .legend b { color:var(--ink); }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div id="stage">
+    <canvas id="sky"></canvas>
+    <div id="hud"><div class="amt" id="amt">0</div><div class="rate" id="rate">+12 / pulse</div></div>
+    <div id="pill"><div class="prow"><span class="lbl">⚡ Afterglow</span><span class="val" id="pillVal">+75 / pulse</span></div><div class="pbar"><i id="pillBar"></i></div></div>
+  </div>
+
+  <div id="panel">
+    <h1>Comet buff - 3 timer ideas</h1>
+    <p class="sub">Catch a comet → +75 / pulse (lvl 5) for <b id="durLbl">15s</b>; catching again refreshes it. Three ways to show the countdown - watch them all drain, then tell me which.</p>
+
+    <button class="btn" id="catch">☄ Catch a comet (refresh)</button>
+
+    <div class="glabel">Idea 1 · on the upgrade card</div>
+    <div class="upgrade-card" id="card">
+      <div class="top"><span class="nm">Afterglow</span><span class="cost">✦2,000</span></div>
+      <div class="lvlrow"><div class="lbar"><i></i></div><span class="lvl">5 / 5</span></div>
+      <div class="when" id="cardWhen">active · 15s left</div>
+      <div class="drain" id="cardDrain"></div>
+    </div>
+    <div class="legend">The card itself lights up (warm aura) with a thin <b>drain bar</b> along its bottom edge; it flashes amber in the last ~18%.</div>
+
+    <div class="glabel">Idea 2 · floating pill (top-center)</div>
+    <div class="legend">A small <b>badge</b> appears over the sky showing the live bonus + a draining bar; only visible while active, goes amber + flashes when low.</div>
+
+    <div class="glabel">Idea 3 · ring on the Lacuna</div>
+    <div class="legend">A glowing <b>countdown ring</b> sweeps around the core (and the core glows) - empties clockwise like a cooldown, fades as it runs out.</div>
+
+    <div class="glabel">Controls</div>
+    <div class="row"><span>Demo duration</span><span class="v" id="durVal">15s</span></div>
+    <input type="range" id="dur" min="5" max="60" value="15" step="1">
+    <div class="legend" style="margin:2px 0 8px">(In-game this is <b>60s</b>.)</div>
+    <label class="chk"><input type="checkbox" id="s1" checked> Idea 1 · card <span class="sw"></span></label>
+    <label class="chk"><input type="checkbox" id="s2" checked> Idea 2 · pill <span class="sw"></span></label>
+    <label class="chk"><input type="checkbox" id="s3" checked> Idea 3 · ring <span class="sw"></span></label>
+  </div>
+</div>
+
+<script>
+'use strict';
+const cv = document.getElementById('sky'), g = cv.getContext('2d');
+let W, H, CX, CY;
+function resize() { const r = cv.parentElement.getBoundingClientRect(), dpr = Math.min(devicePixelRatio||1,2);
+  cv.width = r.width*dpr; cv.height = r.height*dpr; g.setTransform(dpr,0,0,dpr,0,0); W=r.width; H=r.height; CX=W/2; CY=H/2; }
+addEventListener('resize', resize); resize();
+
+const now = () => performance.now()/1000;
+let duration = 15, buffEnd = -1, dust = 0, pulseT = now(), bounce = -1, catchFlash = 0, comet = null;
+const BASE = 12, BONUS = 75;
+const active = () => now() < buffEnd;
+const remain = () => Math.max(0, buffEnd - now());
+const frac   = () => Math.min(1, remain() / duration);
+
+function doCatch() { buffEnd = now() + duration; catchFlash = 1;
+  comet = { x: -40, y: CY - 60, t: 0 }; }
+
+// pulse loop (1s)
+function pulses() {
+  if (now() - pulseT >= 1) { pulseT += 1; bounce = now();
+    dust += BASE + (active() ? BONUS : 0);
+  }
+}
+
+function frame() {
+  pulses();
+  const a = active(), fr = frac(), low = a && fr < 0.18, t = now();
+  // ---- canvas scene ----
+  g.fillStyle = '#f4efe4'; g.fillRect(0,0,W,H);
+  // comet streak on catch
+  if (comet) { comet.t += 1/60; comet.x = -40 + comet.t * (CX+80)/0.6; comet.y = CY-60 + comet.t*60/0.6;
+    for (let i=0;i<12;i++){ const f=i/12; g.beginPath(); g.arc(comet.x-i*7, comet.y-i*4, (1-f)*4,0,7); g.fillStyle=`rgba(60,80,70,${(1-f)*0.3})`; g.fill(); }
+    if (comet.t > 0.6) comet = null; }
+  // Lacuna core (bounces each pulse)
+  let s = 1; if (bounce>0){ const p=(t-bounce)/0.62; if(p<1) s = 1 + (a?0.22:0.15)*Math.sin(Math.PI*Math.pow(p,0.72)); }
+  const R = 17;
+  // Idea 3: ring + core glow
+  if (document.getElementById('s3').checked && a) {
+    const glow = g.createRadialGradient(CX,CY,0,CX,CY,R*5);
+    glow.addColorStop(0, `rgba(200,146,47,${0.18*fr+0.04})`); glow.addColorStop(1,'rgba(200,146,47,0)');
+    g.fillStyle=glow; g.beginPath(); g.arc(CX,CY,R*5,0,7); g.fill();
+    const rr = R + 12;
+    g.beginPath(); g.arc(CX,CY,rr,0,7); g.strokeStyle='rgba(150,120,60,0.14)'; g.lineWidth=4; g.stroke();
+    g.beginPath(); g.arc(CX,CY,rr, -Math.PI/2, -Math.PI/2 + fr*Math.PI*2);
+    g.strokeStyle = low ? '#bf5a2c' : '#c8922f'; g.lineWidth = 4; g.lineCap='round'; g.stroke();
+    if (low) { g.globalAlpha = 0.5+0.5*Math.sin(t*9); g.stroke(); g.globalAlpha=1; }
+  }
+  g.beginPath(); g.ellipse(CX,CY,R*s,R*(2-s),0,0,7); g.fillStyle='#1a1a1a'; g.fill();
+  if (catchFlash>0){ catchFlash*=0.92; g.fillStyle=`rgba(255,250,240,${catchFlash*0.25})`; g.fillRect(0,0,W,H); }
+
+  // ---- HUD ----
+  document.getElementById('amt').textContent = '✦' + Math.round(dust).toLocaleString();
+  document.getElementById('rate').innerHTML = a ? `+${BASE} <b>+${BONUS} active</b> / pulse` : `+${BASE} / pulse`;
+
+  // ---- Idea 2: pill ----
+  const pill = document.getElementById('pill');
+  const showPill = document.getElementById('s2').checked && a;
+  pill.classList.toggle('on', showPill); pill.classList.toggle('low', low);
+  if (showPill) { document.getElementById('pillBar').style.width = (fr*100)+'%';
+    document.getElementById('pillVal').textContent = `+${BONUS} / pulse · ${Math.ceil(remain())}s`; }
+
+  // ---- Idea 1: card ----
+  const card = document.getElementById('card');
+  const showCard = document.getElementById('s1').checked && a;
+  card.classList.toggle('active', showCard); card.classList.toggle('low', showCard && low);
+  document.getElementById('cardDrain').style.transform = `scaleX(${showCard?fr:0})`;
+  if (showCard) document.getElementById('cardWhen').textContent = `active · +${BONUS}/pulse · ${Math.ceil(remain())}s left`;
+
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+document.getElementById('catch').addEventListener('click', doCatch);
+document.getElementById('dur').addEventListener('input', e => { duration = +e.target.value;
+  document.getElementById('durVal').textContent = duration+'s'; document.getElementById('durLbl').textContent = duration+'s'; });
+addEventListener('keydown', e => { if (e.code==='Space'){ e.preventDefault(); doCatch(); } });
+</script>
+</body>
+</html>

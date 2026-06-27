@@ -32,7 +32,6 @@ function initDebug() {
     btn('Spawn Vortex', () => { if (typeof vortexSpawn === 'function' && !VTX.active) vortexSpawn(); });
     btn('Reset',       () => { localStorage.clear(); if (typeof accreting !== 'undefined') accreting = false; G=createInitialState(); resetPanelAnimations(); buildPanels(); });
 
-
     const speedRow = document.createElement('div');
     speedRow.style.cssText = 'display:flex;align-items:center;gap:6px;margin-top:2px';
     speedRow.innerHTML = '<span style="font-size:12px">Speed</span>';
@@ -42,7 +41,6 @@ function initDebug() {
         speedRow.appendChild(b);
     });
     panel.appendChild(speedRow);
-
 
     const fxRow = document.createElement('div');
     fxRow.style.cssText = 'display:flex;align-items:center;gap:6px;margin-top:2px;flex-wrap:wrap';

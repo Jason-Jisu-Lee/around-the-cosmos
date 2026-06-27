@@ -1,12 +1,9 @@
 'use strict';
 
-const MOON_CYCLE  = 16;
-const MOON_SHADOW = '#3b3f44';
+const MOON_CYCLE = 16;
 
 function moonPhase() { return (G.gameTime % MOON_CYCLE) / MOON_CYCLE; }
-
 function moonLit()   { return (1 - Math.cos(2*Math.PI*moonPhase())) / 2; }
-
 function moonPhaseMult() { return (0.75 + 0.10 * lvl('moonphase')) + 0.50 * moonLit(); }
 
 function newMoonBody() {
@@ -14,12 +11,9 @@ function newMoonBody() {
 }
 
 function moonPayout()    { return Math.round((200 + 200 * lvl('moonpay')) * moonPhaseMult() * resonanceMult() * lunarFavorMult()); }
-
 function moonAvgPayout() { return Math.round((200 + 200 * lvl('moonpay')) * (1 + 0.10 * lvl('moonphase')) * resonanceMult() * lunarFavorMult()); }
-
 function moonSpeed()        { return 0.663 * upg('moonspd').mult(lvl('moonspd')); }
 function moonOrbitsPerMin() { return 60 * moonSpeed() / PLANET_DEF[2].period; }
-
 function moonStardustPerMin() { return moonAvgPayout() * moonOrbitsPerMin(); }
 
 function moonPhaseName() {

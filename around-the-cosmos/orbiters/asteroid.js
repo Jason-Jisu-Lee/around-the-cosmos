@@ -1,17 +1,12 @@
 'use strict';
 
-
-
-
 const ASTEROID_COMP = {
     names:  ['Rock', 'Iron', 'Gold', 'Ice'],
     colors: ['#7a6a55', '#8c8f96', '#b8923a', '#a8c6d6'],
     mult:   [1, 1.25, 1.5, 1.75],
 };
 
-
 const ASTEROID_SHAPE = [1.20, 1.04, 0.82, 0.92, 1.14, 1.06, 0.80, 0.96, 1.10, 0.86, 1.00, 0.90];
-
 
 function newAsteroidBody() {
     const shape = ASTEROID_SHAPE.slice();
@@ -30,10 +25,8 @@ function newAsteroidBody() {
     };
 }
 
-
 function asteroidPayout() { return Math.round((50 + 50 * lvl('astpay')) * ASTEROID_COMP.mult[lvl('astcomp')] * resonanceMult()); }
 function asteroidColor()  { return ASTEROID_COMP.colors[lvl('astcomp')]; }
-
 function asteroidSpeed()  { return 0.88 * upg('astspd').mult(lvl('astspd')); }
 function asteroidOrbitsPerMin()  { return 60 * asteroidSpeed() / PLANET_DEF[1].period; }
 function asteroidStardustPerMin() { return asteroidPayout() * asteroidOrbitsPerMin(); }

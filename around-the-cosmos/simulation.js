@@ -1,24 +1,28 @@
 'use strict';
 
-const PULSE_INTERVAL = 1;   // the Lacuna auto-generates stardust every second (no clicking)
+const PULSE_INTERVAL = 1;
 let pulseTimer = 0;
+let breathCount = 0;
 
 function tick(dt) {
     G.gameTime += dt;
     G.universeTime += dt;
 
-    // Core income: once Cosmic Pulse is owned, the Lacuna pulses every PULSE_INTERVAL seconds,
-    // earning pulseValue(), bouncing gently (pulseBeat), and giving a soft non-intrusive tick.
     if (lvl('touch') >= 1) {
         pulseTimer += dt;
         while (pulseTimer >= PULSE_INTERVAL) {
             pulseTimer -= PULSE_INTERVAL;
-            earn(pulseValue(), CX, CY - 20);
-            clickFxId = 'pulseBeat'; triggerClickFx(gameClock, 0, -1);   // same clock draw() uses
-            SoundSystem.sfxPulse();
+            breathCount++;
+            const n = deepBreathInterval();
+            const deep = n > 0 && (breathCount % n === 0);
+            const glow = afterglowActive() ? 20 * lvl('afterglow') : 0;   // +20/lvl per pulse for 60s after a comet
+            earn((deep ? Math.round(pulseValue() * deepBreathMult()) : pulseValue()) + glow, CX, CY - 20);
+            clickFxId = deep ? 'deepBreath' : 'pulseBeat';
+            triggerClickFx(gameClock, 0, -1);
+            if (deep) { deepBreathFlash = gameClock; SoundSystem.sfxDeepBreath(); }
+            else      SoundSystem.sfxPulse();
         }
     }
-
 
     for (const o of ORBITERS) {
         const bodies = o.list();
@@ -27,7 +31,7 @@ function tick(dt) {
             const w = (Math.PI*2 / PLANET_DEF[o.ring].period) * o.speed();
             clump.angle += w*dt;
             if (clump.angle >= clump.nextTop) {
-                clump.nextTop += Math.PI*2;   // pay once per revolution, at the top of the orbit (every orbiter)
+                clump.nextTop += Math.PI*2;
                 const pos = o.clumpPos();
                 earn(bodies.length * o.payout(), pos.x, pos.y-12);
                 G.orbitsCompleted++;
@@ -40,7 +44,7 @@ function tick(dt) {
     }
 
     cometTick(dt);
-    vortexTick(dt);   // the rare Vortex event
+    vortexTick(dt);
 
     for (let i = G.particles.length-1; i >= 0; i--) {
         const pt = G.particles[i];
@@ -62,7 +66,7 @@ function buyUpgrade(u) {
     const cost = u.costs[l];
     if (G.dust < cost) return false;
     G.dust -= cost; G.upgrades[u.id]++;
-    if (u.id === 'moon') G.moonEverOwned = true;   // permanent milestone: unlocks the Hide-completed toggle
+    if (u.id === 'moon') G.moonEverOwned = true;
 
     for (const o of ORBITERS) {
         if (o.labels && (u.id in o.labels)) {

@@ -7,12 +7,12 @@ window.CATSUB = {
   Cycles:   'Time, rhythm, automation.',
 };
 
-// Mass icon: a ringed accreting mass (disc + tilted ring) — deliberately NOT a star.
+// Mass icon: a ringed accreting mass (disc + tilted ring) - deliberately NOT a star.
 window.MASS_SVG = (s)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none">
   <ellipse cx="12" cy="12" rx="10.5" ry="3.9" transform="rotate(-22 12 12)" stroke="#a8853a" stroke-width="1.5"/>
   <circle cx="12" cy="12" r="4.6" fill="#a8853a"/></svg>`;
 
-// [state, level, max] — irregular tier widths + irregular availability
+// [state, level, max] - irregular tier widths + irregular availability
 const TREE = {
   Lacuna: [
     [['max',5,5]],

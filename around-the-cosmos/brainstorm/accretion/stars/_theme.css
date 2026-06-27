@@ -1,4 +1,4 @@
-/* Parchment Accretion theme — shared by the 3 star-treatment mockups */
+/* Parchment Accretion theme - shared by the 3 star-treatment mockups */
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;overflow:hidden;background:#f4f0e8;color:#1a1a1a;font-family:'Nunito',sans-serif}
 #stars{position:absolute;inset:0;z-index:0}

@@ -8,7 +8,7 @@
   <div class="clusters" id="c"></div>
   <button class="accrete">Accrete</button>
 <script>
-  // Variation 2: hand-drawn 4-point sparkles — ink outline + faint gold fill, like chart stars.
+  // Variation 2: hand-drawn 4-point sparkles - ink outline + faint gold fill, like chart stars.
   const cv=document.getElementById('stars'),x=cv.getContext('2d');let S=[];
   function gen(){cv.width=innerWidth;cv.height=innerHeight;S=[];for(let i=0;i<55;i++)S.push({x:Math.random()*cv.width,y:Math.random()*cv.height,R:Math.random()*4+3.5,p:Math.random()*6.28});}
   function star4(cx,cy,R){const r=R*0.34;x.beginPath();for(let i=0;i<8;i++){const ang=i*Math.PI/4-Math.PI/2;const rad=i%2?r:R;const px=cx+Math.cos(ang)*rad,py=cy+Math.sin(ang)*rad;i?x.lineTo(px,py):x.moveTo(px,py);}x.closePath();}
