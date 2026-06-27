@@ -195,14 +195,16 @@ identity comes from its unique **Asteroid Composition** upgrade (below).
 | Cost ✦ | - | 4,000 | 16,000 | 40,000 | 77,000 | 140,000 |
 | Speed (×0.88) | 88% | 106% | 123% | 141% | 158% | 176% |
 
-**Asteroid Composition** - *unlocks after the asteroid* · max **3** - the asteroid's **unique** upgrade.
-Reforge the single asteroid into denser/richer material: each tier **recolors** it and **multiplies its payout**.
+**Asteroid Composition** - *unlocks after the asteroid* · max **5** - the asteroid's **unique** upgrade.
+Reforge the single asteroid into denser/richer material: each tier **recolors** it and **multiplies its payout** (+0.2× per reforge, base ×1 → ×2.0 at max).
 | Tier | Material | Color | Payout × | Cost to reach ✦ |
 |---|---|---|---|---|
-| 0 (base) | Rock | grey-brown | ×1 | - |
-| 1 | Iron | steel grey | ×1.25 | 3,000 |
-| 2 | Gold | gold | ×1.5 | 8,000 |
-| 3 | Ice | pale blue | ×1.75 | 18,000 |
+| 0 (base) | Rock | grey-brown | ×1.0 | - |
+| 1 | Iron | steel grey | ×1.2 | 3,000 |
+| 2 | Gold | gold | ×1.4 | 8,000 |
+| 3 | Ice | pale blue | ×1.6 | 18,000 |
+| 4 | Crystal | amethyst violet | ×1.8 | 40,000 |
+| 5 | Diamond | bright cyan | ×2.0 | 90,000 |
 
 > Composition is the one asteroid **multiplier**: `asteroidPayout = round((50 + 50×payoutLvl) × compMult × resonanceMult)`.
 > Rounded so the fractional multipliers never leave a fractional stardust amount.

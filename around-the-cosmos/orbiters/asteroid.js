@@ -1,9 +1,9 @@
 'use strict';
 
 const ASTEROID_COMP = {
-    names:  ['Rock', 'Iron', 'Gold', 'Ice'],
-    colors: ['#7a6a55', '#8c8f96', '#b8923a', '#a8c6d6'],
-    mult:   [1, 1.25, 1.5, 1.75],
+    names:  ['Rock', 'Iron', 'Gold', 'Ice', 'Crystal', 'Diamond'],
+    colors: ['#7a6a55', '#8c8f96', '#b8923a', '#a8c6d6', '#bda4dd', '#6fd0d8'],
+    mult:   [1, 1.2, 1.4, 1.6, 1.8, 2.0],   // base ×1 → ×2.0 over 5 reforges (+0.2 each)
 };
 
 const ASTEROID_SHAPE = [1.20, 1.04, 0.82, 0.92, 1.14, 1.06, 0.80, 0.96, 1.10, 0.86, 1.00, 0.90];

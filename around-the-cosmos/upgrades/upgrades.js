@@ -170,14 +170,16 @@ const UPGRADES = [
   {
     id: "astcomp",
     name: "Asteroid Composition",
-    maxLevel: 3,
+    maxLevel: 5,
     section: "ASTEROID",
-    costs: [3000, 8000, 18000],
+    costs: [3000, 8000, 18000, 40000, 90000],
     flavor: "Reforge the rock into denser, richer stuff.",
-    desc: (l) =>
-      l >= 3
-        ? `Composition: ${ASTEROID_COMP.names[3]}. Asteroid payout x${ASTEROID_COMP.mult[3]}.`
-        : `Reforge ${ASTEROID_COMP.names[l]} to ${ASTEROID_COMP.names[l + 1]}. Asteroid payout x${ASTEROID_COMP.mult[l + 1]}.`,
+    desc: (l) => {
+      const top = ASTEROID_COMP.mult.length - 1;
+      return l >= top
+        ? `Composition: ${ASTEROID_COMP.names[top]}. Asteroid payout x${ASTEROID_COMP.mult[top]}.`
+        : `Reforge ${ASTEROID_COMP.names[l]} to ${ASTEROID_COMP.names[l + 1]}. Asteroid payout x${ASTEROID_COMP.mult[l + 1]}.`;
+    },
     unlock: () => lvl("asteroid") >= 1,
   },
   {
