@@ -58,9 +58,9 @@ function deepBreathInterval() { const l = lvl('deepbreath'); return l ? 13 - l :
 
 function deepBreathMult() { return 2 + 0.2 * lvl('abyssal'); }
 
-function lacunaMass()     { const r = PHYS.lacunaRadius; return PHYS.lacunaDensity * (4/3)*Math.PI * r*r*r; }
-function lacunaGravity()  { return PHYS.G * lacunaMass() / (PHYS.lacunaRadius*PHYS.lacunaRadius); }
-function lacunaEscapeVel(){ return Math.sqrt(2 * PHYS.G * lacunaMass() / PHYS.lacunaRadius); }
+function mawMass()     { const r = PHYS.mawRadius; return PHYS.mawDensity * (4/3)*Math.PI * r*r*r; }
+function mawGravity()  { return PHYS.G * mawMass() / (PHYS.mawRadius*PHYS.mawRadius); }
+function mawEscapeVel(){ return Math.sqrt(2 * PHYS.G * mawMass() / PHYS.mawRadius); }
 
 function fmtNice(n) {
     if (!isFinite(n)) return '∞';

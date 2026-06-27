@@ -6,10 +6,10 @@
 ---
 
 ## The loop in one line
-Buy **Cosmic Pulse** so the Lacuna **auto-generates stardust (✦) every second** → buy **Dust Particles**
+Buy **Cosmic Pulse** so Maw **auto-generates stardust (✦) every second** → buy **Dust Particles**
 (orbiters) that pay on every orbit → catch **comets** for bursts.
 
-- **This is an idle game, not a clicker.** Clicking never harvests. Income is the Lacuna's **pulse** (once Cosmic Pulse is owned) plus orbiters and comets.
+- **This is an idle game, not a clicker.** Clicking never harvests. Income is Maw's **pulse** (once Cosmic Pulse is owned) plus orbiters and comets.
 - **You start with 10 ✦** - exactly enough to buy the first Cosmic Pulse and kick off the income.
 - **Clicking** only **catches a passing comet** (within ~48px) or **opens a body's info card**.
 
@@ -19,9 +19,9 @@ Buy **Cosmic Pulse** so the Lacuna **auto-generates stardust (✦) every second*
 
 | Step | Trigger | What happens |
 |---|---|---|
-| Start | t = 0 | Just the Lacuna and **10 ✦**. No income yet. Only **Cosmic Pulse** is shown. |
+| Start | t = 0 | Just Maw and **10 ✦**. No income yet. Only **Cosmic Pulse** is shown. |
 | First comet | ~**7–13 s** in | A comet crosses - click it for a burst. Unlocks the **Comet Value** stat. After this, comets recur every **16–41 s**. |
-| Cosmic Pulse ×1 | buy (✦10) | The Lacuna begins **auto-generating 5 ✦/sec**, bouncing gently on each pulse. |
+| Cosmic Pulse ×1 | buy (✦10) | Maw begins **auto-generating 5 ✦/sec**, bouncing gently on each pulse. |
 | Cosmic Pulse ×2 | buy (✦50) | Now **10 ✦/sec**. → **Dust Particle** upgrade appears (creates your first orbiter). |
 | First Dust Particle | buy (✦100) | Your first **orbiter** appears, paying **10 ✦** per orbit. One-time buy. Unlocks **Dust Particle Count**, **Dust Particle Payout**, **Dust Particle Speed**, and the **All Orbiters Payout** stat. |
 | 2nd Dust Particle | buy Dust Particle Count (✦500) | A second dust particle joins the clump. |
@@ -31,7 +31,7 @@ Buy **Cosmic Pulse** so the Lacuna **auto-generates stardust (✦) every second*
 | 10k stardust collected | `runDust ≥ 10,000` | → **Deep Breath** and **Abyssal Breath** unlock in MAIN together (every Nth pulse pays ×2 - Deep Breath triggers it sooner, Abyssal Breath raises the ×2 up to ×5). |
 | 32k stardust collected | `runDust ≥ 32,000` | → the **Moon** unlocks (a single body). |
 | The Moon | buy (✦10,000) | A large pale **moon** appears on the widest, slowest orbit (ring 2), sitting right on the orbit line and visibly waxing/waning. Pays **200 ✦** per orbit (varying with its phase by default, most at full moon). Unlocks **Moon Payout**, **Moon Speed**, and **Lunar Phases**. |
-| 50k stardust collected | `runDust ≥ 50,000` | → **Gravitational Pull** and **Resonance** unlock in MAIN together (advanced upgrades - the pulse scales with total orbiter payout; Resonance is a global orbit payout boost that lights the Lacuna glow). |
+| 50k stardust collected | `runDust ≥ 50,000` | → **Gravitational Pull** and **Resonance** unlock in MAIN together (advanced upgrades - the pulse scales with total orbiter payout; Resonance is a global orbit payout boost that lights Maw glow). |
 | … | … | Buy more dust particles (max 5), pump payout/speed, grab **Resonance**, develop the Moon, keep catching comets. |
 
 ---
@@ -44,7 +44,7 @@ Buy **Cosmic Pulse** so the Lacuna **auto-generates stardust (✦) every second*
 ### MAIN
 
 **Cosmic Pulse** - *always available* · max **8** levels · **+5 ✦/sec each level** (additive, not doubling) - the core income
-Once owned, the Lacuna **auto-generates stardust every second** (it bounces gently on each pulse and plays a soft tick).
+Once owned, Maw **auto-generates stardust every second** (it bounces gently on each pulse and plays a soft tick).
 | Level | Cost ✦ | ✦ generated / sec |
 |---|---|---|
 | (base) | - | 0 (no income) |
@@ -88,7 +88,7 @@ Once owned, the Lacuna **auto-generates stardust every second** (it bounces gent
 | 7 | 135,000 | 6th breath |
 | 8 | 290,000 | 5th breath |
 
-> Every Nth pulse (N = 13 − level) becomes a **Deep Breath**: pays **×2** a normal pulse (raised by Abyssal Breath, below), bounces harder, and flares the Lacuna's glow gold with a deeper tick. Average pulse boost runs **+8.3%** (every 12th) up to **+20%** (every 5th). The multiplier is applied in the pulse loop, not in `pulseValue()`.
+> Every Nth pulse (N = 13 − level) becomes a **Deep Breath**: pays **×2** a normal pulse (raised by Abyssal Breath, below), bounces harder, and flares Maw's glow gold with a deeper tick. Average pulse boost runs **+8.3%** (every 12th) up to **+20%** (every 5th). The multiplier is applied in the pulse loop, not in `pulseValue()`.
 
 **Abyssal Breath** - *unlocks alongside Deep Breath (`runDust ≥ 10,000`)* · max **15** · **empowers Deep Breath**: each level adds **+0.2×** to its payout
 | Level | 0 (base) | 1 | 2 | … | 14 | 15 |
@@ -119,7 +119,7 @@ Once owned, the Lacuna **auto-generates stardust every second** (it bounces gent
 
 **Resonance** - *unlocks at `runDust ≥ 50,000` (alongside Gravitational Pull)* · max **5** · **global** payout multiplier on **every** orbiter
 Adds **+10% per level (additive)** to all orbiter payout - ×1.10 → ×1.50 at level 5 - and is the only thing
-that lights the **Lacuna's glow** (off by default; brightens marginally per level, but stays *very* faint
+that lights the **Maw's glow** (off by default; brightens marginally per level, but stays *very* faint
 even at max). Combos with Gravitational Pull.
 | Level | Cost ✦ | All orbiter payout |
 |---|---|---|
@@ -132,7 +132,7 @@ even at max). Combos with Gravitational Pull.
 ### DUST PARTICLES
 
 **Dust Particle** - *unlocks after Star Touch lvl 2* · **one-time buy** (✦100)
-Creates your **first** dust particle - a small grey pebble orbiting the Lacuna as part of a shared **clump** (ring 0),
+Creates your **first** dust particle - a small grey pebble orbiting Maw as part of a shared **clump** (ring 0),
 paying **10 ✦ per orbit** at base. Like the other orbiters, buying it populates that orbiter's upgrades
 (**Dust Particle Count**, **Payout**, **Speed**).
 
@@ -267,14 +267,14 @@ asteroid it is **not a count upgrade** - there's only ever one Moon.
 
 ---
 
-## The Lacuna (center object)
+## Maw (center object)
 - The small dark center everything orbits. Currently static (will evolve through stages later).
 - Orbiters clump on their own rings around it (dust ring 0, asteroid ring 1, moon ring 2); more orbiter types / rings come later.
 
 ## Cosmic info
-**Hover** the Lacuna or a dust particle for a quick tooltip that follows your cursor. **Click** it to pin the full card in the **center of the sky** - it stays put so you can read it, and closes with the **× button** or **Escape**. (Clicking a body opens its card; clicking never harvests; comets are still caught on click.) All values come from a small physics model (`PHYS` in `config.js`) so the upcoming **science-based upgrades** can grow them; numbers are kept clean (≤2 decimals, intuitive units).
+**Hover** Maw or a dust particle for a quick tooltip that follows your cursor. **Click** it to pin the full card in the **center of the sky** - it stays put so you can read it, and closes with the **× button** or **Escape**. (Clicking a body opens its card; clicking never harvests; comets are still caught on click.) All values come from a small physics model (`PHYS` in `config.js`) so the upcoming **science-based upgrades** can grow them; numbers are kept clean (≤2 decimals, intuitive units).
 
-**The Lacuna (center):**
+**Maw (center):**
 | Stat | Base value |
 |---|---|
 | Diameter | 240 km |
@@ -283,7 +283,7 @@ asteroid it is **not a count upgrade** - there's only ever one Moon.
 | Escape velocity | 142 m/s |
 | Density | 2.5 g/cm³ |
 
-Plus a one-sentence flavor line introducing the Lacuna as the protagonist.
+Plus a one-sentence flavor line introducing Maw as the protagonist.
 
 **A dust particle (ring 0):**
 | Stat | Value |
@@ -313,7 +313,7 @@ Plus a one-sentence flavor line introducing the Lacuna as the protagonist.
 ---
 
 ## Accretion (prestige)
-Collapse the whole universe into the Lacuna to bank **Mass**, then spend it on permanent upgrades
+Collapse the whole universe into Maw to bank **Mass**, then spend it on permanent upgrades
 that carry into every future universe.
 
 - **Unlocks** whenever the **current universe** reaches **200,000** stardust (`runDust`, and there's ≥1 Mass to claim).
@@ -328,8 +328,8 @@ that carry into every future universe.
 ### Mass upgrades (few, powerful - 1–3 Mass per level)
 | Tab | Node | Effect / level | Lvls | Mass cost |
 |---|---|---|---|---|
-| Lacuna | **Denser Core** | +50% pulse income | 5 | 1·2·3·4·5 |
-| Lacuna | **First Light** | begin each universe with ✦ 1,000 → 5,000 → 20,000 *(unlocks after Denser Core)* | 3 | 3·6·10 |
+| Maw | **Denser Core** | +50% pulse income | 5 | 1·2·3·4·5 |
+| Maw | **First Light** | begin each universe with ✦ 1,000 → 5,000 → 20,000 *(unlocks after Denser Core)* | 3 | 3·6·10 |
 | Orbiters | **Heavier Bodies** | +50% to every orbiter's payout | 5 | 1·2·3·4·5 |
 | Orbiters | **Retained Companions** | start with the Dust Particle → Asteroid → Moon already formed | 3 | 2·3·5 |
 | Phenomena | **Brighter Tails** | +50% comet windfall | 4 | 1·2·3·4 |
@@ -346,5 +346,5 @@ of the session (it never touches Mass spent in earlier accretions). The **Mass U
 ---
 
 ## Not in yet (planned)
-Center evolution stages, the Lacuna upgrade pillar, solar events, more orbiter types,
+Center evolution stages, Maw upgrade pillar, solar events, more orbiter types,
 more Mass nodes + new prestige mechanics, the tabbed per-orbiter UI (once >5 orbiters).

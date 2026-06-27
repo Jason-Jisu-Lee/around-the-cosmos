@@ -5,28 +5,28 @@ const cosmoCard = document.getElementById('cosmo-card');
 let cosmoMx = 0, cosmoMy = 0, cosmoOver = false;
 let pinnedTarget = null;
 
-const LACUNA_DESC = 'A small absence at the heart of everything, patient and hollow, quietly gathering a universe back together.';
+const MAW_DESC = 'A small absence at the heart of everything, patient and hollow, quietly gathering a universe back together.';
 
 function cosmoTargetAt(x, y) {
-    if (Math.hypot(x-CX, y-CY) < 22) return 'lacuna';
+    if (Math.hypot(x-CX, y-CY) < 22) return 'maw';
     for (const o of ORBITERS) {
         if (o.list().length && Math.hypot(x-o.clumpPos().x, y-o.clumpPos().y) < o.hoverR) return o.id;
     }
     return null;
 }
 
-function lacunaRows() {
-    return tipRow('Diameter',        fmtNice(2*PHYS.lacunaRadius/1000) + ' km')
-         + tipRow('Mass',            fmtSci(lacunaMass()) + ' kg')
-         + tipRow('Surface gravity', fmtNice(lacunaGravity()/9.81*100) + '% of Earth')
-         + tipRow('Escape velocity', fmtNice(lacunaEscapeVel()) + ' m/s')
-         + tipRow('Density',         fmtNice(PHYS.lacunaDensity/1000) + ' g/cm³');
+function mawRows() {
+    return tipRow('Diameter',        fmtNice(2*PHYS.mawRadius/1000) + ' km')
+         + tipRow('Mass',            fmtSci(mawMass()) + ' kg')
+         + tipRow('Surface gravity', fmtNice(mawGravity()/9.81*100) + '% of Earth')
+         + tipRow('Escape velocity', fmtNice(mawEscapeVel()) + ' m/s')
+         + tipRow('Density',         fmtNice(PHYS.mawDensity/1000) + ' g/cm³');
 }
 function cosmoBody(target, withClose) {
     if (target === 'comet') return `<div class="cosmo-solo">Comet</div>`;
-    const title = target === 'lacuna' ? 'The Lacuna' : ORBITER_BY_ID[target].title;
-    const rows  = target === 'lacuna' ? lacunaRows()  : ORBITER_BY_ID[target].rows();
-    const desc  = target === 'lacuna' ? LACUNA_DESC   : ORBITER_BY_ID[target].desc;
+    const title = target === 'maw' ? 'Maw' : ORBITER_BY_ID[target].title;
+    const rows  = target === 'maw' ? mawRows()  : ORBITER_BY_ID[target].rows();
+    const desc  = target === 'maw' ? MAW_DESC   : ORBITER_BY_ID[target].desc;
     return (withClose ? `<button class="cosmo-close" aria-label="Close">×</button>` : '')
         + `<div class="cosmo-title">${title}</div>` + rows
         + `<div class="tip-note">${desc}</div>`;
@@ -40,7 +40,7 @@ function setUniformCardSize() {
     c.style.width = ''; c.style.minHeight = '';
     c.style.left = '-9999px'; c.style.top = '0'; c.style.display = 'block';
     let maxW = 0, maxH = 0;
-    for (const t of ['lacuna', ...ORBITERS.map(o => o.id)]) {
+    for (const t of ['maw', ...ORBITERS.map(o => o.id)]) {
         c.innerHTML = '<button class="cosmo-close" aria-label="Close">×</button><div class="cosmo-content">' + cosmoBody(t, false) + '</div>';
         if (c.offsetWidth  > maxW) maxW = c.offsetWidth;
         if (c.offsetHeight > maxH) maxH = c.offsetHeight;

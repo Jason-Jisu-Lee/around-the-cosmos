@@ -44,7 +44,7 @@
   <div class="clusters" id="c"></div>
   <button class="accrete">▸ ACCRETE</button>
 <script>
-  window.CATCOLORS={Lacuna:'#c4a8ff',Orbiters:'#74e0d6',Phenomena:'#f0c074',Cycles:'#9fb4ff'};
+  window.CATCOLORS={Maw:'#c4a8ff',Orbiters:'#74e0d6',Phenomena:'#f0c074',Cycles:'#9fb4ff'};
   window.HEX=({open,k,col,W,H,left,top,cost})=>
     `<div class="hex ${open?'open':'lock'}" style="--col:${col};left:${left}px;top:${top}px;width:${W}px;height:${H}px">
        <div class="inner" style="width:${W-2.5}px;height:${H-2.5}px"><span class="n">D-${String(k).padStart(2,'0')}</span><span class="c">✦${cost}</span></div>

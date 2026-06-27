@@ -1,16 +1,16 @@
 'use strict';
 
 const MASS_UPGRADES = [
-  { id:'denserCore', cat:'Lacuna', tier:0, name:'Denser Core', max:5, costs:[1,2,3,4,5],
+  { id:'denserCore', cat:'Maw', tier:0, name:'Denser Core', max:5, costs:[1,2,3,4,5],
     flavor:'The core draws a deeper breath.',
     eff:l => `×${(1 + 0.5*l).toFixed(1)} pulse income` },
-  { id:'firstLight', cat:'Lacuna', tier:1, name:'First Light', max:3, costs:[3,6,10],
+  { id:'firstLight', cat:'Maw', tier:1, name:'First Light', max:3, costs:[3,6,10],
     flavor:'A universe born already glowing.',
     eff:l => l ? `begin with ✦${fmtNum(FIRST_LIGHT[l])}` : 'begin with ✦10' },
-  { id:'eventHorizon', cat:'Lacuna', tier:1, placeholder:true, name:'Event Horizon', max:5, costs:[3,5,8,12,17],
+  { id:'eventHorizon', cat:'Maw', tier:1, placeholder:true, name:'Event Horizon', max:5, costs:[3,5,8,12,17],
     flavor:'Nothing the core reaches escapes.',
     eff:l => `+${30*l}% pulse income` },
-  { id:'lacunaT2', cat:'Lacuna', tier:2, placeholder:true, name:'Naked Singularity', max:5, costs:[8,14,22,32,44],
+  { id:'mawT2', cat:'Maw', tier:2, placeholder:true, name:'Naked Singularity', max:5, costs:[8,14,22,32,44],
     flavor:'', eff:() => '' },
 
   { id:'heavierBodies', cat:'Orbiters', tier:0, name:'Heavier Bodies', max:5, costs:[1,2,3,4,5],

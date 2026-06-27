@@ -99,7 +99,7 @@
     <div class="glabel">Idea 2 · floating pill (top-center)</div>
     <div class="legend">A small <b>badge</b> appears over the sky showing the live bonus + a draining bar; only visible while active, goes amber + flashes when low.</div>
 
-    <div class="glabel">Idea 3 · ring on the Lacuna</div>
+    <div class="glabel">Idea 3 · ring on Maw</div>
     <div class="legend">A glowing <b>countdown ring</b> sweeps around the core (and the core glows) - empties clockwise like a cooldown, fades as it runs out.</div>
 
     <div class="glabel">Controls</div>
@@ -146,7 +146,7 @@ function frame() {
   if (comet) { comet.t += 1/60; comet.x = -40 + comet.t * (CX+80)/0.6; comet.y = CY-60 + comet.t*60/0.6;
     for (let i=0;i<12;i++){ const f=i/12; g.beginPath(); g.arc(comet.x-i*7, comet.y-i*4, (1-f)*4,0,7); g.fillStyle=`rgba(60,80,70,${(1-f)*0.3})`; g.fill(); }
     if (comet.t > 0.6) comet = null; }
-  // Lacuna core (bounces each pulse)
+  // Maw core (bounces each pulse)
   let s = 1; if (bounce>0){ const p=(t-bounce)/0.62; if(p<1) s = 1 + (a?0.22:0.15)*Math.sin(Math.PI*Math.pow(p,0.72)); }
   const R = 17;
   // Idea 3: ring + core glow

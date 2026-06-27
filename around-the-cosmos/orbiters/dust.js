@@ -19,7 +19,7 @@ function dustStardustPerMin()   { return G.planets.length * orbiterPayout() * or
 registerOrbiter({
     id: 'dust',
     title: 'Dust Particle',
-    desc: "A lone grain of dust drawn into the Lacuna's orbit, tracing patient circles and shedding a little stardust each time it passes.",
+    desc: "A lone grain of dust drawn into Maw's orbit, tracing patient circles and shedding a little stardust each time it passes.",
     ring: 0,
     hoverR: 35,
     color:    () => '#8a8782',

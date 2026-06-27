@@ -117,7 +117,7 @@ function pickVortexSpot(){
     const mn = Math.min(innerWidth, innerHeight);
     VTX.R = mn * (VX.SIZE_MIN + Math.random()*(VX.SIZE_MAX - VX.SIZE_MIN));
     VTX.grabR = VTX.R * VX.GRAB_FRAC;
-    const L = (typeof lacunaScreen === 'function') ? lacunaScreen() : { x:innerWidth/2, y:innerHeight/2 };
+    const L = (typeof mawScreen === 'function') ? mawScreen() : { x:innerWidth/2, y:innerHeight/2 };
     const orbitOuter = (typeof orbitR === 'function') ? orbitR(2) : mn*0.18;
     const KO = orbitOuter + 55 + VTX.R;
     const r = (typeof canvas !== 'undefined' && canvas.getBoundingClientRect) ? canvas.getBoundingClientRect()

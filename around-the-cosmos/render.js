@@ -20,7 +20,7 @@ function resize() {
     cometCtx.setTransform(dpr,0,0,dpr,0,0);
 }
 
-function lacunaScreen() { const r = canvas.getBoundingClientRect(); return { x: r.left + CX, y: r.top + CY }; }
+function mawScreen() { const r = canvas.getBoundingClientRect(); return { x: r.left + CX, y: r.top + CY }; }
 
 function orbitR(i) { return MAXR*(i+1.9)/(CFG.MAX_PLANETS+1.9); }
 
@@ -244,7 +244,7 @@ function draw(t) {
     if (cosmoOver) {
         const breathe = Math.sin(t*4) * 1.5;
         const tgt = cosmoTargetAt(cosmoMx, cosmoMy);
-        if (tgt === 'lacuna')           drawReticle(CX, CY, 20 + breathe);
+        if (tgt === 'maw')           drawReticle(CX, CY, 20 + breathe);
         else if (tgt) { const o = ORBITER_BY_ID[tgt]; if (o) { const p = o.clumpPos();
             drawReticle(p.x, p.y, Math.max(o.pebbleR() + 8, 16) + breathe); } }
     }

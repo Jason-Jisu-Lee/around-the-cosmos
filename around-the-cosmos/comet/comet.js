@@ -17,7 +17,7 @@ function spawnComet() {
     const side = Math.random()*4|0, r = Math.random();
     const x = side<2 ? (side?WW+40:-40) : r*WW;
     const y = side<2 ? r*HH : (side===2?-40:HH+40);
-    const L = lacunaScreen();
+    const L = mawScreen();
     const tx = L.x + (Math.random()-0.5)*WW*0.4, ty = L.y + (Math.random()-0.5)*HH*0.4;
     const dx = tx-x, dy = ty-y, d = Math.hypot(dx,dy) || 1;
     const speedMult = COMET_SPEEDS[Math.random()*COMET_SPEEDS.length|0];

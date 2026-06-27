@@ -7,7 +7,7 @@ const UPGRADES = [
     maxLevel: 8,
     section: "MAIN",
     costs: [10, 50, 120, 250, 500, 750, 1000, 1300],
-    flavor: "The Lacuna stirs, drawing a slow, steady breath of light.",
+    flavor: "Maw stirs, drawing a slow, steady breath of light.",
     desc: () => "+5 ✦ generated every second, per level.",
     unlock: () => true,
   },
@@ -27,7 +27,7 @@ const UPGRADES = [
     maxLevel: 5,
     section: "MAIN",
     costs: [2000, 3000, 4500, 6600, 9200],
-    flavor: "Catch the light, and the Lacuna keeps its warmth a while.",
+    flavor: "Catch the light, and Maw keeps its warmth a while.",
     desc: (l) =>
       `For <b>60s</b> after catching a comet, every pulse gains <b>+${20 * l || 20}</b> ✦ (+20 / level). Catching another comet refreshes the timer.`,
     unlock: () => lvl("touch") >= 6,
@@ -39,7 +39,7 @@ const UPGRADES = [
     section: "MAIN",
     costs: [2500, 4500, 8500, 16000, 32000, 65000, 135000, 290000],
     flavor:
-      "Now and then the Lacuna draws a deeper breath, and takes twice as much.",
+      "Now and then Maw draws a deeper breath, and takes twice as much.",
     desc: (l) => {
       const cur = l >= 1 ? 13 - l : 12;
       let s = `Every <b>${cur}th</b> breath becomes a <b>Deep Breath</b> worth <b>×${deepBreathMult().toFixed(1)}</b> a normal pulse.`;
@@ -61,7 +61,7 @@ const UPGRADES = [
       200000, 305000, 460000, 700000,
     ],
     flavor:
-      "Each deep breath reaches further down, into the dark the Lacuna keeps.",
+      "Each deep breath reaches further down, into the dark Maw keeps.",
     desc: (l) => {
       const mult = 2 + 0.2 * l;
       let s = `Empowers <b>Deep Breath</b>: +0.2× per level. Deep Breaths currently pay <b>×${mult.toFixed(1)}</b> a normal pulse.`;
@@ -96,7 +96,7 @@ const UPGRADES = [
     costs: [12000, 26500, 57000, 150000, 365000],
     flavor: "Tune the whole quiet system until it hums.",
     desc: () =>
-      "+10% to every orbiter’s payout, per level. Also lights the Lacuna’s glow.",
+      "+10% to every orbiter’s payout, per level. Also lights Maw’s glow.",
     unlock: () => G.runDust >= 50000,
   },
   {
@@ -105,7 +105,7 @@ const UPGRADES = [
     maxLevel: 1,
     section: "DUST PARTICLES",
     costs: [100],
-    flavor: "The first grain of dust to settle into the Lacuna’s quiet orbit.",
+    flavor: "The first grain of dust to settle into Maw’s quiet orbit.",
     desc: () =>
       "Adds your first dust particle on the inner orbit. +10 base payout per orbit.",
     unlock: () => lvl("touch") >= 2,

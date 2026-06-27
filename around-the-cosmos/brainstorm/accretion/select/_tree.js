@@ -1,7 +1,7 @@
 // Shared data + tree builder + unique Mass icon. Each mock wires its own selector -> select(name).
-window.CATS = ['Lacuna','Orbiters','Phenomena','Cycles'];
+window.CATS = ['Maw','Orbiters','Phenomena','Cycles'];
 window.CATSUB = {
-  Lacuna:   'The dark center, deepened.',
+  Maw:   'The dark center, deepened.',
   Orbiters: 'Bodies that circle and pay.',
   Phenomena:'Comets, light, rare events.',
   Cycles:   'Time, rhythm, automation.',
@@ -14,7 +14,7 @@ window.MASS_SVG = (s)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill
 
 // [state, level, max] - irregular tier widths + irregular availability
 const TREE = {
-  Lacuna: [
+  Maw: [
     [['max',5,5]],
     [['up',4,5],['up',2,4]],
     [['avail',0,5],['avail',0,5]],

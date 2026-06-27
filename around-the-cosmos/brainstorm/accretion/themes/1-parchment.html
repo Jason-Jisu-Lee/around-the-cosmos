@@ -29,7 +29,7 @@
   <div class="clusters" id="c"></div>
   <button class="accrete">Accrete</button>
 <script>
-  window.CATCOLORS={Lacuna:'#7c6bb0',Orbiters:'#3f8f88',Phenomena:'#b07d34',Cycles:'#5d68a8'};
+  window.CATCOLORS={Maw:'#7c6bb0',Orbiters:'#3f8f88',Phenomena:'#b07d34',Cycles:'#5d68a8'};
   window.HEX=({open,k,col,W,H,left,top,cost})=>{
     if(open) return `<div class="hex open" style="--col:${col};left:${left}px;top:${top}px;width:${W}px;height:${H}px"><span class="n">Dummy #${k}</span><span class="c">✦${cost}</span></div>`;
     return `<div class="hex lock" style="left:${left}px;top:${top}px;width:${W}px;height:${H}px"><div class="inner" style="width:${W-3}px;height:${H-3}px"><span class="n">Dummy #${k}</span><span class="c">✦${cost}</span></div></div>`;

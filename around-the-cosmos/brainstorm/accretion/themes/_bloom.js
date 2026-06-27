@@ -6,7 +6,7 @@
   const py=(r)=> r*RH;
   // irregular cluster sizes + irregular "available now" counts
   const CL=[
-   {name:'Lacuna',  col:CC.Lacuna,  open:2, cells:[[0,0],[1,0],[0,1],[1,1],[0,2]]},
+   {name:'Maw',  col:CC.Maw,  open:2, cells:[[0,0],[1,0],[0,1],[1,1],[0,2]]},
    {name:'Orbiters',col:CC.Orbiters,open:1, cells:[[0,0],[1,0],[0,1],[1,1]]},
    {name:'Phenomena',col:CC.Phenomena,open:3, cells:[[0,0],[1,0],[0,1],[1,1],[0,2],[1,2]]},
    {name:'Cycles',  col:CC.Cycles,  open:2, cells:[[0,0],[1,0],[1,1],[0,1],[1,2]]},

@@ -43,7 +43,7 @@
     for(let i=0;i<160;i++){const r=Math.random()*1.3+.2;x.globalAlpha=Math.random()*.7+.15;x.fillStyle='#dfe0ff';
       x.beginPath();x.arc(Math.random()*cv.width,Math.random()*cv.height,r,0,7);x.fill();}}
   addEventListener('resize',fit);fit();
-  window.CATCOLORS={Lacuna:'#b39cf0',Orbiters:'#79d4cd',Phenomena:'#e6b574',Cycles:'#9aa9f0'};
+  window.CATCOLORS={Maw:'#b39cf0',Orbiters:'#79d4cd',Phenomena:'#e6b574',Cycles:'#9aa9f0'};
   window.HEX=({open,k,col,W,H,left,top,cost})=>
     `<div class="hex ${open?'open':'lock'}" style="--col:${col};left:${left}px;top:${top}px;width:${W}px;height:${H}px"><span class="n">Dummy #${k}</span><span class="c">✦${cost}</span></div>`;
 </script>

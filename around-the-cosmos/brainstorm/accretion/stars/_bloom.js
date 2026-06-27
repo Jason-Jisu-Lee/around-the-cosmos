@@ -19,7 +19,7 @@
   }
   // irregular total counts + irregular "available now" counts
   const CL=[
-   {name:'Lacuna',   count:10, open:3},
+   {name:'Maw',   count:10, open:3},
    {name:'Orbiters', count:12, open:2},
    {name:'Phenomena',count:9,  open:5},
    {name:'Cycles',   count:11, open:2},
