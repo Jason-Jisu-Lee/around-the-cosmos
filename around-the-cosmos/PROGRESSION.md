@@ -62,26 +62,26 @@ Once owned, Maw **auto-generates stardust every second** (it bounces gently on e
 **Pulse Surge** - *unlocks after Cosmic Pulse lvl 6* · max **5** · **+10 ✦ per pulse each level** (stacks on Cosmic Pulse)
 | Level | Cost ✦ | Adds to each pulse |
 |---|---|---|
-| 1 | 500 | +10 |
-| 2 | 1,000 | +20 |
-| 3 | 1,500 | +30 |
-| 4 | 2,200 | +40 |
-| 5 | 3,000 | +50 |
+| 1 | 1,000 | +10 |
+| 2 | 1,800 | +20 |
+| 3 | 2,800 | +30 |
+| 4 | 4,700 | +40 |
+| 5 | 7,050 | +50 |
 
 > Pulse value (✦ per second) = 5 × Cosmic Pulse + 10 × Pulse Surge (+ Gravitational Pull, below), via `pulseValue()`. **Deep Breath** then doubles the occasional pulse on top of this.
 
 **Afterglow** - *unlocks with Pulse Surge (Cosmic Pulse lvl 6)* · max **5** · **active-play bonus** - for **60s** after you catch a comet, every pulse gains **+20 / level** ✦ (catching another comet refreshes the timer). The **Afterglow card itself lights up** with a draining bar so you can see the window run out (it flashes amber near the end).
 | Level | 1 | 2 | 3 | 4 | 5 |
 |---|---|---|---|---|---|
-| Cost ✦ | 2,000 | 3,000 | 4,500 | 6,600 | 9,200 |
+| Cost ✦ | 2,000 | 4,000 | 6,650 | 9,200 | 14,000 |
 | Bonus while lit | +20 | +40 | +60 | +80 | +100 / pulse |
 
 **Deep Breath** - *unlocks after collecting 10,000 stardust this universe (`runDust ≥ 10,000`)* · max **8** · **every Nth breath pays ×2**
 | Level | Cost ✦ | Deep Breath every |
 |---|---|---|
 | 1 | 2,500 | 12th breath |
-| 2 | 4,500 | 11th breath |
-| 3 | 8,500 | 10th breath |
+| 2 | 5,850 | 11th breath |
+| 3 | 11,000 | 10th breath |
 | 4 | 16,000 | 9th breath |
 | 5 | 32,000 | 8th breath |
 | 6 | 65,000 | 7th breath |
@@ -97,11 +97,11 @@ Once owned, Maw **auto-generates stardust every second** (it bounces gently on e
 
 | Level | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |
 |---|---|---|---|---|---|---|---|---|
-| Cost ✦ | 2,000 | 3,000 | 4,500 | 7,000 | 11,000 | 16,000 | 25,000 | 38,000 |
+| Cost ✦ | 3,000 | 5,000 | 8,000 | 11,000 | 16,000 | 25,000 | 38,000 | 57,000 |
 
 | Level | 9 | 10 | 11 | 12 | 13 | 14 | 15 |
 |---|---|---|---|---|---|---|---|
-| Cost ✦ | 57,000 | 87,000 | 130,000 | 200,000 | 305,000 | 460,000 | 700,000 |
+| Cost ✦ | 87,000 | 130,000 | 200,000 | 305,000 | 460,000 | 700,000 | 1,200,000 |
 
 > `deepBreathMult()` = 2 + 0.2 × level. At max, a Deep Breath every 5th pulse paying ×5 is roughly **+80%** average pulse income - the deepest single pulse investment in the game.
 
@@ -123,11 +123,11 @@ that lights the **Maw's glow** (off by default; brightens marginally per level, 
 even at max). Combos with Gravitational Pull.
 | Level | Cost ✦ | All orbiter payout |
 |---|---|---|
-| 1 | 3,000 | ×1.10 |
-| 2 | 6,500 | ×1.20 |
-| 3 | 12,000 | ×1.30 |
-| 4 | 20,000 | ×1.40 |
-| 5 | 32,000 | ×1.50 |
+| 1 | 12,000 | ×1.10 |
+| 2 | 26,500 | ×1.20 |
+| 3 | 57,000 | ×1.30 |
+| 4 | 150,000 | ×1.40 |
+| 5 | 365,000 | ×1.50 |
 
 ### DUST PARTICLES
 
