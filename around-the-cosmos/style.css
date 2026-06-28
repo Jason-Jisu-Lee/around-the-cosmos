@@ -598,8 +598,8 @@ body {
 /* stack = box + the skip option below it (OUTSIDE the box); fixed width so the skip aligns to the box's right edge */
 .acc-confirm-stack { display: flex; flex-direction: column; width: 360px; max-width: 92vw; }
 .acc-confirm-stack > .acc-confirm-box { width: 100%; max-width: none; }
-/* bottom-right, OUTSIDE the box, on the dim backdrop -> light text; inset so "animation" ends before the box edge */
-.acc-skip { align-self: flex-end; display: inline-flex; align-items: center; gap: 6px; margin: 12px 18px 0 0; font-size: 12px; font-weight: 700; color: #ece5d5; text-shadow: 0 1px 3px rgba(0,0,0,0.45); cursor: pointer; }
+/* top-left, OUTSIDE + above the box, on the dim backdrop -> bright text + strong shadow so it stands out */
+.acc-skip { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; margin: 0 0 12px 6px; font-size: 12px; font-weight: 800; color: #ffffff; text-shadow: 0 1px 4px rgba(0,0,0,0.85), 0 0 2px rgba(0,0,0,0.55); cursor: pointer; }
 .acc-skip input { width: 14px; height: 14px; accent-color: var(--accretion); cursor: pointer; }
 /* secondary action - clearly a button, just quieter than the primary (not a hidden text link) */
 .acc-btn-ghost { width: 100%; background: #fbf8f1; border: 1.5px solid #ddd3bd; color: #6b6150; border-radius: 11px; padding: 11px; font: 800 13px 'Nunito'; letter-spacing: 0.04em; cursor: pointer; transition: border-color 0.12s, color 0.12s, background 0.12s; }
