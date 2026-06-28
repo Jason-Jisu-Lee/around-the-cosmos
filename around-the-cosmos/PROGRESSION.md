@@ -319,12 +319,14 @@ Collapse the whole universe into Maw to bank **Mass**, then spend it on permanen
 that carry into every future universe.
 
 - **Unlocks** whenever the **current universe** reaches **200,000** stardust (`runDust`, and there's ≥1 Mass to claim).
-- **Mass earned** = `floor(3 × this universe's stardust / 200,000)` → 200k = 3, 400k = 6, 1M = 15, 1.6M = 24, 5M = 75, 10M = 150.
-  **Per-run, not lifetime:** reaching a milestone pays the **same Mass every universe** (200k always = 3). **Linear curve
-  (was cube-root):** the cube-root had long flat plateaus (200k–1.5M all paid 3 Mass), which made prestiging *immediately*
-  at 200k the optimal play. Linear has **no plateaus** - every 200k of stardust = +3 Mass - so **pushing further always
-  earns proportionally more** and is rewarded over spamming quick accretions. The first accretion is still gated at 200k.
-  **Greater Collapse** multiplies what you receive.
+- **Mass earned** = `floor(1.8 × this universe's stardust / 200,000)` → 333k = 3, 1M = 9, 5M = 45, 10M = 90 (coefficient **1.8**,
+  slowed ~40% so Mass climbs gently). **Linear, no plateaus** - every 200k of stardust = +1.8 Mass - so **pushing further
+  always earns proportionally more**. **Accrete floor:** you can only accrete once you'd gain at least **3 Mass**, and that
+  floor **rises VERY subtly** with lifetime Mass earned (`3 + floor(massEarned / 200)`), so a richer save pushes a touch
+  further each cycle. **Greater Collapse** multiplies what you receive.
+- **Accretion progress bar:** after your first accretion, the **Accretion card appears early** in a muted "progress" state
+  with a thin bar showing how close you are to the 3-Mass floor; it becomes the claimable button once you reach it. (No bar
+  before the first accretion - the card just appears when ready.)
 - **What resets:** stardust + every stardust upgrade. **What you keep:** Mass and everything you bought with it.
 
 ### Mass upgrades (few, powerful - 1–3 Mass per level)

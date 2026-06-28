@@ -35,7 +35,7 @@ const MASS_UPGRADES = [
     eff:l => `pulses echo ×${(l||1)}` },
 
   // ===== Orbiters =====
-  { id:'heavierBodies', cat:'Orbiters', tier:1, name:'Heavier Bodies', max:5, costs:[1,2,3,4,5],
+  { id:'heavierBodies', cat:'Orbiters', tier:1, name:'Heavier Bodies', max:2, costs:[1,5],
     flavor:'Give every orbit more to carry.',
     eff:l => `×${(1 + 0.5*l).toFixed(1)} orbiter payout` },
   { id:'retainedComp', cat:'Orbiters', tier:1, name:'Retained Companions', max:3, costs:[2,3,5],

@@ -114,8 +114,9 @@ function buildPanels() {
 
 function appendPrestigeCards(mainList) {
     const acc = document.createElement('div');
-    acc.id = 'accretion-btn'; acc.className = 'accretion-card'; acc.textContent = 'Accretion';
-    acc.addEventListener('click', () => { if (typeof openAccConfirm === 'function') openAccConfirm(); });
+    acc.id = 'accretion-btn'; acc.className = 'accretion-card';
+    acc.innerHTML = '<span class="acc-card-label">Accretion</span><div class="acc-card-prog"><i></i></div>';
+    acc.addEventListener('click', () => { if (typeof canAccrete === 'function' && canAccrete() && typeof openAccConfirm === 'function') openAccConfirm(); });
     acc.addEventListener('mouseenter', () => SoundSystem.sfxHover());
     mainList.appendChild(acc);
 
