@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Dwarf Planet — 4 designs</title>
+<style>
+  :root{ --bg:#f4efe4; --ink:#2a2520; --muted:#7a715f; --accent:#4a82a8; }
+  *{box-sizing:border-box;}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Georgia,serif;}
+  header{padding:18px 26px 6px;}
+  h1{margin:0 0 4px;font-size:20px;}
+  .sub{margin:0;font-size:13px;color:var(--muted);max-width:760px;line-height:1.5;}
+  .ctrl{display:flex;align-items:center;gap:10px;margin:14px 0 0;font-size:12.5px;color:var(--muted);}
+  .ctrl input[type=range]{width:200px;accent-color:var(--accent);}
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px 8px;max-width:760px;margin:14px auto 40px;padding:0 20px;}
+  .cell{display:flex;flex-direction:column;align-items:center;padding:10px 0 16px;}
+  canvas{display:block;}
+  .name{margin-top:6px;font-size:15px;font-weight:bold;letter-spacing:.02em;}
+  .desc{margin-top:2px;font-size:11.5px;color:var(--muted);font-style:italic;text-align:center;max-width:240px;line-height:1.4;}
+</style>
+</head>
+<body>
+<header>
+  <h1>Dwarf Planet — visual designs</h1>
+  <p class="sub">Four procedurally-lit, slowly-rotating spheres (same renderer as the in-game moon: directional light from the upper-left + limb darkening). It's the <b>slowest</b> orbiter but pays out <b>big</b>. Pick a look — I'll then wire it up and balance the payout.</p>
+  <div class="ctrl"><span>Spin</span><input type="range" id="spd" min="0" max="100" value="22"><span id="spdv">slow</span></div>
+</header>
+<div class="grid" id="grid"></div>
+
+<script>
+'use strict';
+// ---------- noise ----------
+function hsh(x,y){ let n=(x|0)*374761393+(y|0)*668265263; n=(n^(n>>>13))>>>0; n=Math.imul(n,1274126177)>>>0; return((n^(n>>>16))>>>0)/4294967295; }
+function vn(x,y){ const xi=Math.floor(x),yi=Math.floor(y),xf=x-xi,yf=y-yi,u=xf*xf*(3-2*xf),v=yf*yf*(3-2*yf);
+  const a=hsh(xi,yi),b=hsh(xi+1,yi),c=hsh(xi,yi+1),d=hsh(xi+1,yi+1); return a+(b-a)*u+(c-a)*v+(a-b-c+d)*u*v; }
+function fbm(x,y){ let s=0,a=0.5,f=1; for(let i=0;i<5;i++){ s+=a*vn(x*f,y*f); f*=2; a*=0.5; } return s; }
+const clamp=(x,a,b)=>x<a?a:x>b?b:x;
+const lerp=(a,b,t)=>a+(b-a)*t;
+const smooth=(a,b,x)=>{const t=clamp((x-a)/(b-a),0,1);return t*t*(3-2*t);};
+function udist(u,cu){ let d=Math.abs(u-cu); return Math.min(d,1-d); }
+
+// ---------- equirectangular texture builder ----------
+const TW=320, TH=160;
+function buildTex(fn){ const a=new Uint8ClampedArray(TW*TH*3);
+  for(let y=0;y<TH;y++)for(let x=0;x<TW;x++){ const c=fn((x+0.5)/TW,(y+0.5)/TH); const o=(y*TW+x)*3; a[o]=c[0];a[o+1]=c[1];a[o+2]=c[2]; }
+  return a; }
+
+// ----- A · Frost (icy, Pluto-like): pale plains, ruddy tholin patches, a bright ice basin -----
+function texFrost(u,v){
+  let r=214,g=200,b=178;
+  const n=fbm(u*7+3, v*7-2), m=fbm(u*16-5, v*16+8);
+  const dark=smooth(0.52,0.74,n)*0.8 + smooth(0.6,0.85,m)*0.3;      // tholins
+  r=lerp(r,150,dark); g=lerp(g,116,dark); b=lerp(b,86,dark);
+  const ice=smooth(0.20,0.05, Math.hypot(udist(u,0.32)*1.4, v-0.56));// bright ice basin
+  r=lerp(r,243,ice*0.85); g=lerp(g,239,ice*0.85); b=lerp(b,228,ice*0.85);
+  const pole=smooth(0.16,0.0,Math.min(v,1-v));                       // frosty poles
+  r=lerp(r,236,pole*0.5); g=lerp(g,234,pole*0.5); b=lerp(b,226,pole*0.5);
+  return [r,g,b];
+}
+
+// ----- B · Ceres (cratered grey-rock + bright salt spots) -----
+const CRA=[]; (function(){ let s=99; const rnd=()=>{s=(s*1103515245+12345)&0x7fffffff;return s/0x7fffffff;};
+  for(let i=0;i<16;i++) CRA.push({u:rnd(),v:0.12+rnd()*0.76,r:0.03+rnd()*0.07,d:0.4+rnd()*0.5}); })();
+function texCeres(u,v){
+  let base=170+fbm(u*9,v*9)*26;
+  let r=base*1.0, g=base*0.94, b=base*0.82;
+  for(const c of CRA){ const d=Math.hypot(udist(u,c.u)*1.3, v-c.v)/c.r; if(d>1.25)continue;
+    const floor=smooth(0.85,0,d)*c.d, rim=smooth(0.10,0.0,Math.abs(d-0.92))*0.5*c.d;
+    const k=1-floor*0.5+rim*0.5; r*=k; g*=k; b*=k; }
+  const salt=smooth(0.05,0.0, Math.hypot(udist(u,0.62)*1.3, v-0.46));// bright salt spot
+  r=lerp(r,247,salt); g=lerp(g,243,salt); b=lerp(b,232,salt);
+  return [clamp(r,0,255),clamp(g,0,255),clamp(b,0,255)];
+}
+
+// ----- C · Ember (warm latitude bands) -----
+function texEmber(u,v){
+  const band=Math.sin(v*Math.PI*6 + Math.sin(u*6.28)*0.25)*0.5+0.5;
+  const n=fbm(u*10, v*22);
+  let t=clamp(band*0.7+n*0.3,0,1);
+  // palette: deep rust -> warm tan -> pale gold
+  const r=lerp(lerp(150,205,t), 224, smooth(0.6,1,t));
+  const g=lerp(lerp(96,150,t), 186, smooth(0.6,1,t));
+  const b=lerp(lerp(54,92,t), 128, smooth(0.6,1,t));
+  return [r,g,b];
+}
+
+// ----- D · Halo (smooth ruddy body; a ring is drawn around it separately) -----
+function texHalo(u,v){
+  let r=190,g=146,b=112;
+  const n=fbm(u*6+1, v*6+4);
+  r=lerp(r,158,smooth(0.45,0.75,n)*0.6); g=lerp(g,116,smooth(0.45,0.75,n)*0.6); b=lerp(b,86,smooth(0.45,0.75,n)*0.6);
+  const swirl=fbm(u*3, v*14)*0.18; r*=1+swirl*0.2; g*=1+swirl*0.1;
+  const pole=smooth(0.12,0,Math.min(v,1-v)); r=lerp(r,214,pole*0.4); g=lerp(g,188,pole*0.4); b=lerp(b,158,pole*0.4);
+  return [r,g,b];
+}
+
+// ---------- sphere renderer (offscreen -> drawImage so it blends over parchment) ----------
+const tmp=document.createElement('canvas'); const tctx=tmp.getContext('2d');
+const Lx=-0.5,Ly=-0.56,Lz=0.66; const Ll=1/Math.hypot(Lx,Ly,Lz); const lx=Lx*Ll,ly=Ly*Ll,lz=Lz*Ll;
+function renderSphere(g, cx, cy, R, tex, rot){
+  const D=Math.ceil(R*2)+2, x0=Math.round(cx-R)-1, y0=Math.round(cy-R)-1;
+  if(tmp.width<D){ tmp.width=D; tmp.height=D; }
+  const img=tctx.createImageData(D,D), data=img.data, TAU=Math.PI*2;
+  for(let j=0;j<D;j++)for(let i=0;i<D;i++){
+    const nx=(x0+i-cx)/R, ny=(y0+j-cy)/R, d2=nx*nx+ny*ny, o=(j*D+i)*4;
+    if(d2>1){ data[o+3]=0; continue; }
+    const nz=Math.sqrt(1-d2);
+    const lat=Math.asin(clamp(ny,-1,1)), lon=Math.atan2(nx,nz)+rot;
+    let u=(lon/TAU)%1; if(u<0)u+=1; const vv=lat/Math.PI+0.5;
+    let tx=(u*TW)|0; if(tx>=TW)tx=TW-1; let ty=(vv*TH)|0; if(ty>=TH)ty=TH-1; const to=(ty*TW+tx)*3;
+    let diff=nx*lx+ny*ly+nz*lz; if(diff<0)diff=0;
+    const limb=0.5+0.5*nz, sh=(0.26+0.95*diff)*limb;
+    data[o]=tex[to]*sh; data[o+1]=tex[to+1]*sh; data[o+2]=tex[to+2]*sh; data[o+3]=255;
+  }
+  tctx.putImageData(img,0,0);
+  g.drawImage(tmp,0,0,D,D, x0,y0,D,D);
+}
+function ringHalf(g, cx, cy, R, half){
+  const rx=R*1.62, ry=rx*0.30, a0=half==='back'?Math.PI:0, a1=half==='back'?Math.PI*2:Math.PI;
+  g.save();
+  g.lineWidth=R*0.34; g.strokeStyle='rgba(176,156,126,0.5)';  g.beginPath(); g.ellipse(cx,cy,rx,ry,0,a0,a1); g.stroke();
+  g.lineWidth=R*0.13; g.strokeStyle='rgba(148,124,96,0.72)';  g.beginPath(); g.ellipse(cx,cy,rx*1.02,ry*1.02,0,a0,a1); g.stroke();
+  g.lineWidth=R*0.05; g.strokeStyle='rgba(232,222,202,0.6)';  g.beginPath(); g.ellipse(cx,cy,rx*0.86,ry*0.86,0,a0,a1); g.stroke();
+  g.restore();
+}
+
+// ---------- build the 4 cells ----------
+const DESIGNS=[
+  {name:'A · Frost',  desc:'Icy plains with ruddy tholin stains and a bright ice basin (Pluto-like).', tex:buildTex(texFrost), ring:false},
+  {name:'B · Ceres',  desc:'Grey rock, heavily cratered, with a brilliant salt deposit.',              tex:buildTex(texCeres), ring:false},
+  {name:'C · Ember',  desc:'Warm latitude bands — a small banded body, rust to pale gold.',             tex:buildTex(texEmber), ring:false},
+  {name:'D · Halo',   desc:'A ruddy world circled by a thin, tilted ring.',                            tex:buildTex(texHalo),  ring:true},
+];
+const grid=document.getElementById('grid');
+const cells=DESIGNS.map(d=>{
+  const cell=document.createElement('div'); cell.className='cell';
+  const cv=document.createElement('canvas'); const SZ=236; const dpr=Math.min(devicePixelRatio||1,2);
+  cv.width=SZ*dpr; cv.height=SZ*dpr; cv.style.width=SZ+'px'; cv.style.height=SZ+'px';
+  const g=cv.getContext('2d'); g.scale(dpr,dpr);
+  cell.appendChild(cv);
+  const nm=document.createElement('div'); nm.className='name'; nm.textContent=d.name; cell.appendChild(nm);
+  const ds=document.createElement('div'); ds.className='desc'; ds.textContent=d.desc; cell.appendChild(ds);
+  grid.appendChild(cell);
+  return {d, g, SZ};
+});
+
+let rot=0, last=0;
+const spd=document.getElementById('spd'), spdv=document.getElementById('spdv');
+spd.addEventListener('input',()=>{ const v=+spd.value; spdv.textContent = v<12?'very slow':v<35?'slow':v<65?'medium':'fast'; });
+function frame(t){
+  const dt=Math.min((t-last)/1000,0.05); last=t;
+  rot += dt * (+spd.value/100) * 0.9;   // slow by design
+  for(const c of cells){
+    const {g, d, SZ}=c, cx=SZ/2, cy=SZ/2-2, R=SZ*0.36;
+    g.clearRect(0,0,SZ,SZ); g.fillStyle='#f4efe4'; g.fillRect(0,0,SZ,SZ);
+    if(d.ring) ringHalf(g, cx, cy, R, 'back');
+    renderSphere(g, cx, cy, R, d.tex, rot);
+    if(d.ring) ringHalf(g, cx, cy, R, 'front');
+  }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

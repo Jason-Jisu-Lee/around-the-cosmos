@@ -242,7 +242,7 @@ function openAccConfirm() {
     // "Skip animation" (outside the box) only after the first accretion; reset to the default (checked = skip)
     const skip = document.getElementById('acc-skip-outer'), cb = document.getElementById('acc-skip-anim');
     if (skip) skip.style.display = G.massEarned > 0 ? 'inline-flex' : 'none';
-    if (cb) cb.checked = true;
+    if (cb) cb.checked = false;   // default: NOT skipped - the user must opt in to skipping
     document.getElementById('acc-confirm').classList.add('show');
 }
 function closeAccConfirm() { document.getElementById('acc-confirm').classList.remove('show'); }
@@ -253,7 +253,9 @@ const accretionAudio = new Audio('sound/music/accretion-1.mp3');
 accretionAudio.volume = 0.68;
 
 function startAccretionSequence() {
-    const skipAnim = (() => { const cb = document.getElementById('acc-skip-anim'); return !!(cb && cb.checked); })();
+    // The FIRST-ever accretion always plays the animation no matter what (massEarned isn't bumped until commitAccretion below);
+    // afterwards, honour the checkbox.
+    const skipAnim = G.massEarned > 0 && !!document.getElementById('acc-skip-anim').checked;
     closeAccConfirm();
     if (typeof closeCosmoCard === 'function') closeCosmoCard();
     if (typeof SoundSystem !== 'undefined') SoundSystem.stopMusic();
