@@ -201,8 +201,8 @@ function musicMuted() {
 function accConfirmBody() {
     const gain = massGain();
     const me = massEarnable();
-    const curThresh  = ACCRETION_THRESHOLD * Math.pow(me / MASS_COEF, 3);
-    const nextThresh = ACCRETION_THRESHOLD * Math.pow((me + 1) / MASS_COEF, 3);
+    const curThresh  = ACCRETION_THRESHOLD * me / MASS_COEF;          // linear inverse of massEarnable
+    const nextThresh = ACCRETION_THRESHOLD * (me + 1) / MASS_COEF;
     const needed = Math.max(0, Math.ceil(nextThresh - G.runDust));
     const prog   = Math.max(0.02, Math.min(1, (G.runDust - curThresh) / Math.max(1, nextThresh - curThresh)));
     const tail = (G.massEarned > 0)
@@ -212,8 +212,7 @@ function accConfirmBody() {
              + `<rect x="1" y="1" width="6" height="6" rx="1.4"/><rect x="9" y="1" width="6" height="6" rx="1.4"/>`
              + `<rect x="1" y="9" width="6" height="6" rx="1.4"/><rect x="9" y="9" width="6" height="6" rx="1.4"/></g></svg>`;
     return `
-        <p class="acc-sentence">Collapse this universe</p>
-        <p class="acc-explain">All the Stardust and orbiters collapse into Mass that can be used for permanent upgrades</p>
+        <p class="acc-explain">All Stardust and orbiters collapse into Mass<br>Mass can be used for permanent, powerful upgrades</p>
         <div class="acc-ledger">
             <div class="acc-col lose">
                 <div class="acc-colh">Resets</div>
@@ -238,6 +237,8 @@ function accConfirmBody() {
 }
 function openAccConfirm() {
     document.getElementById('acc-confirm-body').innerHTML = accConfirmBody();
+    // First-ever accretion: spell out the hold in the label; afterwards just "Collapse"
+    document.querySelector('#acc-confirm-go .acc-go-label').textContent = G.massEarned === 0 ? 'Collapse (Hold)' : 'Collapse';
     document.getElementById('acc-confirm').classList.add('show');
 }
 function closeAccConfirm() { document.getElementById('acc-confirm').classList.remove('show'); }
@@ -393,10 +394,8 @@ document.getElementById('acc-confirm-cancel').addEventListener('click', closeAcc
     const btn = document.getElementById('acc-confirm-go');
     if (!btn) return;
     const fx = btn.querySelector('.acc-go-fx'), ctx = fx.getContext('2d');
-    const ring = btn.closest('.acc-go-wrap').querySelector('.acc-go-ring'), rctx = ring.getContext('2d');
     const HOLD_MS = 1000, TAU = Math.PI * 2;
     let holding = false, holdStart = 0, raf = null, parts = [];
-    function roundRectPath(c, x, y, w, h, r) { c.beginPath(); c.moveTo(x+r,y); c.arcTo(x+w,y,x+w,y+h,r); c.arcTo(x+w,y+h,x,y+h,r); c.arcTo(x,y+h,x,y,r); c.arcTo(x,y,x+w,y,r); c.closePath(); }
 
     function frame(now) {
         const r = btn.getBoundingClientRect(), W = r.width, H = r.height, cx = W/2, cy = H/2;
@@ -404,21 +403,6 @@ document.getElementById('acc-confirm-cancel').addEventListener('click', closeAcc
         if (fx.width !== Math.round(W*dpr)) { fx.width = Math.round(W*dpr); fx.height = Math.round(H*dpr); }
         ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,W,H);
         const elapsed = now - holdStart, p = Math.min(1, elapsed/HOLD_MS);
-
-        // progress ring AROUND the button (overflows it) - fills as you keep holding
-        const rr = ring.getBoundingClientRect(), RW = rr.width, RH = rr.height;
-        if (ring.width !== Math.round(RW*dpr)) { ring.width = Math.round(RW*dpr); ring.height = Math.round(RH*dpr); }
-        rctx.setTransform(dpr,0,0,dpr,0,0); rctx.clearRect(0,0,RW,RH);
-        if (holding) {
-            const rx = 5, ry = 5, rw = RW-10, rh = RH-10, rad = 15;
-            const perim = 2*((rw-2*rad)+(rh-2*rad)) + TAU*rad;
-            rctx.lineCap = 'round'; rctx.lineJoin = 'round';
-            roundRectPath(rctx, rx, ry, rw, rh, rad);
-            rctx.lineWidth = 4; rctx.setLineDash([]); rctx.shadowBlur = 0; rctx.strokeStyle = 'rgba(120,95,40,0.18)'; rctx.stroke();   // faint full track
-            roundRectPath(rctx, rx, ry, rw, rh, rad);
-            rctx.setLineDash([perim*p, perim]); rctx.strokeStyle = '#d4a93f'; rctx.shadowColor = 'rgba(212,169,63,0.9)'; rctx.shadowBlur = 8; rctx.stroke();   // glowing gold fill
-            rctx.setLineDash([]); rctx.shadowBlur = 0;
-        }
 
         if (holding) {
             const n = 3 + Math.round(p*6);
