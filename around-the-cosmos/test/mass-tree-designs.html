@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mass Tree — spine + tier gating · 3 designs</title>
+<style>
+  :root{
+    --bg:#f4efe4; --ink:#2a2520; --gold:#b8923a; --gold2:#caa24a; --gold-deep:#9a7a2e;
+    --gold-soft:#ecd9a8; --gold-wash:#f6ecd2; --accent:#4a82a8; --accent-soft:#dbe7f0;
+    --muted:#8c8474; --lock:#b8b0a0; --line:#e0d7c6; --card:#fbf8f1;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Georgia,serif;}
+  body{padding:0 0 60px;}
+  header{position:sticky;top:0;z-index:10;background:rgba(244,239,228,0.96);border-bottom:1px solid var(--line);
+         backdrop-filter:blur(4px);padding:14px 22px 12px;}
+  h1{margin:0 0 2px;font-size:19px;} .sub{margin:0 0 12px;font-size:12.5px;color:var(--muted);max-width:860px;line-height:1.5;}
+  .bar{display:flex;flex-wrap:wrap;gap:18px;align-items:center;}
+  .grp{display:flex;gap:6px;align-items:center;}
+  .grp .lbl{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-right:4px;}
+  .seg{display:flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:var(--card);}
+  .seg button{border:none;background:none;padding:7px 13px;cursor:pointer;font-family:inherit;font-size:12.5px;color:var(--ink);}
+  .seg button.on{background:var(--accent);color:#fff;font-weight:bold;}
+  .tabseg button.on{background:var(--gold);color:#fff;}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;margin-left:auto;font-size:11.5px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;color:#5e564a;}
+  .sw{width:15px;height:15px;border-radius:4px;display:inline-block;}
+  .sw.max{background:var(--gold);} .sw.up{background:#fff;border:2px solid var(--gold);}
+  .sw.avail{background:#fff;border:2px dashed var(--accent);} .sw.locked{background:#e7e1d4;border:1px solid var(--lock);}
+  #stage{padding:24px 26px;max-width:1180px;margin:0 auto;}
+  .cap{font-size:13px;color:var(--muted);margin:0 0 18px;font-style:italic;}
+  .cap b{color:var(--gold-deep);font-style:normal;}
+
+  /* ---- shared node bits ---- */
+  .nm{font-family:'Baloo 2',Georgia,serif;font-weight:600;}
+  .barr{height:5px;border-radius:3px;background:#eee5d3;overflow:hidden;margin:7px 0 6px;}
+  .barr > i{display:block;height:100%;background:linear-gradient(90deg,var(--gold2),var(--gold));}
+  .pill{font-size:10.5px;font-weight:bold;letter-spacing:.04em;padding:2px 8px;border-radius:20px;white-space:nowrap;}
+  .pill.max{background:var(--gold);color:#fff;} .pill.up{background:var(--gold-wash);color:var(--gold-deep);border:1px solid var(--gold-soft);}
+  .pill.avail{background:var(--accent-soft);color:#2f5f80;} .pill.locked{background:#ece6da;color:#9a917f;}
+  .cost{font-size:12px;font-weight:bold;color:var(--gold-deep);font-variant-numeric:tabular-nums;}
+  .eff{font-size:12px;color:#5e564a;line-height:1.35;}
+  .flav{font-size:11px;color:var(--muted);font-style:italic;}
+  .lockico{width:13px;height:13px;display:inline-block;vertical-align:-2px;}
+
+  /* ============ DESIGN 1 — Branching Rail ============ */
+  .d1{display:grid;grid-template-columns:96px 26px 1fr;row-gap:0;}
+  .d1 .gatecell{position:relative;display:flex;justify-content:center;}
+  .d1 .gatecell::before{content:'';position:absolute;top:0;bottom:0;width:3px;background:var(--gold-soft);}
+  .d1 .gatecell.dim::before{background:repeating-linear-gradient(180deg,var(--lock) 0 5px,transparent 5px 10px);}
+  .d1 .row{display:contents;}
+  .d1 .gate{position:relative;z-index:2;width:62px;height:62px;border-radius:50%;display:flex;flex-direction:column;
+            align-items:center;justify-content:center;margin:14px 0;background:var(--card);border:2px solid var(--gold);text-align:center;}
+  .d1 .gate .dot{width:14px;height:14px;border-radius:50%;background:var(--gold);margin-bottom:2px;}
+  .d1 .gate .tnum{font-size:9px;color:var(--gold-deep);font-weight:bold;}
+  .d1 .gate.done{background:var(--gold);border-color:var(--gold);} .d1 .gate.done .dot{background:#fff;} .d1 .gate.done .tnum{color:#fff;}
+  .d1 .gate.avail{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft);} .d1 .gate.avail .dot{background:var(--accent);}
+  .d1 .gate.locked{border:2px dashed var(--lock);background:#f0ebdf;} .d1 .gate.locked .dot{background:var(--lock);width:11px;height:11px;}
+  .d1 .glabel{position:absolute;top:50%;left:70px;transform:translateY(-50%);font-size:10px;color:var(--muted);white-space:nowrap;}
+  .d1 .conn{display:flex;align-items:center;} .d1 .conn::after{content:'';height:2px;width:100%;background:var(--gold-soft);}
+  .d1 .conn.dim::after{background:repeating-linear-gradient(90deg,var(--lock) 0 4px,transparent 4px 8px);}
+  .d1 .card{margin:11px 0;}
+
+  /* card faces (shared by D1/D2/D3) */
+  .card{background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;}
+  .card .top{display:flex;justify-content:space-between;align-items:center;gap:8px;}
+  .card .top .nm{font-size:15px;}
+  .card.max{background:linear-gradient(180deg,#f3e2b6,#ecd49a);border-color:var(--gold);}
+  .card.up{border-color:var(--gold);} .card.up .barr>i{}
+  .card.avail{border:1.5px dashed var(--accent);}
+  .card.locked{background:#f0ebdf;border:1.5px dashed var(--lock);color:#9a917f;}
+  .card.locked .eff,.card.locked .flav{filter:blur(3px);opacity:.5;user-select:none;}
+  .card.locked .lockmsg{font-size:11.5px;color:#9a917f;font-style:italic;margin-top:6px;}
+  .row-foot{display:flex;justify-content:space-between;align-items:center;margin-top:7px;}
+
+  /* ============ DESIGN 2 — Tier Bands ============ */
+  .d2 .band{display:flex;align-items:stretch;gap:0;margin:0 0 12px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--card);}
+  .d2 .med{flex:0 0 168px;padding:14px 16px;display:flex;flex-direction:column;justify-content:center;gap:3px;border-right:1px solid var(--line);position:relative;}
+  .d2 .med .ttag{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
+  .d2 .med .orb{font-size:15px;font-weight:bold;display:flex;align-items:center;gap:8px;}
+  .d2 .med .orbdot{width:13px;height:13px;border-radius:50%;background:var(--gold);}
+  .d2 .med .small{font-size:11px;color:var(--muted);}
+  .d2 .band.done .med{background:var(--gold-wash);} .d2 .band.done .med::after{content:'✓ captured';font-size:10px;color:var(--gold-deep);font-weight:bold;}
+  .d2 .band.avail .med{background:var(--accent-soft);}  .d2 .band.avail .med .orbdot{background:var(--accent);}
+  .d2 .band.locked{border-style:dashed;border-color:var(--lock);background:#f1ecdf;}
+  .d2 .band.locked .med{flex-basis:100%;border-right:none;flex-direction:row;align-items:center;gap:12px;color:#9a917f;}
+  .d2 .band.locked .orbdot{background:var(--lock);}
+  .d2 .cards{flex:1;display:flex;gap:12px;padding:12px 14px;flex-wrap:wrap;}
+  .d2 .cards .card{flex:1;min-width:200px;margin:0;}
+
+  /* ============ DESIGN 3 — Stepped Path ============ */
+  .d3{display:grid;grid-template-columns:1fr 84px 1fr;}
+  .d3 .pcell{position:relative;display:flex;justify-content:center;}
+  .d3 .pcell::before{content:'';position:absolute;top:0;bottom:0;width:4px;background:var(--gold-soft);border-radius:2px;}
+  .d3 .pcell.dim::before{background:repeating-linear-gradient(180deg,var(--lock) 0 6px,transparent 6px 12px);}
+  .d3 .node{position:relative;z-index:2;width:54px;height:54px;border-radius:50%;margin:20px 0;background:var(--card);
+            border:3px solid var(--gold);display:flex;align-items:center;justify-content:center;}
+  .d3 .node .dot{width:16px;height:16px;border-radius:50%;background:var(--gold);}
+  .d3 .node.done{background:var(--gold);} .d3 .node.done .dot{background:#fff;}
+  .d3 .node.avail{border-color:var(--accent);box-shadow:0 0 0 5px var(--accent-soft);} .d3 .node.avail .dot{background:var(--accent);}
+  .d3 .node.locked{border:3px dashed var(--lock);background:#f0ebdf;} .d3 .node.locked .dot{background:var(--lock);}
+  .d3 .nodelab{position:absolute;top:100%;margin-top:2px;font-size:9.5px;color:var(--muted);text-align:center;width:120px;left:50%;transform:translateX(-50%);}
+  .d3 .side{display:flex;align-items:center;padding:14px 0;}
+  .d3 .side.left{justify-content:flex-end;} .d3 .side.left .card{margin-right:0;}
+  .d3 .side.right{justify-content:flex-start;}
+  .d3 .side .card{max-width:330px;width:100%;}
+  .d3 .empty{}
+
+  .nameNote{margin:30px auto 0;max-width:760px;background:#fbf6ea;border:1px solid var(--gold-soft);border-radius:12px;padding:16px 20px;font-size:13px;line-height:1.6;}
+  .nameNote h3{margin:0 0 8px;font-size:14px;color:var(--gold-deep);} .nameNote code{background:#f1e6c9;padding:1px 6px;border-radius:5px;}
+</style>
+</head>
+<body>
+<header>
+  <h1>Mass Upgrade Tree — shared spine + tier gating</h1>
+  <p class="sub">A new 8-tier <b>orbiter-unlock spine</b> (working name <b>“Event Horizon”</b>) runs down the left of <i>every</i> tab. Buying a spine level grows Maw and captures one more orbiter — and <b>unlocks that tier across all four tabs</b>. So a category's deeper upgrades stay locked until you've expanded the Maw far enough. Three layout directions below — flip designs & tabs, watch the four button states.</p>
+  <div class="bar">
+    <div class="grp"><span class="lbl">Design</span>
+      <div class="seg" id="dseg">
+        <button data-d="1" class="on">1 · Branching Rail</button>
+        <button data-d="2">2 · Tier Bands</button>
+        <button data-d="3">3 · Stepped Path</button>
+      </div>
+    </div>
+    <div class="grp"><span class="lbl">Tab</span>
+      <div class="seg tabseg" id="tseg">
+        <button data-t="Maw" class="on">Maw</button>
+        <button data-t="Orbiters">Orbiters</button>
+        <button data-t="Phenomena">Phenomena</button>
+        <button data-t="Cycles">Cycles</button>
+      </div>
+    </div>
+    <div class="legend">
+      <span><i class="sw max"></i>Completed</span>
+      <span><i class="sw up"></i>Owned · keep upgrading</span>
+      <span><i class="sw avail"></i>Available (not bought)</span>
+      <span><i class="sw locked"></i>Locked (tier not unlocked)</span>
+    </div>
+  </div>
+</header>
+
+<div id="stage"></div>
+
+<div class="nameNote">
+  <h3>Naming the spine</h3>
+  Working title in this demo: <code>Event Horizon</code> — the void's boundary swells, drawing one more body into orbit each level.
+  Other candidates that imply Maw's <i>size expansion</i>: <code>Gravity Well</code> · <code>Maw's Reach</code> · <code>The Expanse</code> · <code>The Widening</code> · <code>Accretion Radius</code>.
+  Each level = <b>+1 orbiter</b> and unlocks the matching tier in all tabs (toward the eventual 12 orbiters).
+</div>
+
+<script>
+'use strict';
+const LOCK = '<svg class="lockico" viewBox="0 0 24 24" fill="none"><rect x="5" y="10.5" width="14" height="10" rx="2.2" fill="#b3aa97"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" stroke="#b3aa97" stroke-width="2.1"/></svg>';
+
+// 8-tier orbiter-unlock spine (shared across tabs). done = captured, avail = next to buy, locked = beyond
+const ORBITERS = ['Dust Particle','Asteroid','Moon','Comet Cluster','Ring System','Gas Giant','Pulsar','Companion Star'];
+const SPINE = ORBITERS.map((o,i)=>({tier:i, orbiter:o, state: i<3?'done' : i===3?'avail':'locked', cost: i===3?8:[null,null,null,null,12,18,26,40][i]}));
+
+const M = (name,eff,lvl,max,cost,flav)=>({name,eff,lvl,max,cost,flav:flav||''});
+const TABS = {
+  Maw:[
+    M('Denser Core','×3.5 pulse income',5,5,null,'The core draws a deeper breath.'),
+    M('First Light','begin with ✦5,000',2,3,6,'A universe born already glowing.'),
+    M('Collapsing Core','+30% pulse income',0,5,3,'Nothing the core reaches escapes.'),
+    M('Naked Singularity','+60% pulse income',0,5,8,'The veil is torn away.'),
+    M('Quasar Heart','a blinding jet of light',0,4,12,'It outshines a galaxy.'),
+    M('Hawking Glow','passive ✦ even at rest',0,3,18,'Even the dark leaks light.'),
+    M('Photon Sphere','pulses ring twice',0,5,26,'Light circles, and circles again.'),
+    M('Absolute Dark','×2 everything',0,3,40,'The final, total hush.'),
+  ],
+  Orbiters:[
+    M('Heavier Bodies','×3.5 orbiter payout',5,5,null,'Give every orbit more to carry.'),
+    M('Retained Companions','start with Dust + Asteroid',1,3,3,'Companions that survive collapse.'),
+    M('Swifter Orbits','+45% orbiter speed',2,5,5,'Every body comes around sooner.'),
+    M('Tidal Lock','orbiters never drift',0,3,8,'Held in a perfect grip.'),
+    M('Resonant Chorus','orbits harmonize',0,5,12,'They sing in ratio.'),
+    M('Twin Orbits','each body splits in two',0,3,18,'One becomes a pair.'),
+    M('Shepherd Moons','tighter, richer rings',0,4,26,'Small guardians herd the dust.'),
+    M('Perfect Circle','no phase loss, ever',0,5,40,'The orbit closes on itself.'),
+  ],
+  Phenomena:[
+    M('Brighter Tails','×3.0 comet windfall',4,4,null,'Longer, brighter tails.'),
+    M('Comet Shower','comets 39% sooner',2,3,2,'The quiet sky grows busy.'),
+    M('Meteor Shower','3 meteors per shower',0,4,5,'The sky breaks into falling light.'),
+    M('Aurora','a glow over every event',0,5,8,'Curtains of slow colour.'),
+    M('Solar Flare','rare ✦ eruptions',0,3,12,'The dark briefly roars.'),
+    M('Nebula Bloom','events linger longer',0,4,18,'Colour that refuses to fade.'),
+    M('Starfall','a rain of catchables',0,5,26,'The whole sky comes down.'),
+    M('Radiant Veil','everything shimmers',0,3,40,'A skin of light on the void.'),
+  ],
+  Cycles:[
+    M('Greater Collapse','×1.67 Mass / accretion',3,3,null,'Collapse harder; gather more.'),
+    M('Lunar Favor','+30% average moon payout',1,3,3,'The tides run in your favour.'),
+    M('Time Dilation','+30% game speed',0,5,4,'The whole universe runs faster.'),
+    M('Eternal Return','keep one upgrade on reset',0,3,8,'Something always carries over.'),
+    M('Echoed Cycle','accretions compound',0,3,12,'Each loop louder than the last.'),
+    M('Long Now','slower, richer pulses',0,4,18,'Time pools instead of passing.'),
+    M('Recurrence','Mass refunds partially',0,5,26,'Nothing is ever fully spent.'),
+    M('Forever Loop','the cycle never ends',0,3,40,'Round, and round, and round.'),
+  ],
+};
+
+let curD = 1, curT = 'Maw';
+
+function nodeState(tier, n){
+  if (SPINE[tier].state !== 'done') return 'locked';
+  if (n.lvl >= n.max) return 'max';
+  if (n.lvl > 0) return 'up';
+  return 'avail';
+}
+function pill(state, n){
+  if (state==='max')    return `<span class="pill max">✓ Maxed</span>`;
+  if (state==='up')     return `<span class="pill up">Owned · ${n.lvl}/${n.max}</span>`;
+  if (state==='avail')  return `<span class="pill avail">Available</span>`;
+  return `<span class="pill locked">${LOCK} Locked</span>`;
+}
+function costHTML(state, n){
+  if (state==='max')   return `<span class="cost" style="color:#9a917f">Maxed</span>`;
+  if (state==='locked')return '';
+  return `<span class="cost">⬡ ${n.cost} Mass</span>`;
+}
+function cardHTML(tier, n){
+  const s = nodeState(tier, n);
+  const pct = Math.round(n.lvl/n.max*100);
+  if (s==='locked'){
+    return `<div class="card locked"><div class="top"><span class="nm">${n.name}</span>${pill(s,n)}</div>`
+      + `<div class="barr"><i style="width:0%"></i></div>`
+      + `<div class="lockmsg">${LOCK} Unlock <b>${SPINE[tier].orbiter}</b> on the spine to open this tier.</div></div>`;
+  }
+  return `<div class="card ${s}"><div class="top"><span class="nm">${n.name}</span>${pill(s,n)}</div>`
+    + `<div class="eff">${n.eff}</div>`
+    + `<div class="barr"><i style="width:${pct}%"></i></div>`
+    + `<div class="row-foot"><span class="flav">${n.flav}</span>${costHTML(s,n)}</div></div>`;
+}
+
+// ---------- DESIGN 1 : Branching Rail ----------
+function renderD1(){
+  const nodes = TABS[curT];
+  let h = '<div class="d1">';
+  for (let t=0;t<8;t++){
+    const sp = SPINE[t], dim = sp.state!=='done';
+    const gcls = sp.state==='done'?'done':sp.state==='avail'?'avail':'locked';
+    h += `<div class="row">`;
+    h += `<div class="gatecell ${dim?'dim':''}"><div class="gate ${gcls}">`
+       + (sp.state==='locked'?LOCK:`<span class="dot"></span><span class="tnum">${sp.orbiter.split(' ')[0]}</span>`)
+       + `</div></div>`;
+    h += `<div class="conn ${dim?'dim':''}"></div>`;
+    h += cardHTML(t, nodes[t]);
+    h += `</div>`;
+  }
+  h += '</div>';
+  document.getElementById('stage').innerHTML =
+    `<p class="cap"><b>Design 1 — Branching Rail.</b> The spine is a vertical track of orbiter gates; each tab's upgrade branches off its gate. Locked tiers fade the rail to a dashed line and blur the card behind a lock.</p>` + h;
+}
+
+// ---------- DESIGN 2 : Tier Bands ----------
+function renderD2(){
+  const nodes = TABS[curT];
+  let h = '<div class="d2">';
+  for (let t=0;t<8;t++){
+    const sp = SPINE[t];
+    const bcls = sp.state==='done'?'done':sp.state==='avail'?'avail':'locked';
+    if (sp.state==='locked'){
+      h += `<div class="band locked"><div class="med"><span class="orbdot"></span>`
+         + `<div><div class="ttag">Tier ${t} — locked</div><div class="small">${LOCK} Unlock <b>${sp.orbiter}</b> to open this band</div></div></div></div>`;
+      continue;
+    }
+    h += `<div class="band ${bcls}"><div class="med"><div class="ttag">Tier ${t}${sp.state==='avail'?' — next':''}</div>`
+       + `<div class="orb"><span class="orbdot"></span>${sp.orbiter}</div>`
+       + `<div class="small">${sp.state==='avail'?('unlock · ⬡ '+sp.cost+' Mass'):'+1 orbiter'}</div></div>`
+       + `<div class="cards">${cardHTML(t, nodes[t])}</div></div>`;
+  }
+  h += '</div>';
+  document.getElementById('stage').innerHTML =
+    `<p class="cap"><b>Design 2 — Tier Bands.</b> Each tier is a full-width band; the spine lives in the left medallion. Locked tiers collapse to a slim “unlock the orbiter to open” strip, so the road ahead is compact and explicit.</p>` + h;
+}
+
+// ---------- DESIGN 3 : Stepped Path ----------
+function renderD3(){
+  const nodes = TABS[curT];
+  let h = '<div class="d3">';
+  for (let t=0;t<8;t++){
+    const sp = SPINE[t], dim = sp.state!=='done';
+    const ncls = sp.state==='done'?'done':sp.state==='avail'?'avail':'locked';
+    const left = t%2===0;
+    const cardSide = `<div class="side ${left?'left':'right'}">${cardHTML(t, nodes[t])}</div>`;
+    const empty = `<div class="side empty"></div>`;
+    const center = `<div class="pcell ${dim?'dim':''}"><div class="node ${ncls}">`
+       + (sp.state==='locked'?LOCK:`<span class="dot"></span>`)
+       + `</div><div class="nodelab">T${t} · ${sp.orbiter}</div></div>`;
+    h += left ? (cardSide + center + empty) : (empty + center + cardSide);
+  }
+  h += '</div>';
+  document.getElementById('stage').innerHTML =
+    `<p class="cap"><b>Design 3 — Stepped Path.</b> The spine is a central rail (a journey of orbiter unlocks); upgrades zig-zag off each node. The rail glows gold as far as you've expanded, then breaks into a dashed, locked path.</p>` + h;
+}
+
+function render(){ ({1:renderD1,2:renderD2,3:renderD3})[curD](); }
+document.getElementById('dseg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;curD=+b.dataset.d;document.querySelectorAll('#dseg button').forEach(x=>x.classList.toggle('on',x===b));render();});
+document.getElementById('tseg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;curT=b.dataset.t;document.querySelectorAll('#tseg button').forEach(x=>x.classList.toggle('on',x===b));render();});
+render();
+</script>
+</body>
+</html>

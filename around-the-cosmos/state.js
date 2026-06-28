@@ -1,6 +1,6 @@
 'use strict';
 
-const MASS_UPG_IDS = ['denserCore','firstLight','heavierBodies','retainedComp','brighterTails','cometShower','greaterCollapse','lunarFavor'];
+const MASS_UPG_IDS = ['singularity','denserCore','firstLight','heavierBodies','retainedComp','brighterTails','cometShower','greaterCollapse','lunarFavor'];
 function blankMassUpgrades() { const o = {}; for (const id of MASS_UPG_IDS) o[id] = 0; return o; }
 
 let G = createInitialState();

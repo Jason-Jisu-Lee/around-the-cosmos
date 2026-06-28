@@ -478,8 +478,8 @@ body {
 .acc-ncost { flex-shrink: 0; font-size: 12px; font-weight: 800; color: #b0a589; padding: 3px 9px; border-radius: 7px; background: #ece3cf; font-variant-numeric: tabular-nums; }
 .acc-ncost.ok { color: #fbf8f1; background: #a8853a; }
 .acc-ncost.done { color: #9a8f78; background: transparent; padding-left: 0; padding-right: 0; }
-.acc-node.avail { cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; }
-.acc-node.avail:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(168,133,58,0.22); }
+.acc-node.buy { cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; }
+.acc-node.buy:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(168,133,58,0.22); }
 .acc-node.max .acc-ndesc { color: #fbf3e2; }
 .acc-node.max .acc-nflavor { color: #f3e6c8; }
 .acc-node.up .acc-ndesc { color: #5a5040; }
@@ -496,6 +496,32 @@ body {
 .acc-node.locked .acc-nrow { align-items: center; }
 .acc-node.locked .acc-nm { color: #aaa08a; font-weight: 700; }
 .acc-lock { flex-shrink: 0; opacity: 0.85; }
+.acc-lockhint { margin-top: 7px; font-size: 11px; font-style: italic; color: #a99f88; }
+
+/* ===== Branching Rail: the Singularity spine + per-tier branches ===== */
+.acc-rail { display: grid; grid-template-columns: 172px 30px minmax(0, 1fr); align-items: stretch; width: 100%; max-width: 720px; margin: 0 auto; }
+.acc-gatecell { position: relative; display: flex; justify-content: center; align-items: center; padding: 9px 0; }
+.acc-gatecell::before { content: ''; position: absolute; top: 0; bottom: 0; width: 3px; background: #cdb98a; }
+.acc-gatecell.dim::before { background: repeating-linear-gradient(180deg, #cdbfa0 0 5px, transparent 5px 10px); opacity: 0.6; }
+.acc-gate { position: relative; z-index: 2; width: 152px; background: #f4f0e8; border: 2px solid #a8853a; border-radius: 11px; padding: 9px 12px 10px; text-align: center; }
+.acc-gtier { font-size: 9.5px; letter-spacing: 0.13em; text-transform: uppercase; font-weight: 800; color: #b5a98c; }
+.acc-gorb { font-size: 14px; font-weight: 800; color: #6b6150; margin: 2px 0 5px; }
+.acc-gfoot { font-size: 12px; font-weight: 800; color: #b0a589; }
+.acc-gate.done { background: #a8853a; border-color: #a8853a; }
+.acc-gate.done .acc-gtier, .acc-gate.done .acc-gorb, .acc-gate.done .acc-gfoot { color: #fbf8f1; }
+.acc-gate.avail { border-color: #4a82a8; box-shadow: 0 0 0 4px rgba(74,130,168,0.15); }
+.acc-gate.avail .acc-gorb { color: #1a1a1a; }
+.acc-gfoot.ok { color: #fbf8f1; background: #a8853a; border-radius: 6px; padding: 2px 0; }
+.acc-gate.locked { border-style: dashed; border-color: #d8cdb5; background: #f0ebe0; }
+.acc-gate.locked .acc-gorb { color: #aaa08a; }
+.acc-gate.buy { cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; }
+.acc-gate.buy:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(74,130,168,0.25); }
+.acc-branch { position: relative; align-self: center; height: 100%; }
+.acc-branch::after { content: ''; position: absolute; top: 50%; left: -2px; right: 0; height: 2px; background: #cdb98a; transform: translateY(-50%); }
+.acc-branch.dim::after { background: repeating-linear-gradient(90deg, #cdbfa0 0 4px, transparent 4px 8px); opacity: 0.7; }
+.acc-tiernodes { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; padding: 9px 0; min-height: 60px; }
+.acc-tiernodes .acc-node { width: 230px; }
+.acc-sealed { font-size: 12px; color: #c1b79f; font-style: italic; letter-spacing: 0.04em; padding-left: 4px; }
 
 /* Absorption animation overlay canvas (Implosion & Rebirth) */
 #accretion-fx { display: none; position: fixed; inset: 0; z-index: 110; pointer-events: none; }
