@@ -245,6 +245,50 @@ const UPGRADES = [
     unlock: () => lvl("dwarf") >= 1,
   },
   {
+    id: "dwarfcompound",
+    name: "Compounding Orbit",
+    maxLevel: 3,
+    section: "DWARF PLANET",
+    costs: [120000, 300000, 700000],
+    flavor: "Each slow lap settles a little more stardust into its orbit.",
+    desc: (l) =>
+      `The Dwarf Planet's payout grows +0.3% every orbit, up to +${[0, 15, 30, 50][l || 1]}%. The ramp resets when the universe collapses.`,
+    unlock: () => lvl("dwarf") >= 1,
+  },
+  {
+    id: "dwarfconj",
+    name: "Conjunction",
+    maxLevel: 3,
+    section: "DWARF PLANET",
+    costs: [150000, 400000, 900000],
+    flavor: "When two worlds line up, their pull runs deep.",
+    desc: (l) =>
+      `When the Dwarf Planet and Moon align in conjunction, both pay ×${(1.5 + 0.5 * (l || 1)).toFixed(1)}. Each level raises the bonus by +0.5×.`,
+    unlock: () => lvl("dwarf") >= 1 && lvl("moon") >= 1,
+  },
+  {
+    id: "dwarftrojan",
+    name: "Trojan Companions",
+    maxLevel: 2,
+    section: "DWARF PLANET",
+    costs: [250000, 700000],
+    flavor: "Two captured rocks ride the calm points of its orbit.",
+    desc: () =>
+      "Each level settles a Trojan companion at a ±60° Lagrange point (max 2). Each pays half the Dwarf's payout on its own pass, spreading the income.",
+    unlock: () => lvl("dwarf") >= 1,
+  },
+  {
+    id: "dwarfassist",
+    name: "Gravity Assist",
+    maxLevel: 3,
+    section: "DWARF PLANET",
+    costs: [120000, 320000, 800000],
+    flavor: "The Dwarf's gravity slings passing worlds onward.",
+    desc: (l) =>
+      `When a faster orbiter laps the Dwarf Planet, its next payouts gain +${25 * (l || 1)}% for 6 seconds.`,
+    unlock: () => lvl("dwarf") >= 1,
+  },
+  {
     id: "charm",
     name: "Comet Charm",
     maxLevel: 3,

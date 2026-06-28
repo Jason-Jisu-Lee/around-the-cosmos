@@ -182,13 +182,35 @@ function drawDwarfSphere(cx, cy, R, t) {
 }
 function drawDwarfClump(o, t) {
     const cp = o.clumpPos(), pr = o.pebbleR();
-    for (const b of o.list()) {
-        if (b.pulse > 0) {
-            ctx.beginPath(); ctx.arc(cp.x, cp.y, pr+3+(1-b.pulse)*12, 0, Math.PI*2);
-            ctx.strokeStyle = `rgba(180,120,60,${b.pulse*0.45})`; ctx.lineWidth = 1.5; ctx.stroke();
+    const b = o.list()[0];
+    if (!b) return;
+    const r = orbitR(3), tc = (typeof dwarfTrojanCount === 'function') ? dwarfTrojanCount() : 0;
+
+    // Trojan companions at ±60° (smaller embers, drawn first so the dwarf reads on top)
+    for (let i = 0; i < tc; i++) {
+        const ang = G.dwarfClump.angle + DWARF_TROJAN_OFF[i];
+        const tx = CX + Math.cos(ang)*r, ty = CY + Math.sin(ang)*r, tr = pr*0.52;
+        const tp = b.troj ? b.troj[i] : 0;
+        if (tp > 0) {
+            ctx.beginPath(); ctx.arc(tx, ty, tr+3+(1-tp)*9, 0, Math.PI*2);
+            ctx.strokeStyle = `rgba(180,120,60,${tp*0.4})`; ctx.lineWidth = 1.2; ctx.stroke();
         }
-        drawDwarfSphere(cp.x, cp.y, pr, t);
+        drawDwarfSphere(tx, ty, tr, t*0.85 + i*1.7);
     }
+
+    // Conjunction (Dwarf + Moon aligned): a warm halo flares around the dwarf
+    if (typeof conjunctionActive === 'function' && conjunctionActive()) {
+        const gl = ctx.createRadialGradient(cp.x, cp.y, pr*0.7, cp.x, cp.y, pr*2.6);
+        gl.addColorStop(0, 'rgba(232,178,90,0.40)'); gl.addColorStop(1, 'rgba(232,178,90,0)');
+        ctx.fillStyle = gl; ctx.beginPath(); ctx.arc(cp.x, cp.y, pr*2.6, 0, Math.PI*2); ctx.fill();
+    }
+
+    // Main dwarf
+    if (b.pulse > 0) {
+        ctx.beginPath(); ctx.arc(cp.x, cp.y, pr+3+(1-b.pulse)*12, 0, Math.PI*2);
+        ctx.strokeStyle = `rgba(180,120,60,${b.pulse*0.45})`; ctx.lineWidth = 1.5; ctx.stroke();
+    }
+    drawDwarfSphere(cp.x, cp.y, pr, t);
 }
 
 function drawReticle(x, y, s, g = ctx) {
