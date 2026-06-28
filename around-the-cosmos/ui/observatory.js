@@ -62,13 +62,13 @@ function updateObservatory() {
     statEls.totalMinPop.innerHTML = `pulse (✦${fmtNum(pulsePerMin)}) + orbiters (✦${fmtNum(orbiterPerMin)}) = <b>✦${fmtNum(totalPerMin)}</b> / min`;
     if (statEls.comet) {
         statEls.comet.textContent = '✦' + fmtNum(cometVal);
-        statEls.cometPop.innerHTML = `Scaled by your pulse and orbiter payout.`;
+        statEls.cometPop.innerHTML = `Scales with pulse and orbiters.`;
     }
     if (statEls.vortex) {
         const RM = (typeof VX !== 'undefined') ? VX.REWARD_MULT : 10;
         const vortexVal = cometVal * RM;
         statEls.vortex.textContent = '✦' + fmtNum(vortexVal);
-        statEls.vortexPop.innerHTML = `Scaled by your pulse and orbiter payout — far larger than a comet.`;
+        statEls.vortexPop.innerHTML = `Scales with comet value.`;
     }
     statEls.total.textContent = '✦' + fmtNum(G.runDust);
     statEls.totalPop.innerHTML = 'All stardust earned in the current universe (resets on prestige).';
