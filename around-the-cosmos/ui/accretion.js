@@ -96,7 +96,8 @@ function accTreeHTML(cat) {
            + `<div class="acc-branch${singularityLevel() < t ? ' dim' : ''}"></div>`
            + `<div class="acc-tiernodes">`
            + (nodes.length ? nodes.map(accNodeHTML).join('') : `<div class="acc-sealed">— sealed —</div>`)
-           + `</div>`;
+           + `</div>`
+           + `<div class="acc-rspacer"></div>`;   // balances the spine column so the cards stay page-centred
     }
     return h + '</div></div>';
 }

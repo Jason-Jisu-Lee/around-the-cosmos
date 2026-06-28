@@ -451,7 +451,7 @@ body {
 /* tree starts at the TOP (below the header row), fills downward - no vertical centering */
 .acc-stage { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; width: 100%; padding-top: 34px; }
 
-.acc-tree { display: flex; flex-direction: column; align-items: flex-start; width: 100%; padding-bottom: 40px; }
+.acc-tree { display: flex; flex-direction: column; align-items: center; width: 100%; padding-bottom: 40px; }
 
 /* ===== Uniform minimal Mass-upgrade card (every state is the SAME size - only colour changes) ===== */
 .acc-node { position: relative; width: 208px; height: 116px; box-sizing: border-box; display: flex; flex-direction: column;
@@ -487,17 +487,19 @@ body {
 .acc-pop-d b { color: #8a6f2e; }
 
 /* ===== Branching Rail: the Singularity spine + per-tier branches ===== */
-.acc-railwrap { align-self: flex-start; margin-left: clamp(18px, 4vw, 64px); width: 100%; }
-.acc-spinehdr { width: 150px; text-align: center; margin-bottom: 8px; }
+.acc-railwrap { margin: 0 auto; width: fit-content; max-width: 100%; }   /* cards stay page-centred; spine hangs off to the left */
+.acc-spinehdr { width: 208px; text-align: center; margin-bottom: 8px; }
 .acc-spinename { display: block; font-size: 15px; font-weight: 800; letter-spacing: 0.03em; color: #8a6f2e; }
 .acc-spinesub { display: block; font-size: 9px; color: #b5a98c; font-style: italic; margin-top: 1px; line-height: 1.25; }
-.acc-rail { display: grid; grid-template-columns: 150px 28px minmax(0, 1fr); align-items: stretch; }
+/* 4 cols: [spine 208][gap 64][cards auto][right spacer 272 = spine+gap] -> the cards column lands dead-centre, spine sits 64px to its left */
+.acc-rail { display: grid; grid-template-columns: 208px 64px auto 272px; align-items: stretch; }
 .acc-gatecell { position: relative; display: flex; justify-content: center; align-items: center; padding: 10px 0; }
 .acc-gatecell::before { content: ''; position: absolute; top: 0; bottom: 0; width: 3px; background: #cdb98a; }
 .acc-gatecell.first::before { top: 50%; }    /* the path starts AT Tier 1 - no line above it */
 .acc-gatecell.last::before  { bottom: 50%; }  /* and ends at the final gate */
 .acc-gatecell.dim::before { background: repeating-linear-gradient(180deg, #cdbfa0 0 5px, transparent 5px 10px); opacity: 0.6; }
-.acc-gate { position: relative; z-index: 2; width: 150px; box-sizing: border-box; background: #f4f0e8; border: 2px solid #a8853a; border-radius: 11px; padding: 9px 12px 10px; text-align: center; }
+/* spine gate box = EXACT same size as a Mass-upgrade card (208 x 116) */
+.acc-gate { position: relative; z-index: 2; width: 208px; height: 116px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; background: #f4f0e8; border: 2px solid #a8853a; border-radius: 12px; padding: 10px 12px; text-align: center; }
 .acc-gtier { font-size: 9.5px; letter-spacing: 0.13em; text-transform: uppercase; font-weight: 800; color: #b5a98c; }
 .acc-gorb { font-size: 14px; font-weight: 800; color: #6b6150; margin: 2px 0 5px; }
 .acc-gfoot { font-size: 12px; font-weight: 800; color: #b0a589; }
