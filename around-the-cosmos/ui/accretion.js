@@ -1,6 +1,6 @@
 'use strict';
 
-const ACC_CATS = ['Maw', 'Orbiters', 'Phenomena', 'Cycles'];
+const ACC_CATS = ['Maw', 'Orbiters', 'Phenomena', 'Eternity'];
 
 const ACC_MASS_ICON = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none">'
     + '<ellipse cx="12" cy="12" rx="10.5" ry="3.9" transform="rotate(-22 12 12)" stroke="#a8853a" stroke-width="1.5"/>'

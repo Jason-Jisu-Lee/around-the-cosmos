@@ -68,20 +68,20 @@ const MASS_UPGRADES = [
     flavor:'The dark briefly roars.',
     eff:l => `${l||1} flare${(l||1)===1?'':'s'} per cycle` },
 
-  // ===== Cycles =====
-  { id:'greaterCollapse', cat:'Cycles', tier:1, name:'Greater Collapse', max:3, costs:[2,3,4],
+  // ===== Eternity (the accretion cycle / time) =====
+  { id:'greaterCollapse', cat:'Eternity', tier:1, name:'Greater Collapse', max:3, costs:[2,3,4],
     flavor:'Collapse harder; gather more.',
     eff:l => `×${(1 + l/3).toFixed(2)} Mass per accretion` },
-  { id:'lunarFavor', cat:'Cycles', tier:1, name:'Lunar Favor', max:3, costs:[1,2,3],
+  { id:'lunarFavor', cat:'Eternity', tier:1, name:'Lunar Favor', max:3, costs:[1,2,3],
     flavor:'The tides run in your favor.',
     eff:l => `+${10*l}% average moon payout` },
-  { id:'timeDilation', cat:'Cycles', tier:2, placeholder:true, name:'Time Dilation', max:5, costs:[4,7,11,16,22],
+  { id:'timeDilation', cat:'Eternity', tier:2, placeholder:true, name:'Time Dilation', max:5, costs:[4,7,11,16,22],
     flavor:'The whole universe runs faster.',
     eff:l => `+${10*(l||1)}% game speed` },
-  { id:'cyclesT3', cat:'Cycles', tier:3, placeholder:true, name:'Eternal Return', max:3, costs:[10,18,28],
+  { id:'cyclesT3', cat:'Eternity', tier:3, placeholder:true, name:'Eternal Return', max:3, costs:[10,18,28],
     flavor:'Something always carries over.',
     eff:l => `keep ${l||1} upgrade${(l||1)===1?'':'s'} on reset` },
-  { id:'cyclesT4', cat:'Cycles', tier:4, placeholder:true, name:'Long Now', max:4, costs:[14,24,40,60],
+  { id:'cyclesT4', cat:'Eternity', tier:4, placeholder:true, name:'Long Now', max:4, costs:[14,24,40,60],
     flavor:'Time pools instead of passing.',
     eff:l => `+${10*(l||1)}% slower, richer pulses` },
 ];

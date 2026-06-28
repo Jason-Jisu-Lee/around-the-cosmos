@@ -336,8 +336,8 @@ that carry into every future universe.
 | Orbiters | **Retained Companions** | start with the Dust Particle → Asteroid → Moon already formed | 3 | 2·3·5 |
 | Phenomena | **Brighter Tails** | +50% comet windfall | 4 | 1·2·3·4 |
 | Phenomena | **Comet Shower** | comets arrive ~15% sooner (gap ×0.85) | 3 | 1·2·3 |
-| Cycles | **Greater Collapse** | ×Mass per accretion (1 + level/3 → up to ×2) | 3 | 2·3·4 |
-| Cycles | **Lunar Favor** | +10% average moon payout | 3 | 1·2·3 |
+| Eternity | **Greater Collapse** | ×Mass per accretion (1 + level/3 → up to ×2) | 3 | 2·3·4 |
+| Eternity | **Lunar Favor** | +10% average moon payout | 3 | 1·2·3 |
 
 First Light + Retained Companions take effect at the **birth** of each universe, so they shrink the
 opening grind on every subsequent run. You can spend Mass **only on the Mass page right after an
