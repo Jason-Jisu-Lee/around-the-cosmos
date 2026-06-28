@@ -547,9 +547,9 @@ body {
     box-shadow: 0 22px 60px -18px rgba(40,32,22,0.5), 0 2px 0 rgba(255,255,255,0.6) inset;
     font-family: 'Nunito','Segoe UI',sans-serif;
 }
-#acc-confirm .acc-confirm-box { width: 400px; }   /* fits the 2-line explanation without wrapping */
 .acc-sentence { font-size: 18px; font-weight: 900; color: #1a1a1a; letter-spacing: 0.035em; text-transform: uppercase; margin: 2px 0 0; }
-.acc-explain { font-size: 14px; line-height: 1.65; color: #4a4233; margin: 2px auto 0; max-width: none; white-space: nowrap; font-weight: 600; }
+/* the explanation now sits UNDER the ledger, centred, two clean lines */
+.acc-explain { font-size: 13px; line-height: 1.55; color: #6b6150; margin: 14px auto 2px; max-width: none; font-weight: 600; text-align: center; }
 /* leave-confirm: a big dominant title with a small note under it */
 .acc-confirm-title { font-size: 27px; font-weight: 900; color: #1a1a1a; letter-spacing: 0.01em; line-height: 1.12; margin: 2px 0 0; }
 .acc-confirm-body { font-size: 13px; line-height: 1.5; color: #6b6150; margin: 12px auto 0; max-width: 280px; }
@@ -589,8 +589,8 @@ body {
 .acc-go-fx { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
 .acc-go-label { position: relative; z-index: 1; }
 /* "Skip animation" - appears in the confirm body only after the first Accretion; checked = skip */
-/* tucked into the modal's top-right corner, out of the way */
-.acc-skip { position: absolute; top: 12px; right: 14px; display: flex; align-items: center; gap: 6px; margin: 0; font-size: 11.5px; font-weight: 700; color: #9a9180; cursor: pointer; }
+/* right-aligned, just above the Collapse button */
+.acc-skip { display: flex; justify-content: flex-end; align-items: center; gap: 6px; margin: 12px 0 0; font-size: 11.5px; font-weight: 700; color: #9a9180; cursor: pointer; }
 .acc-skip input { width: 14px; height: 14px; accent-color: var(--accretion); cursor: pointer; }
 /* secondary action - clearly a button, just quieter than the primary (not a hidden text link) */
 .acc-btn-ghost { width: 100%; background: #fbf8f1; border: 1.5px solid #ddd3bd; color: #6b6150; border-radius: 11px; padding: 11px; font: 800 13px 'Nunito'; letter-spacing: 0.04em; cursor: pointer; transition: border-color 0.12s, color 0.12s, background 0.12s; }

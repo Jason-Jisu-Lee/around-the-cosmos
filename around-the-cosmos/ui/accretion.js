@@ -212,7 +212,6 @@ function accConfirmBody() {
              + `<rect x="1" y="1" width="6" height="6" rx="1.4"/><rect x="9" y="1" width="6" height="6" rx="1.4"/>`
              + `<rect x="1" y="9" width="6" height="6" rx="1.4"/><rect x="9" y="9" width="6" height="6" rx="1.4"/></g></svg>`;
     return `
-        <p class="acc-explain">All Stardust and orbiters collapse into Mass<br>Mass can be used for permanent, powerful upgrades</p>
         <div class="acc-ledger">
             <div class="acc-col lose">
                 <div class="acc-colh">Resets</div>
@@ -230,6 +229,7 @@ function accConfirmBody() {
                 </div>
             </div>
         </div>
+        <p class="acc-explain">All Stardust and orbiters collapse into Mass<br>Mass can be used for permanent upgrades</p>
         <div class="acc-next2">
             <div class="acc-nextrow"><span class="acc-nextt">Next Mass</span><span class="acc-nextv"><span class="acc-star">✦</span> ${fmtNum(needed)} to go</span></div>
             <div class="acc-bar"><i style="width:${(prog*100).toFixed(0)}%"></i></div>
