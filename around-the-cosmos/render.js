@@ -29,6 +29,7 @@ function clumpPos() { const r=orbitR(0); return { x:CX+Math.cos(G.clump.angle)*r
 function asteroidClumpPos() { const r=orbitR(1); return { x:CX+Math.cos(G.asteroidClump.angle)*r, y:CY+Math.sin(G.asteroidClump.angle)*r }; }
 
 function moonClumpPos() { const r=orbitR(2); return { x:CX+Math.cos(G.moonClump.angle)*r, y:CY+Math.sin(G.moonClump.angle)*r }; }
+function dwarfClumpPos() { const r=orbitR(3); return { x:CX+Math.cos(G.dwarfClump.angle)*r, y:CY+Math.sin(G.dwarfClump.angle)*r }; }
 
 function drawClump(list, cp, pr, color, t) {
     for (const o of list) {
@@ -143,6 +144,53 @@ function drawRoundClump(o, t) {
     }
 }
 
+// ----- Dwarf Planet ("Ember") sphere: a procedurally-lit, slowly-spinning banded ball -----
+let EMBER_TEX = null;
+function buildEmberTex() {
+    const TW=300, TH=150, a=new Uint8ClampedArray(TW*TH*3);
+    const hsh=(x,y)=>{ let n=(x|0)*374761393+(y|0)*668265263; n=(n^(n>>>13))>>>0; n=Math.imul(n,1274126177)>>>0; return((n^(n>>>16))>>>0)/4294967295; };
+    const vn=(x,y)=>{ const xi=Math.floor(x),yi=Math.floor(y),xf=x-xi,yf=y-yi,u=xf*xf*(3-2*xf),v=yf*yf*(3-2*yf),A=hsh(xi,yi),B=hsh(xi+1,yi),C=hsh(xi,yi+1),Dd=hsh(xi+1,yi+1); return A+(B-A)*u+(C-A)*v+(A-B-C+Dd)*u*v; };
+    const fbm=(x,y)=>{ let s=0,am=0.5,f=1; for(let k=0;k<5;k++){ s+=am*vn(x*f,y*f); f*=2; am*=0.5; } return s; };
+    const cl=(x,lo,hi)=>x<lo?lo:x>hi?hi:x, lp=(p,q,r)=>p+(q-p)*r;
+    for (let y=0;y<TH;y++) for (let x=0;x<TW;x++) {
+        const u=(x+0.5)/TW, v=(y+0.5)/TH;
+        const band=Math.sin(v*Math.PI*6+Math.sin(u*6.28)*0.25)*0.5+0.5, n=fbm(u*10,v*22);
+        const t=cl(band*0.7+n*0.3,0,1), hi=cl((t-0.6)/0.4,0,1), o=(y*TW+x)*3;
+        a[o]=lp(lp(150,205,t),224,hi); a[o+1]=lp(lp(96,150,t),186,hi); a[o+2]=lp(lp(54,92,t),128,hi);
+    }
+    EMBER_TEX = { w:TW, h:TH, data:a };
+}
+const dwarfTmp = document.createElement('canvas'), dwarfTctx = dwarfTmp.getContext('2d');
+function drawDwarfSphere(cx, cy, R, t) {
+    if (!EMBER_TEX) buildEmberTex();
+    const TW=EMBER_TEX.w, TH=EMBER_TEX.h, TX=EMBER_TEX.data, TAU=Math.PI*2, rot=t*0.22;
+    const D=Math.ceil(R*2)+2, x0=Math.round(cx-R)-1, y0=Math.round(cy-R)-1;
+    if (dwarfTmp.width<D) { dwarfTmp.width=D; dwarfTmp.height=D; }
+    const img=dwarfTctx.createImageData(D,D), data=img.data;
+    const Lx=-0.5,Ly=-0.56,Lz=0.66, Ll=1/Math.hypot(Lx,Ly,Lz), lx=Lx*Ll, ly=Ly*Ll, lz=Lz*Ll;
+    for (let j=0;j<D;j++) for (let i=0;i<D;i++) {
+        const nx=(x0+i-cx)/R, ny=(y0+j-cy)/R, d2=nx*nx+ny*ny, o=(j*D+i)*4;
+        if (d2>1) { data[o+3]=0; continue; }
+        const nz=Math.sqrt(1-d2), cny=ny<-1?-1:ny>1?1:ny, lat=Math.asin(cny), lon=Math.atan2(nx,nz)+rot;
+        let u=(lon/TAU)%1; if(u<0)u+=1; const vv=lat/Math.PI+0.5;
+        let tx=(u*TW)|0; if(tx>=TW)tx=TW-1; let ty=(vv*TH)|0; if(ty>=TH)ty=TH-1; const to=(ty*TW+tx)*3;
+        let diff=nx*lx+ny*ly+nz*lz; if(diff<0)diff=0; const sh=(0.26+0.95*diff)*(0.5+0.5*nz);
+        data[o]=TX[to]*sh; data[o+1]=TX[to+1]*sh; data[o+2]=TX[to+2]*sh; data[o+3]=255;
+    }
+    dwarfTctx.putImageData(img,0,0);
+    ctx.drawImage(dwarfTmp,0,0,D,D, x0,y0,D,D);
+}
+function drawDwarfClump(o, t) {
+    const cp = o.clumpPos(), pr = o.pebbleR();
+    for (const b of o.list()) {
+        if (b.pulse > 0) {
+            ctx.beginPath(); ctx.arc(cp.x, cp.y, pr+3+(1-b.pulse)*12, 0, Math.PI*2);
+            ctx.strokeStyle = `rgba(180,120,60,${b.pulse*0.45})`; ctx.lineWidth = 1.5; ctx.stroke();
+        }
+        drawDwarfSphere(cp.x, cp.y, pr, t);
+    }
+}
+
 function drawReticle(x, y, s, g = ctx) {
     const a = 7;
     g.strokeStyle = 'rgba(60,80,70,0.85)';
@@ -237,8 +285,9 @@ function draw(t) {
     ctx.fillStyle='#1a1a1a'; ctx.fill();
 
     for (const o of ORBITERS) if (o.list().length) {
-        if (o.round) drawRoundClump(o, t);
-        else         drawClump(o.list(), o.clumpPos(), o.pebbleR(), o.color(), t);
+        if (o.sphere)     drawDwarfClump(o, t);
+        else if (o.round) drawRoundClump(o, t);
+        else              drawClump(o.list(), o.clumpPos(), o.pebbleR(), o.color(), t);
     }
 
     if (cosmoOver) {

@@ -224,6 +224,27 @@ const UPGRADES = [
     unlock: () => lvl("moon") >= 1,
   },
   {
+    id: "dwarf",
+    name: "Dwarf Planet",
+    maxLevel: 1,
+    section: "DWARF PLANET",
+    costs: [50000],
+    flavor: "A captured world settles into the widest, calmest orbit.",
+    desc: () =>
+      "Brings the Dwarf Planet into orbit on the widest ring. The slowest body, but each long pass pays +1,500 stardust, more than any other.",
+    unlock: () =>
+      typeof singularityLevel === "function" && singularityLevel() >= 1,
+  },
+  {
+    id: "dwarfpay",
+    name: "Dwarf Planet Payout",
+    maxLevel: 5,
+    section: "DWARF PLANET",
+    costs: [50000, 130000, 320000, 700000, 1200000],
+    desc: () => "+1,500 to the Dwarf Planet's payout, per level.",
+    unlock: () => lvl("dwarf") >= 1,
+  },
+  {
     id: "charm",
     name: "Comet Charm",
     maxLevel: 3,
@@ -235,4 +256,4 @@ const UPGRADES = [
   },
 ];
 
-const SECTION_ORDER = ["MAIN", "DUST PARTICLES", "ASTEROID", "MOON", "COMETS"];
+const SECTION_ORDER = ["MAIN", "DUST PARTICLES", "ASTEROID", "MOON", "DWARF PLANET", "COMETS"];
