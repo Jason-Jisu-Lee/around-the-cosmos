@@ -17,9 +17,13 @@ const ACC_LOCK ='<svg class="acc-lock" width="14" height="14" viewBox="0 0 24 24
 // The detailed "math" lives in the hover popup (accNodeDetail) so the card stays simple and fixed-size.
 // Minimal card: title + one-line effect. Cost badge top-LEFT, level badge (X/Y) top-RIGHT.
 function accNodeHTML(u) {
-    // Locked tier: show ONLY the title (greyed) - no "Sealed", no badge, no hover. The look says enough.
+    // Locked tier: keep the box, no badge/hover. Reveal the NAME only for the next tier;
+    // deeper (still-sealed) tiers show a lock icon instead of the title - no readable name.
     if (massNodeVis(u) === 'locked') {
-        return `<div class="acc-node locked" data-uid="${u.id}"><div class="acc-nm">${u.name}</div></div>`;
+        const reveal = u.tier === singularityLevel() + 1;
+        return `<div class="acc-node locked" data-uid="${u.id}">`
+            + (reveal ? `<div class="acc-nm">${u.name}</div>` : `<div class="acc-nlock">${ACC_LOCK}</div>`)
+            + `</div>`;
     }
     const planned = u.placeholder;
     const l = mlvl(u.id), maxed = !planned && l >= u.max;
