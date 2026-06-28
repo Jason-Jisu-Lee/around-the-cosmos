@@ -88,7 +88,9 @@ function earn(amount, x, y, big) {
 
 const ACCRETION_THRESHOLD = 200000;
 const MASS_COEF = 3;
-function massEarnable() { return Math.floor(MASS_COEF * Math.cbrt(G.runDust / ACCRETION_THRESHOLD)); }
+// LINEAR in runDust (was cube-root): every ACCRETION_THRESHOLD of stardust = +MASS_COEF Mass, no plateaus,
+// so pushing further always earns proportionally more Mass and is rewarded over spamming quick accretions.
+function massEarnable() { return Math.floor(MASS_COEF * G.runDust / ACCRETION_THRESHOLD); }
 function baseMassGain() { return massEarnable(); }
 function massGain()     { return Math.round(baseMassGain() * greaterCollapseMult()); }
 function canAccrete()   { return G.runDust >= ACCRETION_THRESHOLD; }

@@ -393,8 +393,10 @@ document.getElementById('acc-confirm-cancel').addEventListener('click', closeAcc
     const btn = document.getElementById('acc-confirm-go');
     if (!btn) return;
     const fx = btn.querySelector('.acc-go-fx'), ctx = fx.getContext('2d');
+    const ring = btn.closest('.acc-go-wrap').querySelector('.acc-go-ring'), rctx = ring.getContext('2d');
     const HOLD_MS = 1000, TAU = Math.PI * 2;
     let holding = false, holdStart = 0, raf = null, parts = [];
+    function roundRectPath(c, x, y, w, h, r) { c.beginPath(); c.moveTo(x+r,y); c.arcTo(x+w,y,x+w,y+h,r); c.arcTo(x+w,y+h,x,y+h,r); c.arcTo(x,y+h,x,y,r); c.arcTo(x,y,x+w,y,r); c.closePath(); }
 
     function frame(now) {
         const r = btn.getBoundingClientRect(), W = r.width, H = r.height, cx = W/2, cy = H/2;
@@ -402,6 +404,21 @@ document.getElementById('acc-confirm-cancel').addEventListener('click', closeAcc
         if (fx.width !== Math.round(W*dpr)) { fx.width = Math.round(W*dpr); fx.height = Math.round(H*dpr); }
         ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,W,H);
         const elapsed = now - holdStart, p = Math.min(1, elapsed/HOLD_MS);
+
+        // progress ring AROUND the button (overflows it) - fills as you keep holding
+        const rr = ring.getBoundingClientRect(), RW = rr.width, RH = rr.height;
+        if (ring.width !== Math.round(RW*dpr)) { ring.width = Math.round(RW*dpr); ring.height = Math.round(RH*dpr); }
+        rctx.setTransform(dpr,0,0,dpr,0,0); rctx.clearRect(0,0,RW,RH);
+        if (holding) {
+            const rx = 5, ry = 5, rw = RW-10, rh = RH-10, rad = 15;
+            const perim = 2*((rw-2*rad)+(rh-2*rad)) + TAU*rad;
+            rctx.lineCap = 'round'; rctx.lineJoin = 'round';
+            roundRectPath(rctx, rx, ry, rw, rh, rad);
+            rctx.lineWidth = 4; rctx.setLineDash([]); rctx.shadowBlur = 0; rctx.strokeStyle = 'rgba(120,95,40,0.18)'; rctx.stroke();   // faint full track
+            roundRectPath(rctx, rx, ry, rw, rh, rad);
+            rctx.setLineDash([perim*p, perim]); rctx.strokeStyle = '#d4a93f'; rctx.shadowColor = 'rgba(212,169,63,0.9)'; rctx.shadowBlur = 8; rctx.stroke();   // glowing gold fill
+            rctx.setLineDash([]); rctx.shadowBlur = 0;
+        }
 
         if (holding) {
             const n = 3 + Math.round(p*6);

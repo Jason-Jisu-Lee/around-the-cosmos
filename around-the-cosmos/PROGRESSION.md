@@ -319,12 +319,12 @@ Collapse the whole universe into Maw to bank **Mass**, then spend it on permanen
 that carry into every future universe.
 
 - **Unlocks** whenever the **current universe** reaches **200,000** stardust (`runDust`, and there's ≥1 Mass to claim).
-- **Mass earned** = `floor(3 × ∛(this universe's stardust / 200,000))` → 200k = 3, 800k = 4, 1.6M = 6, 5.4M = 9, 12.8M = 12, 25M = 15.
-  **Per-run, not lifetime:** reaching a milestone pays the **same Mass every universe** (200k always = 3), so you can
-  always aim for a milestone and choose whether to push past it. **Cube-root curve:** the first accretion is a big
-  **3-Mass** milestone at 200k, but each further point needs ×8 the stardust for ×2 the Mass - pushing is rewarded yet
-  slows. (The disincentive to spam quick 200k accretions is meant to come from **rising Mass-upgrade costs** - to be
-  tuned - plus the rebuild cost, since the earn curve itself is concave.) **Greater Collapse** multiplies what you receive.
+- **Mass earned** = `floor(3 × this universe's stardust / 200,000)` → 200k = 3, 400k = 6, 1M = 15, 1.6M = 24, 5M = 75, 10M = 150.
+  **Per-run, not lifetime:** reaching a milestone pays the **same Mass every universe** (200k always = 3). **Linear curve
+  (was cube-root):** the cube-root had long flat plateaus (200k–1.5M all paid 3 Mass), which made prestiging *immediately*
+  at 200k the optimal play. Linear has **no plateaus** - every 200k of stardust = +3 Mass - so **pushing further always
+  earns proportionally more** and is rewarded over spamming quick accretions. The first accretion is still gated at 200k.
+  **Greater Collapse** multiplies what you receive.
 - **What resets:** stardust + every stardust upgrade. **What you keep:** Mass and everything you bought with it.
 
 ### Mass upgrades (few, powerful - 1–3 Mass per level)
