@@ -1,6 +1,7 @@
 'use strict';
 
 let debugSpeedMult = 1;
+let debugSkipAcc = false;   // debug-only: when ON, even the first-ever accretion skips the animation (the player still can't)
 function tickWithDebug(dt) { tick(dt * debugSpeedMult); }
 
 function initDebug() {
@@ -42,21 +43,11 @@ function initDebug() {
     });
     panel.appendChild(speedRow);
 
-    const fxRow = document.createElement('div');
-    fxRow.style.cssText = 'display:flex;align-items:center;gap:6px;margin-top:2px;flex-wrap:wrap';
-    fxRow.innerHTML = '<span style="font-size:12px;width:100%">Click FX</span>';
-    const fxBtns = {};
-    const paint = () => Object.entries(fxBtns).forEach(([k, b]) =>
-        b.style.borderColor = (k === 'random' ? clickFxRandom : (!clickFxRandom && k === clickFxId)) ? '#6adfd0' : 'rgba(106,223,208,0.3)');
-    const mkFxBtn = (key, label, onclick) => {
-        const b = document.createElement('button'); b.textContent = label; b.style.cssText = btnStyle;
-        b.onclick = () => { onclick(); paint(); }; fxRow.appendChild(b); fxBtns[key] = b;
-    };
-    mkFxBtn('random', 'Random', () => { clickFxRandom = true; });
-    CLICK_FX_LIST.forEach(id => mkFxBtn(id, CLICK_FX[id].name,
-        () => { clickFxRandom = false; clickFxId = id; triggerClickFx(gameClock, 0, -1); }));
-    paint();
-    panel.appendChild(fxRow);
+    const skipBtn = btn('Skip Acc Anim: OFF', () => {
+        debugSkipAcc = !debugSkipAcc;
+        skipBtn.textContent = 'Skip Acc Anim: ' + (debugSkipAcc ? 'ON' : 'OFF');
+        skipBtn.style.borderColor = debugSkipAcc ? '#6adfd0' : 'rgba(106,223,208,0.3)';
+    });
 
     document.body.appendChild(panel);
     panel.style.cursor = 'grab';

@@ -254,8 +254,9 @@ accretionAudio.volume = 0.68;
 
 function startAccretionSequence() {
     // The FIRST-ever accretion always plays the animation no matter what (massEarned isn't bumped until commitAccretion below);
-    // afterwards, honour the checkbox.
-    const skipAnim = G.massEarned > 0 && !!document.getElementById('acc-skip-anim').checked;
+    // afterwards, honour the checkbox. (debugSkipAcc is a debug-only override that skips even the first.)
+    const skipAnim = (typeof debugSkipAcc !== 'undefined' && debugSkipAcc)
+        || (G.massEarned > 0 && !!document.getElementById('acc-skip-anim').checked);
     closeAccConfirm();
     if (typeof closeCosmoCard === 'function') closeCosmoCard();
     if (typeof SoundSystem !== 'undefined') SoundSystem.stopMusic();
