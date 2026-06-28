@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Dwarf Planet — Eccentric Orbit</title>
+<style>
+  :root{ --bg:#f4efe4; --ink:#2a2520; --muted:#7a715f; --accent:#4a82a8; --gold:#b8923a; }
+  *{box-sizing:border-box;}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Georgia,serif;overflow:hidden;}
+  #cv{display:block;position:fixed;inset:0;}
+  #panel{position:fixed;top:16px;left:16px;z-index:10;background:rgba(251,248,241,0.94);border:1px solid #e0d7c6;border-radius:12px;padding:14px 16px;width:300px;box-shadow:0 6px 22px -8px rgba(60,45,25,.3);}
+  h1{margin:0 0 4px;font-size:16px;} .sub{margin:0 0 12px;font-size:12px;color:var(--muted);line-height:1.45;}
+  .btn{width:100%;padding:11px;border:none;border-radius:9px;background:var(--accent);color:#fff;font-family:inherit;font-size:13px;font-weight:bold;cursor:pointer;}
+  .btn:hover{background:#3d6f91;} .btn.on{background:var(--gold);} .btn.on:hover{background:#a07e2f;}
+  .row{display:flex;align-items:center;gap:8px;margin-top:11px;font-size:12px;color:var(--muted);}
+  .row input{flex:1;accent-color:var(--accent);}
+  .stat{margin-top:11px;font-size:12.5px;} .stat b{color:var(--gold);font-variant-numeric:tabular-nums;}
+  .hint{margin-top:10px;font-size:11px;color:var(--muted);font-style:italic;line-height:1.4;}
+</style>
+</head>
+<body>
+<canvas id="cv"></canvas>
+<div id="panel">
+  <h1>Eccentric Orbit</h1>
+  <p class="sub">The Dwarf Planet's circular orbit stretches into an ellipse. It <b>surges in payout</b> each time it swings closest to Maw (perihelion), and slows out at the far point.</p>
+  <button class="btn" id="buy">Buy Eccentric Orbit</button>
+  <div class="row"><span style="width:64px">Eccentricity</span><input type="range" id="ecc" min="0" max="78" value="0"><span id="eccv" style="width:34px;text-align:right">.00</span></div>
+  <div class="stat">This orbit's payout: <b id="pay">×1.0</b></div>
+  <div class="hint">Click "Buy" to watch the clean transition (the slider lets you set the target by hand). The body keeps its position through the morph, so it glides from circle to ellipse.</div>
+</div>
+<script>
+'use strict';
+const cv=document.getElementById('cv'), g=cv.getContext('2d'); let W,H,DPR;
+function resize(){ DPR=Math.min(devicePixelRatio||1,2); W=innerWidth; H=innerHeight; cv.width=W*DPR; cv.height=H*DPR; g.setTransform(DPR,0,0,DPR,0,0); }
+resize(); addEventListener('resize',resize);
+
+// ---- Ember sphere (same renderer as the design demo) ----
+function hsh(x,y){ let n=(x|0)*374761393+(y|0)*668265263; n=(n^(n>>>13))>>>0; n=Math.imul(n,1274126177)>>>0; return((n^(n>>>16))>>>0)/4294967295; }
+function vn(x,y){ const xi=Math.floor(x),yi=Math.floor(y),xf=x-xi,yf=y-yi,u=xf*xf*(3-2*xf),v=yf*yf*(3-2*yf);
+  const a=hsh(xi,yi),b=hsh(xi+1,yi),c=hsh(xi,yi+1),d=hsh(xi+1,yi+1); return a+(b-a)*u+(c-a)*v+(a-b-c+d)*u*v; }
+function fbm(x,y){ let s=0,a=0.5,f=1; for(let i=0;i<5;i++){ s+=a*vn(x*f,y*f); f*=2; a*=0.5; } return s; }
+const clamp=(x,a,b)=>x<a?a:x>b?b:x, lerp=(a,b,t)=>a+(b-a)*t;
+const TW=300,TH=150;
+const TEX=(function(){ const a=new Uint8ClampedArray(TW*TH*3);
+  for(let y=0;y<TH;y++)for(let x=0;x<TW;x++){ const u=(x+0.5)/TW,v=(y+0.5)/TH;
+    const band=Math.sin(v*Math.PI*6+Math.sin(u*6.28)*0.25)*0.5+0.5, n=fbm(u*10,v*22); let t=clamp(band*0.7+n*0.3,0,1);
+    const r=lerp(lerp(150,205,t),224,clamp((t-0.6)/0.4,0,1)), gg=lerp(lerp(96,150,t),186,clamp((t-0.6)/0.4,0,1)), bb=lerp(lerp(54,92,t),128,clamp((t-0.6)/0.4,0,1));
+    const o=(y*TW+x)*3; a[o]=r;a[o+1]=gg;a[o+2]=bb; }
+  return a; })();
+const tmp=document.createElement('canvas'), tctx=tmp.getContext('2d');
+const Lx=-0.5,Ly=-0.56,Lz=0.66,Ll=1/Math.hypot(Lx,Ly,Lz),lx=Lx*Ll,ly=Ly*Ll,lz=Lz*Ll;
+function sphere(cx,cy,R,rot,warm){
+  const D=Math.ceil(R*2)+2, x0=Math.round(cx-R)-1, y0=Math.round(cy-R)-1;
+  if(tmp.width<D){tmp.width=D;tmp.height=D;}
+  const img=tctx.createImageData(D,D), data=img.data, TAU=Math.PI*2;
+  for(let j=0;j<D;j++)for(let i=0;i<D;i++){
+    const nx=(x0+i-cx)/R, ny=(y0+j-cy)/R, d2=nx*nx+ny*ny, o=(j*D+i)*4;
+    if(d2>1){data[o+3]=0;continue;}
+    const nz=Math.sqrt(1-d2), lat=Math.asin(clamp(ny,-1,1)), lon=Math.atan2(nx,nz)+rot;
+    let u=(lon/TAU)%1; if(u<0)u+=1; const vv=lat/Math.PI+0.5;
+    let tx=(u*TW)|0; if(tx>=TW)tx=TW-1; let ty=(vv*TH)|0; if(ty>=TH)ty=TH-1; const to=(ty*TW+tx)*3;
+    let diff=nx*lx+ny*ly+nz*lz; if(diff<0)diff=0; const sh=(0.26+0.95*diff)*(0.5+0.5*nz);
+    data[o]=Math.min(255,TEX[to]*sh+warm*60); data[o+1]=Math.min(255,TEX[to+1]*sh+warm*26); data[o+2]=TEX[to+2]*sh; data[o+3]=255;
+  }
+  tctx.putImageData(img,0,0); g.drawImage(tmp,0,0,D,D,x0,y0,D,D);
+}
+
+// ---- orbit ----
+let e=0, eTarget=0, eVel=0, rot=0, theta=0, last=0, surge=0, floats=[];
+const cx=()=>W*0.60, cy=()=>H*0.52, A=()=>Math.min(W,H)*0.27;   // semi-major
+function r_of(th){ const a=A(); return a*(1-e*e)/(1+e*Math.cos(th)); }
+const buy=document.getElementById('buy'), ecc=document.getElementById('ecc'), eccv=document.getElementById('eccv'), pay=document.getElementById('pay');
+let bought=false;
+buy.addEventListener('click',()=>{ bought=!bought; eTarget=bought?0.62:0; buy.classList.toggle('on',bought); buy.textContent=bought?'Reset to circle':'Buy Eccentric Orbit'; ecc.value=Math.round(eTarget*100); });
+ecc.addEventListener('input',()=>{ eTarget=+ecc.value/100; bought=eTarget>0.01; buy.classList.toggle('on',bought); buy.textContent=bought?'Reset to circle':'Buy Eccentric Orbit'; });
+
+function frame(t){
+  const dt=Math.min((t-(last||t))/1000,0.05); last=t;
+  // smooth (critically-damped) morph of e toward target -> clean transition
+  const k=14, c2=2*Math.sqrt(k); eVel += (-(e-eTarget)*k - eVel*c2)*dt; e+=eVel*dt; e=clamp(e,0,0.85);
+  eccv.textContent=e.toFixed(2).slice(1);
+  // Kepler-ish motion: dθ/dt = h / r^2 (faster near Maw)
+  const a=A(), h=2*Math.PI*a*a/6.5; const r=r_of(theta); theta+=h/(r*r)*dt; if(theta>Math.PI*2)theta-=Math.PI*2;
+  rot+=dt*0.5;
+  // payout surge ~ proportional to closeness (a/r), peaks at perihelion
+  const closeness=a/r; const surgeNow=clamp((closeness-1)/(1/(1-e)-1||1),0,1);
+  surge=surgeNow;
+  pay.textContent='×'+(1+surge*1.5).toFixed(2);
+  // perihelion float (once per pass)
+  if(Math.cos(theta)>0.985 && t-(frame._lastFloat||0)>1500){ frame._lastFloat=t;
+    const px=cx()+r*Math.cos(theta), py=cy()+r*Math.sin(theta);
+    floats.push({x:px,y:py,t:0,v:'+✦ surge'}); }
+
+  g.clearRect(0,0,W,H); g.fillStyle='#f4efe4'; g.fillRect(0,0,W,H);
+  const mx=cx(), my=cy();
+  // orbit path (ellipse, Maw at focus)
+  const ecx=mx-a*e, b=a*Math.sqrt(1-e*e);
+  g.strokeStyle='rgba(120,108,86,0.28)'; g.lineWidth=1.5; g.setLineDash([4,5]);
+  g.beginPath(); g.ellipse(ecx,my,a,b,0,0,Math.PI*2); g.stroke(); g.setLineDash([]);
+  // Maw (small dark center + faint warm glow)
+  const gl=g.createRadialGradient(mx,my,2,mx,my,46); gl.addColorStop(0,'rgba(184,146,58,0.16)'); gl.addColorStop(1,'rgba(184,146,58,0)');
+  g.fillStyle=gl; g.beginPath(); g.arc(mx,my,46,0,Math.PI*2); g.fill();
+  g.fillStyle='#1c1814'; g.beginPath(); g.arc(mx,my,13,0,Math.PI*2); g.fill();
+  // dwarf
+  const dx=mx+r*Math.cos(theta), dy=my+r*Math.sin(theta), R=30+surge*4;
+  if(surge>0.05){ const sg=g.createRadialGradient(dx,dy,R*0.6,dx,dy,R*(1.7+surge)); sg.addColorStop(0,`rgba(232,150,70,${0.5*surge})`); sg.addColorStop(1,'rgba(232,150,70,0)');
+    g.fillStyle=sg; g.beginPath(); g.arc(dx,dy,R*(1.7+surge),0,Math.PI*2); g.fill(); }
+  sphere(dx,dy,R,rot,surge);
+  // floats
+  g.textAlign='center'; g.textBaseline='middle'; g.font='bold 16px Georgia';
+  for(let i=floats.length-1;i>=0;i--){ const f=floats[i]; f.t+=dt; if(f.t>=1.3){floats.splice(i,1);continue;} const al=1-f.t/1.3;
+    g.fillStyle=`rgba(184,146,58,${al})`; g.fillText(f.v,f.x,f.y-30-f.t*36); }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
