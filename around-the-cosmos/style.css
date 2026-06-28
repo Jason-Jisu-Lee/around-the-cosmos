@@ -336,7 +336,7 @@ body {
 /* Soft modern font (Nunito) across the upgrade UI - cost/level/accordion/popup/toggle.
    (.upg-name is excluded so its Baloo 2 rounded font applies - the Demo-3 name treatment.) */
 #upgrades-list, .upgrade-card, .upg-cost, .upg-level,
-.acc-head, .acc-label, #upg-pop, #show-completed-wrap {
+.acc-head, .acc-label, #upg-pop, #acc-pop, #show-completed-wrap {
     font-family: 'Nunito','Segoe UI',sans-serif !important;
 }
 
@@ -507,10 +507,9 @@ body {
 /* 4 cols: [spine 208][gap 100][cards auto][right spacer 308 = spine+gap] -> cards stay dead-centre, spine sits 100px to its left (clearly separated from the upgrade tree) */
 .acc-rail { display: grid; grid-template-columns: 208px 100px auto 308px; align-items: stretch; }
 .acc-gatecell { position: relative; display: flex; justify-content: center; align-items: center; padding: 10px 0; }
-.acc-gatecell::before { content: ''; position: absolute; top: 0; bottom: 0; width: 3px; background: #b0a3c8; }
-.acc-gatecell.first::before { top: 50%; }    /* the path starts AT Tier 1 - no line above it */
-.acc-gatecell.last::before  { bottom: 50%; }  /* and ends at the final gate */
-.acc-gatecell.dim::before { background: repeating-linear-gradient(180deg, #b0a3c8 0 5px, transparent 5px 10px); opacity: 0.6; }
+.acc-gatecell.line::before { content: ''; position: absolute; top: 0; bottom: 0; width: 3px; background: #b0a3c8; }
+.acc-gatecell.line.first::before { top: 50%; }    /* rail starts AT the first connected gate - no line above */
+.acc-gatecell.line.last::before  { bottom: 50%; }  /* and stops at the last reached/next gate - no line into sealed tiers */
 /* spine gate box = EXACT same size as a Mass-upgrade card (208 x 116); its own MUTED VIOLET colour so the two trees read as different */
 .acc-gate { position: relative; z-index: 2; width: 208px; height: 116px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; background: #f4f0e8; border: 2px solid #8076a0; border-radius: 12px; padding: 10px 12px; text-align: center; }
 .acc-gtier { font-size: 9.5px; letter-spacing: 0.13em; text-transform: uppercase; font-weight: 800; color: #b5a98c; }
@@ -527,7 +526,7 @@ body {
 .acc-gate.buy:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(128,118,160,0.3); }
 .acc-branch { position: relative; align-self: center; height: 100%; }
 .acc-branch::after { content: ''; position: absolute; top: 50%; left: -2px; right: 0; height: 2px; background: #b0a3c8; transform: translateY(-50%); }
-.acc-branch.dim::after { background: repeating-linear-gradient(90deg, #b0a3c8 0 4px, transparent 4px 8px); opacity: 0.7; }
+.acc-branch.noline::after { display: none; }   /* sealed tiers: no connector */
 .acc-tiernodes { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; padding: 10px 0; min-height: 70px; }
 .acc-sealed { font-size: 12px; color: #c1b79f; font-style: italic; letter-spacing: 0.04em; padding-left: 4px; }
 

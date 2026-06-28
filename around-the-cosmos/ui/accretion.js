@@ -17,16 +17,15 @@ const ACC_LOCK ='<svg class="acc-lock" width="14" height="14" viewBox="0 0 24 24
 // The detailed "math" lives in the hover popup (accNodeDetail) so the card stays simple and fixed-size.
 // Minimal card: title + one-line effect. Cost badge top-LEFT, level badge (X/Y) top-RIGHT.
 function accNodeHTML(u) {
-    const locked = massNodeVis(u) === 'locked';
-    const planned = !locked && u.placeholder;
-    const l = mlvl(u.id), maxed = !locked && !planned && l >= u.max;
-    const afford = !accBrowse && !locked && !planned && !maxed && G.mass >= u.costs[l];
+    // Locked tier: show ONLY the title (greyed) - no "Sealed", no badge, no hover. The look says enough.
+    if (massNodeVis(u) === 'locked') {
+        return `<div class="acc-node locked" data-uid="${u.id}"><div class="acc-nm">${u.name}</div></div>`;
+    }
+    const planned = u.placeholder;
+    const l = mlvl(u.id), maxed = !planned && l >= u.max;
+    const afford = !accBrowse && !planned && !maxed && G.mass >= u.costs[l];
     let state, desc, costBadge = '', lvlBadge = '';
-    if (locked) {
-        state = 'locked';
-        desc = `<div class="acc-ndesc muted">Sealed</div>`;
-        lvlBadge = `<div class="acc-badge lock">${ACC_LOCK}</div>`;
-    } else if (planned) {
+    if (planned) {
         state = 'next';
         desc = `<div class="acc-ndesc">${u.eff(1)}</div>`;
         lvlBadge = `<div class="acc-badge soon">soon</div>`;
@@ -53,7 +52,8 @@ function accNodeDetail(u) {
 }
 
 // The Singularity spine gate. done = captured (pressed-in, no label), avail = next to buy (cost badge), locked = ???.
-function accGateHTML(t, first, last) {
+// `active` = the gate is captured or the next-available one -> it gets a rail line; locked gates beyond have none.
+function accGateHTML(t, first, last, active) {
     const lv = singularityLevel(), cost = SINGULARITY.costs[t - 1];
     const state = lv >= t ? 'done' : lv === t - 1 ? 'avail' : 'locked';
     const buy = !accBrowse && state === 'avail' && G.mass >= cost;
@@ -61,7 +61,7 @@ function accGateHTML(t, first, last) {
     const name = state === 'locked' ? '???' : SINGULARITY.orbiters[t - 1];
     // cost on the top-LEFT corner; nothing on the right (gates have only one level)
     const costBadge = state === 'avail' ? `<div class="acc-badge cost${buy ? ' ok' : ''}">${cost}</div>` : '';
-    const cell = (lv < t ? ' dim' : '') + (first ? ' first' : '') + (last ? ' last' : '');
+    const cell = (active ? ' line' : '') + (first ? ' first' : '') + (last ? ' last' : '');
     return `<div class="acc-gatecell${cell}">`
         + `<div class="acc-gate ${state}${buy ? ' buy' : ''}" data-gate="${t}"${idAttr}>`
         +   costBadge + `<div class="acc-gorb">${name}</div>`
@@ -75,14 +75,14 @@ function accGateDetail(t) {
 }
 
 function accTreeHTML(cat) {
+    // The rail only connects captured tiers + the next available one; locked tiers beyond have no line.
+    const lvl = singularityLevel(), lineMax = Math.min(lvl + 1, SINGULARITY.tiers);
     let h = '<div class="acc-railwrap"><div class="acc-rail">';
     for (let t = 1; t <= SINGULARITY.tiers; t++) {
-        const nodes = massTierNodes(cat, t);
-        h += accGateHTML(t, t === 1, t === SINGULARITY.tiers)
-           + `<div class="acc-branch${singularityLevel() < t ? ' dim' : ''}"></div>`
-           + `<div class="acc-tiernodes">`
-           + (nodes.length ? nodes.map(accNodeHTML).join('') : `<div class="acc-sealed">— sealed —</div>`)
-           + `</div>`
+        const nodes = massTierNodes(cat, t), active = t <= lineMax;
+        h += accGateHTML(t, t === 1, t === lineMax, active)
+           + `<div class="acc-branch${active ? '' : ' noline'}"></div>`
+           + `<div class="acc-tiernodes">${nodes.map(accNodeHTML).join('')}</div>`
            + `<div class="acc-rspacer"></div>`;   // balances the spine column so the cards stay page-centred
     }
     return h + '</div></div>';
@@ -114,13 +114,16 @@ function accRender() {
     tree.innerHTML = accTreeHTML(accCat);
     tree.querySelectorAll('.acc-node').forEach(node => {
         node.addEventListener('mouseenter', () => {
-            SoundSystem.sfxHover();
-            const u = MASS_BY_ID[node.dataset.uid]; if (u) showAccPop(accNodeDetail(u), node);
+            const u = MASS_BY_ID[node.dataset.uid];
+            if (u && massNodeVis(u) !== 'locked') { SoundSystem.sfxHover(); showAccPop(accNodeDetail(u), node); }  // locked = no hover
         });
         node.addEventListener('mouseleave', hideAccPop);
     });
     tree.querySelectorAll('.acc-gate').forEach(gate => {
-        gate.addEventListener('mouseenter', () => { SoundSystem.sfxHover(); showAccPop(accGateDetail(+gate.dataset.gate), gate); });
+        gate.addEventListener('mouseenter', () => {
+            const t = +gate.dataset.gate;
+            if (singularityLevel() >= t - 1) { SoundSystem.sfxHover(); showAccPop(accGateDetail(t), gate); }  // captured/next only
+        });
         gate.addEventListener('mouseleave', hideAccPop);
     });
     tree.querySelectorAll('.acc-node[data-id]').forEach(node =>
