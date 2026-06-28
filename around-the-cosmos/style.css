@@ -451,59 +451,53 @@ body {
 /* tree starts at the TOP (below the header row), fills downward - no vertical centering */
 .acc-stage { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; width: 100%; padding-top: 34px; }
 
-.acc-tree { display: flex; flex-direction: column; align-items: center; gap: 14px; padding-bottom: 40px; }
-.acc-tier { display: flex; gap: 20px; justify-content: center; }
-.acc-conn { width: 2px; height: 26px; background: #cdbfa0; margin: 6px 0; }
+.acc-tree { display: flex; flex-direction: column; align-items: flex-start; width: 100%; padding-bottom: 40px; }
 
-.acc-node { position: relative; width: 252px; background: #f4f0e8; border: 2px solid #d8cdb5; border-radius: 11px; padding: 14px 18px 15px; }
-.acc-nrow { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
-.acc-nm { font-size: 16px; font-weight: 700; color: #6b6150; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.acc-lv { font-size: 12.5px; font-weight: 800; color: #b0a589; flex-shrink: 0; font-variant-numeric: tabular-nums; }
-.acc-bar { margin-top: 11px; height: 5px; background: #e6ddca; border-radius: 3px; overflow: hidden; }
+/* ===== Uniform minimal Mass-upgrade card (every state is the SAME size - only colour changes) ===== */
+.acc-node { position: relative; width: 208px; height: 116px; box-sizing: border-box; display: flex; flex-direction: column;
+            align-items: center; text-align: center; background: #f4f0e8; border: 2px solid #d8cdb5; border-radius: 12px; padding: 12px 14px 14px; }
+.acc-nm { font-size: 14.5px; font-weight: 700; color: #6b6150; line-height: 1.18; }
+.acc-ndesc { margin-top: 5px; font-size: 12px; font-weight: 600; color: #7a7059; line-height: 1.28; }
+.acc-ndesc.muted { color: #b3a98f; font-style: italic; }
+.acc-ncost { margin-top: auto; font-size: 12px; font-weight: 800; color: #b0a589; font-variant-numeric: tabular-nums; display: flex; align-items: center; gap: 4px; }
+.acc-ncost.ok { color: #a8853a; } .acc-ncost.done { color: #9a8f78; }
+.acc-bar { width: 100%; margin-top: 9px; height: 5px; background: #e6ddca; border-radius: 3px; overflow: hidden; }
 .acc-bar i { display: block; height: 100%; background: #a8853a; border-radius: 3px; }
-.acc-node.lock { border-style: dashed; opacity: 0.62; }
-.acc-node.lock .acc-nm { color: #a99f88; }
-.acc-node.avail { border-color: #a8853a; border-width: 2.5px; padding: 13.5px 17.5px 14.5px; }
-.acc-node.avail .acc-nm { color: #1a1a1a; } .acc-node.avail .acc-lv { color: #a8853a; }
-.acc-node.up { border-color: #a8853a; background: #faf2e1; }
-.acc-node.up .acc-nm { color: #1a1a1a; } .acc-node.up .acc-lv { color: #a8853a; }
-.acc-node.max { background: #a8853a; border-color: #a8853a; }
-.acc-node.max .acc-nm { color: #fbf8f1; } .acc-node.max .acc-lv { color: #fbf8f1; }
-.acc-node.max .acc-bar { background: rgba(255,255,255,0.32); } .acc-node.max .acc-bar i { background: #fbf8f1; }
-
-/* Real Mass-upgrade node internals */
-.acc-ndesc { margin-top: 10px; font-size: 13px; font-weight: 600; color: #6b6150; }
-.acc-nfoot { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-top: 9px; }
-.acc-nflavor { font-size: 11.5px; font-style: italic; color: #a99f88; line-height: 1.35; }
-.acc-ncost { flex-shrink: 0; font-size: 12px; font-weight: 800; color: #b0a589; padding: 3px 9px; border-radius: 7px; background: #ece3cf; font-variant-numeric: tabular-nums; }
-.acc-ncost.ok { color: #fbf8f1; background: #a8853a; }
-.acc-ncost.done { color: #9a8f78; background: transparent; padding-left: 0; padding-right: 0; }
+.acc-lock { opacity: 0.85; }
+.acc-node.avail { border-color: #a8853a; } .acc-node.avail .acc-nm { color: #1a1a1a; }
+.acc-node.up    { border-color: #a8853a; background: #faf2e1; } .acc-node.up .acc-nm { color: #1a1a1a; }
+.acc-node.max   { background: #a8853a; border-color: #a8853a; }
+.acc-node.max .acc-nm, .acc-node.max .acc-ndesc, .acc-node.max .acc-ncost { color: #fbf8f1; }
+.acc-node.max .acc-bar { background: rgba(255,255,255,0.30); } .acc-node.max .acc-bar i { background: #fbf8f1; }
+.acc-node.next  { border-style: dashed; border-color: #cdbfa0; opacity: 0.8; }
+.acc-node.next .acc-nm { color: #8a8071; } .acc-node.next .acc-ndesc { color: #9a8f78; } .acc-node.next .acc-ncost { color: #b0a589; }
+.acc-node.locked { border-style: dashed; border-color: #ddd3bd; background: #f0ebe0; opacity: 0.74; }
+.acc-node.locked .acc-nm { color: #a99f88; }
 .acc-node.buy { cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; }
 .acc-node.buy:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(168,133,58,0.22); }
-.acc-node.max .acc-ndesc { color: #fbf3e2; }
-.acc-node.max .acc-nflavor { color: #f3e6c8; }
-.acc-node.up .acc-ndesc { color: #5a5040; }
 
-/* "next" tier - visible preview, dimmed and not buyable */
-.acc-node.next { border-style: dashed; border-color: #cdbfa0; opacity: 0.78; }
-.acc-node.next .acc-nm { color: #8a8071; }
-.acc-node.next .acc-ndesc { color: #9a8f78; }
-.acc-node.next .acc-ncost { color: #a99f88; background: #efe9db; }
-.acc-neyebrow { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 800; color: #b5a98c; margin-bottom: 7px; }
-
-/* "locked" tier - title + lock icon only (effect & cost hidden for mystery) */
-.acc-node.locked { border-style: dashed; border-color: #ddd3bd; background: #f0ebe0; opacity: 0.72; }
-.acc-node.locked .acc-nrow { align-items: center; }
-.acc-node.locked .acc-nm { color: #aaa08a; font-weight: 700; }
-.acc-lock { flex-shrink: 0; opacity: 0.85; }
-.acc-lockhint { margin-top: 7px; font-size: 11px; font-style: italic; color: #a99f88; }
+/* hover popup - the detailed "math" (kept off the card to keep it minimal & fixed-size) */
+#acc-pop { position: fixed; z-index: 130; max-width: 234px; background: rgba(251,248,241,0.98); border: 1px solid #e0d7c6;
+           border-radius: 10px; padding: 11px 13px; box-shadow: 0 8px 26px -8px rgba(60,45,25,0.4); pointer-events: none; opacity: 0; transition: opacity 0.12s; }
+#acc-pop.show { opacity: 1; }
+.acc-pop-t { font-size: 14px; font-weight: 800; color: #6b5a2e; }
+.acc-pop-f { font-size: 11.5px; font-style: italic; color: #a99f88; margin: 2px 0 7px; line-height: 1.35; }
+.acc-pop-lv { font-size: 10.5px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; color: #b5a98c; margin-bottom: 4px; }
+.acc-pop-d { font-size: 12.5px; color: #5a5040; line-height: 1.4; }
+.acc-pop-d b { color: #8a6f2e; }
 
 /* ===== Branching Rail: the Singularity spine + per-tier branches ===== */
-.acc-rail { display: grid; grid-template-columns: 172px 30px minmax(0, 1fr); align-items: stretch; width: 100%; max-width: 720px; margin: 0 auto; }
-.acc-gatecell { position: relative; display: flex; justify-content: center; align-items: center; padding: 9px 0; }
+.acc-railwrap { align-self: flex-start; margin-left: clamp(18px, 4vw, 64px); width: 100%; }
+.acc-spinehdr { width: 150px; text-align: center; margin-bottom: 8px; }
+.acc-spinename { display: block; font-size: 15px; font-weight: 800; letter-spacing: 0.03em; color: #8a6f2e; }
+.acc-spinesub { display: block; font-size: 9px; color: #b5a98c; font-style: italic; margin-top: 1px; line-height: 1.25; }
+.acc-rail { display: grid; grid-template-columns: 150px 28px minmax(0, 1fr); align-items: stretch; }
+.acc-gatecell { position: relative; display: flex; justify-content: center; align-items: center; padding: 10px 0; }
 .acc-gatecell::before { content: ''; position: absolute; top: 0; bottom: 0; width: 3px; background: #cdb98a; }
+.acc-gatecell.first::before { top: 50%; }    /* the path starts AT Tier 1 - no line above it */
+.acc-gatecell.last::before  { bottom: 50%; }  /* and ends at the final gate */
 .acc-gatecell.dim::before { background: repeating-linear-gradient(180deg, #cdbfa0 0 5px, transparent 5px 10px); opacity: 0.6; }
-.acc-gate { position: relative; z-index: 2; width: 152px; background: #f4f0e8; border: 2px solid #a8853a; border-radius: 11px; padding: 9px 12px 10px; text-align: center; }
+.acc-gate { position: relative; z-index: 2; width: 150px; box-sizing: border-box; background: #f4f0e8; border: 2px solid #a8853a; border-radius: 11px; padding: 9px 12px 10px; text-align: center; }
 .acc-gtier { font-size: 9.5px; letter-spacing: 0.13em; text-transform: uppercase; font-weight: 800; color: #b5a98c; }
 .acc-gorb { font-size: 14px; font-weight: 800; color: #6b6150; margin: 2px 0 5px; }
 .acc-gfoot { font-size: 12px; font-weight: 800; color: #b0a589; }
@@ -519,8 +513,7 @@ body {
 .acc-branch { position: relative; align-self: center; height: 100%; }
 .acc-branch::after { content: ''; position: absolute; top: 50%; left: -2px; right: 0; height: 2px; background: #cdb98a; transform: translateY(-50%); }
 .acc-branch.dim::after { background: repeating-linear-gradient(90deg, #cdbfa0 0 4px, transparent 4px 8px); opacity: 0.7; }
-.acc-tiernodes { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; padding: 9px 0; min-height: 60px; }
-.acc-tiernodes .acc-node { width: 230px; }
+.acc-tiernodes { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; padding: 10px 0; min-height: 70px; }
 .acc-sealed { font-size: 12px; color: #c1b79f; font-style: italic; letter-spacing: 0.04em; padding-left: 4px; }
 
 /* Absorption animation overlay canvas (Implosion & Rebirth) */

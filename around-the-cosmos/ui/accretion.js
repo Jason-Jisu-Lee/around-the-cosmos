@@ -13,40 +13,55 @@ const ACC_LOCK ='<svg class="acc-lock" width="14" height="14" viewBox="0 0 24 24
     + '<rect x="5" y="10.5" width="14" height="10" rx="2.2" fill="#a99f88"/>'
     + '<path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" stroke="#a99f88" stroke-width="2.1"/></svg>';
 
+// Minimal, uniform-size card: title / one-line effect / cost / progress bar (no level numbers).
+// The detailed "math" lives in the hover popup (accNodeDetail) so the card stays simple and fixed-size.
 function accNodeHTML(u) {
-    // Tier not yet unlocked by the Singularity -> locked, hidden behind its orbiter
-    if (massNodeVis(u) === 'locked') {
-        return `<div class="acc-node locked"><div class="acc-nrow"><span class="acc-nm">${u.name}</span>${ACC_LOCK}</div>`
-            + `<div class="acc-lockhint">Capture <b>${singularityOrbiter(u.tier)}</b> to unlock</div></div>`;
+    const locked = massNodeVis(u) === 'locked';
+    const planned = !locked && u.placeholder;
+    const l = mlvl(u.id), maxed = !locked && !planned && l >= u.max;
+    const cost = (locked || planned || maxed) ? null : u.costs[l];
+    const afford = !accBrowse && !locked && !planned && !maxed && G.mass >= cost;
+    let state, desc, costHTML, pct = 0;
+    if (locked) {
+        state = 'locked';
+        desc = `<div class="acc-ndesc muted">Sealed</div>`;
+        costHTML = `<div class="acc-ncost">${ACC_LOCK}</div>`;
+    } else if (planned) {
+        state = 'next';
+        desc = `<div class="acc-ndesc">${u.eff(1)}</div>`;
+        costHTML = `<div class="acc-ncost">Planned</div>`;
+    } else {
+        state = maxed ? 'max' : (l > 0 ? 'up' : 'avail');
+        desc = `<div class="acc-ndesc">${u.eff(l)}</div>`;
+        costHTML = maxed ? `<div class="acc-ncost done">Maxed</div>` : `<div class="acc-ncost${afford ? ' ok' : ''}">⬡ ${cost} Mass</div>`;
+        pct = Math.round(l / u.max * 100);
     }
-    // Tier unlocked but the node is a not-yet-wired placeholder -> dim "Planned" preview, not buyable
-    if (u.placeholder) {
-        return `<div class="acc-node next"><div class="acc-neyebrow">Planned</div>`
-            + `<div class="acc-nrow"><span class="acc-nm">${u.name}</span></div>`
-            + `<div class="acc-bar"><i style="width:0%"></i></div>`
-            + `<div class="acc-ndesc">${u.eff(1)}</div>`
-            + `<div class="acc-nfoot"><span class="acc-nflavor">${u.flavor}</span></div></div>`;
-    }
-    const l = mlvl(u.id), maxed = l >= u.max;
-    const cost = maxed ? null : u.costs[l];
-    const afford = !accBrowse && !maxed && G.mass >= cost;
-    const state = maxed ? 'max' : (l > 0 ? 'up' : 'avail');   // max / owned-keep-upgrading / available
-    const pct = Math.round(l / u.max * 100);
-    const lv  = maxed ? 'MAX' : `${l} / ${u.max}`;
-    const costHTML = maxed
-        ? `<span class="acc-ncost done">Maxed</span>`
-        : `<span class="acc-ncost${afford ? ' ok' : ''}">${cost} Mass</span>`;
     const idAttr = afford ? ` data-id="${u.id}"` : '';
-    return `<div class="acc-node ${state}${afford ? ' buy' : ''}"${idAttr}>`
-        + `<div class="acc-nrow"><span class="acc-nm">${u.name}</span><span class="acc-lv">${lv}</span></div>`
-        + `<div class="acc-bar"><i style="width:${pct}%"></i></div>`
-        + `<div class="acc-ndesc">${u.eff(l)}</div>`
-        + `<div class="acc-nfoot"><span class="acc-nflavor">${u.flavor}</span>${costHTML}</div>`
-        + `</div>`;
+    return `<div class="acc-node ${state}${afford ? ' buy' : ''}" data-uid="${u.id}"${idAttr}>`
+        + `<div class="acc-nm">${u.name}</div>${desc}${costHTML}`
+        + `<div class="acc-bar"><i style="width:${pct}%"></i></div></div>`;
 }
 
-// The Singularity spine gate for a tier (left rail). done = captured, avail = next to buy, locked = sealed.
-function accGateHTML(t) {
+// Detailed hover popup for a node (the math: level, current effect, next effect + cost).
+function accNodeDetail(u) {
+    if (massNodeVis(u) === 'locked') {
+        return `<div class="acc-pop-t">${u.name}</div><div class="acc-pop-f">${u.flavor}</div>`
+            + `<div class="acc-pop-d">Locked — capture <b>${singularityOrbiter(u.tier)}</b> (Tier ${u.tier}) on the Singularity to open this tier.</div>`;
+    }
+    if (u.placeholder) {
+        return `<div class="acc-pop-t">${u.name}</div><div class="acc-pop-f">${u.flavor}</div>`
+            + `<div class="acc-pop-d">Planned — a future upgrade, not yet wired in.</div>`;
+    }
+    const l = mlvl(u.id), maxed = l >= u.max;
+    let d = `<div class="acc-pop-t">${u.name}</div><div class="acc-pop-f">${u.flavor}</div>`
+        + `<div class="acc-pop-lv">Level ${l} / ${u.max}${maxed ? ' · MAX' : ''}</div>`
+        + `<div class="acc-pop-d">Now: <b>${u.eff(l)}</b></div>`;
+    if (!maxed) d += `<div class="acc-pop-d">Next: ${u.eff(l + 1)} · <b>⬡ ${u.costs[l]} Mass</b></div>`;
+    return d;
+}
+
+// The Singularity spine gate for a tier. done = captured, avail = next to buy, locked = sealed.
+function accGateHTML(t, first, last) {
     const lv = singularityLevel(), cost = SINGULARITY.costs[t - 1];
     const state = lv >= t ? 'done' : lv === t - 1 ? 'avail' : 'locked';
     const buy = !accBrowse && state === 'avail' && G.mass >= cost;
@@ -55,26 +70,48 @@ function accGateHTML(t) {
     const foot = state === 'done'  ? `<div class="acc-gfoot done">✓ captured</div>`
               : state === 'avail' ? `<div class="acc-gfoot${buy ? ' ok' : ''}">⬡ ${cost} Mass</div>`
               :                     `<div class="acc-gfoot">${ACC_LOCK}</div>`;
-    return `<div class="acc-gatecell${lv < t ? ' dim' : ''}">`
-        + `<div class="acc-gate ${state}${buy ? ' buy' : ''}"${idAttr}>`
-        +   `<div class="acc-gtier">Tier ${t}</div>`
-        +   `<div class="acc-gorb">${name}</div>`
-        +   foot
+    const cell = (lv < t ? ' dim' : '') + (first ? ' first' : '') + (last ? ' last' : '');
+    return `<div class="acc-gatecell${cell}">`
+        + `<div class="acc-gate ${state}${buy ? ' buy' : ''}" data-gate="${t}"${idAttr}>`
+        +   `<div class="acc-gtier">Tier ${t}</div><div class="acc-gorb">${name}</div>${foot}`
         + `</div></div>`;
 }
 
+function accGateDetail(t) {
+    const lv = singularityLevel(), orb = SINGULARITY.orbiters[t - 1], cost = SINGULARITY.costs[t - 1];
+    if (lv >= t)     return `<div class="acc-pop-t">${orb}</div><div class="acc-pop-d">Captured. Tier ${t} upgrades are unlocked in every tab.</div>`;
+    if (lv === t - 1) return `<div class="acc-pop-t">${orb}</div><div class="acc-pop-f">${SINGULARITY.flavor}</div>`
+        + `<div class="acc-pop-d">Capture for <b>⬡ ${cost} Mass</b> to widen the Maw and open <b>Tier ${t}</b> across all four tabs.</div>`;
+    return `<div class="acc-pop-t">Tier ${t} — sealed</div><div class="acc-pop-d">Capture the earlier orbiters first to reach this one.</div>`;
+}
+
 function accTreeHTML(cat) {
-    let h = '<div class="acc-rail">';
+    let h = '<div class="acc-railwrap">'
+        + '<div class="acc-spinehdr"><span class="acc-spinename">Singularity</span>'
+        + '<span class="acc-spinesub">widen the Maw · capture orbiters</span></div>'
+        + '<div class="acc-rail">';
     for (let t = 1; t <= SINGULARITY.tiers; t++) {
         const nodes = massTierNodes(cat, t);
-        h += accGateHTML(t)
+        h += accGateHTML(t, t === 1, t === SINGULARITY.tiers)
            + `<div class="acc-branch${singularityLevel() < t ? ' dim' : ''}"></div>`
            + `<div class="acc-tiernodes">`
            + (nodes.length ? nodes.map(accNodeHTML).join('') : `<div class="acc-sealed">— sealed —</div>`)
            + `</div>`;
     }
-    return h + '</div>';
+    return h + '</div></div>';
 }
+
+function showAccPop(html, el) {
+    const pop = document.getElementById('acc-pop'); if (!pop) return;
+    pop.innerHTML = html; pop.classList.add('show');
+    const r = el.getBoundingClientRect(), pw = pop.offsetWidth, ph = pop.offsetHeight;
+    let x = r.right + 12;
+    if (x + pw > innerWidth - 8) x = r.left - pw - 12;   // flip left if it would clip the edge
+    x = Math.max(8, x);
+    const y = Math.max(8, Math.min(r.top + r.height / 2 - ph / 2, innerHeight - ph - 8));
+    pop.style.left = x + 'px'; pop.style.top = y + 'px';
+}
+function hideAccPop() { const pop = document.getElementById('acc-pop'); if (pop) pop.classList.remove('show'); }
 
 function accRender() {
     document.getElementById('acc-mass').innerHTML = ACC_MASS_ICON
@@ -88,12 +125,21 @@ function accRender() {
 
     const tree = document.getElementById('acc-tree');
     tree.innerHTML = accTreeHTML(accCat);
-    tree.querySelectorAll('.acc-node, .acc-gate').forEach(node =>
-        node.addEventListener('mouseenter', () => SoundSystem.sfxHover()));
+    tree.querySelectorAll('.acc-node').forEach(node => {
+        node.addEventListener('mouseenter', () => {
+            SoundSystem.sfxHover();
+            const u = MASS_BY_ID[node.dataset.uid]; if (u) showAccPop(accNodeDetail(u), node);
+        });
+        node.addEventListener('mouseleave', hideAccPop);
+    });
+    tree.querySelectorAll('.acc-gate').forEach(gate => {
+        gate.addEventListener('mouseenter', () => { SoundSystem.sfxHover(); showAccPop(accGateDetail(+gate.dataset.gate), gate); });
+        gate.addEventListener('mouseleave', hideAccPop);
+    });
     tree.querySelectorAll('.acc-node[data-id]').forEach(node =>
-        node.addEventListener('click', () => { if (buyMassUpgrade(node.dataset.id)) accRender(); }));
+        node.addEventListener('click', () => { if (buyMassUpgrade(node.dataset.id)) { hideAccPop(); accRender(); } }));
     tree.querySelectorAll('.acc-gate[data-spine]').forEach(gate =>
-        gate.addEventListener('click', () => { if (buySingularity()) accRender(); }));
+        gate.addEventListener('click', () => { if (buySingularity()) { hideAccPop(); accRender(); } }));
 
     document.getElementById('acc-undo').style.display = (!accBrowse && canUndoMass()) ? 'block' : 'none';
 }
