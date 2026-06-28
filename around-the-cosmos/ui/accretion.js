@@ -205,9 +205,9 @@ function accConfirmBody() {
     const nextThresh = ACCRETION_THRESHOLD * (me + 1) / MASS_COEF;
     const needed = Math.max(0, Math.ceil(nextThresh - G.runDust));
     const prog   = Math.max(0.02, Math.min(1, (G.runDust - curThresh) / Math.max(1, nextThresh - curThresh)));
-    const tail = (G.massEarned > 0)
-        ? `<label class="acc-skip"><input type="checkbox" id="acc-skip-anim" checked> Skip animation</label>`
-        : (musicMuted() ? `<p class="acc-mutehint">♪ The collapse is set to music. Recommend unmuting to hear it.</p>` : '');
+    // "Skip animation" moved OUTSIDE the box (toggled in openAccConfirm); body tail is just the first-run music hint
+    const tail = (G.massEarned === 0 && musicMuted())
+        ? `<p class="acc-mutehint">♪ The collapse is set to music. Recommend unmuting to hear it.</p>` : '';
     const UP = `<svg class="acc-up" width="13" height="13" viewBox="0 0 16 16"><g fill="currentColor">`
              + `<rect x="1" y="1" width="6" height="6" rx="1.4"/><rect x="9" y="1" width="6" height="6" rx="1.4"/>`
              + `<rect x="1" y="9" width="6" height="6" rx="1.4"/><rect x="9" y="9" width="6" height="6" rx="1.4"/></g></svg>`;
@@ -239,6 +239,10 @@ function openAccConfirm() {
     document.getElementById('acc-confirm-body').innerHTML = accConfirmBody();
     // First-ever accretion: spell out the hold in the label; afterwards just "Collapse"
     document.querySelector('#acc-confirm-go .acc-go-label').textContent = G.massEarned === 0 ? 'Collapse (Hold)' : 'Collapse';
+    // "Skip animation" (outside the box) only after the first accretion; reset to the default (checked = skip)
+    const skip = document.getElementById('acc-skip-outer'), cb = document.getElementById('acc-skip-anim');
+    if (skip) skip.style.display = G.massEarned > 0 ? 'inline-flex' : 'none';
+    if (cb) cb.checked = true;
     document.getElementById('acc-confirm').classList.add('show');
 }
 function closeAccConfirm() { document.getElementById('acc-confirm').classList.remove('show'); }
