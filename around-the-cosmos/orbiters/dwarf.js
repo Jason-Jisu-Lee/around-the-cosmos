@@ -21,10 +21,10 @@ function dwarfCompoundCap()  { return [0, 0.15, 0.30, 0.50][lvl('dwarfcompound')
 function dwarfCompoundMult() { return lvl('dwarfcompound') ? 1 + Math.min(dwarfCompoundCap(), 0.003 * G.dwarfOrbits) : 1; }
 
 // ---- payout ----
-function dwarfBasePayout()    { return Math.round((1500 + 1500 * lvl('dwarfpay') + conjunctionBonus()) * resonanceMult()); }
+function dwarfBasePayout()    { return Math.round((800 + 800 * lvl('dwarfpay') + conjunctionBonus()) * resonanceMult()); }
 function dwarfPayout()        { return Math.round(dwarfBasePayout() * dwarfCompoundMult()); }   // the dwarf body's own per-orbit payout
 function dwarfTrojanCount()   { return Math.min(2, lvl('dwarftrojan')); }
-function dwarfTrojanPayout()  { return Math.round(dwarfPayout() / 3); }
+function dwarfTrojanPayout()  { return Math.round(dwarfPayout() / 8); }
 // the DISPLAYED dwarf payout folds the Trojan companions in - they pay on their own passes, but read as the dwarf's combined income
 function dwarfAvgPayout()     { return dwarfPayout() + dwarfTrojanCount() * dwarfTrojanPayout(); }
 function dwarfSpeed()         { return DWARF_SPEED; }
@@ -43,7 +43,7 @@ function dwarfOnTick(dt) {
     // forward step this tick (handles the 2π wrap as a tiny step); a big value = universe reset / frame hitch -> skip detection
     const small = _wrap(cur - prev) < 0.5;
 
-    // Trojan Companions: companions ride ±60°, each paying 1/3 the dwarf payout on its own top-cross (spread payouts)
+    // Trojan Companions: companions ride ±60°, each paying 1/8 the dwarf payout on its own top-cross (spread payouts)
     const tc = dwarfTrojanCount();
     for (let i = 0; i < 2; i++) {
         if (small && i < tc && _crossedMark(prev + DWARF_TROJAN_OFF[i], cur + DWARF_TROJAN_OFF[i], _TOP)) {
@@ -91,7 +91,7 @@ registerOrbiter({
         return s;
     },
     labels: {
-        dwarf: 'Dwarf Planet', dwarfpay: '+1500 Payout',
+        dwarf: 'Dwarf Planet', dwarfpay: '+800 Payout',
         dwarftrojan: 'Trojan Companions', dwarfconj: 'Conjunction', dwarfcompound: 'Compounding Orbit',
     },
 });

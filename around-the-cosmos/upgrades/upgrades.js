@@ -231,7 +231,7 @@ const UPGRADES = [
     costs: [50000],
     flavor: "A captured world settles into the widest, calmest orbit.",
     desc: () =>
-      "Brings the Dwarf Planet into orbit on the widest ring. The slowest body, but each long pass pays +1,500 stardust, more than any other.",
+      "Brings the Dwarf Planet into orbit on the widest ring. The slowest body, but each long pass pays +800 stardust, more than any other.",
     unlock: () =>
       typeof singularityLevel === "function" && singularityLevel() >= 1,
   },
@@ -241,7 +241,7 @@ const UPGRADES = [
     maxLevel: 5,
     section: "DWARF PLANET",
     costs: [50000, 130000, 320000, 700000, 1200000],
-    desc: () => "+1,500 to the Dwarf Planet's payout, per level.",
+    desc: () => "+800 to the Dwarf Planet's payout, per level.",
     unlock: () => lvl("dwarf") >= 1,
   },
   {
@@ -262,7 +262,7 @@ const UPGRADES = [
     section: "DWARF PLANET",
     costs: [250000, 700000],
     desc: () =>
-      "Spawns a Trojan companion that pays 1/3 of the Dwarf Planet's income.",
+      "Spawns a Trojan companion that pays 1/8 of the Dwarf Planet's income.",
     unlock: () => lvl("dwarf") >= 1,
   },
   {

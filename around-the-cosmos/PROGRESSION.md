@@ -244,13 +244,13 @@ asteroid it is **not a count upgrade** - there's only ever one Moon.
 ### DWARF PLANET
 
 **Dwarf Planet ("Ember")** - *unlocks after capturing it on the **Singularity** spine (Mass tree, tier 1 - the first gate the first Accretion opens)* · **single body** (one-time buy, ✦50,000)
-The slowest world, on the **widest orbit** (ring 3), drawn as a banded rust-and-gold ember. **Constant speed** (= the Moon's speed at speed-level 1, ×0.7956) - there is **no speed or count upgrade**. Pays **1,500 ✦ per orbit** at base, the biggest single payout of any body, but it laps only ~2.9×/min.
+The slowest world, on the **widest orbit** (ring 3), drawn as a banded rust-and-gold ember. **Constant speed** (= the Moon's speed at speed-level 1, ×0.7956) - there is **no speed or count upgrade**. Pays **800 ✦ per orbit** at base, the biggest single payout of any body, but it laps only ~2.9×/min. (Nerfed from 1,500 - it was out-paying the Moon too dramatically.)
 
-**Dwarf Planet Payout** - *unlocks after the dwarf* · max **5** - adds **+1,500** per level (additive).
+**Dwarf Planet Payout** - *unlocks after the dwarf* · max **5** - adds **+800** per level (additive).
 | Level | (base) | 1 | 2 | 3 | 4 | 5 |
 |---|---|---|---|---|---|---|
 | Cost ✦ | - | 50,000 | 130,000 | 320,000 | 700,000 | 1,200,000 |
-| Payout | 1,500 | 3,000 | 4,500 | 6,000 | 7,500 | 9,000 |
+| Payout | 800 | 1,600 | 2,400 | 3,200 | 4,000 | 4,800 |
 
 The Dwarf Planet has **three unique upgrades** (more than any other orbiter):
 
@@ -260,7 +260,7 @@ The Dwarf Planet has **three unique upgrades** (more than any other orbiter):
 | Cost ✦ | 120,000 | 300,000 | 700,000 |
 | Cap | +15% | +30% | +50% |
 
-**Trojan Companions** - max **2** - each level spawns a small companion at a **±60° Lagrange point** (the calm points of the orbit). Each companion pays **1/3** of the Dwarf's payout on its **own** pass, so the slow cycle yields more frequent (smaller) windfalls. The Dwarf's **shown payout folds the companions in** (the info card and observatory read the combined income), even though each body still earns separately.
+**Trojan Companions** - max **2** - each level spawns a small companion at a **±60° Lagrange point** (the calm points of the orbit). Each companion pays **1/8** of the Dwarf's payout on its **own** pass, so the slow cycle yields more frequent (smaller) windfalls. The Dwarf's **shown payout folds the companions in** (the info card and observatory read the combined income), even though each body still earns separately.
 | Level | 1 | 2 |
 |---|---|---|
 | Cost ✦ | 250,000 | 700,000 |
@@ -272,7 +272,7 @@ The Dwarf Planet has **three unique upgrades** (more than any other orbiter):
 | Cost ✦ | 200,000 | 500,000 | 1,000,000 |
 | Base added (each) | +1,000 | +2,000 | +3,000 |
 
-> `dwarfBasePayout = round((1,500 + 1,500×payoutLvl + 1,000×conjLvl) × resonanceMult)`, then `dwarfPayout = round(base × compoundMult)`.
+> `dwarfBasePayout = round((800 + 800×payoutLvl + 1,000×conjLvl) × resonanceMult)`, then `dwarfPayout = round(base × compoundMult)`.
 > The Moon's base gains the same `+1,000×conjLvl`. Compounding rides this-universe lap counting (`G.dwarfOrbits`); Trojan crossings are detected per-tick.
 
 ### COMETS
