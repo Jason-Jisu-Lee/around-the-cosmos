@@ -273,7 +273,7 @@ const UPGRADES = [
     costs: [200000, 500000, 1000000],
     flavor: "Two worlds drawn into one deeper pull.",
     desc: () =>
-      "Adds +1,000 base payout to both the Moon and the Dwarf Planet, per level.",
+      "Adds +1,000 base payout to the Dwarf Planet and +200 to the Moon, per level.",
     unlock: () => lvl("dwarf") >= 1 && lvl("moon") >= 1,
   },
   {

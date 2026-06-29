@@ -13,8 +13,9 @@ function _crossedMark(prev, cur, mark) { return _wrap(cur - mark) < _wrap(prev -
 
 function newDwarfBody() { return { localPhase: 0, localR: 0, localSpin: 0, pulse: 0, troj: [0, 0] }; }
 
-// ---- Conjunction: each level adds +1000 to BOTH the Moon's and the Dwarf's BASE payout (read by both payouts) ----
-function conjunctionBonus() { return 1000 * lvl('dwarfconj'); }
+// ---- Conjunction: each level adds +1000 to the Dwarf's BASE payout and +200 to the Moon's (read by both payouts) ----
+function conjunctionBonus()     { return 1000 * lvl('dwarfconj'); }   // -> Dwarf base
+function conjunctionMoonBonus() { return 200 * lvl('dwarfconj'); }    // -> Moon base (the moon's own scale is +200/lvl, so +1000 was tripling it)
 
 // ---- Compounding Orbit: payout ramps +0.3%/orbit, capped by level, resets each universe (G.dwarfOrbits) ----
 function dwarfCompoundCap()  { return [0, 0.15, 0.30, 0.50][lvl('dwarfcompound')] || 0; }

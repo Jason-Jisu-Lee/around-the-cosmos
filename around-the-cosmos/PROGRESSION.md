@@ -266,14 +266,15 @@ The Dwarf Planet has **three unique upgrades** (more than any other orbiter):
 | Cost ✦ | 250,000 | 700,000 |
 | Companions | 1 (L4) | 2 (L4 + L5) |
 
-**Conjunction** - *needs the Moon too* · max **3** - each level adds **+1,000 base payout to both the Moon and the Dwarf Planet** (a flat add to each body's base, before its other multipliers).
+**Conjunction** - *needs the Moon too* · max **3** - each level adds **+1,000 base payout to the Dwarf Planet and +200 to the Moon** (a flat add to each body's base, before its other multipliers). The Moon gets the smaller share because its own payout scales at +200/level, so the old +1,000 was tripling it.
 | Level | 1 | 2 | 3 |
 |---|---|---|---|
 | Cost ✦ | 200,000 | 500,000 | 1,000,000 |
-| Base added (each) | +1,000 | +2,000 | +3,000 |
+| Dwarf base added | +1,000 | +2,000 | +3,000 |
+| Moon base added | +200 | +400 | +600 |
 
 > `dwarfBasePayout = round((800 + 800×payoutLvl + 1,000×conjLvl) × resonanceMult)`, then `dwarfPayout = round(base × compoundMult)`.
-> The Moon's base gains the same `+1,000×conjLvl`. Compounding rides this-universe lap counting (`G.dwarfOrbits`); Trojan crossings are detected per-tick.
+> The Moon's base gains `+200×conjLvl` (`moonConjBonus`). Compounding rides this-universe lap counting (`G.dwarfOrbits`); Trojan crossings are detected per-tick.
 
 ### COMETS
 

@@ -10,7 +10,7 @@ function newMoonBody() {
     return { localPhase: 0, localR: 0, localSpin: 0, pulse: 0 };
 }
 
-function moonConjBonus() { return typeof conjunctionBonus === 'function' ? conjunctionBonus() : 0; }   // Conjunction (dwarf upgrade) adds to the moon's base too
+function moonConjBonus() { return typeof conjunctionMoonBonus === 'function' ? conjunctionMoonBonus() : 0; }   // Conjunction (dwarf upgrade) adds +200/lvl to the moon's base
 function moonPayout()    { return Math.round((200 + 200 * lvl('moonpay') + moonConjBonus()) * moonPhaseMult() * resonanceMult() * lunarFavorMult()); }
 function moonAvgPayout() { return Math.round((200 + 200 * lvl('moonpay') + moonConjBonus()) * (1 + 0.10 * lvl('moonphase')) * resonanceMult() * lunarFavorMult()); }
 function moonSpeed()        { return 0.663 * upg('moonspd').mult(lvl('moonspd')); }
