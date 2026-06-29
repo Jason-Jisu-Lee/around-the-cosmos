@@ -33,8 +33,7 @@ function tick(dt) {
             if (clump.angle >= clump.nextTop) {
                 clump.nextTop += Math.PI*2;
                 const pos = o.clumpPos();
-                const buff = (typeof orbiterAssistMult === 'function') ? orbiterAssistMult(o) : 1;
-                earn(Math.round(bodies.length * o.payout() * buff), pos.x, pos.y-12);
+                earn(bodies.length * o.payout(), pos.x, pos.y-12);
                 G.orbitsCompleted++;
                 for (const b of bodies) b.pulse = 1;
                 if (o.onOrbit) o.onOrbit();

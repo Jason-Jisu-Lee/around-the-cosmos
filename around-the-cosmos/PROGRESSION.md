@@ -260,20 +260,20 @@ The Dwarf Planet has **three unique upgrades** (more than any other orbiter):
 | Cost ✦ | 120,000 | 300,000 | 700,000 |
 | Cap | +15% | +30% | +50% |
 
-**Trojan Companions** - max **2** - each level spawns a small companion at a **±60° Lagrange point** (the calm points of the orbit). Each companion pays **1/3** of the Dwarf's payout on its **own** pass, so the slow cycle yields more frequent (smaller) windfalls.
+**Trojan Companions** - max **2** - each level spawns a small companion at a **±60° Lagrange point** (the calm points of the orbit). Each companion pays **1/3** of the Dwarf's payout on its **own** pass, so the slow cycle yields more frequent (smaller) windfalls. The Dwarf's **shown payout folds the companions in** (the info card and observatory read the combined income), even though each body still earns separately.
 | Level | 1 | 2 |
 |---|---|---|
 | Cost ✦ | 250,000 | 700,000 |
 | Companions | 1 (L4) | 2 (L4 + L5) |
 
-**Gravity Assist** - max **3** - when a **faster** orbiter laps the Dwarf, its gravity slingshots that body: the lapped orbiter's payouts gain a bonus **for 6 seconds**.
+**Conjunction** - *needs the Moon too* · max **3** - each level adds **+1,000 base payout to both the Moon and the Dwarf Planet** (a flat add to each body's base, before its other multipliers).
 | Level | 1 | 2 | 3 |
 |---|---|---|---|
-| Cost ✦ | 120,000 | 320,000 | 800,000 |
-| Lapped body | +25% | +50% | +75% |
+| Cost ✦ | 200,000 | 500,000 | 1,000,000 |
+| Base added (each) | +1,000 | +2,000 | +3,000 |
 
-> `dwarfPayout = round((1,500 + 1,500×payoutLvl) × resonanceMult × compoundMult)`.
-> Compounding rides this-universe lap counting (`G.dwarfOrbits`); Trojan crossings and Gravity-Assist laps are detected per-tick.
+> `dwarfBasePayout = round((1,500 + 1,500×payoutLvl + 1,000×conjLvl) × resonanceMult)`, then `dwarfPayout = round(base × compoundMult)`.
+> The Moon's base gains the same `+1,000×conjLvl`. Compounding rides this-universe lap counting (`G.dwarfOrbits`); Trojan crossings are detected per-tick.
 
 ### COMETS
 

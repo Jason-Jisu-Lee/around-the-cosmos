@@ -266,15 +266,15 @@ const UPGRADES = [
     unlock: () => lvl("dwarf") >= 1,
   },
   {
-    id: "dwarfassist",
-    name: "Gravity Assist",
+    id: "dwarfconj",
+    name: "Conjunction",
     maxLevel: 3,
     section: "DWARF PLANET",
-    costs: [120000, 320000, 800000],
-    flavor: "The Dwarf's gravity slings passing worlds onward.",
-    desc: (l) =>
-      `When a faster orbiter laps the Dwarf Planet, its next payouts gain +${25 * (l || 1)}% for 6 seconds.`,
-    unlock: () => lvl("dwarf") >= 1,
+    costs: [200000, 500000, 1000000],
+    flavor: "Two worlds drawn into one deeper pull.",
+    desc: () =>
+      "Adds +1,000 base payout to both the Moon and the Dwarf Planet, per level.",
+    unlock: () => lvl("dwarf") >= 1 && lvl("moon") >= 1,
   },
   {
     id: "charm",
