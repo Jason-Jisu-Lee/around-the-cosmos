@@ -73,7 +73,7 @@ const UPGRADES = [
     name: "Gravitational Pull",
     maxLevel: 5,
     section: "MAIN",
-    costs: [12000, 20000, 40000, 93000, 200000],
+    costs: [12000, 35000, 120000, 475000, 1850000],
     flavor: "Let your own gathered weight do some of the pulling.",
     desc: (l) => {
       const sum = orbiterPayoutSum();
@@ -273,7 +273,7 @@ const UPGRADES = [
     costs: [200000, 500000, 1000000],
     flavor: "Two worlds drawn into one deeper pull.",
     desc: () =>
-      "Adds +1,000 base payout to the Dwarf Planet and +200 to the Moon, per level.",
+      "Adds +700 base payout to the Dwarf Planet and +150 to the Moon, per level.",
     unlock: () => lvl("dwarf") >= 1 && lvl("moon") >= 1,
   },
   {

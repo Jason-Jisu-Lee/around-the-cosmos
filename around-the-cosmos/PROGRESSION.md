@@ -109,10 +109,10 @@ Once owned, Maw **auto-generates stardust every second** (it bounces gently on e
 | Level | Cost ✦ | Pulse bonus |
 |---|---|---|
 | 1 | 12,000 | +1% of all orbiter payout |
-| 2 | 20,000 | +2% of all orbiter payout |
-| 3 | 40,000 | +3% of all orbiter payout |
-| 4 | 93,000 | +4% of all orbiter payout |
-| 5 | 200,000 | +5% of all orbiter payout |
+| 2 | 35,000 | +2% of all orbiter payout |
+| 3 | 120,000 | +3% of all orbiter payout |
+| 4 | 475,000 | +4% of all orbiter payout |
+| 5 | 1,850,000 | +5% of all orbiter payout |
 
 > Ties the pulse to your idle income - the more your orbiters pay, the more each pulse is worth.
 > Combos with **Resonance** (which raises orbiter payout, so it raises this bonus too).
@@ -266,15 +266,15 @@ The Dwarf Planet has **three unique upgrades** (more than any other orbiter):
 | Cost ✦ | 250,000 | 700,000 |
 | Companions | 1 (L4) | 2 (L4 + L5) |
 
-**Conjunction** - *needs the Moon too* · max **3** - each level adds **+1,000 base payout to the Dwarf Planet and +200 to the Moon** (a flat add to each body's base, before its other multipliers). The Moon gets the smaller share because its own payout scales at +200/level, so the old +1,000 was tripling it.
+**Conjunction** - *needs the Moon too* · max **3** - each level adds **+700 base payout to the Dwarf Planet and +150 to the Moon** (a flat add to each body's base, before its other multipliers). The Moon gets the smaller share because its own payout scales at only +200/level.
 | Level | 1 | 2 | 3 |
 |---|---|---|---|
 | Cost ✦ | 200,000 | 500,000 | 1,000,000 |
-| Dwarf base added | +1,000 | +2,000 | +3,000 |
-| Moon base added | +200 | +400 | +600 |
+| Dwarf base added | +700 | +1,400 | +2,100 |
+| Moon base added | +150 | +300 | +450 |
 
-> `dwarfBasePayout = round((800 + 800×payoutLvl + 1,000×conjLvl) × resonanceMult)`, then `dwarfPayout = round(base × compoundMult)`.
-> The Moon's base gains `+200×conjLvl` (`moonConjBonus`). Compounding rides this-universe lap counting (`G.dwarfOrbits`); Trojan crossings are detected per-tick.
+> `dwarfBasePayout = round((800 + 800×payoutLvl + 700×conjLvl) × resonanceMult)`, then `dwarfPayout = round(base × compoundMult)`.
+> The Moon's base gains `+150×conjLvl` (`moonConjBonus`). Compounding rides this-universe lap counting (`G.dwarfOrbits`); Trojan crossings are detected per-tick.
 
 ### COMETS
 
