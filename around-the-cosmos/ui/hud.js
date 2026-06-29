@@ -10,7 +10,7 @@ function updateUI(now) {
 
     const frozen = typeof accreting !== 'undefined' && accreting;
     const claimable   = !frozen && canAccrete();
-    const accProgress = !frozen && G.massEarned > 0 && !claimable;   // progress bar - only after the first accretion
+    const accProgress = !frozen && !claimable;   // muted "how close to accreting" bar - shown whenever not yet claimable, incl. before the first accretion
     const accEl = document.getElementById('accretion-btn');
     if (accEl) {
         accEl.style.display = (claimable || accProgress) ? 'block' : 'none';
