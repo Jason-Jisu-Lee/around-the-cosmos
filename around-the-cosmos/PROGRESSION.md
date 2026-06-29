@@ -353,18 +353,17 @@ Under them, a concise breakdown line spells out the math (e.g. `✦90/pulse × 1
 Collapse the whole universe into Maw to bank **Mass**, then spend it on permanent upgrades
 that carry into every future universe.
 
-- **Unlocks** once collapsing would grant at least the **2-Mass floor** - about **800,000** stardust this universe (`runDust`)
-  on a fresh save. The **200,000** figure is only the per-Mass *unit*, **not** the button gate; the threshold also climbs as
-  you bank more lifetime Mass.
-- **Mass earned** = `floor( sqrt( this universe's stardust / unit ) )`, where `unit = 200,000 × (1 + 0.02 × lifetime Mass)`.
-  At zero lifetime Mass: 800k → 2, 2M → 3, 5M → 5, 10M → 7, 50M → 15. **Diminishing returns** - pushing 4× the stardust earns
-  only ~2× the Mass, so progress **feels like it's tapering** and totals stay small (the old linear curve handed out 90 at
-  10M, way too fast). **Pushing further still earns more**, just at a slowing rate. **Harder the richer you are:** `unit`
-  grows with lifetime Mass, so the same stardust earns less over time (10M → 7 at the start, 4 by ~80 lifetime Mass).
-  **Accrete floor:** you can only accrete once you'd gain at least **2 Mass**. **Greater Collapse** multiplies what you receive.
+- **Unlocks** at exactly **500,000** stardust this universe (`runDust`) on a fresh save - the **first accretion grants 3 Mass**.
+  The threshold climbs as you bank more lifetime Mass.
+- **Mass earned** = `floor( 3 × sqrt( this universe's stardust / unit ) )`, where `unit = 500,000 × (1 + 0.02 × lifetime Mass)`.
+  The curve is **anchored so the first accretion is exactly 500k → 3 Mass**. At zero lifetime Mass: 500k → 3, 1M → 4, 2M → 6,
+  5M → 9, 10M → 13, 50M → 30. **Diminishing returns** - pushing 4× the stardust earns only ~2× the Mass, so progress **feels
+  like it's tapering**. **Pushing further still earns more**, just at a slowing rate. **Harder the richer you are:** `unit`
+  grows with lifetime Mass, so the same stardust earns less over time (500k → 3 at the start, only 2 by ~50 lifetime Mass).
+  **Accrete floor:** you can only accrete once you'd gain at least **3 Mass**. **Greater Collapse** multiplies what you receive.
 - **Accretion progress bar:** the **Accretion card appears early** in a muted "progress" state with a thin bar showing how
-  close you are to the 2-Mass floor (~800k stardust fresh); it becomes the claimable button once you reach it. The bar shows
-  **from the start**, including before your first accretion.
+  close you are to the first accretion (**500k** stardust fresh); it becomes the claimable button once you reach it. The bar
+  shows **from the start**, including before your first accretion.
 - **What resets:** stardust + every stardust upgrade. **What you keep:** Mass and everything you bought with it.
 
 ### Mass upgrades (few, powerful - first level 1–3 Mass, later levels ramp up to track rising Mass income)

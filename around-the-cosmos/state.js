@@ -88,20 +88,20 @@ function earn(amount, x, y, big) {
     }
 }
 
-const ACCRETION_THRESHOLD = 200000;   // runDust that yields your FIRST Mass at zero lifetime Mass (the per-Mass "unit")
+const ACCRETION_THRESHOLD = 500000;   // runDust for the FIRST accretion (at zero lifetime Mass) - anchors the whole curve
+const FIRST_GRANT = 3;                 // Mass granted at that first accretion (also the accrete floor)
 const MASS_LIFE_K = 0.02;             // each lifetime Mass raises the runDust needed per Mass by 2% - difficulty scales with lifetime Mass
-// DIMINISHING returns (square root): Mass = floor(sqrt(runDust / unit)). Pushing further still earns more, but at a
-// SLOWING rate (push 4× the stardust for only 2× the Mass) - so progress feels like it's tapering, and the totals stay
-// small instead of running away the way the old linear curve did. `unit` grows with lifetime Mass, so a richer save must
-// push further for the same Mass (gaining Mass gets harder the more you've ever earned).
+// DIMINISHING returns (square root), anchored so the FIRST accretion lands at exactly ACCRETION_THRESHOLD runDust = FIRST_GRANT Mass:
+// Mass = floor(FIRST_GRANT × sqrt(runDust / unit)). Pushing further still earns more, but at a SLOWING rate (push 4× the
+// stardust for only 2× the Mass). `unit` grows with lifetime Mass, so a richer save must push further for the same Mass.
 function massUnit()     { return ACCRETION_THRESHOLD * (1 + MASS_LIFE_K * G.massEarned); }
-function massEarnable() { return Math.floor(Math.sqrt(G.runDust / massUnit())); }
+function massEarnable() { return Math.floor(FIRST_GRANT * Math.sqrt(G.runDust / massUnit())); }
 function baseMassGain() { return massEarnable(); }
 function massGain()     { return Math.round(baseMassGain() * greaterCollapseMult()); }
-// You can only accrete once you'd gain at least accFloor() Mass (a flat 2 - no spammy 1-Mass prestige; the lifetime
-// difficulty lives in massUnit, which also pushes accrThreshold up as you get richer).
-function accFloor()      { return 2; }
-function accrThreshold() { return massUnit() * accFloor() * accFloor(); }   // runDust to reach the floor (inverse of the sqrt) - for the progress bar
+// You can only accrete once you'd gain at least accFloor() = FIRST_GRANT (3) Mass; the lifetime difficulty lives in
+// massUnit, which also pushes accrThreshold up as you get richer.
+function accFloor()      { return FIRST_GRANT; }
+function accrThreshold() { return massUnit(); }   // runDust to reach the floor (massEarnable >= FIRST_GRANT <=> runDust >= unit); = 500k fresh
 function canAccrete()    { return massEarnable() >= accFloor(); }
 
 function commitAccretion() {

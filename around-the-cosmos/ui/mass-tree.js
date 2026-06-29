@@ -138,7 +138,12 @@ function accRender() {
     tree.querySelectorAll('.acc-node[data-id]').forEach(node =>
         node.addEventListener('click', () => { if (buyMassUpgrade(node.dataset.id)) { hideAccPop(); accRender(); } }));
     tree.querySelectorAll('.acc-gate[data-spine]').forEach(gate =>
-        gate.addEventListener('click', () => { if (buySingularity()) { hideAccPop(); accRender(); } }));
+        gate.addEventListener('click', () => {
+            const t = +gate.dataset.spine;
+            // clicking "Finish Demo" doesn't capture/spend - it opens the end-of-demo modal
+            if (SINGULARITY.orbiters[t - 1] === 'Finish Demo') { hideAccPop(); if (typeof openDemoFinish === 'function') openDemoFinish(); return; }
+            if (buySingularity()) { hideAccPop(); accRender(); }
+        }));
 
     document.getElementById('acc-undo').style.display = (!accBrowse && canUndoMass()) ? 'block' : 'none';
 }

@@ -69,8 +69,8 @@ function accConfirmBody() {
     const gain = massGain();
     const me = massEarnable();
     const unit = massUnit();
-    const curThresh  = unit * me * me;                 // runDust already banked toward Mass (sqrt-curve inverse)
-    const nextThresh = unit * (me + 1) * (me + 1);     // runDust needed for the next Mass
+    const curThresh  = unit * (me / FIRST_GRANT) * (me / FIRST_GRANT);                  // runDust banked toward `me` Mass (inverse of the FIRST_GRANT·sqrt curve)
+    const nextThresh = unit * ((me + 1) / FIRST_GRANT) * ((me + 1) / FIRST_GRANT);      // runDust needed for the next Mass
     const needed = Math.max(0, Math.ceil(nextThresh - G.runDust));
     const prog   = Math.max(0.02, Math.min(1, (G.runDust - curThresh) / Math.max(1, nextThresh - curThresh)));
     // "Skip animation" moved OUTSIDE the box (toggled in openAccConfirm); body tail is just the first-run music hint
@@ -219,9 +219,30 @@ document.getElementById('acc-confirm-cancel').addEventListener('click', closeAcc
 })();
 document.getElementById('acc-leave-stay').addEventListener('click', closeAccLeaveConfirm);
 document.getElementById('acc-leave-go').addEventListener('click', closeAccretion);
+
+// ----- End-of-demo modal (the "Finish Demo" spine gate, mass-tree.js opens this instead of buying) -----
+function openDemoFinish()  { document.getElementById('demo-finish').classList.add('show'); }
+function closeDemoFinish() { document.getElementById('demo-finish').classList.remove('show'); }   // "Stay in the Cosmos" = cancel
+function demoFinish() {   // "Finish" = wipe everything and return to the very beginning, nothing kept
+    closeDemoFinish();
+    document.getElementById('accretion-screen').classList.remove('show');
+    accStarsRunning = false;
+    accreting = false;
+    try { accretionAudio.pause(); accretionAudio.currentTime = 0; } catch (_) {}
+    localStorage.clear();
+    G = createInitialState();
+    if (typeof closeCosmoCard === 'function') closeCosmoCard();
+    if (typeof resetPanelAnimations === 'function') resetPanelAnimations();
+    buildPanels();
+    if (typeof SoundSystem !== 'undefined') SoundSystem.startMusic();
+}
+document.getElementById('demo-finish-go').addEventListener('click', demoFinish);
+document.getElementById('demo-finish-stay').addEventListener('click', closeDemoFinish);
+
 document.addEventListener('keydown', e => {
     if (e.key !== 'Escape') return;
-    if (document.getElementById('acc-leave-confirm').classList.contains('show')) closeAccLeaveConfirm();
+    if (document.getElementById('demo-finish').classList.contains('show')) closeDemoFinish();
+    else if (document.getElementById('acc-leave-confirm').classList.contains('show')) closeAccLeaveConfirm();
     else if (document.getElementById('acc-confirm').classList.contains('show')) closeAccConfirm();
     else if (document.getElementById('accretion-screen').classList.contains('show')) onAccBack();
 });
