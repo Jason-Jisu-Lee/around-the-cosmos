@@ -11,7 +11,7 @@ function newDustParticle() {
     };
 }
 
-function orbiterPayout() { return Math.round((10 + 10 * lvl('dustpay')) * resonanceMult()); }
+function orbiterPayout() { return Math.round((10 + 10 * lvl('dustpay') + denseDustBonus()) * resonanceMult()); }
 function dustSpeed()     { return 0.82 * upg('dustspd').mult(lvl('dustspd')); }
 function orbiterOrbitsPerMin()  { return 60 * dustSpeed() / PLANET_DEF[0].period; }
 function dustStardustPerMin()   { return G.planets.length * orbiterPayout() * orbiterOrbitsPerMin(); }

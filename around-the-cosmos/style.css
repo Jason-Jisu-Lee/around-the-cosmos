@@ -428,10 +428,10 @@ body {
 /* keep all UI above the star canvas */
 .acc-masshdr, .acc-tabs, .acc-stage { position: relative; z-index: 1; }
 .acc-return {
-    position: absolute; bottom: 150px; left: 50%; transform: translateX(-50%);
+    position: absolute; bottom: 140px; left: 50%; transform: translateX(-50%);   /* 10px lower than before (was 150px) */
     z-index: 5;   /* above .acc-stage (z1) - its box overlaps the button and was eating the clicks */
     background: var(--accretion); color: #f6f3ec; border: none;
-    padding: 16px 44px; border-radius: 10px; font: 800 18px 'Nunito'; letter-spacing: 0.06em; cursor: pointer;
+    padding: 18px 51px; border-radius: 11px; font: 800 21px 'Nunito'; letter-spacing: 0.06em; cursor: pointer;   /* 15% larger */
     box-shadow: 0 6px 20px rgba(74,130,168,0.38); transition: background 0.15s;
 }
 .acc-return:hover { background: var(--accretion-hi); }

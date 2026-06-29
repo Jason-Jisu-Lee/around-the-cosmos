@@ -1,6 +1,6 @@
 'use strict';
 
-const MASS_UPG_IDS = ['singularity','denserCore','firstLight','heavierBodies','retainedComp','brighterTails','cometShower','greaterCollapse','lunarFavor'];
+const MASS_UPG_IDS = ['singularity','denserCore','heavierPulse','firstLight','heavierBodies','denseDust','lunarFavor','brighterTails','cometShower','greaterCollapse'];
 function blankMassUpgrades() { const o = {}; for (const id of MASS_UPG_IDS) o[id] = 0; return o; }
 
 let G = createInitialState();
@@ -51,7 +51,7 @@ function upg(id) { return UPGRADES.find(u => u.id === id); }
 function lvl(id) { return G.upgrades[id]; }
 
 function pulseValue() {
-    const base = 5 * lvl('touch') + 10 * lvl('surge');
+    const base = 5 * lvl('touch') + 10 * lvl('surge') + heavierPulseBonus();
     const pull = 0.01 * lvl('gravpull') * orbiterPayoutSum();
     return Math.round((base + pull) * denserCoreMult());
 }
