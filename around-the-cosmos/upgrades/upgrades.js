@@ -26,7 +26,7 @@ const UPGRADES = [
     name: "Afterglow",
     maxLevel: 5,
     section: "MAIN",
-    costs: [2000, 4000, 6650, 9200, 14000],
+    costs: [2000, 4000, 7000, 12000, 20000],
     flavor: "Catch the light, and Maw keeps its warmth a while.",
     desc: (l) =>
       `For <b>60s</b> after catching a comet, every pulse gains <b>+${20 * l || 20}</b> ✦ (+20 / level). Catching another comet refreshes the timer.`,
@@ -37,7 +37,7 @@ const UPGRADES = [
     name: "Deep Breath",
     maxLevel: 8,
     section: "MAIN",
-    costs: [2500, 5850, 11000, 16000, 32000, 65000, 135000, 290000],
+    costs: [2500, 6000, 13000, 27000, 55000, 110000, 220000, 430000],
     flavor: "Now and then Maw draws a deeper breath, and takes twice as much.",
     desc: (l) => {
       const cur = l >= 1 ? 13 - l : 12;
@@ -56,8 +56,8 @@ const UPGRADES = [
     maxLevel: 15,
     section: "MAIN",
     costs: [
-      3000, 5000, 8000, 11000, 16000, 25000, 38000, 57000, 87000, 130000,
-      200000, 305000, 460000, 700000, 1200000,
+      3000, 5000, 8000, 13000, 20000, 31000, 49000, 77000, 120000, 185000,
+      290000, 450000, 700000, 1100000, 1700000,
     ],
     flavor: "Each deep breath reaches further down, into the dark Maw keeps.",
     desc: (l) => {
@@ -91,7 +91,7 @@ const UPGRADES = [
     name: "Resonance",
     maxLevel: 5,
     section: "MAIN",
-    costs: [12000, 26500, 57000, 150000, 365000],
+    costs: [14000, 27000, 57000, 150000, 365000],
     flavor: "Tune the whole quiet system until it hums.",
     desc: () =>
       "+10% to every orbiter’s payout, per level. Also lights Maw’s glow.",
@@ -288,4 +288,11 @@ const UPGRADES = [
   },
 ];
 
-const SECTION_ORDER = ["MAIN", "DUST PARTICLES", "ASTEROID", "MOON", "DWARF PLANET", "COMETS"];
+const SECTION_ORDER = [
+  "MAIN",
+  "DUST PARTICLES",
+  "ASTEROID",
+  "MOON",
+  "DWARF PLANET",
+  "COMETS",
+];
