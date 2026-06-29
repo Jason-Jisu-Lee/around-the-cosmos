@@ -7,13 +7,16 @@
 const SINGULARITY = {
   name: 'Singularity',
   tiers: 8,
-  // tier N (1-based) captures this orbiter and unlocks tier-N upgrades in every tab
-  orbiters: ['Dwarf Planet', 'Comet Cluster', 'Ringed Body', 'Gas Giant', 'Pulsar', 'Companion Star', 'Quasar', 'Rogue Star'],
+  // tier N (1-based) captures this orbiter and unlocks tier-N upgrades in every tab.
+  // demoMax: the demo caps capturable progression here - tier 2 ("Finish Demo") is the published end.
+  // The deeper gates (3+) + all placeholder upgrades stay VISIBLE (as sealed "coming soon"), just not buyable.
+  demoMax: 2,
+  orbiters: ['Dwarf Planet', 'Finish Demo', 'Ringed Body', 'Gas Giant', 'Pulsar', 'Companion Star', 'Quasar', 'Rogue Star'],
   costs:    [1, 10, 20, 32, 48, 70, 100, 140],
   flavor:   'The Maw widens, and one more body falls into its keeping.',
 };
 function singularityLevel()       { return mlvl('singularity'); }
-function singularityCost()         { const l = singularityLevel(); return l >= SINGULARITY.tiers ? null : SINGULARITY.costs[l]; }
+function singularityCost()         { const l = singularityLevel(); return l >= SINGULARITY.demoMax ? null : SINGULARITY.costs[l]; }
 function singularityOrbiter(tier)  { return SINGULARITY.orbiters[tier - 1] || 'the next body'; }
 
 const MASS_UPGRADES = [
@@ -179,6 +182,7 @@ function canUndoMass()     { return accBuyLog.length > 0; }
 function buySingularity() {
     if (accBrowse) return false;
     const l = singularityLevel();
+    if (l >= SINGULARITY.demoMax) return false;   // demo ends at tier 2 ("Finish Demo"); deeper gates aren't capturable yet
     if (l >= SINGULARITY.tiers) return false;
     const cost = SINGULARITY.costs[l];
     if (G.mass < cost) return false;

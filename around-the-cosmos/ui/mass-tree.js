@@ -62,7 +62,8 @@ function accNodeDetail(u) {
 // `active` = the gate is captured or the next-available one -> it gets a rail line; locked gates beyond have none.
 function accGateHTML(t, first, last, active) {
     const lv = singularityLevel(), cost = SINGULARITY.costs[t - 1];
-    const state = lv >= t ? 'done' : lv === t - 1 ? 'avail' : 'locked';
+    // a tier is 'avail' only if it's the next one AND within the demo cap; deeper gates stay 'locked' (sealed)
+    const state = lv >= t ? 'done' : (lv === t - 1 && t <= SINGULARITY.demoMax) ? 'avail' : 'locked';
     const buy = !accBrowse && state === 'avail' && G.mass >= cost;
     const idAttr = buy ? ` data-spine="${t}"` : '';
     const name = state === 'locked' ? '???' : SINGULARITY.orbiters[t - 1];
@@ -77,13 +78,14 @@ function accGateHTML(t, first, last, active) {
 
 function accGateDetail(t) {
     const lv = singularityLevel(), orb = SINGULARITY.orbiters[t - 1];
+    if (orb === 'Finish Demo') return `<div class="acc-pop-d">The end of the demo. More cosmos is on the way.</div>`;
     if (lv >= t || lv === t - 1) return `<div class="acc-pop-d"><b>${orb}</b> enters the orbit.</div>`;
     return `<div class="acc-pop-d">Sealed — capture the earlier orbiters first.</div>`;
 }
 
 function accTreeHTML(cat) {
     // The rail only connects captured tiers + the next available one; locked tiers beyond have no line.
-    const lvl = singularityLevel(), lineMax = Math.min(lvl + 1, SINGULARITY.tiers);
+    const lvl = singularityLevel(), lineMax = Math.min(lvl + 1, SINGULARITY.demoMax);   // rail stops at the demo end ("Finish Demo")
     let h = '<div class="acc-railwrap"><div class="acc-rail">';
     for (let t = 1; t <= SINGULARITY.tiers; t++) {
         const nodes = massTierNodes(cat, t), active = t <= lineMax;
