@@ -24,7 +24,7 @@ Buy **Cosmic Pulse** so Maw **auto-generates stardust (✦) every second** → b
 | Cosmic Pulse ×1 | buy (✦10) | Maw begins **auto-generating 5 ✦/sec**, bouncing gently on each pulse. |
 | Cosmic Pulse ×2 | buy (✦50) | Now **10 ✦/sec**. → **Dust Particle** upgrade appears (creates your first orbiter). |
 | First Dust Particle | buy (✦100) | Your first **orbiter** appears, paying **10 ✦** per orbit. One-time buy. Unlocks **Dust Particle Count**, **Dust Particle Payout**, **Dust Particle Speed**, and the **All Orbiters Payout** stat. |
-| 2nd Dust Particle | buy Dust Particle Count (✦500) | A second dust particle joins the clump. |
+| 2nd Dust Particle | buy Dust Particle Count (✦600) | A second dust particle joins the clump. |
 | Cosmic Pulse ×6 | buy (✦750) | → **Pulse Surge** appears in MAIN (a stronger per-pulse upgrade). |
 | 5k stardust collected | `runDust ≥ 5,000` | → the **Asteroid** unlocks (a single body, no longer gated on dust particles). |
 | The Asteroid | buy (✦2,000) | A single bigger, slower **asteroid** appears on a wider orbit, paying **50 ✦** per orbit. Unlocks **Asteroid Payout**, **Asteroid Speed**, **Asteroid Composition**. |
@@ -73,7 +73,7 @@ Once owned, Maw **auto-generates stardust every second** (it bounces gently on e
 **Afterglow** - *unlocks with Pulse Surge (Cosmic Pulse lvl 6)* · max **5** · **active-play bonus** - for **60s** after you catch a comet, every pulse gains **+20 / level** ✦ (catching another comet refreshes the timer). The **Afterglow card itself lights up** with a draining bar so you can see the window run out (it flashes amber near the end).
 | Level | 1 | 2 | 3 | 4 | 5 |
 |---|---|---|---|---|---|
-| Cost ✦ | 2,000 | 4,000 | 7,000 | 12,000 | 20,000 |
+| Cost ✦ | 2,500 | 4,500 | 8,000 | 13,000 | 22,000 |
 | Bonus while lit | +20 | +40 | +60 | +80 | +100 / pulse |
 
 **Deep Breath** - *unlocks after collecting 10,000 stardust this universe (`runDust ≥ 10,000`)* · max **8** · **every Nth breath pays ×2**
@@ -141,21 +141,21 @@ Adds one more particle to the clump per level (+10 base payout each).
 | Bought | Cost ✦ | Total dust particles |
 |---|---|---|
 | (1st, via Dust Particle) | 100 | 1 |
-| Count ×1 | 500 | 2 |
-| Count ×2 | 1,200 | 3 |
-| Count ×3 | 3,100 | 4 |
-| Count ×4 | 5,600 | 5 |
+| Count ×1 | 600 | 2 |
+| Count ×2 | 1,500 | 3 |
+| Count ×3 | 4,000 | 4 |
+| Count ×4 | 7,500 | 5 |
 
 **Dust Particle Payout** - *unlocks after the first dust particle* · max **5**
 Adds **+10** to **every** dust particle's payout per level (additive, not doubling).
 | Level | Cost ✦ | Payout per particle |
 |---|---|---|
 | (base) | - | 10 |
-| 1 | 150 | 20 |
-| 2 | 500 | 30 |
-| 3 | 1,500 | 40 |
-| 4 | 3,300 | 50 |
-| 5 | 6,000 | 60 |
+| 1 | 200 | 20 |
+| 2 | 800 | 30 |
+| 3 | 2,500 | 40 |
+| 4 | 5,500 | 50 |
+| 5 | 12,000 | 60 |
 
 > One dust particle pays `10 + 10×lvl`; five particles pay `5 × that`.
 
@@ -165,11 +165,11 @@ so the *actual* orbit speed is the column below - i.e. **82% → 164%**.
 | Level | Cost ✦ | Orbit speed (×0.82) |
 |---|---|---|
 | (base) | - | 82 % |
-| 1 | 200 | 98 % |
-| 2 | 800 | 115 % |
-| 3 | 2,000 | 131 % |
-| 4 | 3,850 | 148 % |
-| 5 | 7,000 | 164 % |
+| 1 | 250 | 98 % |
+| 2 | 1,000 | 115 % |
+| 3 | 3,000 | 131 % |
+| 4 | 6,500 | 148 % |
+| 5 | 16,000 | 164 % |
 
 > Faster orbit = the clump crosses the top more often = more payouts per minute.
 
@@ -184,15 +184,15 @@ identity comes from its unique **Asteroid Composition** upgrade (below).
 **Asteroid Payout** - *unlocks after the first asteroid* · max **5** - adds **+50** to the asteroid's payout per level (additive).
 | Level | (base) | 1 | 2 | 3 | 4 | 5 |
 |---|---|---|---|---|---|---|
-| Cost ✦ | - | 3,000 | 10,000 | 30,000 | 66,000 | 120,000 |
+| Cost ✦ | - | 2,500 | 5,000 | 11,000 | 23,000 | 52,000 |
 | Payout (Rock) | 50 | 100 | 150 | 200 | 250 | 300 |
 
-> Costs follow the **same ratio as the dust-particle payout upgrade, scaled ×20** (asteroid's 2,000 start ÷ dust's 100 start).
+> Asteroid costs are set independently and climb **steeper than dust**, especially at the later tiers.
 
 **Asteroid Speed** - *unlocks after the first asteroid* · max **5** - +20% per level, with a **0.88 base-speed factor** (base reduced 12%) → effective **88% → 176%**.
 | Level | (base) | 1 | 2 | 3 | 4 | 5 |
 |---|---|---|---|---|---|---|
-| Cost ✦ | - | 4,000 | 16,000 | 40,000 | 77,000 | 140,000 |
+| Cost ✦ | - | 3,000 | 6,000 | 13,000 | 28,000 | 62,000 |
 | Speed (×0.88) | 88% | 106% | 123% | 141% | 158% | 176% |
 
 **Asteroid Composition** - *unlocks after the asteroid* · max **5** - the asteroid's **unique** upgrade.
@@ -200,11 +200,11 @@ Reforge the single asteroid into denser/richer material: each tier **recolors** 
 | Tier | Material | Color | Payout × | Cost to reach ✦ |
 |---|---|---|---|---|
 | 0 (base) | Rock | grey-brown | ×1.0 | - |
-| 1 | Iron | steel grey | ×1.2 | 3,000 |
-| 2 | Gold | gold | ×1.4 | 8,000 |
-| 3 | Ice | pale blue | ×1.6 | 18,000 |
-| 4 | Crystal | amethyst violet | ×1.8 | 40,000 |
-| 5 | Diamond | bright cyan | ×2.0 | 90,000 |
+| 1 | Iron | steel grey | ×1.2 | 3,500 |
+| 2 | Gold | gold | ×1.4 | 11,000 |
+| 3 | Ice | pale blue | ×1.6 | 26,000 |
+| 4 | Crystal | amethyst violet | ×1.8 | 60,000 |
+| 5 | Diamond | bright cyan | ×2.0 | 135,000 |
 
 > Composition is the one asteroid **multiplier**: `asteroidPayout = round((50 + 50×payoutLvl) × compMult × resonanceMult)`.
 > Rounded so the fractional multipliers never leave a fractional stardust amount.
