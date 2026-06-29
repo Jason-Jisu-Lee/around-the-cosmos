@@ -263,8 +263,8 @@ function draw(t) {
 
     const reso = lvl('resonance');
     if (reso > 0) {
-        const a = 0.09 + 0.03 * (reso - 1);
-        const R = sunR * 5.6;
+        const a = (0.09 + 0.03 * (reso - 1)) * 1.1;   // ~10% more intense
+        const R = sunR * 6.72;                         // ~20% larger spread (was 5.6)
         const blobs = [
             [0, 0, 1.0, 1.0, 0.5, 0.0],
             [Math.cos(t*0.37)*sunR*0.9,      Math.sin(t*0.31)*sunR*0.8,  0.72, 0.6, 0.8, 1.7],
