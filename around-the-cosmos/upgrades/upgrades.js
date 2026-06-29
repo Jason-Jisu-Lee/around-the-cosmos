@@ -256,25 +256,13 @@ const UPGRADES = [
     unlock: () => lvl("dwarf") >= 1,
   },
   {
-    id: "dwarfconj",
-    name: "Conjunction",
-    maxLevel: 3,
-    section: "DWARF PLANET",
-    costs: [150000, 400000, 900000],
-    flavor: "When two worlds line up, their pull runs deep.",
-    desc: (l) =>
-      `When the Dwarf Planet and Moon align in conjunction, both pay ×${(1.5 + 0.5 * (l || 1)).toFixed(1)}. Each level raises the bonus by +0.5×.`,
-    unlock: () => lvl("dwarf") >= 1 && lvl("moon") >= 1,
-  },
-  {
     id: "dwarftrojan",
     name: "Trojan Companions",
     maxLevel: 2,
     section: "DWARF PLANET",
     costs: [250000, 700000],
-    flavor: "Two captured rocks ride the calm points of its orbit.",
     desc: () =>
-      "Each level settles a Trojan companion at a ±60° Lagrange point (max 2). Each pays half the Dwarf's payout on its own pass, spreading the income.",
+      "Spawns a Trojan companion that pays 1/3 of the Dwarf Planet's income.",
     unlock: () => lvl("dwarf") >= 1,
   },
   {

@@ -2,11 +2,10 @@
 
 // Dwarf Planet ("Ember"): the slowest orbiter, on the widest ring (3), with the biggest single payout.
 // CONSTANT speed = the Moon's speed at speed-upgrade level 1 (0.663 × 1.2 = 0.7956). No speed/count upgrade.
-// Four unique upgrades: Gravity Assist, Trojan Companions, Conjunction, Compounding Orbit.
+// Three unique upgrades: Gravity Assist, Trojan Companions, Compounding Orbit.
 const DWARF_SPEED = 0.663 * 1.2;          // 0.7956, fixed for the life of the body
 const DWARF_TROJAN_OFF = [Math.PI / 3, -Math.PI / 3];   // L4 / L5 Lagrange points (±60°)
 const DWARF_ASSIST_DUR = 6;               // seconds a gravity-assist buff rides a lapped orbiter
-const DWARF_CONJ_WINDOW = 0.22;           // rad half-window for a Dwarf-Moon conjunction (~12.6°)
 
 const _TAU = Math.PI * 2, _TOP = 3 * Math.PI / 2;
 function _wrap(a) { a %= _TAU; return a < 0 ? a + _TAU : a; }
@@ -19,16 +18,6 @@ function newDwarfBody() { return { localPhase: 0, localR: 0, localSpin: 0, pulse
 function dwarfCompoundCap()  { return [0, 0.15, 0.30, 0.50][lvl('dwarfcompound')] || 0; }
 function dwarfCompoundMult() { return lvl('dwarfcompound') ? 1 + Math.min(dwarfCompoundCap(), 0.003 * G.dwarfOrbits) : 1; }
 
-// ---- Conjunction (#7): Dwarf + Moon aligned -> both ×(1.5 + 0.5·lvl) for the window ----
-function dwarfMoonSep() {
-    if (!G.moons.length || !G.dwarfs.length) return Math.PI;
-    let d = Math.abs(_wrap(G.dwarfClump.angle) - _wrap(G.moonClump.angle));
-    if (d > Math.PI) d = _TAU - d;
-    return d;
-}
-function conjunctionActive() { return lvl('dwarfconj') > 0 && G.moons.length > 0 && G.dwarfs.length > 0 && dwarfMoonSep() < DWARF_CONJ_WINDOW; }
-function conjunctionMult()   { return conjunctionActive() ? 1.5 + 0.5 * lvl('dwarfconj') : 1; }
-
 // ---- Gravity Assist (#1): a FASTER orbiter that laps the Dwarf gets +25%/lvl for DWARF_ASSIST_DUR seconds ----
 const _dwarfAssistUntil = {};   // orbiter id -> gameClock expiry
 const _dwarfLapPrev = {};       // orbiter id -> previous wrapped separation
@@ -40,9 +29,9 @@ function orbiterAssistMult(o) {
 
 // ---- payout ----
 function dwarfBasePayout()    { return Math.round((1500 + 1500 * lvl('dwarfpay')) * resonanceMult()); }
-function dwarfPayout()        { return Math.round(dwarfBasePayout() * dwarfCompoundMult() * conjunctionMult()); }
-function dwarfAvgPayout()     { return Math.round(dwarfBasePayout() * dwarfCompoundMult()); }   // steady display (no conjunction flicker)
-function dwarfTrojanPayout()  { return Math.round(dwarfAvgPayout() * 0.5); }
+function dwarfPayout()        { return Math.round(dwarfBasePayout() * dwarfCompoundMult()); }
+function dwarfAvgPayout()     { return dwarfPayout(); }
+function dwarfTrojanPayout()  { return Math.round(dwarfAvgPayout() / 3); }
 function dwarfTrojanCount()   { return Math.min(2, lvl('dwarftrojan')); }
 function dwarfSpeed()         { return DWARF_SPEED; }
 function dwarfOrbitsPerMin()  { return 60 * dwarfSpeed() / PLANET_DEF[3].period; }
@@ -120,13 +109,12 @@ registerOrbiter({
             const pct = Math.round(Math.min(dwarfCompoundCap(), 0.003 * G.dwarfOrbits) * 100);
             s += tipRow('Compounding', '+' + pct + '% / +' + Math.round(dwarfCompoundCap() * 100) + '% cap');
         }
-        if (lvl('dwarfconj') > 0) s += tipRow('Conjunction', conjunctionActive() ? '×' + conjunctionMult().toFixed(1) + ' now' : 'aligned ×' + (1.5 + 0.5 * lvl('dwarfconj')).toFixed(1));
         if (lvl('dwarftrojan') > 0) s += tipRow('Trojans', dwarfTrojanCount() + ' × ✦' + fmtNum(dwarfTrojanPayout()));
         return s;
     },
     labels: {
         dwarf: 'Dwarf Planet', dwarfpay: '+1500 Payout',
         dwarfassist: 'Gravity Assist', dwarftrojan: 'Trojan Companions',
-        dwarfconj: 'Conjunction', dwarfcompound: 'Compounding Orbit',
+        dwarfcompound: 'Compounding Orbit',
     },
 });

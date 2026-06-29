@@ -252,7 +252,7 @@ The slowest world, on the **widest orbit** (ring 3), drawn as a banded rust-and-
 | Cost ✦ | - | 50,000 | 130,000 | 320,000 | 700,000 | 1,200,000 |
 | Payout | 1,500 | 3,000 | 4,500 | 6,000 | 7,500 | 9,000 |
 
-The Dwarf Planet has **four unique upgrades** (more than any other orbiter):
+The Dwarf Planet has **three unique upgrades** (more than any other orbiter):
 
 **Compounding Orbit** - max **3** - the dwarf's payout **grows +0.3% every orbit it completes**, capped by level. The ramp **resets when the universe collapses** (it counts only this-universe laps); ~58 min of orbiting reaches the +50% cap.
 | Level | 1 | 2 | 3 |
@@ -260,13 +260,7 @@ The Dwarf Planet has **four unique upgrades** (more than any other orbiter):
 | Cost ✦ | 120,000 | 300,000 | 700,000 |
 | Cap | +15% | +30% | +50% |
 
-**Conjunction** - *needs the Moon too* · max **3** - whenever the Dwarf and the **Moon** line up (a conjunction), **both** pay a multiplier for the brief alignment, and a warm halo flares on the dwarf.
-| Level | 1 | 2 | 3 |
-|---|---|---|---|
-| Cost ✦ | 150,000 | 400,000 | 900,000 |
-| Both pay | ×2.0 | ×2.5 | ×3.0 |
-
-**Trojan Companions** - max **2** - each level settles a small companion at a **±60° Lagrange point** (the calm points of the orbit). Each companion pays **half** the Dwarf's payout on its **own** pass, so the slow cycle yields more frequent (smaller) windfalls.
+**Trojan Companions** - max **2** - each level spawns a small companion at a **±60° Lagrange point** (the calm points of the orbit). Each companion pays **1/3** of the Dwarf's payout on its **own** pass, so the slow cycle yields more frequent (smaller) windfalls.
 | Level | 1 | 2 |
 |---|---|---|
 | Cost ✦ | 250,000 | 700,000 |
@@ -278,8 +272,8 @@ The Dwarf Planet has **four unique upgrades** (more than any other orbiter):
 | Cost ✦ | 120,000 | 320,000 | 800,000 |
 | Lapped body | +25% | +50% | +75% |
 
-> `dwarfPayout = round((1,500 + 1,500×payoutLvl) × resonanceMult × compoundMult × conjunctionMult)`.
-> Compounding rides this-universe lap counting (`G.dwarfOrbits`); Trojan crossings and Gravity-Assist laps are detected per-tick; Conjunction is read live as orbits pay out.
+> `dwarfPayout = round((1,500 + 1,500×payoutLvl) × resonanceMult × compoundMult)`.
+> Compounding rides this-universe lap counting (`G.dwarfOrbits`); Trojan crossings and Gravity-Assist laps are detected per-tick.
 
 ### COMETS
 

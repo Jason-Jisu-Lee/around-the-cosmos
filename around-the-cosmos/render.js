@@ -198,13 +198,6 @@ function drawDwarfClump(o, t) {
         drawDwarfSphere(tx, ty, tr, t*0.85 + i*1.7);
     }
 
-    // Conjunction (Dwarf + Moon aligned): a warm halo flares around the dwarf
-    if (typeof conjunctionActive === 'function' && conjunctionActive()) {
-        const gl = ctx.createRadialGradient(cp.x, cp.y, pr*0.7, cp.x, cp.y, pr*2.6);
-        gl.addColorStop(0, 'rgba(232,178,90,0.40)'); gl.addColorStop(1, 'rgba(232,178,90,0)');
-        ctx.fillStyle = gl; ctx.beginPath(); ctx.arc(cp.x, cp.y, pr*2.6, 0, Math.PI*2); ctx.fill();
-    }
-
     // Main dwarf
     if (b.pulse > 0) {
         ctx.beginPath(); ctx.arc(cp.x, cp.y, pr+3+(1-b.pulse)*12, 0, Math.PI*2);
