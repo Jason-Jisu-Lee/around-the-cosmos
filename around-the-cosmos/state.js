@@ -88,15 +88,20 @@ function earn(amount, x, y, big) {
     }
 }
 
-const ACCRETION_THRESHOLD = 200000;
-const MASS_COEF = 1.8;   // slowed ~40% from 3 - Mass climbs more gently
-// LINEAR in runDust: every ACCRETION_THRESHOLD of stardust = +MASS_COEF Mass, no plateaus, so pushing always earns more.
-function massEarnable() { return Math.floor(MASS_COEF * G.runDust / ACCRETION_THRESHOLD); }
+const ACCRETION_THRESHOLD = 200000;   // runDust that yields your FIRST Mass at zero lifetime Mass (the per-Mass "unit")
+const MASS_LIFE_K = 0.02;             // each lifetime Mass raises the runDust needed per Mass by 2% - difficulty scales with lifetime Mass
+// DIMINISHING returns (square root): Mass = floor(sqrt(runDust / unit)). Pushing further still earns more, but at a
+// SLOWING rate (push 4× the stardust for only 2× the Mass) - so progress feels like it's tapering, and the totals stay
+// small instead of running away the way the old linear curve did. `unit` grows with lifetime Mass, so a richer save must
+// push further for the same Mass (gaining Mass gets harder the more you've ever earned).
+function massUnit()     { return ACCRETION_THRESHOLD * (1 + MASS_LIFE_K * G.massEarned); }
+function massEarnable() { return Math.floor(Math.sqrt(G.runDust / massUnit())); }
 function baseMassGain() { return massEarnable(); }
 function massGain()     { return Math.round(baseMassGain() * greaterCollapseMult()); }
-// You can only accrete once you'd gain at least accFloor() Mass: a base of 3, rising VERY subtly with lifetime Mass earned.
-function accFloor()      { return 3 + Math.floor(G.massEarned / 200); }
-function accrThreshold() { return accFloor() * ACCRETION_THRESHOLD / MASS_COEF; }   // runDust needed to reach the floor (for the progress bar)
+// You can only accrete once you'd gain at least accFloor() Mass (a flat 2 - no spammy 1-Mass prestige; the lifetime
+// difficulty lives in massUnit, which also pushes accrThreshold up as you get richer).
+function accFloor()      { return 2; }
+function accrThreshold() { return massUnit() * accFloor() * accFloor(); }   // runDust to reach the floor (inverse of the sqrt) - for the progress bar
 function canAccrete()    { return massEarnable() >= accFloor(); }
 
 function commitAccretion() {
