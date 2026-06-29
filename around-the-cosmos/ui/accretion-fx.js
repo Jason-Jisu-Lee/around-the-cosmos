@@ -31,15 +31,27 @@ function runAccretionFx(onDone) {
         const list = o.list(); if (!list.length) continue;
         const c = toWin(o.clumpPos());
         const col = o.color ? o.color() : '#8a8275';
-        const size = o.id === 'moon' ? 16 : o.id === 'asteroid' ? 11 : 5;
+        const size = o.id === 'moon' ? 16 : o.id === 'asteroid' ? 11 : o.id === 'dwarf' ? 18 : 5;
         const period = (typeof PLANET_DEF !== 'undefined' && PLANET_DEF[o.ring]) ? PLANET_DEF[o.ring].period : 8;
         const spd = (typeof o.speed === 'function') ? o.speed() : 1;
         const w = (2 * Math.PI / period) * spd;
-        const pts = o.id === 'dust'
-            ? list.map((_, i) => { const a = i / list.length * 6.2832; return { x: c.x + Math.cos(a) * 11, y: c.y + Math.sin(a) * 11 }; })
-            : [{ x: c.x, y: c.y }];
+        let pts;
+        if (o.id === 'dust') {
+            pts = list.map((_, i) => { const a = i / list.length * 6.2832; return { x: c.x + Math.cos(a) * 11, y: c.y + Math.sin(a) * 11 }; });
+        } else if (o.id === 'dwarf') {
+            // the dwarf + its Trojan companions (they ride ±60° in drawDwarfClump, not in o.list())
+            pts = [{ x: c.x, y: c.y }];
+            const tc = (typeof dwarfTrojanCount === 'function') ? dwarfTrojanCount() : 0, rr = orbitR(3);
+            for (let i = 0; i < tc; i++) {
+                const ang = G.dwarfClump.angle + DWARF_TROJAN_OFF[i];
+                const p = toWin({ x: CX + Math.cos(ang) * rr, y: CY + Math.sin(ang) * rr });
+                pts.push({ x: p.x, y: p.y, size: 9 });   // smaller embers
+            }
+        } else {
+            pts = [{ x: c.x, y: c.y }];
+        }
         for (const pt of pts) { const dx = pt.x - cx, dy = pt.y - cy, R = Math.hypot(dx, dy) || 1;
-            bodies.push({ R, R0: R, A: Math.atan2(dy, dx), w, col, size }); }
+            bodies.push({ R, R0: R, A: Math.atan2(dy, dx), w, col, size: pt.size || size }); }
     }
 
     const stars = [];
