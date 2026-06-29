@@ -52,21 +52,21 @@ Once owned, Maw **auto-generates stardust every second** (it bounces gently on e
 | 2 | 50 | 10 |
 | 3 | 120 | 15 |
 | 4 | 250 | 20 |
-| 5 | 500 | 25 |
-| 6 | 750 | 30 |
-| 7 | 1,000 | 35 |
-| 8 | 1,300 | 40 |
+| 5 | 580 | 25 |
+| 6 | 1,000 | 30 |
+| 7 | 1,850 | 35 |
+| 8 | 3,000 | 40 |
 
 > Buying level 2 is what reveals the DUST PARTICLES section (Dust Particle).
 
 **Pulse Surge** - *unlocks after Cosmic Pulse lvl 6* · max **5** · **+10 ✦ per pulse each level** (stacks on Cosmic Pulse)
 | Level | Cost ✦ | Adds to each pulse |
 |---|---|---|
-| 1 | 1,000 | +10 |
-| 2 | 1,800 | +20 |
-| 3 | 2,800 | +30 |
-| 4 | 4,700 | +40 |
-| 5 | 7,050 | +50 |
+| 1 | 1,200 | +10 |
+| 2 | 2,200 | +20 |
+| 3 | 3,600 | +30 |
+| 4 | 6,300 | +40 |
+| 5 | 10,000 | +50 |
 
 > Pulse value (✦ per second) = 5 × Cosmic Pulse + 10 × Pulse Surge (+ Gravitational Pull, below), via `pulseValue()`. **Deep Breath** then doubles the occasional pulse on top of this.
 
@@ -144,7 +144,7 @@ Adds one more particle to the clump per level (+10 base payout each).
 | Count ×1 | 600 | 2 |
 | Count ×2 | 1,500 | 3 |
 | Count ×3 | 4,000 | 4 |
-| Count ×4 | 7,500 | 5 |
+| Count ×4 | 9,200 | 5 |
 
 **Dust Particle Payout** - *unlocks after the first dust particle* · max **5**
 Adds **+10** to **every** dust particle's payout per level (additive, not doubling).
@@ -154,8 +154,8 @@ Adds **+10** to **every** dust particle's payout per level (additive, not doubli
 | 1 | 200 | 20 |
 | 2 | 800 | 30 |
 | 3 | 2,500 | 40 |
-| 4 | 5,500 | 50 |
-| 5 | 12,000 | 60 |
+| 4 | 5,600 | 50 |
+| 5 | 14,500 | 60 |
 
 > One dust particle pays `10 + 10×lvl`; five particles pay `5 × that`.
 
@@ -168,7 +168,7 @@ so the *actual* orbit speed is the column below - i.e. **82% → 164%**.
 | 1 | 250 | 98 % |
 | 2 | 1,000 | 115 % |
 | 3 | 3,000 | 131 % |
-| 4 | 6,500 | 148 % |
+| 4 | 7,500 | 148 % |
 | 5 | 16,000 | 164 % |
 
 > Faster orbit = the clump crosses the top more often = more payouts per minute.
@@ -184,7 +184,7 @@ identity comes from its unique **Asteroid Composition** upgrade (below).
 **Asteroid Payout** - *unlocks after the first asteroid* · max **5** - adds **+50** to the asteroid's payout per level (additive).
 | Level | (base) | 1 | 2 | 3 | 4 | 5 |
 |---|---|---|---|---|---|---|
-| Cost ✦ | - | 2,500 | 5,000 | 11,000 | 23,000 | 52,000 |
+| Cost ✦ | - | 2,500 | 4,500 | 10,500 | 24,000 | 58,000 |
 | Payout (Rock) | 50 | 100 | 150 | 200 | 250 | 300 |
 
 > Asteroid costs are set independently and climb **steeper than dust**, especially at the later tiers.
@@ -235,7 +235,7 @@ asteroid it is **not a count upgrade** - there's only ever one Moon.
 **Lunar Phases** - *unlocks after the moon* · max **5** - the moon's **unique** upgrade. Each level shifts that range up by **+0.10 on both ends**, so it raises the average payout while keeping the new→full swing.
 | Level | (default) | 1 | 2 | 3 | 4 | 5 |
 |---|---|---|---|---|---|---|
-| Cost ✦ | - | 12,000 | 28,000 | 55,000 | 90,000 | 140,000 |
+| Cost ✦ | - | 12,000 | 28,000 | 55,000 | 90,000 | 175,000 |
 | Range (new → full) | ×0.75–1.25 | ×0.85–1.35 | ×0.95–1.45 | ×1.05–1.55 | ×1.15–1.65 | ×1.25–1.75 |
 
 > `moonPayout = round((200 + 200×payoutLvl) × moonPhaseMult × resonanceMult)`, where
