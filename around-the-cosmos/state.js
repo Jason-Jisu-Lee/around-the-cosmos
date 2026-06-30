@@ -20,7 +20,7 @@ function createInitialState() {
         moonClump: newClump(),
         dwarfs:    [],
         dwarfClump: newClump(),
-        comet:null, cometTimer:7 + Math.random()*6, cometSeen:false, vortexSeen:false,
+        comet:null, cometTimer:7 + Math.random()*6, cometSeen:false, vortexSeen:false, tutSeen:{},
         particles:[], floatingTexts:[],
     };
 }
@@ -114,7 +114,7 @@ function commitAccretion() {
 
 function resetUniverse() {
     const keep = { mass:G.mass, massEarned:G.massEarned, totalDust:G.totalDust, gameTime:G.gameTime,
-                   moonEverOwned:G.moonEverOwned, massUpgrades:G.massUpgrades };
+                   moonEverOwned:G.moonEverOwned, massUpgrades:G.massUpgrades, tutSeen:G.tutSeen };
     G = createInitialState();
     Object.assign(G, keep);
     if (typeof applyMassUniverseStart === 'function') applyMassUniverseStart();
@@ -131,7 +131,7 @@ function saveGame() {
             massUpgrades:{...G.massUpgrades},
             orbitsCompleted:G.orbitsCompleted, dwarfOrbits:G.dwarfOrbits, taps:G.taps,
             cometsCaught:G.cometsCaught, gameTime:G.gameTime, universeTime:G.universeTime,
-            cometSeen:G.cometSeen, vortexSeen:G.vortexSeen,
+            cometSeen:G.cometSeen, vortexSeen:G.vortexSeen, tutSeen:G.tutSeen,
             upgrades:{...G.upgrades},
         }));
     } catch(_) {}
@@ -159,6 +159,7 @@ function loadGame() {
         }
         G.cometSeen = def('cometSeen', G.cometsCaught > 0);
         G.vortexSeen = def('vortexSeen', false);
+        G.tutSeen = def('tutSeen', {}) || {};
 
         for (const o of ORBITERS) {
             const arr = o.list();

@@ -289,6 +289,31 @@ body {
     100% { transform: translate(0, 0); }
 }
 
+/* ===== Tutorial overlay (Minimal Frost): light dim + soft-lifted spotlight + pulsing dot + pill tooltip ===== */
+#tutorial { position: fixed; inset: 0; z-index: 200; display: none; }   /* covers everything = game frozen */
+#tutorial .tut-hole {
+    position: fixed; pointer-events: none; border-radius: 13px;
+    box-shadow: 0 0 0 9999px rgba(70,72,84,0.34), 0 8px 26px 2px rgba(60,70,110,0.25);
+    border: 1px solid rgba(255,255,255,0.7);
+}
+#tutorial .tut-dot {
+    position: fixed; width: 11px; height: 11px; border-radius: 50%;
+    background: var(--accretion); pointer-events: none; animation: tut-dot 1.3s ease-in-out infinite;
+}
+@keyframes tut-dot { 0%,100% { transform: scale(1); opacity: 0.85; } 50% { transform: scale(1.5); opacity: 0.35; } }
+#tutorial .tut-pop {
+    position: fixed; pointer-events: auto; max-width: 290px;
+    background: rgba(255,255,255,0.97); border: 1px solid #e1e4ea; border-radius: 11px; padding: 13px 15px;
+    box-shadow: 0 8px 26px -8px rgba(40,50,70,0.35); backdrop-filter: blur(2px);
+}
+#tutorial .tut-body { font: 400 13.5px 'Nunito', sans-serif; line-height: 1.5; color: #33373e; }
+#tutorial .tut-row { display: flex; justify-content: flex-end; margin-top: 11px; }
+#tutorial .tut-ok {
+    font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 13px; cursor: pointer;
+    background: #eef1f5; color: #33506a; border: 1px solid #d6dde6; padding: 7px 17px; border-radius: 20px;
+}
+#tutorial .tut-ok:hover { background: #e2e8f0; }
+
 /* Newly-unlocked card: a simple yellow highlight that flashes twice, then clears
    (the card's `animationend` handler removes .upg-new once it's transparent again). */
 .upgrade-card.upg-new::after {

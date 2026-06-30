@@ -6,8 +6,8 @@ let gameClock = 0, paused = false;
 function loop(ts) {
     const dt = Math.min((ts-lastTs)/1000, 0.1);
     lastTs = ts;
-    const frozen = (typeof accreting !== 'undefined' && accreting) || paused;
-    if (!frozen) { gameClock += dt; tickWithDebug(dt); }
+    const frozen = (typeof accreting !== 'undefined' && accreting) || paused || (typeof tutorialActive !== 'undefined' && tutorialActive);
+    if (!frozen) { gameClock += dt; tickWithDebug(dt); if (typeof checkTutorials === 'function') checkTutorials(); }
     lastSave += dt;
     if (lastSave >= 20) { lastSave=0; saveGame(); }
     draw(gameClock);
