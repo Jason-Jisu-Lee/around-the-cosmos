@@ -13,15 +13,15 @@ function newDustParticle() {
 
 // ---- Dust identities (mutually exclusive, one per universe; chosen in the DUST PARTICLES section) ----
 function dustCount() { return G.planets.length; }
-// Coagulation: each grain pays more the more grains there are; also feeds the Asteroid.
-function coagDustBonus()     { return lvl('coagulation') ? 5  * dustCount() : 0; }   // per particle
-function coagAsteroidBonus() { return lvl('coagulation') ? 40 * dustCount() : 0; }
-// Ice Mantles: flat dust payout; also feeds the Moon (+ frost-rim visual on the grains).
-function iceDustBonus()  { return lvl('iceMantles') ? 25  : 0; }   // per particle
-function iceMoonBonus()  { return lvl('iceMantles') ? 200 : 0; }
-// Radiation Tails: small flat dust payout; also feeds the Dwarf Planet (+ comet-tail visual on the grains).
-function radDustBonus()  { return lvl('radTails') ? 15  : 0; }    // per particle
-function radDwarfBonus() { return lvl('radTails') ? 500 : 0; }
+// Coagulation: each grain pays more the more grains there are; also feeds the Asteroid. (max 5 lvls)
+function coagDustBonus()     { return 3  * lvl('coagulation') * dustCount(); }   // per particle (max 3×5×5 = 75)
+function coagAsteroidBonus() { return 30 * lvl('coagulation') * dustCount(); }   // (max 30×5×5 = 750)
+// Ice Mantles: flat dust payout; also feeds the Moon (+ frost-rim visual on the grains). (max 5 lvls)
+function iceDustBonus()  { return 20  * lvl('iceMantles'); }   // per particle (max 100)
+function iceMoonBonus()  { return 150 * lvl('iceMantles'); }   // (max 750)
+// Radiation Tails: small flat dust payout; also feeds the Dwarf Planet (+ comet-tail visual). (max 5 lvls)
+function radDustBonus()  { return 15  * lvl('radTails'); }    // per particle (max 75)
+function radDwarfBonus() { return 300 * lvl('radTails'); }    // (max 1500)
 function dustIdentityPayBonus() { return coagDustBonus() + iceDustBonus() + radDustBonus(); }
 
 function orbiterPayout() { return Math.round((10 + 10 * lvl('dustpay') + denseDustBonus() + dustIdentityPayBonus()) * resonanceMult()); }
