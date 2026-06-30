@@ -302,15 +302,15 @@ body {
 }
 @keyframes tut-dot { 0%,100% { transform: scale(1); opacity: 0.85; } 50% { transform: scale(1.5); opacity: 0.35; } }
 #tutorial .tut-pop {
-    position: fixed; pointer-events: auto; max-width: 290px;
-    background: rgba(255,255,255,0.97); border: 1px solid #e1e4ea; border-radius: 11px; padding: 13px 15px;
+    position: fixed; pointer-events: auto; max-width: 680px;
+    background: rgba(255,255,255,0.97); border: 1px solid #e1e4ea; border-radius: 11px; padding: 16px 19px;
     box-shadow: 0 8px 26px -8px rgba(40,50,70,0.35); backdrop-filter: blur(2px);
 }
-#tutorial .tut-body { font: 400 13.5px 'Nunito', sans-serif; line-height: 1.5; color: #33373e; }
-#tutorial .tut-row { display: flex; justify-content: flex-end; margin-top: 11px; }
+#tutorial .tut-body { font-family: 'Nunito','Segoe UI',sans-serif; font-weight: 400; font-size: 16.5px; line-height: 1.5; color: #33373e; }
+#tutorial .tut-row { display: flex; justify-content: center; margin-top: 15px; }
 #tutorial .tut-ok {
-    font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 13px; cursor: pointer;
-    background: #eef1f5; color: #33506a; border: 1px solid #d6dde6; padding: 7px 17px; border-radius: 20px;
+    font-family: 'Nunito','Segoe UI',sans-serif; font-weight: 800; font-size: 15px; cursor: pointer;
+    background: #eef1f5; color: #33506a; border: 1px solid #d6dde6; padding: 8px 22px; border-radius: 20px;
 }
 #tutorial .tut-ok:hover { background: #e2e8f0; }
 
