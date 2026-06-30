@@ -147,7 +147,7 @@ const UPGRADES = [
     costs: [5000, 13000, 30000, 70000, 150000],
     flavor: "Grains collide and stick - the first step toward worlds.",
     desc: (l) =>
-      `Each dust particle pays +${3 * (l || 1)} ✦ for every particle you own, and feeds the Asteroid +${30 * (l || 1)} ✦ per particle. (Dust identity - hold to choose one of three; max 5; resets each universe.)`,
+      `Each dust particle pays +${3 * (l || 1)} ✦ for every particle you own, and feeds the Asteroid +${30 * (l || 1)} ✦ per particle.`,
     unlock: () => G.runDust >= 50000,
   },
   {
@@ -160,7 +160,7 @@ const UPGRADES = [
     costs: [5000, 13000, 30000, 70000, 150000],
     flavor: "Past the frost line, the grains gather ice.",
     desc: (l) =>
-      `+${20 * (l || 1)} ✦ to each dust particle, and +${150 * (l || 1)} to the Moon's base payout. The grains gain a frost rim. (Dust identity - hold to choose one of three; max 5; resets each universe.)`,
+      `+${20 * (l || 1)} ✦ to each dust particle, and +${150 * (l || 1)} to the Moon's base payout. The grains gain a frost rim.`,
     unlock: () => G.runDust >= 50000,
   },
   {
@@ -173,7 +173,7 @@ const UPGRADES = [
     costs: [5000, 13000, 30000, 70000, 150000],
     flavor: "Starlight blows the finest grains into little tails.",
     desc: (l) =>
-      `+${15 * (l || 1)} ✦ to each dust particle, and +${300 * (l || 1)} to the Dwarf Planet's base payout. Each grain trails a tiny tail. (Dust identity - hold to choose one of three; max 5; resets each universe.)`,
+      `+${15 * (l || 1)} ✦ to each dust particle, and +${300 * (l || 1)} to the Dwarf Planet's base payout. Each grain trails a tiny tail.`,
     unlock: () => G.runDust >= 50000,
   },
   {

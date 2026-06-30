@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Around the Cosmos — Tutorial Designs</title>
+<style>
+  :root{
+    --bg:#f4efe4; --ink:#1a1a1a; --muted:#7a715f; --border:#e3ddcf; --surface2:#ffffff;
+    --accretion:#4a82a8; --accretion-dim:#bcd0e0; --violet:#7a6c9c; --violet-faint:#f7f4fb; --gold:#b8923a;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Georgia,serif;height:100%;overflow:hidden;}
+  /* ---- top bar: pick a design ---- */
+  #bar{position:fixed;top:0;left:0;right:0;height:54px;z-index:50;display:flex;align-items:center;gap:8px;
+       padding:0 16px;background:rgba(244,239,228,0.96);border-bottom:1px solid var(--border);}
+  #bar b{font-family:'Nunito',sans-serif;font-size:13px;color:var(--muted);margin-right:6px;letter-spacing:.04em;}
+  .dbtn{font-family:'Nunito',sans-serif;font-size:12.5px;font-weight:700;border:1px solid var(--border);background:#fff;
+        color:#3a3530;padding:8px 12px;border-radius:9px;cursor:pointer;}
+  .dbtn:hover{border-color:var(--accretion-dim);}
+  .dbtn.on{background:var(--accretion);color:#fff;border-color:var(--accretion);}
+  .hint{margin-left:auto;font-size:12px;color:var(--muted);font-style:italic;}
+
+  /* ---- mock game layout ---- */
+  #game{position:absolute;inset:54px 0 0 0;display:flex;}
+  #left{width:300px;padding:22px 18px;}
+  #center{flex:1;position:relative;}
+  #right{width:300px;padding:22px 18px;}
+  #dust{font:700 34px Georgia;margin:4px 0 18px;}
+  .card{background:var(--surface2);border:1px solid var(--border);border-radius:13px;padding:12px 15px;margin-bottom:11px;}
+  .ctop{display:flex;justify-content:space-between;align-items:baseline;}
+  .cname{font:600 16px 'Baloo 2',Georgia;} .ccost{font:800 14px 'Nunito';color:#2a2a2a;}
+  .cbar{height:5px;background:#eee;border-radius:3px;margin-top:9px;position:relative;overflow:hidden;}
+  .cbar i{position:absolute;left:0;top:0;bottom:0;background:var(--accretion-dim);border-radius:3px;}
+  .clvl{font:700 11px 'Nunito';color:var(--muted);text-align:right;margin-top:2px;}
+  .seclabel{font:700 11px 'Nunito';color:var(--muted);letter-spacing:.12em;margin:6px 0 10px;}
+  .card.ident{background:var(--violet-faint);border-color:#e4def1;}
+  /* accretion progress card (muted) */
+  #t-accretion{background:#efece4;border:1px dashed #cdbfa6;border-radius:13px;padding:12px 15px;text-align:center;}
+  #t-accretion .alabel{font:700 13px 'Nunito';color:#6f6650;letter-spacing:.08em;}
+  #t-accretion .cbar{margin-top:8px;background:#e2dcce;}
+  #t-accretion .cbar i{background:#9bb6cb;}
+  /* maw */
+  #maw{position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);}
+  #maw .orbit{width:240px;height:240px;border:1px solid rgba(100,90,80,.18);border-radius:50%;}
+  #maw .core{width:26px;height:26px;background:#1c1814;border-radius:50%;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);}
+
+  /* ===== tutorial overlay ===== */
+  #tut{position:fixed;inset:0;z-index:40;display:none;}      /* captures clicks = game "paused" */
+  .tut-hole{position:fixed;pointer-events:none;border-radius:14px;}
+  .tut-pop{position:fixed;pointer-events:auto;max-width:300px;}
+  .tut-ok{font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;border:none;cursor:pointer;}
+  @keyframes tut-pulse{0%,100%{box-shadow:0 0 0 9999px var(--scrim),0 0 0 2px var(--ring),0 0 18px 4px var(--ring);}
+                       50%{box-shadow:0 0 0 9999px var(--scrim),0 0 0 5px var(--ring),0 0 30px 9px var(--ring);}}
+  @keyframes tut-dot{0%,100%{transform:scale(1);opacity:.85;}50%{transform:scale(1.5);opacity:.35;}}
+
+  /* A — Spotlight + arrow card */
+  .A .tut-hole{box-shadow:0 0 0 9999px rgba(16,13,22,0.74),0 0 26px 6px rgba(120,108,156,.55);border:1.5px solid rgba(150,135,200,.5);}
+  .A .tut-pop{background:#fff;border-radius:12px;padding:15px 16px;box-shadow:0 10px 34px -8px rgba(20,15,30,.6);}
+  .A .tut-pop .body{font:400 14px Georgia;line-height:1.5;color:#2a2622;}
+  .A .tut-pop .tut-ok{margin-top:13px;background:var(--accretion);color:#fff;padding:8px 20px;border-radius:8px;float:right;}
+  .A .arrow{position:fixed;width:0;height:0;}
+
+  /* B — hard cutout + connector line */
+  .B .tut-hole{box-shadow:0 0 0 9999px rgba(9,9,15,0.82);border:2px solid var(--accretion);border-radius:11px;}
+  .B .tut-pop{background:#14161c;color:#eef2f6;border-radius:10px;padding:14px 16px;border:1px solid #2e3850;}
+  .B .tut-pop .body{font:400 13.5px 'Nunito';line-height:1.5;}
+  .B .tut-pop .tut-ok{margin-top:12px;background:#2a6f9e;color:#fff;padding:7px 18px;border-radius:7px;}
+  .B .line{position:fixed;height:2px;background:var(--accretion);transform-origin:left center;pointer-events:none;}
+  .B .line::after{content:'';position:absolute;right:-4px;top:-3px;width:8px;height:8px;border-radius:50%;background:var(--accretion);}
+
+  /* C — dim + pulsing ring + centered narrator banner */
+  .C .tut-hole{--scrim:rgba(12,10,18,0.78);--ring:rgba(120,150,200,.8);animation:tut-pulse 1.6s ease-in-out infinite;border-radius:13px;}
+  .C .banner{position:fixed;left:50%;bottom:46px;transform:translateX(-50%);width:min(640px,80vw);
+             background:rgba(20,22,30,0.94);color:#f2f4f8;border-radius:14px;padding:20px 26px;text-align:center;
+             box-shadow:0 14px 40px -10px rgba(0,0,0,.6);pointer-events:auto;border:1px solid rgba(120,140,180,.3);}
+  .C .banner .body{font:400 15px Georgia;line-height:1.55;}
+  .C .banner .tut-ok{margin-top:15px;background:#5e87b0;color:#fff;padding:9px 30px;border-radius:9px;letter-spacing:.05em;}
+
+  /* D — parchment / ink */
+  .D .tut-hole{box-shadow:0 0 0 9999px rgba(58,40,18,0.5);}
+  .D .ink{position:fixed;pointer-events:none;}
+  .D .tut-pop{background:#f3e7cd;border:1px solid #d8c7a0;border-radius:4px;padding:15px 17px;
+              box-shadow:3px 5px 0 rgba(120,95,55,.25);transform:rotate(-1.2deg);}
+  .D .tut-pop .body{font:400 14px Georgia;line-height:1.55;color:#4a3a22;}
+  .D .tut-pop .tut-ok{margin-top:13px;background:#a07b3a;color:#fff8ec;padding:8px 20px;border-radius:4px;}
+
+  /* E — minimal frost: light dim + soft lift + tiny pill */
+  .E .tut-hole{box-shadow:0 0 0 9999px rgba(70,72,84,0.34),0 8px 26px 2px rgba(60,70,110,.25);border:1px solid rgba(255,255,255,.7);border-radius:13px;}
+  .E .dot{position:fixed;width:11px;height:11px;border-radius:50%;background:var(--accretion);pointer-events:none;animation:tut-dot 1.3s ease-in-out infinite;}
+  .E .tut-pop{background:rgba(255,255,255,0.97);border:1px solid #e1e4ea;border-radius:11px;padding:13px 15px;
+              box-shadow:0 8px 26px -8px rgba(40,50,70,.35);backdrop-filter:blur(2px);}
+  .E .tut-pop .body{font:400 13.5px 'Nunito',sans-serif;line-height:1.5;color:#33373e;}
+  .E .tut-pop .tut-ok{margin-top:11px;background:#eef1f5;color:#33506a;border:1px solid #d6dde6;padding:7px 16px;border-radius:20px;}
+</style>
+</head>
+<body>
+  <div id="bar">
+    <b>TUTORIAL DESIGN</b>
+    <button class="dbtn" data-d="A">A · Spotlight Card</button>
+    <button class="dbtn" data-d="B">B · Cutout + Line</button>
+    <button class="dbtn" data-d="C">C · Narrator Banner</button>
+    <button class="dbtn" data-d="D">D · Parchment Ink</button>
+    <button class="dbtn" data-d="E">E · Minimal Frost</button>
+    <span class="hint">pick a design → it pauses + walks the 2 steps. Click "Okay" to advance.</span>
+  </div>
+
+  <div id="game">
+    <div id="left">
+      <div id="dust">✦ 142,000</div>
+      <div class="card"><div class="ctop"><span class="cname">Cosmic Pulse</span><span class="ccost">✦3,000</span></div><div class="cbar"><i style="width:100%"></i></div><div class="clvl">8 / 8</div></div>
+      <div class="card"><div class="ctop"><span class="cname">Pulse Surge</span><span class="ccost">✦6,300</span></div><div class="cbar"><i style="width:60%"></i></div><div class="clvl">3 / 5</div></div>
+      <div style="height:230px"></div>
+      <div id="t-accretion"><div class="alabel">Accretion</div><div class="cbar"><i style="width:28%"></i></div></div>
+    </div>
+
+    <div id="center"><div id="maw"><div class="orbit"></div><div class="core"></div></div></div>
+
+    <div id="right">
+      <div class="seclabel">▾ DUST PARTICLES</div>
+      <div class="card"><div class="ctop"><span class="cname">Dust Particle Payout</span><span class="ccost">✦14,500</span></div><div class="cbar"><i style="width:80%"></i></div><div class="clvl">4 / 5</div></div>
+      <div class="card"><div class="ctop"><span class="cname">Dust Particle Speed</span><span class="ccost">✦16,000</span></div><div class="cbar"><i style="width:60%"></i></div><div class="clvl">3 / 5</div></div>
+      <div id="t-identities">
+        <div class="card ident"><div class="ctop"><span class="cname">Coagulation</span><span class="ccost">✦5,000</span></div><div class="cbar"><i style="width:0%"></i></div><div class="clvl">0 / 5</div></div>
+        <div class="card ident"><div class="ctop"><span class="cname">Ice Mantles</span><span class="ccost">✦5,000</span></div><div class="cbar"><i style="width:0%"></i></div><div class="clvl">0 / 5</div></div>
+        <div class="card ident"><div class="ctop"><span class="cname">Radiation Tails</span><span class="ccost">✦5,000</span></div><div class="cbar"><i style="width:0%"></i></div><div class="clvl">0 / 5</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="tut"></div>
+
+<script>
+'use strict';
+const tut = document.getElementById('tut');
+const STEPS = [
+  { sel:'#t-identities', body:"These upgrades determine the identity of an orbiter. You may only choose one for the current Universe. However, you may choose a different one after your Accretion." },
+  { sel:'#t-accretion',  body:"This indicates how close you are to perform Accretion, which will reset all of your progress and give you Mass based on total Stardust collected. You should Accrete when your progress is slowing down." },
+];
+let design = 'A', step = 0;
+
+function rectOf(sel){ return document.querySelector(sel).getBoundingClientRect(); }
+function hole(r, pad){ const h=document.createElement('div'); h.className='tut-hole';
+  h.style.left=(r.left-pad)+'px'; h.style.top=(r.top-pad)+'px'; h.style.width=(r.width+pad*2)+'px'; h.style.height=(r.height+pad*2)+'px';
+  tut.appendChild(h); return h; }
+function okBtn(label){ const b=document.createElement('button'); b.className='tut-ok'; b.textContent=label; b.onclick=next; return b; }
+// place a popup to the left of right-column targets / right of left-column targets, vertically centred & clamped
+function placePop(pop, r){
+  document.body.appendChild(pop); tut.appendChild(pop);
+  const pw=pop.offsetWidth, ph=pop.offsetHeight, gap=22;
+  let left = r.left - pw - gap, side='left';
+  if (left < 12){ left = r.right + gap; side='right'; }
+  let top = r.top + r.height/2 - ph/2;
+  top = Math.max(64, Math.min(top, innerHeight - ph - 12));
+  pop.style.left=left+'px'; pop.style.top=top+'px';
+  return { left, top, pw, ph, side };
+}
+
+function render(){
+  tut.style.display='block'; tut.className=design; tut.innerHTML='';
+  const s = STEPS[step], r = rectOf(s.sel), last = step===STEPS.length-1;
+  const pad = design==='B'?6:10;
+  hole(r, pad);
+
+  if (design==='C'){           // centred narrator banner (no side popup)
+    const ban=document.createElement('div'); ban.className='banner';
+    ban.innerHTML=`<div class="body">${s.body}</div>`; ban.appendChild(okBtn(last?'Finish':'Okay'));
+    tut.appendChild(ban); return;
+  }
+
+  const pop=document.createElement('div'); pop.className='tut-pop';
+  pop.innerHTML=`<div class="body">${s.body}</div>`;
+  pop.appendChild(okBtn(last?'Finish':'Okay'));
+  const pl = placePop(pop, r);
+
+  if (design==='A'){           // little triangle arrow toward the target
+    const a=document.createElement('div'); a.className='arrow';
+    const ay = Math.max(pl.top+14, Math.min(r.top+r.height/2, pl.top+pl.ph-14));
+    if (pl.side==='left'){ a.style.left=(pl.left+pl.pw-1)+'px'; a.style.top=(ay-9)+'px'; a.style.borderTop='9px solid transparent'; a.style.borderBottom='9px solid transparent'; a.style.borderLeft='12px solid #fff'; }
+    else { a.style.left=(pl.left-11)+'px'; a.style.top=(ay-9)+'px'; a.style.borderTop='9px solid transparent'; a.style.borderBottom='9px solid transparent'; a.style.borderRight='12px solid #fff'; }
+    tut.appendChild(a);
+  }
+  if (design==='B'){           // connector line from popup edge to target
+    const ln=document.createElement('div'); ln.className='line';
+    const x1 = pl.side==='left' ? pl.left+pl.pw : pl.left;
+    const y1 = pl.top+pl.ph/2;
+    const x2 = pl.side==='left' ? r.left : r.right;
+    const y2 = r.top+r.height/2;
+    const dx=x2-x1, dy=y2-y1, len=Math.hypot(dx,dy), ang=Math.atan2(dy,dx)*180/Math.PI;
+    ln.style.left=x1+'px'; ln.style.top=y1+'px'; ln.style.width=len+'px'; ln.style.transform=`rotate(${ang}deg)`;
+    tut.appendChild(ln);
+  }
+  if (design==='D'){           // hand-drawn ink circle + arrow around the target
+    const svg=document.createElementNS('http://www.w3.org/2000/svg','svg'); svg.setAttribute('class','ink');
+    svg.style.left=(r.left-18)+'px'; svg.style.top=(r.top-14)+'px'; svg.setAttribute('width', r.width+36); svg.setAttribute('height', r.height+28);
+    const w=r.width+36, h=r.height+28;
+    svg.innerHTML=`<path d="M14,${h*.5} C14,12 ${w*.5},6 ${w*.6},10 C${w-10},16 ${w-8},${h-18} ${w*.5},${h-8} C18,${h-2} 16,${h*.66} 16,${h*.4}"
+      fill="none" stroke="#7a5a28" stroke-width="2.4" stroke-linecap="round" opacity="0.8"/>`;
+    tut.appendChild(svg);
+  }
+  if (design==='E'){           // pulsing dot on the near edge of the target
+    const dot=document.createElement('div'); dot.className='dot';
+    if (pl.side==='left'){ dot.style.left=(r.left-5)+'px'; } else { dot.style.left=(r.right-6)+'px'; }
+    dot.style.top=(r.top+r.height/2-5)+'px';
+    tut.appendChild(dot);
+  }
+}
+
+function start(d){ design=d; step=0; render();
+  document.querySelectorAll('.dbtn').forEach(b=>b.classList.toggle('on', b.dataset.d===d)); }
+function next(){ step++; if (step>=STEPS.length){ end(); } else render(); }
+function end(){ tut.style.display='none'; tut.innerHTML=''; document.querySelectorAll('.dbtn').forEach(b=>b.classList.remove('on')); }
+
+document.querySelectorAll('.dbtn').forEach(b=> b.addEventListener('click', ()=>start(b.dataset.d)));
+addEventListener('resize', ()=>{ if (tut.style.display==='block') render(); });
+</script>
+</body>
+</html>
