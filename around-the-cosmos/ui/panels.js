@@ -23,7 +23,7 @@ function visibleSig() {
 
 function makeCard(u) {
     const card = document.createElement('div');
-    card.className = 'upgrade-card';
+    card.className = 'upgrade-card' + (u.identity ? ' upg-identity' : '');
 
     if (!firstPanelBuild && !seenUpg.has(u.id)) {
         card.classList.add('upg-new');
@@ -35,10 +35,14 @@ function makeCard(u) {
     let drain = null;
     if (u.id === 'afterglow') { drain = document.createElement('div'); drain.className = 'upg-drain'; card.appendChild(drain); }
 
-    card.addEventListener('click', () => {
-        if (!buyUpgrade(u)) return;
-        if (visibleSig() !== lastVisibleSig) buildPanels(); else updateCards();
-    });
+    if (u.identity) {
+        wireIdentityHold(card, u);   // identity upgrades are HOLD-to-buy (vibrate while held)
+    } else {
+        card.addEventListener('click', () => {
+            if (!buyUpgrade(u)) return;
+            if (visibleSig() !== lastVisibleSig) buildPanels(); else updateCards();
+        });
+    }
 
     card.addEventListener('mouseenter', () => { showUpgPop(u, card); SoundSystem.sfxHover(); });
     card.addEventListener('mouseleave', hideUpgPop);
@@ -47,6 +51,32 @@ function makeCard(u) {
         level: card.querySelector('.upg-level'),
         bar:   card.querySelector('.upg-bar > i') });
     return card;
+}
+
+function afterBuy() { if (visibleSig() !== lastVisibleSig) buildPanels(); else updateCards(); }
+
+// Identity upgrades are bought by HOLDING (not clicking). The card vibrates while held (.holding),
+// and commits at HOLD_MS. Releasing early cancels. Only starts if buyable (not maxed, not locked, affordable).
+function wireIdentityHold(card, u) {
+    const HOLD_MS = 750;
+    let timer = null;
+    const stop = () => { if (timer) { clearTimeout(timer); timer = null; } card.classList.remove('holding'); };
+    const start = (e) => {
+        if (e && e.cancelable) e.preventDefault();
+        if (timer) return;
+        const l = G.upgrades[u.id];
+        if (l >= u.maxLevel) return;                       // already chosen
+        if (identityLockedBy(u)) return;                   // another identity locked it
+        if (G.dust < u.costs[l]) return;                   // can't afford -> no hold
+        card.classList.add('holding');
+        timer = setTimeout(() => { stop(); if (buyUpgrade(u)) afterBuy(); }, HOLD_MS);
+    };
+    card.addEventListener('mousedown', start);
+    card.addEventListener('mouseup', stop);
+    card.addEventListener('mouseleave', stop);
+    card.addEventListener('touchstart', start, { passive: false });
+    card.addEventListener('touchend', stop);
+    card.addEventListener('touchcancel', stop);
 }
 
 const upgPop = document.getElementById('upg-pop');
@@ -132,16 +162,18 @@ function updateCards() {
         const u = ref.u;
         const l = G.upgrades[u.id];
         const isMax = l >= u.maxLevel;
+        const locked = !!u.identity && !isMax && !!identityLockedBy(u);   // another identity in the group was chosen
         const cost = isMax ? null : u.costs[l];
-        const afford = !isMax && G.dust >= cost;
+        const afford = !isMax && !locked && G.dust >= cost;
 
         if (ref._afford !== afford) { ref.card.classList.toggle('can-afford', afford); ref._afford = afford; }
+        if (ref._locked !== locked) { ref.card.classList.toggle('upg-locked', locked); ref._locked = locked; }
         if (ref._max !== isMax) {
             ref.card.classList.toggle('is-maxed', isMax);
             ref.cost.classList.toggle('maxed', isMax);
             ref._max = isMax;
         }
-        const costText = isMax ? 'MAX' : '✦' + fmtNum(cost);
+        const costText = isMax ? 'MAX' : locked ? 'Locked' : '✦' + fmtNum(cost);
         if (ref._costText !== costText) { ref.cost.textContent = costText; ref._costText = costText; }
         if (ref._lvl !== l) {
             ref.level.textContent = `${l} / ${u.maxLevel}`;

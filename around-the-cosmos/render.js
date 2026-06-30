@@ -32,6 +32,9 @@ function moonClumpPos() { const r=orbitR(2); return { x:CX+Math.cos(G.moonClump.
 function dwarfClumpPos() { const r=orbitR(3); return { x:CX+Math.cos(G.dwarfClump.angle)*r, y:CY+Math.sin(G.dwarfClump.angle)*r }; }
 
 function drawClump(list, cp, pr, color, t) {
+    const ident = list.length && !list[0].motes;                                  // dust clump (the asteroid carries motes)
+    const frost = ident && typeof lvl === 'function' && lvl('iceMantles') > 0;     // Ice Mantles identity -> frost rim
+    const tails = ident && typeof lvl === 'function' && lvl('radTails') > 0;       // Radiation Tails identity -> comet-tail
     for (const o of list) {
         const la = o.localPhase + t*o.localSpin;
         const px = cp.x + Math.cos(la)*o.localR, py = cp.y + Math.sin(la)*o.localR;
@@ -47,6 +50,7 @@ function drawClump(list, cp, pr, color, t) {
             k ? ctx.lineTo(Math.cos(a)*r, Math.sin(a)*r) : ctx.moveTo(Math.cos(a)*r, Math.sin(a)*r);
         }
         ctx.closePath(); ctx.fillStyle=color; ctx.fill();
+        if (frost) { ctx.lineWidth = Math.max(1, pr*0.18); ctx.strokeStyle = 'rgba(205,228,248,0.85)'; ctx.stroke(); }
 
         if (o.motes) {
             ctx.clip();
@@ -68,6 +72,16 @@ function drawClump(list, cp, pr, color, t) {
             ctx.fillStyle=g; ctx.fillRect(-pr*2.5,-pr*2.5,pr*5,pr*5);
         }
         ctx.restore();
+
+        if (tails) {   // radiation pushes the finest grains into tiny tails pointing AWAY from Maw
+            const dx = px - CX, dy = py - CY, dd = Math.hypot(dx, dy) || 1, ux = dx/dd, uy = dy/dd;
+            for (let i = 1; i <= 3; i++) {
+                const tx = px + ux*pr*1.3*i, ty = py + uy*pr*1.3*i, tr = pr*(0.55 - i*0.13);
+                if (tr <= 0) break;
+                ctx.beginPath(); ctx.arc(tx, ty, tr, 0, Math.PI*2);
+                ctx.fillStyle = `rgba(150,162,185,${0.4 - i*0.1})`; ctx.fill();
+            }
+        }
 
         if (o.motes) {
             for (const mte of o.motes) {

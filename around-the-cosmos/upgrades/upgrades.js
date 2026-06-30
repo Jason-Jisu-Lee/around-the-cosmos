@@ -138,6 +138,45 @@ const UPGRADES = [
     unlock: () => lvl("dust") >= 1,
   },
   {
+    id: "coagulation",
+    name: "Coagulation",
+    maxLevel: 1,
+    section: "DUST PARTICLES",
+    identity: true,
+    group: "dust",
+    costs: [2500],
+    flavor: "Grains collide and stick - the first step toward worlds.",
+    desc: () =>
+      "Each dust particle pays +5 ✦ for every particle you own, and feeds the Asteroid +40 ✦ per particle. (Dust identity - hold to choose one of three; resets each universe.)",
+    unlock: () => lvl("dust") >= 1,
+  },
+  {
+    id: "iceMantles",
+    name: "Ice Mantles",
+    maxLevel: 1,
+    section: "DUST PARTICLES",
+    identity: true,
+    group: "dust",
+    costs: [2500],
+    flavor: "Past the frost line, the grains gather ice.",
+    desc: () =>
+      "+25 ✦ to each dust particle, and +200 ✦ to the Moon. The grains gain a frost rim. (Dust identity - hold to choose one of three; resets each universe.)",
+    unlock: () => lvl("dust") >= 1,
+  },
+  {
+    id: "radTails",
+    name: "Radiation Tails",
+    maxLevel: 1,
+    section: "DUST PARTICLES",
+    identity: true,
+    group: "dust",
+    costs: [2500],
+    flavor: "Starlight blows the finest grains into little tails.",
+    desc: () =>
+      "+15 ✦ to each dust particle, and +500 ✦ to the Dwarf Planet. Each grain trails a tiny tail. (Dust identity - hold to choose one of three; resets each universe.)",
+    unlock: () => lvl("dust") >= 1,
+  },
+  {
     id: "asteroid",
     name: "Asteroid",
     maxLevel: 1,
@@ -296,3 +335,13 @@ const SECTION_ORDER = [
   "DWARF PLANET",
   "COMETS",
 ];
+
+// Identity upgrades are mutually exclusive within a `group`: once one is bought, the others lock.
+// Returns the id of the chosen identity locking `u`, or null if `u` is free to buy.
+function identityLockedBy(u) {
+  if (!u || !u.group) return null;
+  const chosen = UPGRADES.find(
+    (x) => x.group === u.group && x.id !== u.id && (G.upgrades[x.id] || 0) >= 1
+  );
+  return chosen ? chosen.id : null;
+}

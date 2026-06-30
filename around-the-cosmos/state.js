@@ -11,7 +11,7 @@ function createInitialState() {
         mass:0, massEarned:0, moonEverOwned:false,
         massUpgrades: blankMassUpgrades(),
         orbitsCompleted:0, dwarfOrbits:0, taps:0, cometsCaught:0, gameTime:0, universeTime:0,
-        upgrades: { touch:0, surge:0, deepbreath:0, abyssal:0, afterglow:0, pulse:0, gravpull:0, dust:0, dustcount:0, dustpay:0, dustspd:0, asteroid:0, astpay:0, astspd:0, astcomp:0, moon:0, moonpay:0, moonspd:0, moonphase:0, dwarf:0, dwarfpay:0, dwarftrojan:0, dwarfconj:0, dwarfcompound:0, resonance:0, charm:0 },
+        upgrades: { touch:0, surge:0, deepbreath:0, abyssal:0, afterglow:0, pulse:0, gravpull:0, dust:0, dustcount:0, dustpay:0, dustspd:0, coagulation:0, iceMantles:0, radTails:0, asteroid:0, astpay:0, astspd:0, astcomp:0, moon:0, moonpay:0, moonspd:0, moonphase:0, dwarf:0, dwarfpay:0, dwarftrojan:0, dwarfconj:0, dwarfcompound:0, resonance:0, charm:0 },
         planets:  [],
         clump:    newClump(),
         asteroids: [],
@@ -150,7 +150,7 @@ function loadGame() {
         G.orbitsCompleted=def('orbitsCompleted',0); G.dwarfOrbits=def('dwarfOrbits',0); G.taps=def('taps',0);
         G.cometsCaught=def('cometsCaught',0); G.gameTime=def('gameTime',0);
         G.universeTime=def('universeTime', G.gameTime);
-        G.upgrades = Object.assign({ touch:0, surge:0, deepbreath:0, abyssal:0, afterglow:0, pulse:0, gravpull:0, dust:0, dustcount:0, dustpay:0, dustspd:0, asteroid:0, astpay:0, astspd:0, astcomp:0, moon:0, moonpay:0, moonspd:0, moonphase:0, dwarf:0, dwarfpay:0, dwarftrojan:0, dwarfconj:0, dwarfcompound:0, resonance:0, charm:0 }, d.upgrades);
+        G.upgrades = Object.assign({ touch:0, surge:0, deepbreath:0, abyssal:0, afterglow:0, pulse:0, gravpull:0, dust:0, dustcount:0, dustpay:0, dustspd:0, coagulation:0, iceMantles:0, radTails:0, asteroid:0, astpay:0, astspd:0, astcomp:0, moon:0, moonpay:0, moonspd:0, moonphase:0, dwarf:0, dwarfpay:0, dwarftrojan:0, dwarfconj:0, dwarfcompound:0, resonance:0, charm:0 }, d.upgrades);
         if (G.upgrades.grasp != null) { G.upgrades.surge = G.upgrades.surge || G.upgrades.grasp; delete G.upgrades.grasp; }   // migrate old 'grasp' id -> 'surge'
 
         if (G.upgrades.dust > 1) {

@@ -11,8 +11,9 @@ function newMoonBody() {
 }
 
 function moonConjBonus() { return typeof conjunctionMoonBonus === 'function' ? conjunctionMoonBonus() : 0; }   // Conjunction (dwarf upgrade) adds +200/lvl to the moon's base
-function moonPayout()    { return Math.round((200 + 200 * lvl('moonpay') + moonConjBonus()) * moonPhaseMult() * resonanceMult() * lunarFavorMult()); }
-function moonAvgPayout() { return Math.round((200 + 200 * lvl('moonpay') + moonConjBonus()) * (1 + 0.10 * lvl('moonphase')) * resonanceMult() * lunarFavorMult()); }
+function moonIceBonus()  { return typeof iceMoonBonus === 'function' ? iceMoonBonus() : 0; }   // Ice Mantles (dust identity) feeds the moon
+function moonPayout()    { return Math.round((200 + 200 * lvl('moonpay') + moonConjBonus() + moonIceBonus()) * moonPhaseMult() * resonanceMult() * lunarFavorMult()); }
+function moonAvgPayout() { return Math.round((200 + 200 * lvl('moonpay') + moonConjBonus() + moonIceBonus()) * (1 + 0.10 * lvl('moonphase')) * resonanceMult() * lunarFavorMult()); }
 function moonSpeed()        { return 0.663 * upg('moonspd').mult(lvl('moonspd')); }
 function moonOrbitsPerMin() { return 60 * moonSpeed() / PLANET_DEF[2].period; }
 function moonStardustPerMin() { return moonAvgPayout() * moonOrbitsPerMin(); }

@@ -269,6 +269,26 @@ body {
 .upgrade-card.is-maxed .upg-top,
 .upgrade-card.is-maxed .upg-botrow { opacity: 0.4; }
 
+/* Identity upgrades (mutually-exclusive dust paths): a VERY faint cosmic tint marks them apart,
+   and they are HOLD-to-buy (the card vibrates while held). */
+.upgrade-card.upg-identity { background: #f7f4fb; border-color: #e4def1; }
+.upgrade-card.upg-identity:hover:not(.is-maxed):not(.upg-locked) { background: #faf8fe; border-color: #c3b8e0; }
+.upgrade-card.upg-identity.can-afford { border-color: #c3b8e0; }
+.upgrade-card.upg-identity.can-afford:hover { border-color: #9d8fc9; }
+.upgrade-card.upg-identity.is-maxed { background: #f1edf8; border-color: #cabfe4; }   /* the chosen path */
+.upgrade-card.upg-identity.upg-locked { cursor: default; background: #f3f1f6; }
+.upgrade-card.upg-identity.upg-locked .upg-top,
+.upgrade-card.upg-identity.upg-locked .upg-botrow { opacity: 0.42; }
+.upgrade-card.upg-identity.holding { animation: upg-vibrate 0.07s linear infinite; border-color: #9d8fc9; }
+@keyframes upg-vibrate {
+    0%   { transform: translate(0, 0); }
+    20%  { transform: translate(-1.4px, 0.8px); }
+    40%  { transform: translate(1.3px, -1px); }
+    60%  { transform: translate(-1px, -1.3px); }
+    80%  { transform: translate(1.2px, 1px); }
+    100% { transform: translate(0, 0); }
+}
+
 /* Newly-unlocked card: a simple yellow highlight that flashes twice, then clears
    (the card's `animationend` handler removes .upg-new once it's transparent again). */
 .upgrade-card.upg-new::after {

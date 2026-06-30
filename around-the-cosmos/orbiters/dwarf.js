@@ -22,7 +22,7 @@ function dwarfCompoundCap()  { return [0, 0.15, 0.30, 0.50][lvl('dwarfcompound')
 function dwarfCompoundMult() { return lvl('dwarfcompound') ? 1 + Math.min(dwarfCompoundCap(), 0.003 * G.dwarfOrbits) : 1; }
 
 // ---- payout ----
-function dwarfBasePayout()    { return Math.round((800 + 800 * lvl('dwarfpay') + conjunctionBonus()) * resonanceMult()); }
+function dwarfBasePayout()    { return Math.round((800 + 800 * lvl('dwarfpay') + conjunctionBonus() + (typeof radDwarfBonus === 'function' ? radDwarfBonus() : 0)) * resonanceMult()); }
 function dwarfPayout()        { return Math.round(dwarfBasePayout() * dwarfCompoundMult()); }   // the dwarf body's own per-orbit payout
 function dwarfTrojanCount()   { return Math.min(2, lvl('dwarftrojan')); }
 function dwarfTrojanPayout()  { return Math.round(dwarfPayout() / 8); }

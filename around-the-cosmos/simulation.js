@@ -65,6 +65,7 @@ function tick(dt) {
 function buyUpgrade(u) {
     const l = G.upgrades[u.id];
     if (l >= u.maxLevel) return false;
+    if (u.group && typeof identityLockedBy === 'function' && identityLockedBy(u)) return false;   // identity: another path already chosen this universe
     const cost = u.costs[l];
     if (G.dust < cost) return false;
     G.dust -= cost; G.upgrades[u.id]++;

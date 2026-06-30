@@ -25,7 +25,7 @@ function newAsteroidBody() {
     };
 }
 
-function asteroidPayout() { return Math.round((50 + 50 * lvl('astpay')) * ASTEROID_COMP.mult[lvl('astcomp')] * resonanceMult()); }
+function asteroidPayout() { return Math.round((50 + 50 * lvl('astpay') + (typeof coagAsteroidBonus === 'function' ? coagAsteroidBonus() : 0)) * ASTEROID_COMP.mult[lvl('astcomp')] * resonanceMult()); }
 function asteroidColor()  { return ASTEROID_COMP.colors[lvl('astcomp')]; }
 function asteroidSpeed()  { return 0.88 * upg('astspd').mult(lvl('astspd')); }
 function asteroidOrbitsPerMin()  { return 60 * asteroidSpeed() / PLANET_DEF[1].period; }
