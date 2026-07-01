@@ -70,25 +70,12 @@ function drawClump(list, cp, pr, color, t) {
         ctx.closePath(); ctx.fillStyle=color; ctx.fill();
         if (frost) { ctx.lineWidth = Math.max(1, pr*0.18); ctx.strokeStyle = 'rgba(205,228,248,0.85)'; ctx.stroke(); }
 
-        if (o.motes) {
-            ctx.clip();
-            ctx.rotate(-la*1.5);
-            const lx=-pr*0.45, ly=-pr*0.55;
-            const g=ctx.createRadialGradient(lx,ly,pr*0.15, lx,ly,pr*2.1);
-            g.addColorStop(0,'rgba(0,0,0,0)');
-            g.addColorStop(0.5,'rgba(20,16,12,0.10)');
-            g.addColorStop(1,'rgba(20,16,12,0.34)');
-            ctx.fillStyle=g; ctx.fillRect(-pr*2.5,-pr*2.5,pr*5,pr*5);
-        } else {
-            ctx.clip();
-            ctx.rotate(-la*1.5);
-            const lx=-pr*0.45, ly=-pr*0.55;
-            const g=ctx.createRadialGradient(lx,ly,pr*0.15, lx,ly,pr*2.1);
-            g.addColorStop(0,'rgba(0,0,0,0)');
-            g.addColorStop(0.55,'rgba(20,16,12,0.05)');
-            g.addColorStop(1,'rgba(20,16,12,0.20)');
-            ctx.fillStyle=g; ctx.fillRect(-pr*2.5,-pr*2.5,pr*5,pr*5);
-        }
+        // far-side shadow (asteroid stronger, dust fainter) - the gradient is in local coords, so one
+        // per (radius, strength) is built once and reused every frame
+        ctx.clip();
+        ctx.rotate(-la*1.5);
+        ctx.fillStyle = clumpShade(pr, !!o.motes);
+        ctx.fillRect(-pr*2.5,-pr*2.5,pr*5,pr*5);
         ctx.restore();
 
 
@@ -102,6 +89,21 @@ function drawClump(list, cp, pr, color, t) {
             drawAsteroidIdentityFx(px, py, pr, t);   // Rubble Pile / Prospector / Slingshot / Meteor Shower
         }
     }
+}
+
+const clumpShadeCache = new Map();   // `${pr}|strength` -> radial gradient (local coords, frame-reusable)
+function clumpShade(pr, strong) {
+    const key = pr.toFixed(2) + (strong ? 'A' : 'D');
+    let g = clumpShadeCache.get(key);
+    if (!g) {
+        const lx=-pr*0.45, ly=-pr*0.55;
+        g = ctx.createRadialGradient(lx,ly,pr*0.15, lx,ly,pr*2.1);
+        g.addColorStop(0,'rgba(0,0,0,0)');
+        if (strong) { g.addColorStop(0.5,'rgba(20,16,12,0.10)');  g.addColorStop(1,'rgba(20,16,12,0.34)'); }
+        else        { g.addColorStop(0.55,'rgba(20,16,12,0.05)'); g.addColorStop(1,'rgba(20,16,12,0.20)'); }
+        clumpShadeCache.set(key, g);
+    }
+    return g;
 }
 
 // Asteroid identity visuals (drawn on the asteroid body; each guarded by its own level).
@@ -145,69 +147,89 @@ const MOON_LX = -0.62, MOON_LY = -0.55;
 const MOON_LANG = Math.atan2(MOON_LY, MOON_LX);
 const MOON_CRATERS = [[-0.30,-0.26,0.16],[0.30,0.12,0.12],[0.05,0.36,0.10],[0.36,-0.30,0.08],[-0.22,0.30,0.075],[-0.42,0.06,0.055],[0.16,-0.12,0.06]];
 
-function moonCrater(cx, cy, r, dx, dy, cr) {
+function moonCrater(g, cx, cy, r, dx, dy, cr) {
     const x = cx + dx*r, y = cy + dy*r, rad = cr*r;
-    ctx.fillStyle = 'rgba(44,48,54,0.16)';
-    ctx.beginPath(); ctx.arc(x, y, rad, 0, 7); ctx.fill();
-    ctx.lineWidth = Math.max(0.6, rad*0.34);
-    ctx.strokeStyle = 'rgba(228,230,232,0.40)';
-    ctx.beginPath(); ctx.arc(x, y, rad*0.92, MOON_LANG-1.0, MOON_LANG+1.0); ctx.stroke();
-    ctx.strokeStyle = 'rgba(26,29,34,0.30)';
-    ctx.beginPath(); ctx.arc(x, y, rad*0.92, MOON_LANG+Math.PI-1.0, MOON_LANG+Math.PI+1.0); ctx.stroke();
+    g.fillStyle = 'rgba(44,48,54,0.16)';
+    g.beginPath(); g.arc(x, y, rad, 0, 7); g.fill();
+    g.lineWidth = Math.max(0.6, rad*0.34);
+    g.strokeStyle = 'rgba(228,230,232,0.40)';
+    g.beginPath(); g.arc(x, y, rad*0.92, MOON_LANG-1.0, MOON_LANG+1.0); g.stroke();
+    g.strokeStyle = 'rgba(26,29,34,0.30)';
+    g.beginPath(); g.arc(x, y, rad*0.92, MOON_LANG+Math.PI-1.0, MOON_LANG+Math.PI+1.0); g.stroke();
 }
 
+// The disc only depends on the phase + identity state, never on the orbit position - so it renders into
+// an offscreen ONLY when its quantized key changes (~16x/s at the terminator's fastest, 0 while paused)
+// instead of running the blur-filter terminator + 3 radial gradients every frame. Per-frame cost is one
+// drawImage. 256 phase steps over the 16s cycle keep the terminator sweep sub-pixel per step.
+const moonOffC = document.createElement('canvas'), moonOffG = moonOffC.getContext('2d');
+let moonOffKey = '';
 function drawMoonDisc(cx, cy, r, phase) {
-    ctx.save();
-    ctx.beginPath(); ctx.arc(cx, cy, r, 0, 7); ctx.clip();
-
-    const g = ctx.createRadialGradient(cx+MOON_LX*r*0.5, cy+MOON_LY*r*0.5, r*0.08, cx-MOON_LX*r*0.3, cy-MOON_LY*r*0.3, r*1.35);
-    g.addColorStop(0,    '#d3d6d8');
-    g.addColorStop(0.45, '#9aa0a4');
-    g.addColorStop(0.8,  '#6a7075');
-    g.addColorStop(1,    '#454b51');
-    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, r, 0, 7); ctx.fill();
-
-    if (typeof lvl === 'function') {
-        const alb = lvl('albedo');                       // Albedo identity: brighter face
-        if (alb > 0) { ctx.fillStyle = `rgba(255,255,255,${(0.055*alb).toFixed(3)})`; ctx.beginPath(); ctx.arc(cx,cy,r,0,7); ctx.fill(); }
-        const bm = lvl('bloodmoon');                      // Blood Moon identity: copper-red on the lit face, strongest at full
-        if (bm > 0) { ctx.fillStyle = `rgba(150,40,22,${(0.5*moonLit()*Math.min(1,bm/3)).toFixed(3)})`; ctx.beginPath(); ctx.arc(cx,cy,r,0,7); ctx.fill(); }
+    const alb = (typeof lvl === 'function') ? lvl('albedo') : 0;
+    const bm  = (typeof lvl === 'function') ? lvl('bloodmoon') : 0;
+    const lit = bm > 0 ? moonLit() : 0;
+    const ss  = (typeof standstillFrac === 'function') ? standstillFrac() : 0;
+    const pad = Math.ceil(r*0.8) + 2, size = Math.ceil(r*2) + pad*2, half = size/2;
+    const dpr = window.devicePixelRatio || 1;
+    const key = r.toFixed(2)+'|'+Math.round(phase*256)+'|'+alb+'|'+bm+'|'+Math.round(lit*48)+'|'+Math.round(ss*48)+'|'+dpr;
+    if (key !== moonOffKey) {
+        moonOffKey = key;
+        const px = Math.ceil(size*dpr);
+        if (moonOffC.width !== px) { moonOffC.width = moonOffC.height = px; }
+        moonOffG.setTransform(dpr,0,0,dpr,0,0);
+        moonOffG.clearRect(0, 0, size, size);
+        renderMoonDisc(moonOffG, half, half, r, phase, alb, bm, lit, ss);
     }
+    ctx.drawImage(moonOffC, cx-half, cy-half, size, size);
+}
+function renderMoonDisc(g, cx, cy, r, phase, alb, bm, lit, ss) {
+    g.save();
+    g.beginPath(); g.arc(cx, cy, r, 0, 7); g.clip();
 
-    for (const [dx, dy, cr] of MOON_CRATERS) moonCrater(cx, cy, r, dx, dy, cr);
+    const grad = g.createRadialGradient(cx+MOON_LX*r*0.5, cy+MOON_LY*r*0.5, r*0.08, cx-MOON_LX*r*0.3, cy-MOON_LY*r*0.3, r*1.35);
+    grad.addColorStop(0,    '#d3d6d8');
+    grad.addColorStop(0.45, '#9aa0a4');
+    grad.addColorStop(0.8,  '#6a7075');
+    grad.addColorStop(1,    '#454b51');
+    g.fillStyle = grad; g.beginPath(); g.arc(cx, cy, r, 0, 7); g.fill();
+
+    // Albedo identity: brighter face / Blood Moon identity: copper-red lit face, strongest at full
+    if (alb > 0) { g.fillStyle = `rgba(255,255,255,${(0.055*alb).toFixed(3)})`; g.beginPath(); g.arc(cx,cy,r,0,7); g.fill(); }
+    if (bm > 0)  { g.fillStyle = `rgba(150,40,22,${(0.5*lit*Math.min(1,bm/3)).toFixed(3)})`; g.beginPath(); g.arc(cx,cy,r,0,7); g.fill(); }
+
+    for (const [dx, dy, cr] of MOON_CRATERS) moonCrater(g, cx, cy, r, dx, dy, cr);
 
     const a = r * Math.cos(2*Math.PI*phase);
     const waxing = phase < 0.5;
     const bulgeRight = waxing ? (a > 0) : (a < 0);
-    ctx.save();
-    ctx.filter = `blur(${(r*0.06).toFixed(2)}px)`;
-    ctx.fillStyle = 'rgba(20,22,28,0.80)';
+    g.save();
+    g.filter = `blur(${(r*0.06).toFixed(2)}px)`;
+    g.fillStyle = 'rgba(20,22,28,0.80)';
     const rs = r * 1.06;
-    ctx.beginPath();
-    ctx.arc(cx, cy, rs, -Math.PI/2, Math.PI/2, waxing);
-    if (bulgeRight) ctx.ellipse(cx, cy, Math.abs(a), rs, 0, Math.PI/2, -Math.PI/2, true);
-    else            ctx.ellipse(cx, cy, Math.abs(a), rs, 0, Math.PI/2, Math.PI*1.5, false);
-    ctx.closePath(); ctx.fill();
-    ctx.restore();
+    g.beginPath();
+    g.arc(cx, cy, rs, -Math.PI/2, Math.PI/2, waxing);
+    if (bulgeRight) g.ellipse(cx, cy, Math.abs(a), rs, 0, Math.PI/2, -Math.PI/2, true);
+    else            g.ellipse(cx, cy, Math.abs(a), rs, 0, Math.PI/2, Math.PI*1.5, false);
+    g.closePath(); g.fill();
+    g.restore();
 
-    const lg = ctx.createRadialGradient(cx, cy, r*0.5, cx, cy, r*1.02);
+    const lg = g.createRadialGradient(cx, cy, r*0.5, cx, cy, r*1.02);
     lg.addColorStop(0,    'rgba(0,0,0,0)');
     lg.addColorStop(0.72, 'rgba(0,0,0,0)');
     lg.addColorStop(1,    'rgba(12,14,18,0.30)');
-    ctx.fillStyle = lg; ctx.beginPath(); ctx.arc(cx, cy, r, 0, 7); ctx.fill();
-    ctx.restore();
+    g.fillStyle = lg; g.beginPath(); g.arc(cx, cy, r, 0, 7); g.fill();
+    g.restore();
 
-    ctx.strokeStyle = 'rgba(60,64,70,0.35)'; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.arc(cx, cy, r, 0, 7); ctx.stroke();
+    g.strokeStyle = 'rgba(60,64,70,0.35)'; g.lineWidth = 1;
+    g.beginPath(); g.arc(cx, cy, r, 0, 7); g.stroke();
 
     // Lunar Standstill identity: a soft silver glow builds around the disc as the standstill nears
-    const ss = (typeof standstillFrac === 'function') ? standstillFrac() : 0;
     if (ss > 0) {
-        const R = r * (1.3 + 0.4*ss), gr = ctx.createRadialGradient(cx, cy, r*0.9, cx, cy, R);
+        const R = r * (1.3 + 0.4*ss), gr = g.createRadialGradient(cx, cy, r*0.9, cx, cy, R);
         gr.addColorStop(0, 'rgba(212,222,238,0)');
         gr.addColorStop(0.72, `rgba(212,222,238,${(0.26*ss).toFixed(3)})`);
         gr.addColorStop(1, 'rgba(212,222,238,0)');
-        ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(cx, cy, R, 0, 7); ctx.fill();
+        g.fillStyle = gr; g.beginPath(); g.arc(cx, cy, R, 0, 7); g.fill();
     }
 }
 
@@ -238,16 +260,18 @@ function buildEmberTex() {
     }
     EMBER_TEX = { w:TW, h:TH, data:a };
 }
-const dwarfTmp = document.createElement('canvas'), dwarfTctx = dwarfTmp.getContext('2d');
-function drawDwarfSphere(cx, cy, R, t) {
-    if (!EMBER_TEX) buildEmberTex();
-    const TW=EMBER_TEX.w, TH=EMBER_TEX.h, TX=EMBER_TEX.data, TAU=Math.PI*2, rot=t*0.22;
-    const D=Math.ceil(R*2)+2, x0=Math.round(cx-R)-1, y0=Math.round(cy-R)-1;
-    if (dwarfTmp.width<D) { dwarfTmp.width=D; dwarfTmp.height=D; }
-    const img=dwarfTctx.createImageData(D,D), data=img.data;
+// The per-pixel sphere render (sqrt/asin/atan2 per pixel + an ImageData alloc) used to run every frame
+// for the dwarf AND both trojans. The sphere only changes with its rotation, so frames are cached in a
+// per-size sprite sheet: 240 rotation steps (sub-pixel band motion per step), each cell rendered once on
+// first use. After one full spin (~29s) every sphere is a single drawImage per frame, zero allocation.
+const DWARF_ROT_STEPS = 240, DWARF_SHEET_COLS = 16;
+const dwarfSheets = new Map();   // diameter D -> { canvas, g, done: Uint8Array(steps) }
+function renderDwarfFrame(sheet, step, D, R, rot) {
+    const TW=EMBER_TEX.w, TH=EMBER_TEX.h, TX=EMBER_TEX.data, TAU=Math.PI*2, C=R+1;
+    const img=sheet.g.createImageData(D,D), data=img.data;
     const Lx=-0.5,Ly=-0.56,Lz=0.66, Ll=1/Math.hypot(Lx,Ly,Lz), lx=Lx*Ll, ly=Ly*Ll, lz=Lz*Ll;
     for (let j=0;j<D;j++) for (let i=0;i<D;i++) {
-        const nx=(x0+i-cx)/R, ny=(y0+j-cy)/R, d2=nx*nx+ny*ny, o=(j*D+i)*4;
+        const nx=(i-C)/R, ny=(j-C)/R, d2=nx*nx+ny*ny, o=(j*D+i)*4;
         if (d2>1) { data[o+3]=0; continue; }
         const nz=Math.sqrt(1-d2), cny=ny<-1?-1:ny>1?1:ny, lat=Math.asin(cny), lon=Math.atan2(nx,nz)+rot;
         let u=(lon/TAU)%1; if(u<0)u+=1; const vv=lat/Math.PI+0.5;
@@ -255,8 +279,22 @@ function drawDwarfSphere(cx, cy, R, t) {
         let diff=nx*lx+ny*ly+nz*lz; if(diff<0)diff=0; const sh=(0.26+0.95*diff)*(0.5+0.5*nz);
         data[o]=TX[to]*sh; data[o+1]=TX[to+1]*sh; data[o+2]=TX[to+2]*sh; data[o+3]=255;
     }
-    dwarfTctx.putImageData(img,0,0);
-    ctx.drawImage(dwarfTmp,0,0,D,D, x0,y0,D,D);
+    sheet.g.putImageData(img, (step % DWARF_SHEET_COLS) * D, ((step / DWARF_SHEET_COLS) | 0) * D);
+}
+function drawDwarfSphere(cx, cy, R, t) {
+    if (!EMBER_TEX) buildEmberTex();
+    const TAU=Math.PI*2, D=Math.ceil(R*2)+2, x0=Math.round(cx-R)-1, y0=Math.round(cy-R)-1;
+    let sheet = dwarfSheets.get(D);
+    if (!sheet) {
+        const c = document.createElement('canvas');
+        c.width  = DWARF_SHEET_COLS * D;
+        c.height = Math.ceil(DWARF_ROT_STEPS / DWARF_SHEET_COLS) * D;
+        sheet = { canvas: c, g: c.getContext('2d'), done: new Uint8Array(DWARF_ROT_STEPS) };
+        dwarfSheets.set(D, sheet);
+    }
+    const step = ((Math.floor(t*0.22 / TAU * DWARF_ROT_STEPS) % DWARF_ROT_STEPS) + DWARF_ROT_STEPS) % DWARF_ROT_STEPS;
+    if (!sheet.done[step]) { renderDwarfFrame(sheet, step, D, R, step / DWARF_ROT_STEPS * TAU); sheet.done[step] = 1; }
+    ctx.drawImage(sheet.canvas, (step % DWARF_SHEET_COLS) * D, ((step / DWARF_SHEET_COLS) | 0) * D, D, D, x0, y0, D, D);
 }
 function drawDwarfClump(o, t) {
     const cp = o.clumpPos(), pr = o.pebbleR();
@@ -355,7 +393,11 @@ function drawReticle(x, y, s, g = ctx) {
     }
 }
 
+let cometLayerHad = true;   // whether the overlay held anything last frame (starts true so the first frame clears)
 function drawComet(t) {
+    const has = !!G.comet || cometFx.length > 0;
+    if (!has && !cometLayerHad) return;   // idle: skip the full-window clear entirely
+    cometLayerHad = has;
     const g = cometCtx;
     g.clearRect(0, 0, innerWidth, innerHeight);
     const c = G.comet;

@@ -210,8 +210,12 @@ function startAbsorb(){
     if (typeof SoundSystem !== 'undefined' && SoundSystem.sfxVortexAbsorb) SoundSystem.sfxVortexAbsorb();
 }
 
+let vortexLayerHad = true;   // whether the overlay held anything last frame (starts true so the first frame clears)
 function drawVortexLayer(){
     if (!vortexCtx) return;
+    const has = VTX.active || vortexFx.length > 0;
+    if (!has && !vortexLayerHad) return;   // idle (~95% of the time): skip the full-window clear
+    vortexLayerHad = has;
     const g = vortexCtx;
     g.clearRect(0, 0, innerWidth, innerHeight);
 

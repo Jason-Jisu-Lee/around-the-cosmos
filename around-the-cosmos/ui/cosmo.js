@@ -72,15 +72,15 @@ function updateCosmoTip() {
     if (over && !pinnedTarget) {
         const html = cosmoBody(over, false);
         if (cosmoTip._html !== html) { cosmoTip.innerHTML = html; cosmoTip._html = html; }
-        cosmoTip.style.display = 'block';
+        if (cosmoTip.style.display !== 'block') cosmoTip.style.display = 'block';
         const pad = 16, tw = cosmoTip.offsetWidth, th = cosmoTip.offsetHeight;
         let lx = cosmoMx + pad, ly = cosmoMy + pad;
         if (lx + tw > W) lx = cosmoMx - pad - tw;
         if (ly + th > H) ly = cosmoMy - pad - th;
         cosmoTip.style.left = Math.max(0, lx) + 'px';
         cosmoTip.style.top  = Math.max(0, ly) + 'px';
-    } else {
-        cosmoTip.style.display = 'none';
+    } else if (cosmoTip.style.display !== 'none') {
+        cosmoTip.style.display = 'none';   // guarded: this runs every frame while idle
     }
 
     if (pinnedTarget) {
@@ -91,7 +91,7 @@ function updateCosmoTip() {
         }
         const html = cosmoBody(pinnedTarget, false);
         if (cosmoCard._html !== html) { cosmoCard._content.innerHTML = html; cosmoCard._html = html; }
-        cosmoCard.style.display = 'block';
+        if (cosmoCard.style.display !== 'block') cosmoCard.style.display = 'block';
 
         if (cosmoCard._w !== cosmoCard.offsetWidth || cosmoCard._h !== cosmoCard.offsetHeight || cosmoCard._W !== W || cosmoCard._H !== H) {
             cosmoCard._w = cosmoCard.offsetWidth; cosmoCard._h = cosmoCard.offsetHeight; cosmoCard._W = W; cosmoCard._H = H;
@@ -100,7 +100,7 @@ function updateCosmoTip() {
         }
     } else {
         if (cosmoCard._pinned) { cosmoCard._pinned = null; cosmoCard._html = null; }
-        cosmoCard.style.display = 'none';
+        if (cosmoCard.style.display !== 'none') cosmoCard.style.display = 'none';   // guarded: every-frame path
     }
 }
 

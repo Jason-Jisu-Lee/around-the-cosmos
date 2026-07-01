@@ -52,26 +52,30 @@ function updateObservatory() {
     if (sig !== statsSig) { buildStats(showOrbiter, showComet, showVortex, showPlayed); statsSig = sig; }
 
     if (statEls.orbiter) {
-        statEls.orbiter.textContent = '✦' + fmtNum(orbiterSum);
-        statEls.orbiterPop.innerHTML = `${popParts.join(' + ')} = <b>✦${fmtNum(orbiterSum)}</b>`;
-        statEls.orbiterMin.textContent = '✦' + fmtNum(orbiterPerMin) + ' / min';
+        setStatTxt(statEls.orbiter, '✦' + fmtNum(orbiterSum));
+        setStatHtml(statEls.orbiterPop, `${popParts.join(' + ')} = <b>✦${fmtNum(orbiterSum)}</b>`);
+        setStatTxt(statEls.orbiterMin, '✦' + fmtNum(orbiterPerMin) + ' / min');
     }
     const pulsePerMin = 60 * pulseIncomePerSec();
     const totalPerMin = pulsePerMin + orbiterPerMin;
-    statEls.totalMin.textContent = '✦' + fmtNum(totalPerMin) + ' / min';
-    statEls.totalMinPop.innerHTML = `pulse (✦${fmtNum(pulsePerMin)}) + orbiters (✦${fmtNum(orbiterPerMin)}) = <b>✦${fmtNum(totalPerMin)}</b> / min`;
+    setStatTxt(statEls.totalMin, '✦' + fmtNum(totalPerMin) + ' / min');
+    setStatHtml(statEls.totalMinPop, `pulse (✦${fmtNum(pulsePerMin)}) + orbiters (✦${fmtNum(orbiterPerMin)}) = <b>✦${fmtNum(totalPerMin)}</b> / min`);
     if (statEls.comet) {
-        statEls.comet.textContent = '✦' + fmtNum(cometVal);
-        statEls.cometPop.innerHTML = `Scales with pulse and orbiters.`;
+        setStatTxt(statEls.comet, '✦' + fmtNum(cometVal));
+        setStatHtml(statEls.cometPop, `Scales with pulse and orbiters.`);
     }
     if (statEls.vortex) {
         const RM = (typeof VX !== 'undefined') ? VX.REWARD_MULT : 10;
-        const vortexVal = cometVal * RM;
-        statEls.vortex.textContent = '✦' + fmtNum(vortexVal);
-        statEls.vortexPop.innerHTML = `Scales with comet value.`;
+        setStatTxt(statEls.vortex, '✦' + fmtNum(cometVal * RM));
+        setStatHtml(statEls.vortexPop, `Scales with comet value.`);
     }
-    statEls.total.textContent = '✦' + fmtNum(G.runDust);
-    statEls.totalPop.innerHTML = 'All stardust earned in the current universe (resets on prestige).';
-    statEls.time.textContent   = fmtTime(G.universeTime);
-    if (statEls.played) statEls.played.textContent = fmtTime(G.gameTime);
+    setStatTxt(statEls.total, '✦' + fmtNum(G.runDust));
+    setStatHtml(statEls.totalPop, 'All stardust earned in the current universe (resets on prestige).');
+    setStatTxt(statEls.time, fmtTime(G.universeTime));
+    if (statEls.played) setStatTxt(statEls.played, fmtTime(G.gameTime));
 }
+
+// Write-through caches: skip the DOM write (and the innerHTML re-parse) when the value is unchanged -
+// most rows only move once a second while the observatory refreshes ~7x/s.
+function setStatTxt(el, s)  { if (el._t !== s) { el.textContent = s; el._t = s; } }
+function setStatHtml(el, s) { if (el._h !== s) { el.innerHTML  = s; el._h = s; } }

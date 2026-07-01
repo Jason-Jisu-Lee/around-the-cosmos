@@ -195,7 +195,7 @@ function updateCards() {
             const fr = on ? afterglowFrac() : 0, low = on && fr < 0.18;
             if (ref._glowOn  !== on)  { ref.card.classList.toggle('afterglow-on', on);   ref._glowOn = on; }
             if (ref._glowLow !== low) { ref.card.classList.toggle('afterglow-low', low); ref._glowLow = low; }
-            ref.drain.style.transform = `scaleX(${fr})`;
+            if (ref._fr !== fr) { ref.drain.style.transform = `scaleX(${fr})`; ref._fr = fr; }
         }
     }
 }
