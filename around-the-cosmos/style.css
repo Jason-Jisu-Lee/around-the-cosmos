@@ -22,7 +22,7 @@
 /* The custom needle cursor everywhere - never the default OS arrow/hand. */
 html, body { cursor: var(--cursor); }
 button, label, input, select, textarea, a,
-.upgrade-card, .acc-head, .track-btn, .stat-pop-row, .vol-val,
+.upgrade-card, .acc-head, .stat-pop-row, .vol-val,
 #observatory, #accretion-btn, #mass-upgrades-btn, #show-completed, #show-completed-wrap {
     cursor: var(--cursor) !important;
 }
@@ -123,15 +123,6 @@ body {
 .settings-name { font-size: 11px; color: var(--text-dim); font-family: 'Segoe UI', sans-serif; width: 46px; flex-shrink: 0; }
 .settings-row input[type=range] { flex: 1; min-width: 0; accent-color: var(--accent); height: 2px; outline: none; }
 .vol-val { font-size: 10px; color: var(--text-faint); font-family: 'Segoe UI', sans-serif; width: 32px; text-align: right; flex-shrink: 0; font-variant-numeric: tabular-nums; outline: none; cursor: text; }
-
-#track-row { display: flex; gap: 5px; margin-top: 6px; }
-.track-btn {
-    flex: 1; background: none; border: 1px solid var(--border); color: var(--text-faint);
-    border-radius: 2px; padding: 5px 2px; font-size: 9px; letter-spacing: 0.06em;
-    cursor: pointer; font-family: 'Segoe UI', sans-serif; transition: all 0.12s;
-}
-.track-btn:hover { color: var(--text-dim); border-color: var(--border2); }
-.track-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(122,104,72,0.06); }
 
 #reset-btn {
     background: none; border: 1px solid var(--border); color: var(--text-faint);

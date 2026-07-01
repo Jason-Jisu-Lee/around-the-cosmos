@@ -5,7 +5,6 @@ const SoundSystem = {
     startMusic, stopMusic,
     toggleMute, isMuted,
     setMusicVolume, setSfxVolume,
-    setTrack, loadTrack, getTrack,
     sfxTap, sfxPulse, sfxDeepBreath, sfxOrbit, sfxBuy, sfxComet, sfxComplete, sfxHover,
     sfxVortexAppear, sfxVortexAbsorb,
 };

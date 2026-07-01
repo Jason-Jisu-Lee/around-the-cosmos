@@ -1,81 +1,102 @@
 'use strict';
 
+// The ONE background track: "Perigee" - a soft kalimba arpeggio circling Am-F-C-G at ~63 BPM,
+// a sine-lead melody that answers only every other pass (so the track breathes: one pass plain,
+// one sung), a low felt heartbeat on the bar (a nod to the Maw's pulse), and sine bass, all
+// through the cached convolution room. Auditioned in test/music-demo.html against "Aphelion".
+// (The old Celestial/Drift/Wane tracks and the whole track picker were removed - there is no
+// setTrack/loadTrack/getTrack anymore.)
 
-let currentTrack = 0, loopHandle = null, loopStop = false;
+let loopHandle = null, loopStop = false;
+let perigeePass = 0;
 
-
-const NOTES = {
-    C2:65.41,G2:98.00,A2:110.00,C3:130.81,D3:146.83,E3:164.81,
-    G3:196.00,A3:220.00,C4:261.63,D4:293.66,E4:329.63,
-    G4:392.00,A4:440.00,C5:523.25,E5:659.25,G5:783.99,
-};
-const MELODY  = [[NOTES.G4,3],[NOTES.E4,2],[NOTES.D4,2],[NOTES.C4,4],[NOTES.A3,2],[NOTES.G3,3],[NOTES.A3,2],[NOTES.C4,3],[NOTES.D4,2],[NOTES.E4,3],[NOTES.G4,2],[NOTES.E4,2],[NOTES.D4,2],[NOTES.C4,5]];
-const BASS    = [[NOTES.C2,8],[NOTES.G2,6],[NOTES.A2,6],[NOTES.C2,12]];
-const ACCENTS = [[NOTES.G5,0],[NOTES.E5,7],[NOTES.C5,14],[NOTES.G5,22]];
-const BEAT = 0.58;
-
-function scheduleLoop(startAt) {
-    const rev = reverb(); let t = startAt;
-    for (const [freq, beats] of MELODY) {
-        const dur = beats * BEAT, o = SND.ctx.createOscillator(), g = SND.ctx.createGain();
-        o.type = 'triangle'; o.frequency.value = freq;
-        g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(0.20,t+0.06);
-        g.gain.setValueAtTime(0.15,t+dur*0.55); g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
-        o.connect(g); g.connect(rev); o.start(t); o.stop(t+dur+0.1); t += dur;
-    }
-    const loopLen = t - startAt; let bt = startAt;
-    for (const [freq, beats] of BASS) {
-        const dur = beats * BEAT, o = SND.ctx.createOscillator(), g = SND.ctx.createGain();
-        o.type = 'sine'; o.frequency.value = freq;
-        g.gain.setValueAtTime(0,bt); g.gain.linearRampToValueAtTime(0.25,bt+0.6);
-        g.gain.linearRampToValueAtTime(0.0001,bt+dur);
-        o.connect(g); g.connect(rev); o.start(bt); o.stop(bt+dur+0.1); bt += dur;
-    }
-    for (const [freq, off] of ACCENTS) tone('sine', freq, startAt+off*BEAT, 1.6, 0.08, rev);
-    return startAt + loopLen + 1.5;
-}
-
-
-function scheduleLoop2(startAt) {
-    const rev = reverb(4.5);
-    [[130.81,196.00,0],[110.00,164.81,9],[146.83,220.00,18],[174.61,261.63,27]]
-    .forEach(([low,high,off]) => {
-        [[low,0.34],[high,0.16]].forEach(([freq,vol]) => {
-            const t = startAt+off, o = SND.ctx.createOscillator(), g = SND.ctx.createGain();
-            o.type = 'sine'; o.frequency.value = freq;
-            g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(vol,t+2.5);
-            g.gain.linearRampToValueAtTime(vol*0.85,t+4.5); g.gain.linearRampToValueAtTime(0,t+7.0);
-            o.connect(g); g.connect(rev); o.start(t); o.stop(t+7.2);
-        });
-    });
-    return startAt + 36;
-}
-
-
-const WANE = [
-    [164.81,0.0,0.26],[196.00,0.7,0.20],[246.94,1.4,0.22],[293.66,2.1,0.18],[329.63,2.8,0.26],
-    [293.66,3.5,0.18],[246.94,4.2,0.20],[196.00,4.9,0.18],[164.81,5.6,0.24],
-    [329.63,7.5,0.24],[392.00,8.2,0.20],[440.00,8.9,0.22],[392.00,9.6,0.18],
-    [329.63,10.3,0.24],[293.66,11.0,0.18],[246.94,11.7,0.20],[164.81,12.4,0.26],
-    [329.63,15.0,0.22],[246.94,15.9,0.18],[196.00,16.8,0.20],[164.81,17.7,0.28],
+const P_BEAT = 0.95;                          // ~63 BPM
+const P_ARP_BEATS = [0, 1.5, 3, 4.5, 6, 7];   // the lilting 6-note pattern within each 8-beat bar
+const P_BARS = [
+    { arp: [220.00, 261.63, 329.63, 440.00, 329.63, 261.63], bass: 110.00 },   // Am (A3 C4 E4 A4)
+    { arp: [174.61, 220.00, 261.63, 349.23, 261.63, 220.00], bass:  87.31 },   // F  (F3 A3 C4 F4)
+    { arp: [261.63, 329.63, 392.00, 523.25, 392.00, 329.63], bass: 130.81 },   // C  (C4 E4 G4 C5)
+    { arp: [196.00, 246.94, 293.66, 392.00, 293.66, 246.94], bass:  98.00 },   // G  (G3 B3 D4 G4)
 ];
-function scheduleLoop3(startAt) {
-    const rev = reverb(1.2);
-    WANE.forEach(([freq,off,vol]) => {
-        const t = startAt+off, o = SND.ctx.createOscillator(), g = SND.ctx.createGain();
-        o.type = 'triangle'; o.frequency.value = freq;
-        g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(vol,t+0.008);
-        g.gain.exponentialRampToValueAtTime(0.001,t+0.35);
-        o.connect(g); g.connect(rev); o.start(t); o.stop(t+0.4);
+const P_MELODY = [   // [freq, beat offset in the 32-beat pass, length in beats]
+    [659.25,  1,   2.5], [587.33, 3.5, 1.5], [523.25, 5,  2.5],
+    [440.00,  9,   3.5],
+    [523.25, 17,   1.5], [587.33, 18.5, 1.5], [659.25, 20, 2.5],
+    [587.33, 25,   2.0], [493.88, 27,   3.0],
+];
+
+// ---- voices ----
+// kalimba-ish pluck (the sfxOrbit voice, longer and softer)
+function mPluck(freq, t, vol, dest, decay = 1.3) {
+    const o = SND.ctx.createOscillator(), g = SND.ctx.createGain(), lp = SND.ctx.createBiquadFilter();
+    o.type = 'triangle'; o.frequency.value = freq;
+    lp.type = 'lowpass'; lp.frequency.value = 1500;
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(vol, t + 0.010);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + decay);
+    o.connect(lp); lp.connect(g); g.connect(dest); o.start(t); o.stop(t + decay + 0.1);
+}
+// slow sine pad (the bass bed)
+function mPad(freq, t, dur, vol, dest) {
+    const o = SND.ctx.createOscillator(), g = SND.ctx.createGain();
+    o.type = 'sine'; o.frequency.value = freq;
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(vol, t + 0.7);
+    g.gain.setValueAtTime(vol * 0.9, t + dur * 0.6);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(dest); o.start(t); o.stop(t + dur + 0.1);
+}
+// soft sine lead with light vibrato
+function mLead(freq, t, dur, vol, dest) {
+    const o = SND.ctx.createOscillator(), g = SND.ctx.createGain();
+    const lfo = SND.ctx.createOscillator(), lg = SND.ctx.createGain();
+    o.type = 'sine'; o.frequency.value = freq;
+    lfo.frequency.value = 4.1; lg.gain.value = freq * 0.0045;
+    lfo.connect(lg); lg.connect(o.frequency);
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(vol, t + 0.30);
+    g.gain.setValueAtTime(vol * 0.85, t + dur * 0.7);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(dest);
+    o.start(t); o.stop(t + dur + 0.15); lfo.start(t); lfo.stop(t + dur + 0.15);
+}
+// low felt thump (the heartbeat, dry - straight to the session so it stays a knock, not a wash)
+function mThump(t, vol, dest) {
+    const o = SND.ctx.createOscillator(), g = SND.ctx.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(66, t); o.frequency.exponentialRampToValueAtTime(50, t + 0.16);
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(vol, t + 0.006);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.24);
+    o.connect(g); g.connect(dest); o.start(t); o.stop(t + 0.3);
+}
+
+// The plucks go part-wet, part-dry so the lilt stays readable under the reverb wash.
+// One bus per music session (rebuilt when the session changes, like the cached reverb).
+let arpBusNode = null, arpBusSess = null;
+function perigeeArpBus() {
+    const sess = SND.musicSession || SND.musicBus;
+    if (arpBusNode && arpBusSess === sess) return arpBusNode;
+    arpBusSess = sess;
+    arpBusNode = SND.ctx.createGain();
+    const wet = SND.ctx.createGain(); wet.gain.value = 0.8;  arpBusNode.connect(wet); wet.connect(reverb(2.2));
+    const dry = SND.ctx.createGain(); dry.gain.value = 0.4;  arpBusNode.connect(dry); dry.connect(sess);
+    return arpBusNode;
+}
+
+function schedulePerigee(startAt) {
+    const rev = reverb(2.2), arp = perigeeArpBus(), sess = SND.musicSession || SND.musicBus;
+    P_BARS.forEach((bar, bi) => {
+        const bt = startAt + bi * 8 * P_BEAT;
+        bar.arp.forEach((f, ni) => mPluck(f, bt + P_ARP_BEATS[ni] * P_BEAT, 0.16, arp));
+        mPad(bar.bass, bt, 8 * P_BEAT + 2, 0.26, rev);
+        mThump(bt, 0.20, sess);
+        mThump(bt + 4 * P_BEAT, 0.14, sess);
     });
-    [[82.41,0.0],[82.41,7.5],[98.00,15.0]].forEach(([freq,off]) => {
-        const t = startAt+off, o = SND.ctx.createOscillator(), g = SND.ctx.createGain();
-        o.type = 'sine'; o.frequency.value = freq;
-        g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(0.28,t+0.015);
-        g.gain.exponentialRampToValueAtTime(0.001,t+0.9);
-        o.connect(g); g.connect(rev); o.start(t); o.stop(t+1.0);
-    });
-    return startAt + 20;
+    if (perigeePass % 2 === 1)
+        for (const [f, off, len] of P_MELODY) mLead(f, startAt + off * P_BEAT, len * P_BEAT + 0.4, 0.10, rev);
+    perigeePass++;
+    return startAt + 32 * P_BEAT;   // ~30.4s per pass
 }
 
 function startMusic() {
@@ -84,12 +105,11 @@ function startMusic() {
     SND.musicSession.gain.setValueAtTime(0, SND.ctx.currentTime);
     SND.musicSession.gain.linearRampToValueAtTime(1, SND.ctx.currentTime + 0.35);
     SND.musicSession.connect(SND.musicBus);
-    loopStop = false;
+    loopStop = false; perigeePass = 0;   // resume always opens with a plain pass, melody on the second
     let next = SND.ctx.currentTime + 0.4;
-    const schedulers = [scheduleLoop, scheduleLoop2, scheduleLoop3];
     function tick() {
         if (loopStop) { loopHandle = null; return; }
-        next = schedulers[currentTrack](next);
+        next = schedulePerigee(next);
         loopHandle = setTimeout(tick, Math.max(200, (next - SND.ctx.currentTime - 5) * 1000));
     }
     tick();
@@ -100,7 +120,3 @@ function stopMusic() {
     if (loopHandle) { clearTimeout(loopHandle); loopHandle = null; }
     if (SND.musicSession) { SND.musicSession.disconnect(); SND.musicSession = null; }
 }
-
-function loadTrack(n) { currentTrack = Math.max(0, Math.min(2, n)); }
-function setTrack(n)  { loadTrack(n); if (!SND.ctx) return; stopMusic(); setTimeout(startMusic, 200); }
-function getTrack()   { return currentTrack; }

@@ -72,10 +72,10 @@ document.getElementById('show-completed').addEventListener('change', e => {
     buildPanels();
 });
 
-let _savedVols = { mv:75, sv:75, track:0 };
+let _savedVols = { mv:75, sv:75 };
 const _BOOT_EVENTS = ['pointerdown', 'touchstart', 'mousedown', 'keydown', 'click'];
 const _bootAudio = () => {
-    SoundSystem.boot(); SoundSystem.loadTrack(_savedVols.track); SoundSystem.startMusic();
+    SoundSystem.boot(); SoundSystem.startMusic();
     SoundSystem.setMusicVolume(_savedVols.mv); SoundSystem.setSfxVolume(_savedVols.sv);
     if (paused) SoundSystem.stopMusic();
     _BOOT_EVENTS.forEach(ev => window.removeEventListener(ev, _bootAudio));
