@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Around the Cosmos - music candidates</title>
+<style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+        background: #f4efe4; color: #1a1a1a;
+        font-family: Georgia, 'Times New Roman', serif;
+        min-height: 100vh; display: flex; flex-direction: column; align-items: center;
+        padding: 48px 24px 80px;
+    }
+    h1 { font-size: 26px; font-weight: 600; letter-spacing: 0.4px; margin-bottom: 6px; }
+    .sub { font-size: 14px; color: #6b6558; margin-bottom: 8px; font-style: italic; }
+    .note { font-size: 12.5px; color: #8a8272; margin-bottom: 36px; }
+    .cards { display: flex; gap: 26px; flex-wrap: wrap; justify-content: center; max-width: 980px; }
+    .card {
+        width: 420px; background: #fffdf8; border: 1px solid #ddd5c2; border-radius: 10px;
+        padding: 26px 28px 24px; box-shadow: 0 2px 10px rgba(90,80,60,0.07);
+        transition: border-color 0.25s, box-shadow 0.25s;
+    }
+    .card.playing { border-color: #7d95ad; box-shadow: 0 3px 18px rgba(125,149,173,0.28); }
+    .kicker { font-size: 11px; letter-spacing: 2.2px; color: #9a9282; text-transform: uppercase; margin-bottom: 4px; }
+    .tname { font-size: 22px; font-weight: 600; margin-bottom: 10px; }
+    .tdesc { font-size: 13.5px; line-height: 1.55; color: #4c463a; margin-bottom: 10px; }
+    .tbuild { font-size: 11.5px; line-height: 1.5; color: #8a8272; font-style: italic; margin-bottom: 18px; }
+    button.play {
+        font-family: Georgia, serif; font-size: 15px; letter-spacing: 0.5px;
+        padding: 10px 26px; border-radius: 7px; cursor: pointer;
+        border: 1.5px solid #1a1a1a; background: #1a1a1a; color: #f4efe4;
+        transition: background 0.2s, color 0.2s;
+    }
+    button.play:hover { background: #3a382f; }
+    .card.playing button.play { background: #7d95ad; border-color: #7d95ad; }
+    .vol-row { margin-top: 40px; display: flex; align-items: center; gap: 12px; font-size: 13px; color: #6b6558; }
+    input[type=range] { width: 220px; accent-color: #7d95ad; }
+    .foot { margin-top: 26px; font-size: 12px; color: #9a9282; max-width: 560px; text-align: center; line-height: 1.6; }
+</style>
+</head>
+<body>
+    <h1>Around the Cosmos - music candidates</h1>
+    <div class="sub">Two directions for the next background track. Both loop endlessly, like the in-game three.</div>
+    <div class="note">Click a card's button to start; starting one stops the other.</div>
+
+    <div class="cards">
+        <div class="card" id="card-aphelion">
+            <div class="kicker">Candidate 1 &middot; ambient-leaning</div>
+            <div class="tname">Aphelion</div>
+            <div class="tdesc">The far point of an orbit. Four wide, cold chords in A minor drift past over
+                sixty-four seconds; a faint music-box motif surfaces on the second and fourth chord, then sinks
+                back into the wash. Sits behind everything and asks for nothing.</div>
+            <div class="tbuild">Built from detuned sine pads with a soft triangle octave, deep sub roots,
+                sparse plucks, and a long five-second convolution wash. Closest kin: Drift.</div>
+            <button class="play" data-track="aphelion">Play Aphelion</button>
+        </div>
+
+        <div class="card" id="card-perigee">
+            <div class="kicker">Candidate 2 &middot; gently melodic</div>
+            <div class="tname">Perigee</div>
+            <div class="tdesc">The near point. A soft kalimba arpeggio circles Am, F, C, G at a slow walking
+                pace, and every other pass a quiet melody rises to answer it. Underneath, a low heartbeat lands
+                on the bar, a nod to the Maw's pulse.</div>
+            <div class="tbuild">Built from lowpassed triangle plucks, a sine lead with light vibrato, sine bass,
+                a felt heartbeat, and a roomy two-second convolution. Closest kin: Celestial.</div>
+            <button class="play" data-track="perigee">Play Perigee</button>
+        </div>
+    </div>
+
+    <div class="vol-row">
+        <span>Music volume</span>
+        <input type="range" id="vol" min="0" max="100" value="75">
+        <span id="vol-val">75%</span>
+    </div>
+    <div class="foot">Both are procedural (pure Web Audio, no files) in the exact idiom of
+        <b>sound/music/tracks.js</b>, so the chosen one drops into the game as a scheduler function and a
+        settings button. Same signal chain as the game: music bus &rarr; master &rarr; brick-wall limiter.</div>
+
+<script>
+'use strict';
+
+// ---------- mini engine (mirrors sound/core.js: bus gains, limiter, cached convolution reverb) ----------
+let actx = null, master = null, musicBus = null;
+function boot() {
+    if (actx) { if (actx.state === 'suspended') actx.resume(); return; }
+    actx = new (window.AudioContext || window.webkitAudioContext)();
+    master = actx.createGain(); master.gain.value = 0.75;
+    musicBus = actx.createGain(); musicBus.gain.value = 0.5712 * (+document.getElementById('vol').value) / 75;
+    const limiter = actx.createDynamicsCompressor();
+    limiter.threshold.value = -2; limiter.knee.value = 0; limiter.ratio.value = 20;
+    limiter.attack.value = 0.003; limiter.release.value = 0.12;
+    musicBus.connect(master); master.connect(limiter); limiter.connect(actx.destination);
+}
+
+const _impulses = new Map();
+function impulse(len) {
+    let buf = _impulses.get(len);
+    if (buf) return buf;
+    const sr = actx.sampleRate; buf = actx.createBuffer(2, sr * len, sr);
+    for (let c = 0; c < 2; c++) {
+        const d = buf.getChannelData(c);
+        for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / d.length, 1.9);
+    }
+    _impulses.set(len, buf);
+    return buf;
+}
+
+// A playback session: a master fade gain + its own reverbs, so stopping fades everything at once.
+function makeSession() {
+    const out = actx.createGain();
+    out.gain.setValueAtTime(0, actx.currentTime);
+    out.gain.linearRampToValueAtTime(1, actx.currentTime + 0.4);
+    out.connect(musicBus);
+    const revs = new Map();
+    return {
+        out,
+        rev(len) {
+            let r = revs.get(len);
+            if (!r) { r = actx.createConvolver(); r.buffer = impulse(len); r.connect(out); revs.set(len, r); }
+            return r;
+        },
+    };
+}
+
+// ---------- shared voices ----------
+// slow pad: gentle rise, long release (pairs are detuned a few cents for width)
+function pad(freq, t, dur, vol, dest, detune, type) {
+    const o = actx.createOscillator(), g = actx.createGain();
+    o.type = type || 'sine'; o.frequency.value = freq; if (detune) o.detune.value = detune;
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(vol, t + Math.min(2.8, dur * 0.3));
+    g.gain.setValueAtTime(vol * 0.9, t + dur * 0.62);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(dest); o.start(t); o.stop(t + dur + 0.1);
+}
+// warm triangle layer under a lowpass (rounds out a pad root without buzz)
+function padTri(freq, t, dur, vol, dest) {
+    const o = actx.createOscillator(), g = actx.createGain(), lp = actx.createBiquadFilter();
+    o.type = 'triangle'; o.frequency.value = freq;
+    lp.type = 'lowpass'; lp.frequency.value = 900;
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(vol, t + Math.min(3.2, dur * 0.35));
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(lp); lp.connect(g); g.connect(dest); o.start(t); o.stop(t + dur + 0.1);
+}
+// kalimba-ish pluck (the sfxOrbit voice, longer and softer)
+function pluck(freq, t, vol, dest, decay) {
+    decay = decay || 1.1;
+    const o = actx.createOscillator(), g = actx.createGain(), lp = actx.createBiquadFilter();
+    o.type = 'triangle'; o.frequency.value = freq;
+    lp.type = 'lowpass'; lp.frequency.value = 1500;
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(vol, t + 0.010);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + decay);
+    o.connect(lp); lp.connect(g); g.connect(dest); o.start(t); o.stop(t + decay + 0.1);
+}
+// soft sine lead with light vibrato
+function lead(freq, t, dur, vol, dest) {
+    const o = actx.createOscillator(), g = actx.createGain();
+    const lfo = actx.createOscillator(), lg = actx.createGain();
+    o.type = 'sine'; o.frequency.value = freq;
+    lfo.frequency.value = 4.1; lg.gain.value = freq * 0.0045;
+    lfo.connect(lg); lg.connect(o.frequency);
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(vol, t + 0.30);
+    g.gain.setValueAtTime(vol * 0.85, t + dur * 0.7);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(dest);
+    o.start(t); o.stop(t + dur + 0.15); lfo.start(t); lfo.stop(t + dur + 0.15);
+}
+// low felt thump (the heartbeat)
+function thump(t, vol, dest) {
+    const o = actx.createOscillator(), g = actx.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(66, t); o.frequency.exponentialRampToValueAtTime(50, t + 0.16);
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(vol, t + 0.006);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.24);
+    o.connect(g); g.connect(dest); o.start(t); o.stop(t + 0.3);
+}
+
+// ---------- Candidate 1: APHELION (~64s loop) ----------
+// Four 16s chords, i-VI-III-VII in A minor: Am9 -> Fmaj7 -> Cmaj7 -> G6. Each chord is a bed of
+// detuned sine pairs + a lowpassed triangle root an octave up + a sub root. A five-note music-box
+// motif surfaces on chords 2 and 4; a faint high shimmer breathes over chords 1 and 3.
+const APH_SEC = 16;
+const APH = [
+    { ch: [110.00, 164.81, 246.94, 261.63], sub: 55.00,  motif: null },                                                        // Am9  (A2 E3 B3 C4)
+    { ch: [ 87.31, 130.81, 164.81, 220.00], sub: 43.65,  motif: [[659.25,0],[523.25,1.7],[440.00,3.4],[392.00,5.2],[329.63,7.1]] }, // Fmaj7 (E5 C5 A4 G4 E4)
+    { ch: [130.81, 196.00, 246.94, 329.63], sub: 65.41,  motif: null },                                                        // Cmaj7 (C3 G3 B3 E4)
+    { ch: [ 98.00, 146.83, 164.81, 246.94], sub: 49.00,  motif: [[587.33,0],[493.88,1.7],[392.00,3.4],[440.00,5.2],[493.88,7.1]] }, // G6   (D5 B4 G4 A4 B4)
+];
+function scheduleAphelion(startAt, S) {
+    const rev = S.rev(5.0);
+    APH.forEach((c, ci) => {
+        const t = startAt + ci * APH_SEC, dur = APH_SEC + 6;   // 6s tail crossfades into the next chord
+        c.ch.forEach((f, vi) => {
+            const v = vi === 0 ? 0.105 : 0.068;
+            pad(f, t, dur, v, rev, +4);
+            pad(f, t, dur, v, rev, -4);
+        });
+        padTri(c.ch[0] * 2, t, dur, 0.035, rev);
+        pad(c.sub, t, dur, 0.13, rev);
+        if (c.motif) c.motif.forEach(([f, off]) => pluck(f, t + 3.5 + off, 0.085, rev, 2.4));
+        else pad(1318.51, t + 5, 9, 0.014, rev);               // E6 shimmer on the still chords
+    });
+    return startAt + APH.length * APH_SEC;
+}
+
+// ---------- Candidate 2: PERIGEE (~30s pass, melody answers every other pass) ----------
+// Four 8-beat bars at BEAT 0.95 (~63 BPM): Am -> F -> C -> G. Kalimba arpeggio on a lilting
+// [0, 1.5, 3, 4.5, 6, 7] pattern, sine bass per bar, a heartbeat on beats 1 and 5, and a soft
+// vibrato lead that plays only on odd passes (so the track breathes: one pass plain, one sung).
+const P_BEAT = 0.95;
+const P_ARP_BEATS = [0, 1.5, 3, 4.5, 6, 7];
+const P_BARS = [
+    { arp: [220.00, 261.63, 329.63, 440.00, 329.63, 261.63], bass: 110.00 },   // Am (A3 C4 E4 A4)
+    { arp: [174.61, 220.00, 261.63, 349.23, 261.63, 220.00], bass:  87.31 },   // F  (F3 A3 C4 F4)
+    { arp: [261.63, 329.63, 392.00, 523.25, 392.00, 329.63], bass: 130.81 },   // C  (C4 E4 G4 C5)
+    { arp: [196.00, 246.94, 293.66, 392.00, 293.66, 246.94], bass:  98.00 },   // G  (G3 B3 D4 G4)
+];
+const P_MELODY = [   // [freq, beat offset in the 32-beat pass, length in beats]
+    [659.25,  1,   2.5], [587.33, 3.5, 1.5], [523.25, 5,  2.5],
+    [440.00,  9,   3.5],
+    [523.25, 17,   1.5], [587.33, 18.5, 1.5], [659.25, 20, 2.5],
+    [587.33, 25,   2.0], [493.88, 27,   3.0],
+];
+function schedulePerigee(startAt, S, state) {
+    const rev = S.rev(2.2);
+    if (!S.arpBus) {   // plucks go part-wet, part-dry so the lilt stays readable under the wash
+        S.arpBus = actx.createGain();
+        const wet = actx.createGain(); wet.gain.value = 0.8;  S.arpBus.connect(wet); wet.connect(rev);
+        const dry = actx.createGain(); dry.gain.value = 0.35; S.arpBus.connect(dry); dry.connect(S.out);
+    }
+    P_BARS.forEach((bar, bi) => {
+        const bt = startAt + bi * 8 * P_BEAT;
+        bar.arp.forEach((f, ni) => pluck(f, bt + P_ARP_BEATS[ni] * P_BEAT, 0.062, S.arpBus, 1.3));
+        pad(bar.bass, bt, 8 * P_BEAT + 2, 0.15, rev);
+        thump(bt, 0.13, S.out);
+        thump(bt + 4 * P_BEAT, 0.09, S.out);
+    });
+    if (state.pass % 2 === 1)
+        for (const [f, off, len] of P_MELODY) lead(f, startAt + off * P_BEAT, len * P_BEAT + 0.4, 0.052, rev);
+    state.pass++;
+    return startAt + 32 * P_BEAT;
+}
+
+// ---------- transport (the tracks.js look-ahead loop) ----------
+const SCHEDULERS = { aphelion: scheduleAphelion, perigee: schedulePerigee };
+let playing = null;   // { name, stop() }
+
+function stopAll() {
+    if (!playing) return;
+    playing.stop(); playing = null;
+    document.querySelectorAll('.card').forEach(c => c.classList.remove('playing'));
+    document.querySelectorAll('button.play').forEach(b => b.textContent = 'Play ' + b.dataset.track[0].toUpperCase() + b.dataset.track.slice(1));
+}
+
+function play(name) {
+    boot();
+    if (playing && playing.name === name) { stopAll(); return; }
+    stopAll();
+    const S = makeSession(), state = { pass: 0 };
+    let stopFlag = false, handle = null, next = actx.currentTime + 0.35;
+    (function tick() {
+        if (stopFlag) return;
+        next = SCHEDULERS[name](next, S, state);
+        handle = setTimeout(tick, Math.max(200, (next - actx.currentTime - 6) * 1000));
+    })();
+    playing = {
+        name,
+        stop() {
+            stopFlag = true; clearTimeout(handle);
+            const t = actx.currentTime;
+            S.out.gain.cancelScheduledValues(t);
+            S.out.gain.setValueAtTime(S.out.gain.value, t);
+            S.out.gain.linearRampToValueAtTime(0.0001, t + 0.5);
+            setTimeout(() => S.out.disconnect(), 700);
+        },
+    };
+    document.getElementById('card-' + name).classList.add('playing');
+    document.querySelector(`button[data-track="${name}"]`).textContent = 'Stop';
+}
+
+document.querySelectorAll('button.play').forEach(b => b.addEventListener('click', () => play(b.dataset.track)));
+document.getElementById('vol').addEventListener('input', e => {
+    document.getElementById('vol-val').textContent = e.target.value + '%';
+    if (musicBus) musicBus.gain.setTargetAtTime(0.5712 * e.target.value / 75, actx.currentTime, 0.1);
+});
+</script>
+</body>
+</html>
