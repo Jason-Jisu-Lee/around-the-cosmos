@@ -1,7 +1,8 @@
 'use strict';
 
 function randCometGap() {
-    return (CFG.COMET_MIN_GAP + Math.random()*(CFG.COMET_MAX_GAP-CFG.COMET_MIN_GAP)) * cometShowerMult();
+    const meteor = (typeof meteorShowerMult === 'function') ? meteorShowerMult() : 1;   // asteroid Meteor Shower identity: comets sooner
+    return (CFG.COMET_MIN_GAP + Math.random()*(CFG.COMET_MAX_GAP-CFG.COMET_MIN_GAP)) * cometShowerMult() * meteor;
 }
 
 const COMET_SPEEDS = [1.0, 1.5, 2.0];
@@ -36,7 +37,8 @@ function catchComet() {
     const c = G.comet;
     let combined = 0;
     for (const o of ORBITERS) combined += o.list().length * o.payout();
-    const windfall = Math.round((10 * pulseValue() + combined) * (c.speedMult || 1) * brighterTailsMult());
+    const prospector = (typeof prospectorCometMult === 'function') ? prospectorCometMult() : 1;   // asteroid Prospector's Cut identity
+    const windfall = Math.round((10 * pulseValue() + combined) * (c.speedMult || 1) * brighterTailsMult() * prospector);
     earn(windfall);
     cometFx.push({ x:c.x, y:c.y, text:'+✦'+fmtNum(windfall), age:0, maxAge:1.5 });
     G.cometsCaught++; G.cometSeen = true; SoundSystem.sfxComet();

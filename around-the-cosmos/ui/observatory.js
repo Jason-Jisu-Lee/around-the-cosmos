@@ -40,7 +40,7 @@ function updateObservatory() {
         if (!n) continue;
         const pay = (o.avgPayout || o.payout)();
         orbiterSum += n * pay;
-        orbiterPerMin += n * pay * 60 * o.speed() / PLANET_DEF[o.ring].period;
+        orbiterPerMin += n * pay * 60 * (o.avgSpeed || o.speed)() / PLANET_DEF[o.ring].period;
         totalOrbiters += n;
         const name = o.id.charAt(0).toUpperCase() + o.id.slice(1);
         popParts.push(`${name} ✦${fmtNum(n * pay)}`);

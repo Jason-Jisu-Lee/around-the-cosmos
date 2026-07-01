@@ -288,6 +288,12 @@ body {
     80%  { transform: translate(1.2px, 1px); }
     100% { transform: translate(0, 0); }
 }
+/* Identity lock-in hold bar: sweeps 0 -> 1 across the card's bottom over the 750ms hold (transition set
+   inline in wireIdentityHold), snaps back on release. Clipped to the rounded corners by overflow:hidden. */
+.upgrade-card .upg-hold {
+    position: absolute; left: 0; bottom: 0; height: 4px; width: 100%;
+    background: #9d8fc9; transform-origin: left; transform: scaleX(0); pointer-events: none;
+}
 
 /* ===== Tutorial overlay (Minimal Frost): light dim + soft-lifted spotlight + pulsing dot + pill tooltip ===== */
 #tutorial { position: fixed; inset: 0; z-index: 200; display: none; }   /* covers everything = game frozen */

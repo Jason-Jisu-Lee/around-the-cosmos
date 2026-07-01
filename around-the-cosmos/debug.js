@@ -49,6 +49,30 @@ function initDebug() {
         skipBtn.style.borderColor = debugSkipAcc ? '#6adfd0' : 'rgba(106,223,208,0.3)';
     });
 
+    // ---- Undo + orbiter-identity granters (for testing new upgrades one by one) ----
+    btn('Undo last purchase', () => { if (typeof undoLastBuy === 'function') undoLastBuy(); });
+
+    const grant = (id) => {
+        const u = UPGRADES.find(x => x.id === id); if (!u) return;
+        G.upgrades[id] = Math.min(u.maxLevel, (G.upgrades[id] || 0) + 1);   // force +1, bypass lock/cost
+        if (typeof reconcileBodies === 'function') reconcileBodies();
+        saveGame(); buildPanels();
+    };
+    const idRow = (label, ids) => {
+        const row = document.createElement('div');
+        row.style.cssText = 'display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-top:2px';
+        row.innerHTML = `<span style="font-size:11px;width:100%;color:#8fa">${label}</span>`;
+        ids.forEach(([id, short]) => {
+            const b = document.createElement('button'); b.textContent = short; b.title = id + ' +1';
+            b.style.cssText = btnStyle; b.onclick = () => grant(id); row.appendChild(b);
+        });
+        panel.appendChild(row);
+    };
+    idRow('Dust IDs +1', [['coagulation','Coag'],['iceMantles','Ice'],['denser','Denser'],['dustdevil','Devil'],['prdrag','PRDrag']]);
+    idRow('Asteroid IDs +1', [['rubblepile','Rubble'],['ferropulse','Ferro'],['meteorshower','Meteor'],['prospector','Prospect'],['slingshot','Sling']]);
+    idRow('Moon IDs +1', [['albedo','Albedo'],['springtide','Spring'],['eclipse','Eclipse'],['standstill','Standstill'],['bloodmoon','Blood']]);
+    idRow('Dwarf IDs +1', [['glacial','Glacial'],['distantkin','Kin'],['longnow','LongNow'],['storedwinter','Winter'],['anchor','Anchor']]);
+
     document.body.appendChild(panel);
     panel.style.cursor = 'grab';
     initDraggable(panel);

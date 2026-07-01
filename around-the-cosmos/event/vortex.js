@@ -111,7 +111,8 @@ function vortexReward(){
     let combined = 0;
     for (const o of ORBITERS) combined += o.list().length * o.payout();
     const base = Math.round((10 * pulseValue() + combined) * brighterTailsMult());
-    return Math.max(1, base * VX.REWARD_MULT);
+    const kin = (typeof distantKinRewardMult === 'function') ? distantKinRewardMult() : 1;   // dwarf Distant Kin identity
+    return Math.max(1, Math.round(base * VX.REWARD_MULT * kin));
 }
 
 function pickVortexSpot(){
@@ -145,7 +146,8 @@ function vortexSpawn(){
 
 function endVortex(){
     VTX.active = false; VTX.phase = 'idle'; VTX.holding = false;
-    vortexTimer = VX.SPAWN_MIN + Math.random() * (VX.SPAWN_MAX - VX.SPAWN_MIN);
+    const kin = (typeof distantKinSpawnMult === 'function') ? distantKinSpawnMult() : 1;   // dwarf Distant Kin identity: sooner
+    vortexTimer = (VX.SPAWN_MIN + Math.random() * (VX.SPAWN_MAX - VX.SPAWN_MIN)) * kin;
 }
 
 function vortexTick(dt){

@@ -35,8 +35,12 @@ function makeCard(u) {
     let drain = null;
     if (u.id === 'afterglow') { drain = document.createElement('div'); drain.className = 'upg-drain'; card.appendChild(drain); }
 
-    if (u.identity) {
-        wireIdentityHold(card, u);   // identity upgrades are HOLD-to-buy (vibrate while held)
+    // Identity upgrades: only the FIRST level (the lock-in) is HOLD-to-buy, with a fill bar under the
+    // card showing hold progress. Once chosen (lvl >= 1) it upgrades on a normal click like any other
+    // card. Everything else (and identity lvls 2-5) is a plain click.
+    if (u.identity && G.upgrades[u.id] === 0) {
+        const holdBar = document.createElement('div'); holdBar.className = 'upg-hold'; card.appendChild(holdBar);
+        wireIdentityHold(card, u, holdBar);
     } else {
         card.addEventListener('click', () => {
             if (!buyUpgrade(u)) return;
@@ -53,14 +57,15 @@ function makeCard(u) {
     return card;
 }
 
-function afterBuy() { if (visibleSig() !== lastVisibleSig) buildPanels(); else updateCards(); }
-
-// Identity upgrades are bought by HOLDING (not clicking). The card vibrates while held (.holding),
-// and commits at HOLD_MS. Releasing early cancels. Only starts if buyable (not maxed, not locked, affordable).
-function wireIdentityHold(card, u) {
+// The identity LOCK-IN (level 0 -> 1) is bought by HOLDING (not clicking). The card vibrates while held
+// (.holding) and a fill bar (holdBar) sweeps 0 -> 1 over HOLD_MS; releasing early cancels + snaps it back.
+// On commit we rebuild the panel so the now-chosen card re-wires to a plain click for levels 2-5.
+// Only starts if buyable (not maxed, not locked, affordable).
+function wireIdentityHold(card, u, holdBar) {
     const HOLD_MS = 750;
     let timer = null;
-    const stop = () => { if (timer) { clearTimeout(timer); timer = null; } card.classList.remove('holding'); };
+    const resetBar = () => { if (holdBar) { holdBar.style.transition = 'none'; holdBar.style.transform = 'scaleX(0)'; } };
+    const stop = () => { if (timer) { clearTimeout(timer); timer = null; } card.classList.remove('holding'); resetBar(); };
     const start = (e) => {
         if (e && e.cancelable) e.preventDefault();
         if (timer) return;
@@ -69,7 +74,12 @@ function wireIdentityHold(card, u) {
         if (identityLockedBy(u)) return;                   // another identity locked it
         if (G.dust < u.costs[l]) return;                   // can't afford -> no hold
         card.classList.add('holding');
-        timer = setTimeout(() => { stop(); if (buyUpgrade(u)) afterBuy(); }, HOLD_MS);
+        if (holdBar) {                                     // sweep the fill bar 0 -> 1 over the hold
+            resetBar(); void holdBar.offsetWidth;          // commit the 0 state before transitioning
+            holdBar.style.transition = `transform ${HOLD_MS}ms linear`;
+            holdBar.style.transform = 'scaleX(1)';
+        }
+        timer = setTimeout(() => { stop(); if (buyUpgrade(u)) buildPanels(); }, HOLD_MS);
     };
     card.addEventListener('mousedown', start);
     card.addEventListener('mouseup', stop);

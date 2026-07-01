@@ -16,7 +16,11 @@ function tick(dt) {
             const n = deepBreathInterval();
             const deep = n > 0 && (breathCount % n === 0);
             const glow = afterglowActive() ? 20 * lvl('afterglow') : 0;   // +20/lvl per pulse for 60s after a comet
-            earn((deep ? Math.round(pulseValue() * deepBreathMult()) : pulseValue()) + glow, CX, CY - 20);
+            const ferro = (typeof ferroPulseBonus === 'function') ? ferroPulseBonus() : 0;   // asteroid identity: flat +/pulse, added AFTER pulseValue (no feedback with Gravitational Pull)
+            const spring = (typeof springTideBonus === 'function') ? springTideBonus() : 0;  // moon Spring Tide identity: +/pulse, strongest at the full moon
+            earn((deep ? Math.round(pulseValue() * deepBreathMult()) : pulseValue()) + glow + ferro + spring, CX, CY - 20);
+            if (ferro > 0 && G.asteroids.length) ferroPulseFlash = gameClock;   // magnetic field-line arcs asteroid<->Maw
+            if (typeof storedWinterBankPulse === 'function') storedWinterBankPulse(pulseValue());   // dwarf Stored Winter: bank a share
             clickFxId = deep ? 'deepBreath' : 'pulseBeat';
             triggerClickFx(gameClock, 0, -1);
             if (deep) { deepBreathFlash = gameClock; SoundSystem.sfxDeepBreath(); }
@@ -62,6 +66,8 @@ function tick(dt) {
     }
 }
 
+let buyLog = [];   // session purchase history (id + cost paid) for the debug "Undo last purchase"
+
 function buyUpgrade(u) {
     const l = G.upgrades[u.id];
     if (l >= u.maxLevel) return false;
@@ -83,6 +89,28 @@ function buyUpgrade(u) {
         }
     }
 
+    buyLog.push({ id: u.id, cost });
     if (G.upgrades[u.id] >= u.maxLevel) SoundSystem.sfxComplete(); else SoundSystem.sfxBuy();
     saveGame(); return true;
+}
+
+// Reconcile every orbiter's body array to its current level (used by buy + undo).
+function reconcileBodies() {
+    for (const o of ORBITERS) {
+        const arr = o.list(), want = o.count();
+        while (arr.length < want) arr.push(o.make());
+        while (arr.length > want) arr.pop();
+    }
+}
+
+// Undo the last purchase made this session: refund the cost, drop the level, resync bodies + panel.
+// Repeatable back to the session start. (Debug aid for testing upgrades one by one.)
+function undoLastBuy() {
+    const last = buyLog.pop();
+    if (!last) return false;
+    if ((G.upgrades[last.id] || 0) > 0) { G.upgrades[last.id]--; G.dust += last.cost; }
+    reconcileBodies();
+    saveGame();
+    if (typeof buildPanels === 'function') buildPanels();
+    return true;
 }

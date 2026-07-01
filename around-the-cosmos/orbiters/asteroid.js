@@ -25,11 +25,51 @@ function newAsteroidBody() {
     };
 }
 
-function asteroidPayout() { return Math.round((50 + 50 * lvl('astpay') + (typeof coagAsteroidBonus === 'function' ? coagAsteroidBonus() : 0)) * ASTEROID_COMP.mult[lvl('astcomp')] * resonanceMult()); }
+// ---- Asteroid identities (pick 2 of 5; group 'asteroid') ----
+function rubblePileBonus()     { return 40 * lvl('rubblepile') * G.planets.length; }   // [SYN]  +/dust grain, folded into base payout
+function ferroPulseBonus()     { return 15 * lvl('ferropulse'); }                       // [SYN][SCI]  flat +/pulse, added AFTER pulseValue in the pulse loop
+function meteorShowerMult()    { return Math.pow(0.85, lvl('meteorshower')); }          // [SYN][EVT]  comet gap x (sooner); no orbit payout
+function prospectorActive()    { return lvl('prospector') > 0; }                        // [SYN][SAC]  gives up Composition
+function prospectorCometMult() { return 1 + 0.15 * lvl('prospector'); }                 // comet windfall x
+function asteroidCompMult()    { return prospectorActive() ? 1 : ASTEROID_COMP.mult[lvl('astcomp')]; }
+
+function asteroidPayout() { return Math.round((50 + 50 * lvl('astpay') + (typeof coagAsteroidBonus === 'function' ? coagAsteroidBonus() : 0) + rubblePileBonus()) * asteroidCompMult() * resonanceMult()); }
 function asteroidColor()  { return ASTEROID_COMP.colors[lvl('astcomp')]; }
-function asteroidSpeed()  { return 0.88 * upg('astspd').mult(lvl('astspd')); }
-function asteroidOrbitsPerMin()  { return 60 * asteroidSpeed() / PLANET_DEF[1].period; }
+function asteroidBaseSpeed()      { return 0.88 * upg('astspd').mult(lvl('astspd')); }        // un-modulated (used for display + the observatory average)
+function asteroidSpeed()          { return asteroidBaseSpeed() * slingSpeedMult(); }           // LIVE orbit speed - Slingshot winds it slow then whips it fast
+function asteroidOrbitsPerMin()   { return 60 * asteroidBaseSpeed() / PLANET_DEF[1].period; }  // display uses the base (steady) speed
 function asteroidStardustPerMin() { return asteroidPayout() * asteroidOrbitsPerMin(); }
+
+// [SCI][DLY][EVT] Gravitational Slingshot: charges over SLING_ORBITS top-crosses, then dumps a payout
+// burst and flags the whip visual. slingCharge/slingFrac drive the winding-up streak in render.js.
+const SLING_ORBITS = 6;
+let slingCharge = 0;
+// continuous wind-up fraction 0..1 across SLING_ORBITS (whole orbits + progress through the current one)
+function slingWindupFrac() {
+    if (lvl('slingshot') <= 0) return 0;
+    const c = G.asteroidClump;
+    const orbFrac = c ? Math.max(0, Math.min(1, 1 - (c.nextTop - c.angle) / (Math.PI * 2))) : 0;
+    return Math.min(1, (slingCharge + orbFrac) / SLING_ORBITS);
+}
+// real speed multiplier: slow while winding up (0.3x), whipping fast just before the slingshot (2.6x)
+function slingSpeedMult() {
+    if (lvl('slingshot') <= 0) return 1;
+    const wf = slingWindupFrac();
+    return 0.3 + 2.3 * wf * wf;
+}
+function slingshotFrac() { return slingWindupFrac(); }   // the trail intensity follows the same wind-up curve
+function asteroidOnOrbit() {
+    if (lvl('slingshot') <= 0) { slingCharge = 0; return; }
+    slingCharge++;
+    if (slingCharge >= SLING_ORBITS) {
+        slingCharge = 0;
+        const burst = Math.round(asteroidPayout() * (2 + lvl('slingshot')));   // x3..x5 of a normal payout
+        const pos = asteroidClumpPos();
+        earn(burst, pos.x, pos.y - 16);
+        slingFlash = gameClock;                                                // whip FX (declared in render.js)
+        SoundSystem.sfxOrbit();
+    }
+}
 
 registerOrbiter({
     id: 'asteroid',
@@ -47,6 +87,9 @@ registerOrbiter({
     bodyUpgrade: 'asteroid',
     payout: asteroidPayout,
     speed:  asteroidSpeed,
+    avgSpeed: asteroidBaseSpeed,   // steady speed for the observatory/stats (Slingshot swings the live speed)
+    onOrbit: asteroidOnOrbit,   // Gravitational Slingshot charge/burst
+
     rows: () =>
           tipRow('Composition',   ASTEROID_COMP.names[lvl('astcomp')])
         + tipRow('Orbit payout',  '✦' + fmtNum(asteroidPayout()))

@@ -9,6 +9,16 @@ let winMx=-999, winMy=-999;
 const COMET_HOVER_R = 40;
 let deepBreathFlash = -1;
 const DEEP_FLARE_DUR = 0.62;
+let ferroPulseFlash = -1;              // asteroid Ferromagnetic Pulse: field-line arcs on each pulse
+const FERRO_DUR = 0.45;
+let slingFlash = -1;                   // asteroid Gravitational Slingshot: whip flash on the burst
+const SLING_WHIP_DUR = 0.6;
+let eclipseFlash = -1;                  // moon Solar Eclipse: shadow + corona over Maw
+const ECLIPSE_DUR = 1.5;
+let standstillFlash = -1;               // moon Lunar Standstill: big silver flare at the moon
+const STANDSTILL_DUR = 1.4;
+let dwarfStoreFlash = -1;               // dwarf Stored Winter: frost-burst on release
+const DWARF_STORE_DUR = 0.8;
 
 function resize() {
     const dpr = window.devicePixelRatio || 1;
@@ -27,6 +37,13 @@ function orbitR(i) { return MAXR*(i+1.9)/(CFG.MAX_PLANETS+1.9); }
 function clumpPos() { const r=orbitR(0); return { x:CX+Math.cos(G.clump.angle)*r, y:CY+Math.sin(G.clump.angle)*r }; }
 
 function asteroidClumpPos() { const r=orbitR(1); return { x:CX+Math.cos(G.asteroidClump.angle)*r, y:CY+Math.sin(G.asteroidClump.angle)*r }; }
+// the asteroid body's actual drawn position (clump + its local wobble) - so FX aim at the rock, not the orbit line
+function asteroidBodyPos(t) {
+    const cp = asteroidClumpPos(), b = G.asteroids[0];
+    if (!b) return cp;
+    const la = b.localPhase + t * b.localSpin;
+    return { x: cp.x + Math.cos(la) * b.localR, y: cp.y + Math.sin(la) * b.localR };
+}
 
 function moonClumpPos() { const r=orbitR(2); return { x:CX+Math.cos(G.moonClump.angle)*r, y:CY+Math.sin(G.moonClump.angle)*r }; }
 function dwarfClumpPos() { const r=orbitR(3); return { x:CX+Math.cos(G.dwarfClump.angle)*r, y:CY+Math.sin(G.dwarfClump.angle)*r }; }
@@ -34,10 +51,11 @@ function dwarfClumpPos() { const r=orbitR(3); return { x:CX+Math.cos(G.dwarfClum
 function drawClump(list, cp, pr, color, t) {
     const ident = list.length && !list[0].motes;                                  // dust clump (the asteroid carries motes)
     const frost = ident && typeof lvl === 'function' && lvl('iceMantles') > 0;     // Ice Mantles identity -> frost rim
-    const tails = ident && typeof lvl === 'function' && lvl('radTails') > 0;       // Radiation Tails identity -> comet-tail
+    const devil = (ident && typeof dustDevilFrac === 'function') ? dustDevilFrac() : 0;   // Dust Devil -> tightening, faster whirl
     for (const o of list) {
-        const la = o.localPhase + t*o.localSpin;
-        const px = cp.x + Math.cos(la)*o.localR, py = cp.y + Math.sin(la)*o.localR;
+        const la = o.localPhase + t*o.localSpin*(1 + devil*2.2);
+        const lr = o.localR * (1 - devil*0.55);
+        const px = cp.x + Math.cos(la)*lr, py = cp.y + Math.sin(la)*lr;
         if (o.pulse > 0) {
             ctx.beginPath(); ctx.arc(px,py,pr+3+(1-o.pulse)*12,0,Math.PI*2);
             ctx.strokeStyle=`rgba(100,90,80,${o.pulse*0.45})`; ctx.lineWidth=1.5; ctx.stroke();
@@ -73,15 +91,6 @@ function drawClump(list, cp, pr, color, t) {
         }
         ctx.restore();
 
-        if (tails) {   // radiation pushes the finest grains into tiny tails pointing AWAY from Maw
-            const dx = px - CX, dy = py - CY, dd = Math.hypot(dx, dy) || 1, ux = dx/dd, uy = dy/dd;
-            for (let i = 1; i <= 3; i++) {
-                const tx = px + ux*pr*1.3*i, ty = py + uy*pr*1.3*i, tr = pr*(0.55 - i*0.13);
-                if (tr <= 0) break;
-                ctx.beginPath(); ctx.arc(tx, ty, tr, 0, Math.PI*2);
-                ctx.fillStyle = `rgba(150,162,185,${0.4 - i*0.1})`; ctx.fill();
-            }
-        }
 
         if (o.motes) {
             for (const mte of o.motes) {
@@ -90,6 +99,44 @@ function drawClump(list, cp, pr, color, t) {
                 ctx.beginPath(); ctx.arc(mx,my,mte.size,0,Math.PI*2);
                 ctx.fillStyle='rgba(138,135,130,0.5)'; ctx.fill();
             }
+            drawAsteroidIdentityFx(px, py, pr, t);   // Rubble Pile / Prospector / Slingshot / Meteor Shower
+        }
+    }
+}
+
+// Asteroid identity visuals (drawn on the asteroid body; each guarded by its own level).
+function drawAsteroidIdentityFx(px, py, pr, t) {
+    if (typeof lvl !== 'function') return;
+    // Rubble Pile: one small pebble orbits per dust particle you own
+    if (lvl('rubblepile') > 0) {
+        const n = G.planets.length;
+        for (let i = 0; i < n; i++) {
+            const a = t*0.7 + i*(Math.PI*2/Math.max(1,n));
+            const rx = px + Math.cos(a)*pr*1.75, ry = py + Math.sin(a)*pr*1.75;
+            ctx.beginPath(); ctx.arc(rx, ry, pr*0.24, 0, Math.PI*2);
+            ctx.fillStyle = 'rgba(120,108,90,0.8)'; ctx.fill();
+        }
+    }
+    // Prospector's Cut: twinkling crystalline motes (raw shine)
+    if (lvl('prospector') > 0) {
+        for (let i = 0; i < 5; i++) {
+            const a = t*0.85 + i*1.3, rr = pr*(1.15 + 0.5*Math.sin(t*1.6 + i));
+            const cx = px + Math.cos(a)*rr, cy = py + Math.sin(a)*rr;
+            const tw = 0.5 + 0.5*Math.sin(t*4.5 + i*2.1);
+            ctx.beginPath(); ctx.arc(cx, cy, pr*0.15, 0, Math.PI*2);
+            ctx.fillStyle = `rgba(150,220,228,${(0.3 + 0.45*tw).toFixed(3)})`; ctx.fill();
+        }
+    }
+    // Gravitational Slingshot: a violet wind-up trail that FOLLOWS the orbit arc behind the rock, growing with charge
+    // (Meteor Shower has no visual by design - the effect is comets arriving sooner.)
+    if (typeof slingshotFrac === 'function' && slingshotFrac() > 0) {
+        const f = slingshotFrac(), R = orbitR(1), ang = G.asteroidClump.angle;   // trail back along the trajectory (smaller angle = where it came from)
+        const trailLen = 0.12 + f*0.85, steps = 24;
+        ctx.lineWidth = pr*0.5; ctx.lineCap = 'round';
+        for (let i = 0; i < steps; i++) {
+            const a0 = ang - trailLen*(i/steps), a1 = ang - trailLen*((i+1)/steps);
+            ctx.strokeStyle = `rgba(178,150,250,${(0.6*f*(1 - i/steps)).toFixed(3)})`;
+            ctx.beginPath(); ctx.moveTo(CX+Math.cos(a0)*R, CY+Math.sin(a0)*R); ctx.lineTo(CX+Math.cos(a1)*R, CY+Math.sin(a1)*R); ctx.stroke();
         }
     }
 }
@@ -120,6 +167,13 @@ function drawMoonDisc(cx, cy, r, phase) {
     g.addColorStop(1,    '#454b51');
     ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, r, 0, 7); ctx.fill();
 
+    if (typeof lvl === 'function') {
+        const alb = lvl('albedo');                       // Albedo identity: brighter face
+        if (alb > 0) { ctx.fillStyle = `rgba(255,255,255,${(0.055*alb).toFixed(3)})`; ctx.beginPath(); ctx.arc(cx,cy,r,0,7); ctx.fill(); }
+        const bm = lvl('bloodmoon');                      // Blood Moon identity: copper-red on the lit face, strongest at full
+        if (bm > 0) { ctx.fillStyle = `rgba(150,40,22,${(0.5*moonLit()*Math.min(1,bm/3)).toFixed(3)})`; ctx.beginPath(); ctx.arc(cx,cy,r,0,7); ctx.fill(); }
+    }
+
     for (const [dx, dy, cr] of MOON_CRATERS) moonCrater(cx, cy, r, dx, dy, cr);
 
     const a = r * Math.cos(2*Math.PI*phase);
@@ -145,6 +199,16 @@ function drawMoonDisc(cx, cy, r, phase) {
 
     ctx.strokeStyle = 'rgba(60,64,70,0.35)'; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.arc(cx, cy, r, 0, 7); ctx.stroke();
+
+    // Lunar Standstill identity: a soft silver glow builds around the disc as the standstill nears
+    const ss = (typeof standstillFrac === 'function') ? standstillFrac() : 0;
+    if (ss > 0) {
+        const R = r * (1.3 + 0.4*ss), gr = ctx.createRadialGradient(cx, cy, r*0.9, cx, cy, R);
+        gr.addColorStop(0, 'rgba(212,222,238,0)');
+        gr.addColorStop(0.72, `rgba(212,222,238,${(0.26*ss).toFixed(3)})`);
+        gr.addColorStop(1, 'rgba(212,222,238,0)');
+        ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(cx, cy, R, 0, 7); ctx.fill();
+    }
 }
 
 function drawRoundClump(o, t) {
@@ -218,6 +282,65 @@ function drawDwarfClump(o, t) {
         ctx.strokeStyle = `rgba(180,120,60,${b.pulse*0.45})`; ctx.lineWidth = 1.5; ctx.stroke();
     }
     drawDwarfSphere(cp.x, cp.y, pr, t);
+    drawDwarfIdentityFx(cp.x, cp.y, pr, t);
+}
+
+// Dwarf identity visuals (drawn on Ember; each guarded by its own level).
+function drawDwarfIdentityFx(cx, cy, pr, t) {
+    if (typeof lvl !== 'function') return;
+    // Gravitational Anchor: gravity-well ripples emanate from Ember (bolder, [SCI])
+    if (lvl('anchor') > 0) {
+        const rings = 2 + lvl('anchor');
+        for (let i = 0; i < rings; i++) {
+            const ph = (t*0.4 + i/rings) % 1, R = pr*(1.1 + ph*1.9);
+            ctx.strokeStyle = `rgba(120,140,180,${(0.22*(1-ph)).toFixed(3)})`; ctx.lineWidth = 1.2;
+            ctx.beginPath(); ctx.arc(cx, cy, R, 0, 7); ctx.stroke();
+        }
+    }
+    // The Long Now: a warm halo that intensifies over the universe's life
+    if (lvl('longnow') > 0 && typeof longNowFrac === 'function') {
+        const f = longNowFrac();
+        if (f > 0.02) {
+            const R = pr*(1.25 + 0.25*f), gr = ctx.createRadialGradient(cx,cy,pr*0.85,cx,cy,R);
+            gr.addColorStop(0, 'rgba(232,182,112,0)');
+            gr.addColorStop(0.7, `rgba(232,182,112,${(0.30*f).toFixed(3)})`);
+            gr.addColorStop(1, 'rgba(232,182,112,0)');
+            ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(cx,cy,R,0,7); ctx.fill();
+        }
+    }
+    // Glacial Orbit: a cold wash over the sphere + a frost rim
+    if (lvl('glacial') > 0) {
+        ctx.save(); ctx.beginPath(); ctx.arc(cx,cy,pr,0,7); ctx.clip();
+        ctx.fillStyle = 'rgba(150,195,230,0.26)'; ctx.beginPath(); ctx.arc(cx,cy,pr,0,7); ctx.fill();
+        ctx.restore();
+        ctx.strokeStyle = 'rgba(205,230,248,0.7)'; ctx.lineWidth = Math.max(1, pr*0.1);
+        ctx.beginPath(); ctx.arc(cx,cy,pr*0.97,0,7); ctx.stroke();
+    }
+    // Stored Winter: a frost rim brightens with the banked hoard, a frost-burst on release
+    if (lvl('storedwinter') > 0 && typeof storedWinterFrac === 'function') {
+        const f = storedWinterFrac();
+        if (f > 0.02) {
+            ctx.strokeStyle = `rgba(190,220,245,${(0.6*f).toFixed(3)})`; ctx.lineWidth = Math.max(1, pr*0.14*f + 0.5);
+            ctx.beginPath(); ctx.arc(cx,cy,pr*1.08,0,7); ctx.stroke();
+        }
+    }
+    if (dwarfStoreFlash >= 0) {
+        const sp = (t - dwarfStoreFlash) / DWARF_STORE_DUR;
+        if (sp >= 0 && sp < 1) {
+            const env = Math.sin(sp*Math.PI), R = pr*(1.2 + 2.0*sp);
+            const gr = ctx.createRadialGradient(cx,cy,pr,cx,cy,R);
+            gr.addColorStop(0, `rgba(210,235,255,${(0.55*env).toFixed(3)})`); gr.addColorStop(1, 'rgba(210,235,255,0)');
+            ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(cx,cy,R,0,7); ctx.fill();
+        }
+    }
+    // Distant Kin: a faint spiral glimmer turns over Ember (echoing the Vortex)
+    if (lvl('distantkin') > 0) {
+        ctx.save(); ctx.translate(cx,cy); ctx.rotate(t*0.5);
+        ctx.strokeStyle = 'rgba(150,130,175,0.4)'; ctx.lineWidth = 1;
+        ctx.beginPath();
+        for (let a = 0; a < 4.5; a += 0.2) { const rr = pr*0.3 + a*pr*0.17, x = Math.cos(a)*rr, y = Math.sin(a)*rr; a === 0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y); }
+        ctx.stroke(); ctx.restore();
+    }
 }
 
 function drawReticle(x, y, s, g = ctx) {
@@ -309,6 +432,18 @@ function draw(t) {
         }
     }
 
+    // Moon Spring Tide: a cool halo gathers on Maw as the moon fills, fading at the new moon (behind the core)
+    if (typeof lvl === 'function' && lvl('springtide') > 0 && G.moons.length) {
+        const a = 0.16 * moonLit() * Math.min(1, lvl('springtide')/3);
+        if (a > 0.002) {
+            const R = sunR * 7, gr = ctx.createRadialGradient(CX,CY,0,CX,CY,R);
+            gr.addColorStop(0, `rgba(120,170,220,${a.toFixed(3)})`);
+            gr.addColorStop(0.5, `rgba(120,170,220,${(a*0.4).toFixed(3)})`);
+            gr.addColorStop(1, 'rgba(120,170,220,0)');
+            ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(CX,CY,R,0,Math.PI*2); ctx.fill();
+        }
+    }
+
     const fx = clickFxTransform(t);
     ctx.beginPath(); ctx.ellipse(CX+fx.dx, CY+fx.dy, sunR*fx.sx, sunR*fx.sy, 0, 0, Math.PI*2);
     ctx.fillStyle='#1a1a1a'; ctx.fill();
@@ -317,6 +452,63 @@ function draw(t) {
         if (o.sphere)     drawDwarfClump(o, t);
         else if (o.round) drawRoundClump(o, t);
         else              drawClump(o.list(), o.clumpPos(), o.pebbleR(), o.color(), t);
+    }
+
+    // Asteroid Ferromagnetic Pulse: bowed field-lines snap between Maw and the asteroid BODY (tracks the moving rock) on each pulse
+    if (ferroPulseFlash >= 0 && typeof lvl === 'function' && lvl('ferropulse') > 0 && G.asteroids.length) {
+        const fp = (t - ferroPulseFlash) / FERRO_DUR;
+        if (fp >= 0 && fp < 1) {
+            const env = Math.sin(fp*Math.PI), ap = asteroidBodyPos(t);
+            const dx = ap.x - CX, dy = ap.y - CY, dd = Math.hypot(dx,dy)||1, nx = -dy/dd, ny = dx/dd;
+            ctx.lineWidth = 1.5;
+            for (let i = -1; i <= 1; i++) {
+                const off = i * dd * 0.17;
+                const cxp = (CX+ap.x)/2 + nx*off, cyp = (CY+ap.y)/2 + ny*off;
+                ctx.strokeStyle = `rgba(120,180,235,${(0.5*env*(1-Math.abs(i)*0.28)).toFixed(3)})`;
+                ctx.beginPath(); ctx.moveTo(CX,CY); ctx.quadraticCurveTo(cxp,cyp,ap.x,ap.y); ctx.stroke();
+            }
+        }
+    }
+    // Asteroid Gravitational Slingshot: a bright whip arcing back along the orbit trajectory + a bloom at the rock
+    if (slingFlash >= 0 && G.asteroids.length) {
+        const sp = (t - slingFlash) / SLING_WHIP_DUR;
+        if (sp >= 0 && sp < 1) {
+            const env = Math.sin(sp*Math.PI), R = orbitR(1), ang = G.asteroidClump.angle;
+            const whipLen = 0.5 + 0.9*sp, steps = 26;
+            ctx.lineCap = 'round';
+            for (let i = 0; i < steps; i++) {
+                const a0 = ang - whipLen*(i/steps), a1 = ang - whipLen*((i+1)/steps), k = 1 - i/steps;
+                ctx.strokeStyle = `rgba(200,175,255,${(0.85*env*k).toFixed(3)})`;
+                ctx.lineWidth = (3.5*env+1) * (0.4 + 0.6*k);
+                ctx.beginPath(); ctx.moveTo(CX+Math.cos(a0)*R, CY+Math.sin(a0)*R); ctx.lineTo(CX+Math.cos(a1)*R, CY+Math.sin(a1)*R); ctx.stroke();
+            }
+            const ap = asteroidBodyPos(t), Rb = 26*env+6, bg = ctx.createRadialGradient(ap.x,ap.y,0,ap.x,ap.y,Rb);
+            bg.addColorStop(0,`rgba(210,190,255,${(0.5*env).toFixed(3)})`); bg.addColorStop(1,'rgba(210,190,255,0)');
+            ctx.beginPath(); ctx.arc(ap.x,ap.y,Rb,0,Math.PI*2); ctx.fillStyle=bg; ctx.fill();
+        }
+    }
+    // Moon Solar Eclipse: sound-only (the sfxComet cue in moonOnOrbit); the screen-dim visual was removed by request.
+    // Moon Lunar Standstill: a big silver flare at the moon on release
+    if (standstillFlash >= 0 && G.moons.length) {
+        const sp = (t - standstillFlash) / STANDSTILL_DUR;
+        if (sp >= 0 && sp < 1) {
+            const env = Math.sin(sp*Math.PI), mp = moonClumpPos(), R = 50*env + 10;
+            const gr = ctx.createRadialGradient(mp.x,mp.y,0,mp.x,mp.y,R);
+            gr.addColorStop(0, `rgba(232,240,252,${(0.7*env).toFixed(3)})`);
+            gr.addColorStop(0.5, `rgba(212,224,242,${(0.3*env).toFixed(3)})`);
+            gr.addColorStop(1, 'rgba(212,224,242,0)');
+            ctx.fillStyle=gr; ctx.beginPath(); ctx.arc(mp.x,mp.y,R,0,Math.PI*2); ctx.fill();
+        }
+    }
+    // Dust Poynting-Robertson Drag: a shed grain spirals inward and winks out into Maw
+    if (typeof dustFallFx !== 'undefined') {
+        for (const f of dustFallFx) {
+            const p = f.age / f.maxAge, ease = p*p;
+            const r0 = Math.hypot(f.sx - CX, f.sy - CY), ang = Math.atan2(f.sy - CY, f.sx - CX) + p*3.5;
+            const rr = r0 * (1 - ease), x = CX + Math.cos(ang)*rr, y = CY + Math.sin(ang)*rr, a = (1 - p) * 0.75;
+            ctx.beginPath(); ctx.arc(x, y, 2.6*(1 - ease*0.5), 0, Math.PI*2); ctx.fillStyle = `rgba(138,135,130,${a.toFixed(3)})`; ctx.fill();
+            ctx.beginPath(); ctx.arc(x, y, 5*(1 - p), 0, Math.PI*2); ctx.strokeStyle = `rgba(150,150,150,${(a*0.4).toFixed(3)})`; ctx.lineWidth = 1; ctx.stroke();
+        }
     }
 
     if (cosmoOver) {

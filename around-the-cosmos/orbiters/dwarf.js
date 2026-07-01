@@ -2,7 +2,7 @@
 
 // Dwarf Planet ("Ember"): the slowest orbiter, on the widest ring (3), with the biggest single payout.
 // CONSTANT speed = the Moon's speed at speed-upgrade level 1 (0.663 × 1.2 = 0.7956). No speed/count upgrade.
-// Three unique upgrades: Compounding Orbit, Trojan Companions, Conjunction.
+// Unique upgrades: Compounding Orbit, Trojan Companions.
 const DWARF_SPEED = 0.663 * 1.2;          // 0.7956, fixed for the life of the body
 const DWARF_TROJAN_OFF = [Math.PI / 3, -Math.PI / 3];   // L4 / L5 Lagrange points (±60°)
 
@@ -13,27 +13,49 @@ function _crossedMark(prev, cur, mark) { return _wrap(cur - mark) < _wrap(prev -
 
 function newDwarfBody() { return { localPhase: 0, localR: 0, localSpin: 0, pulse: 0, troj: [0, 0] }; }
 
-// ---- Conjunction: each level adds +700 to the Dwarf's BASE payout and +150 to the Moon's (read by both payouts) ----
-function conjunctionBonus()     { return 700 * lvl('dwarfconj'); }    // -> Dwarf base
-function conjunctionMoonBonus() { return 150 * lvl('dwarfconj'); }    // -> Moon base (smaller; the moon's own scale is only +200/lvl)
-
 // ---- Compounding Orbit: payout ramps +0.3%/orbit, capped by level, resets each universe (G.dwarfOrbits) ----
 function dwarfCompoundCap()  { return [0, 0.15, 0.30, 0.50][lvl('dwarfcompound')] || 0; }
 function dwarfCompoundMult() { return lvl('dwarfcompound') ? 1 + Math.min(dwarfCompoundCap(), 0.003 * G.dwarfOrbits) : 1; }
 
+// ---- Dwarf identities (pick 2 of 5; group 'dwarf') ----
+function glacialSpeedMult()     { return lvl('glacial') > 0 ? 0.5 : 1; }               // Glacial Orbit: half speed...
+function glacialPayMult()       { return lvl('glacial') > 0 ? 2.05 : 1; }              // ...x2.05 payout (avg income barely moves; per-orbit payout ~doubles, lifting the pulse via gravpull)
+function longNowCap()           { return 0.10 * lvl('longnow'); }                       // The Long Now: +10% cap per level
+function longNowFrac()          { return longNowCap() > 0 ? Math.min(1, 0.003 * G.dwarfOrbits / longNowCap()) : 0; }   // progress toward the cap (drives the halo)
+function longNowMult()          { return lvl('longnow') > 0 ? 1 + Math.min(longNowCap(), 0.003 * G.dwarfOrbits) : 1; } // [DLY] +0.3%/orbit up to 10%/level, resets each universe (G.dwarfOrbits)
+function anchorMult()           { return 1 + 0.05 * lvl('anchor'); }                   // [SYN][SCI] +5%/lvl to EVERY orbiter (folded into resonanceMult in registry.js)
+function distantKinSpawnMult()  { return Math.pow(0.8, lvl('distantkin')); }           // [SYN][EVT] Vortex sooner...
+function distantKinRewardMult() { return 1 + 0.25 * lvl('distantkin'); }               // ...and worth more
+
+// [SYN][EVT] Stored Winter: banks a share of each Maw pulse, releases the whole hoard on Ember's pass.
+let dwarfStore = 0;
+function storedWinterBankPulse(pulseAmt) {
+    if (lvl('storedwinter') <= 0) { dwarfStore = 0; return; }
+    dwarfStore += Math.round(pulseAmt * 0.20 * lvl('storedwinter'));
+}
+function storedWinterFrac() { return dwarfStore > 0 ? Math.min(1, dwarfStore / Math.max(1, dwarfBasePayout() * 8)) : 0; }
+
 // ---- payout ----
-function dwarfBasePayout()    { return Math.round((800 + 800 * lvl('dwarfpay') + conjunctionBonus() + (typeof radDwarfBonus === 'function' ? radDwarfBonus() : 0)) * resonanceMult()); }
+function dwarfBasePayout()    { return Math.round((800 + 800 * lvl('dwarfpay')) * resonanceMult() * glacialPayMult() * longNowMult()); }
 function dwarfPayout()        { return Math.round(dwarfBasePayout() * dwarfCompoundMult()); }   // the dwarf body's own per-orbit payout
 function dwarfTrojanCount()   { return Math.min(2, lvl('dwarftrojan')); }
 function dwarfTrojanPayout()  { return Math.round(dwarfPayout() / 8); }
 // the DISPLAYED dwarf payout folds the Trojan companions in - they pay on their own passes, but read as the dwarf's combined income
 function dwarfAvgPayout()     { return dwarfPayout() + dwarfTrojanCount() * dwarfTrojanPayout(); }
-function dwarfSpeed()         { return DWARF_SPEED; }
+function dwarfSpeed()         { return DWARF_SPEED * glacialSpeedMult(); }
 function dwarfOrbitsPerMin()  { return 60 * dwarfSpeed() / PLANET_DEF[3].period; }
 function dwarfStardustPerMin(){ return dwarfAvgPayout() * dwarfOrbitsPerMin(); }
 
 // ---- per-orbit + per-tick hooks (called from simulation.js tick) ----
-function dwarfOnOrbit() { G.dwarfOrbits++; }   // count this universe's dwarf laps -> Compounding ramp
+function dwarfOnOrbit() {
+    G.dwarfOrbits++;                            // count this universe's dwarf laps -> Compounding ramp
+    if (lvl('storedwinter') > 0 && dwarfStore > 0) {   // Stored Winter: release the banked hoard
+        const pos = dwarfClumpPos();
+        earn(dwarfStore, pos.x, pos.y - 16);
+        dwarfStore = 0;
+        dwarfStoreFlash = gameClock;
+    }
+}
 
 function dwarfOnTick(dt) {
     const b = G.dwarfs[0];
@@ -93,6 +115,6 @@ registerOrbiter({
     },
     labels: {
         dwarf: 'Dwarf Planet', dwarfpay: '+800 Payout',
-        dwarftrojan: 'Trojan Companions', dwarfconj: 'Conjunction', dwarfcompound: 'Compounding Orbit',
+        dwarftrojan: 'Trojan Companions', dwarfcompound: 'Compounding Orbit',
     },
 });

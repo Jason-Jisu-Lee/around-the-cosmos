@@ -144,10 +144,10 @@ const UPGRADES = [
     section: "DUST PARTICLES",
     identity: true,
     group: "dust",
-    costs: [5000, 13000, 30000, 70000, 150000],
+    costs: [10000, 23000, 48000, 90000, 170000],
     flavor: "Grains collide and stick - the first step toward worlds.",
     desc: (l) =>
-      `Each dust particle pays +${3 * (l || 1)} ✦ for every particle you own, and feeds the Asteroid +${30 * (l || 1)} ✦ per particle.`,
+      `+${15 * (l || 1)} ✦ to each dust particle, and +${50 * (l || 1)} to the Asteroid's base payout.`,
     unlock: () => G.runDust >= 50000,
   },
   {
@@ -157,23 +157,46 @@ const UPGRADES = [
     section: "DUST PARTICLES",
     identity: true,
     group: "dust",
-    costs: [5000, 13000, 30000, 70000, 150000],
+    costs: [10000, 23000, 48000, 90000, 170000],
     flavor: "Past the frost line, the grains gather ice.",
     desc: (l) =>
-      `+${20 * (l || 1)} ✦ to each dust particle, and +${150 * (l || 1)} to the Moon's base payout. The grains gain a frost rim.`,
+      `+${5 * (l || 1)} ✦ to each dust particle, and +${150 * (l || 1)} to the Moon's base payout. The grains gain a frost rim.`,
     unlock: () => G.runDust >= 50000,
   },
   {
-    id: "radTails",
-    name: "Radiation Tails",
+    id: "denser",
+    name: "Denser Grains",
     maxLevel: 5,
     section: "DUST PARTICLES",
     identity: true,
     group: "dust",
-    costs: [5000, 13000, 30000, 70000, 150000],
-    flavor: "Starlight blows the finest grains into little tails.",
-    desc: (l) =>
-      `+${15 * (l || 1)} ✦ to each dust particle, and +${300 * (l || 1)} to the Dwarf Planet's base payout. Each grain trails a tiny tail.`,
+    costs: [10000, 23000, 48000, 90000, 170000],
+    flavor: "Heavier, darker grains that carry more each pass.",
+    desc: (l) => `Dust particle payout x${(1 + 0.15 * (l || 1)).toFixed(2)}.`,
+    unlock: () => G.runDust >= 50000,
+  },
+  {
+    id: "dustdevil",
+    name: "Dust Devil",
+    maxLevel: 3,
+    section: "DUST PARTICLES",
+    identity: true,
+    group: "dust",
+    costs: [15000, 40000, 100000],
+    flavor: "The swarm winds into a tightening whirl.",
+    desc: (l) => `Dust payout spins up over ~10 minutes in a universe to +${8 * (l || 1)}%, then holds. Resets on Accretion.`,
+    unlock: () => G.runDust >= 50000,
+  },
+  {
+    id: "prdrag",
+    name: "Poynting-Robertson Drag",
+    maxLevel: 3,
+    section: "DUST PARTICLES",
+    identity: true,
+    group: "dust",
+    costs: [15000, 40000, 100000],
+    flavor: "Starlight drags the grains inward, one by one, into Maw.",
+    desc: (l) => `Every ~${9 - (l || 1) * 2}s a grain spirals into Maw for a x${4 + 2 * (l || 1)} payout lump; the swarm sheds it, then regrows it.`,
     unlock: () => G.runDust >= 50000,
   },
   {
@@ -222,6 +245,71 @@ const UPGRADES = [
     unlock: () => lvl("asteroid") >= 1,
   },
   {
+    id: "rubblepile",
+    name: "Rubble Pile",
+    maxLevel: 5,
+    section: "ASTEROID",
+    identity: true,
+    group: "asteroid",
+    costs: [12000, 26000, 52000, 95000, 170000],
+    flavor: "A loose heap of gravel, bound only by its own faint gravity.",
+    desc: (l) =>
+      `+${40 * (l || 1)} ✦ to the Asteroid for each dust particle you own.`,
+    unlock: () => lvl("asteroid") >= 1 && G.runDust >= 100000,
+  },
+  {
+    id: "ferropulse",
+    name: "Ferromagnetic Pulse",
+    maxLevel: 5,
+    section: "ASTEROID",
+    identity: true,
+    group: "asteroid",
+    costs: [12000, 26000, 52000, 95000, 170000],
+    flavor: "Veins of iron ring with Maw's every beat.",
+    desc: (l) =>
+      `+${15 * (l || 1)} ✦ to every Maw pulse, added after Gravitational Pull.`,
+    unlock: () => lvl("asteroid") >= 1 && G.runDust >= 100000,
+  },
+  {
+    id: "meteorshower",
+    name: "Meteor Shower",
+    maxLevel: 3,
+    section: "ASTEROID",
+    identity: true,
+    group: "asteroid",
+    costs: [20000, 50000, 120000],
+    flavor: "The rock keeps shedding debris that rains inward.",
+    desc: (l) =>
+      `Comets arrive ${Math.round((1 - Math.pow(0.85, l || 1)) * 100)}% sooner. No orbit payout of its own.`,
+    unlock: () => lvl("asteroid") >= 1 && G.runDust >= 100000,
+  },
+  {
+    id: "prospector",
+    name: "Prospector's Cut",
+    maxLevel: 5,
+    section: "ASTEROID",
+    identity: true,
+    group: "asteroid",
+    costs: [12000, 26000, 52000, 95000, 170000],
+    flavor: "Skip the smelter. Sell the raw shine to passing comets.",
+    desc: (l) =>
+      `The Asteroid gives up its Composition bonus; comet windfall x${(1 + 0.15 * (l || 1)).toFixed(2)}.`,
+    unlock: () => lvl("asteroid") >= 1 && G.runDust >= 100000,
+  },
+  {
+    id: "slingshot",
+    name: "Gravitational Slingshot",
+    maxLevel: 3,
+    section: "ASTEROID",
+    identity: true,
+    group: "asteroid",
+    costs: [20000, 50000, 120000],
+    flavor: "Wind up on the deep gravity, then let go.",
+    desc: (l) =>
+      `Winds up over 6 orbits, then slingshots for a x${2 + (l || 1)} payout burst.`,
+    unlock: () => lvl("asteroid") >= 1 && G.runDust >= 100000,
+  },
+  {
     id: "moon",
     name: "Moon",
     maxLevel: 1,
@@ -261,6 +349,69 @@ const UPGRADES = [
     desc: (l) =>
       `Moon payout swings x${(0.75 + 0.1 * l).toFixed(2)} at the new moon to x${(1.25 + 0.1 * l).toFixed(2)} at the full moon. Each level adds +0.10 to both ends.`,
     unlock: () => lvl("moon") >= 1,
+  },
+  {
+    id: "albedo",
+    name: "Albedo",
+    maxLevel: 5,
+    section: "MOON",
+    identity: true,
+    group: "moon",
+    costs: [15000, 32000, 64000, 120000, 220000],
+    flavor: "A brighter face throws back more of the light.",
+    desc: (l) => `Moon payout x${(1 + 0.10 * (l || 1)).toFixed(2)}.`,
+    unlock: () => lvl("moon") >= 1 && G.runDust >= 150000,
+  },
+  {
+    id: "springtide",
+    name: "Spring Tide",
+    maxLevel: 5,
+    section: "MOON",
+    identity: true,
+    group: "moon",
+    costs: [15000, 32000, 64000, 120000, 220000],
+    flavor: "When the moon runs full, its tides pull with Maw.",
+    desc: (l) => `Up to +${20 * (l || 1)} ✦ to every Maw pulse, strongest at the full moon and fading to nothing at the new.`,
+    unlock: () => lvl("moon") >= 1 && G.runDust >= 150000,
+  },
+  {
+    id: "eclipse",
+    name: "Solar Eclipse",
+    maxLevel: 3,
+    section: "MOON",
+    identity: true,
+    group: "moon",
+    costs: [30000, 70000, 150000],
+    flavor: "Now and then the moon slides across Maw and swallows the light.",
+    desc: (l) => `Every ${6 - (l || 1)} orbits the moon eclipses Maw for a x10 payout burst. Higher levels eclipse more often.`,
+    unlock: () => lvl("moon") >= 1 && G.runDust >= 150000,
+  },
+  {
+    id: "standstill",
+    name: "Lunar Standstill",
+    maxLevel: 1,
+    section: "MOON",
+    identity: true,
+    group: "moon",
+    costs: [30000],
+    flavor: "Every long while the moon holds still at the far edge of its wander.",
+    desc: () => {
+      const left = (typeof standstillOrbitsLeft === "function") ? standstillOrbitsLeft() : 16;
+      return `After 16 orbits the moon reaches a standstill and pays x40 payout, once. Orbits left until Burst: ${left}.`;
+    },
+    unlock: () => lvl("moon") >= 1 && G.runDust >= 150000,
+  },
+  {
+    id: "bloodmoon",
+    name: "Blood Moon",
+    maxLevel: 5,
+    section: "MOON",
+    identity: true,
+    group: "moon",
+    costs: [15000, 32000, 64000, 120000, 220000],
+    flavor: "Deepen the gamble: nothing at the new, everything at the full.",
+    desc: (l) => `Widens the phase swing: pays near 0 at the new moon and up to x${(1.25 + 0.15 * (l || 1)).toFixed(2)} the base at the full. Average payout is unchanged.`,
+    unlock: () => lvl("moon") >= 1 && G.runDust >= 150000,
   },
   {
     id: "dwarf",
@@ -305,15 +456,64 @@ const UPGRADES = [
     unlock: () => lvl("dwarf") >= 1,
   },
   {
-    id: "dwarfconj",
-    name: "Conjunction",
+    id: "glacial",
+    name: "Glacial Orbit",
+    maxLevel: 1,
+    section: "DWARF PLANET",
+    identity: true,
+    group: "dwarf",
+    costs: [80000],
+    flavor: "Ember slows to a crawl, and each pass lands with far more weight.",
+    desc: () => `Half orbit speed, but x2.05 payout. Per-orbit payout nearly doubles (feeding the pulse through Gravitational Pull) while income per minute barely changes.`,
+    unlock: () => lvl("dwarf") >= 1 && G.runDust >= 200000,
+  },
+  {
+    id: "distantkin",
+    name: "Distant Kin",
     maxLevel: 3,
     section: "DWARF PLANET",
-    costs: [200000, 500000, 1000000],
-    flavor: "Two worlds drawn into one deeper pull.",
-    desc: () =>
-      "Adds +700 base payout to the Dwarf Planet and +150 to the Moon, per level.",
-    unlock: () => lvl("dwarf") >= 1 && lvl("moon") >= 1,
+    identity: true,
+    group: "dwarf",
+    costs: [60000, 140000, 300000],
+    flavor: "A cold kinship with the deep cosmos calls the Vortex in.",
+    desc: (l) => `The Vortex arrives ${Math.round((1 - Math.pow(0.8, l || 1)) * 100)}% sooner and pays x${(1 + 0.25 * (l || 1)).toFixed(2)}. No orbit payout of its own.`,
+    unlock: () => lvl("dwarf") >= 1 && G.runDust >= 200000,
+  },
+  {
+    id: "longnow",
+    name: "The Long Now",
+    maxLevel: 3,
+    section: "DWARF PLANET",
+    identity: true,
+    group: "dwarf",
+    costs: [60000, 140000, 300000],
+    flavor: "The slow world rewards a slow, patient universe.",
+    desc: (l) => `Dwarf payout climbs +0.3% every orbit, up to +${10 * (l || 1)}%. Resets on Accretion.`,
+    unlock: () => lvl("dwarf") >= 1 && G.runDust >= 200000,
+  },
+  {
+    id: "storedwinter",
+    name: "Stored Winter",
+    maxLevel: 3,
+    section: "DWARF PLANET",
+    identity: true,
+    group: "dwarf",
+    costs: [60000, 140000, 300000],
+    flavor: "Ember banks the cold, then lets it go all at once.",
+    desc: (l) => `Banks a ${Math.round(20 * (l || 1))}% share of every Maw pulse and releases the whole hoard each time Ember passes. Little orbit payout of its own.`,
+    unlock: () => lvl("dwarf") >= 1 && G.runDust >= 200000,
+  },
+  {
+    id: "anchor",
+    name: "Gravitational Anchor",
+    maxLevel: 3,
+    section: "DWARF PLANET",
+    identity: true,
+    group: "dwarf",
+    costs: [60000, 140000, 300000],
+    flavor: "Ember's mass steadies every orbit in the system.",
+    desc: (l) => `+${5 * (l || 1)}% to every orbiter's payout, this one and every future orbiter alike.`,
+    unlock: () => lvl("dwarf") >= 1 && G.runDust >= 200000,
   },
   {
     id: "charm",
@@ -336,12 +536,21 @@ const SECTION_ORDER = [
   "COMETS",
 ];
 
-// Identity upgrades are mutually exclusive within a `group`: once one is bought, the others lock.
-// Returns the id of the chosen identity locking `u`, or null if `u` is free to buy.
+// Identity upgrades are limited per `group`: a group lets you pick up to IDENTITY_PICKS[group]
+// distinct identities per universe; once that many are chosen, the rest lock. Dust picks 1 of 3;
+// the orbiter groups pick 2 of 5.
+const IDENTITY_PICKS = { dust: 2, asteroid: 2, moon: 2, dwarf: 2 };
+
+function identityChosenCount(group) {
+  return UPGRADES.reduce((n, x) => n + (x.group === group && (G.upgrades[x.id] || 0) >= 1 ? 1 : 0), 0);
+}
+
+// Returns the id of a chosen identity locking `u` (truthy), or null if `u` is free to buy/level.
 function identityLockedBy(u) {
   if (!u || !u.group) return null;
-  const chosen = UPGRADES.find(
-    (x) => x.group === u.group && x.id !== u.id && (G.upgrades[x.id] || 0) >= 1
-  );
-  return chosen ? chosen.id : null;
+  if ((G.upgrades[u.id] || 0) >= 1) return null;                       // u itself already chosen -> free to level
+  const limit = IDENTITY_PICKS[u.group] || 1;
+  if (identityChosenCount(u.group) < limit) return null;               // still room to pick another
+  const chosen = UPGRADES.find((x) => x.group === u.group && x.id !== u.id && (G.upgrades[x.id] || 0) >= 1);
+  return chosen ? chosen.id : true;                                    // limit reached, u is not chosen -> locked
 }
