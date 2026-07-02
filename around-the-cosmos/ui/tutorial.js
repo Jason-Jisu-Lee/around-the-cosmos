@@ -169,13 +169,24 @@ function checkTutorials() {
         } else _cometSpawnClock = -1;
     }
 
+    // First stray stardust ever (~90-115s): spotlight the glint; it holds still while frozen.
+    if (!G.tutSeen.stray && typeof strayTutRect === 'function' && strayTutRect()) {
+        G.tutSeen.stray = true;
+        if (typeof saveGame === 'function') saveGame();
+        startTutorial([
+            { getRect: strayTutRect,
+              body: "Stray stardust! Sweep the cursor over it to gather it." },
+        ]);
+        return;
+    }
+
     // First vortex ever: fires once it is fully faded in (the linger timer is frozen while reading).
     if (!G.tutSeen.vortex && typeof VTX !== 'undefined' && VTX.active && VTX.phase === 'stay') {
         G.tutSeen.vortex = true;
         if (typeof saveGame === 'function') saveGame();
         startTutorial([
             { getRect: _vortexTutRect,
-              body: "A mysterious vortex appears. Click and hold it to collapse it into lots of stardust!" },
+              body: "A vortex is stealing stardust! Upgrades are locked while it feeds. Click and hold it until it collapses!" },
         ]);
         return;
     }

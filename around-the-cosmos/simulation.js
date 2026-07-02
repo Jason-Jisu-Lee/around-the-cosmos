@@ -51,6 +51,7 @@ function tick(dt) {
 
     cometTick(dt);
     vortexTick(dt);
+    strayTick(dt);
 
     for (let i = G.particles.length-1; i >= 0; i--) {
         const pt = G.particles[i];
@@ -69,6 +70,7 @@ function tick(dt) {
 let buyLog = [];   // session purchase history (id + cost paid) for the debug "Undo last purchase"
 
 function buyUpgrade(u) {
+    if (typeof vortexStealing === 'function' && vortexStealing()) return false;   // the vortex locks ALL stardust spending until dispelled
     const l = G.upgrades[u.id];
     if (l >= u.maxLevel) return false;
     if (u.group && typeof identityLockedBy === 'function' && identityLockedBy(u)) return false;   // identity: another path already chosen this universe

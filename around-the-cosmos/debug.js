@@ -31,6 +31,8 @@ function initDebug() {
     btn('+ ✦ 10M',    () => earn(1e7));
     btn('Spawn Comet', () => { G.comet=null; G.cometTimer=0; });
     btn('Spawn Vortex', () => { if (typeof vortexSpawn === 'function' && !VTX.active) vortexSpawn(); });
+    btn('Spawn Swarm',  () => { if (typeof triggerCometSwarm === 'function') triggerCometSwarm(); });
+    btn('Spawn Stray',  () => { if (typeof spawnStray === 'function') spawnStray(); });
     btn('Reset',       () => { localStorage.clear(); if (typeof accreting !== 'undefined') accreting = false; G=createInitialState(); resetPanelAnimations(); buildPanels(); });
 
     const speedRow = document.createElement('div');

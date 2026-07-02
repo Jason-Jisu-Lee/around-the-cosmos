@@ -113,6 +113,7 @@ function commitAccretion() {
 }
 
 function resetUniverse() {
+    if (typeof VTX !== 'undefined' && VTX.active && typeof endVortex === 'function') endVortex();   // a feeding vortex must not survive into the new universe
     const keep = { mass:G.mass, massEarned:G.massEarned, totalDust:G.totalDust, gameTime:G.gameTime,
                    moonEverOwned:G.moonEverOwned, massUpgrades:G.massUpgrades, tutSeen:G.tutSeen };
     G = createInitialState();

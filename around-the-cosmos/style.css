@@ -704,3 +704,7 @@ body {
 /* the front page is dark, so the ink needle cursor vanishes there - swap in the light needle */
 #frontpage, #frontpage canvas { cursor: url(assets/cursors/needle-light.png?v=1) 3 3, default !important; }
 #frontpage button { cursor: url(assets/cursors/needle-light.png?v=1) 3 3, pointer !important; }
+
+/* Vortex lock: while a vortex feeds, stardust cannot be spent - every card reads blocked */
+.vortex-lock .upgrade-card { opacity: 0.45; filter: grayscale(0.55); pointer-events: none; }
+.vortex-lock .upgrade-card.can-afford { border-color: var(--border); }

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Active-play demos - Stray Stardust + Falling Star Wish</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #efeadd; font-family: Georgia, serif; color: #1a1a1a; padding: 36px 20px 60px; }
+h1 { text-align: center; font-weight: 500; font-size: 22px; letter-spacing: 0.06em; margin-bottom: 6px; }
+.sub { text-align: center; color: #8a8272; font-style: italic; font-size: 13px; margin-bottom: 26px; }
+.wrap { display: flex; gap: 26px; justify-content: center; flex-wrap: wrap; }
+.panel { width: 640px; }
+.panel h2 { font-weight: 500; font-size: 17px; letter-spacing: 0.04em; margin-bottom: 4px; }
+.panel .d { color: #6b6558; font-size: 12.5px; font-style: italic; margin-bottom: 10px; }
+canvas { display: block; width: 640px; height: 430px; background: #f4efe4; border: 1px solid #cfc8b6; border-radius: 8px; box-shadow: 0 4px 16px rgba(90,80,60,0.12); }
+.bar { display: flex; align-items: center; gap: 14px; margin-top: 8px; font-size: 13px; color: #4c463a; }
+.bar b { font-variant-numeric: tabular-nums; }
+button { font-family: Georgia, serif; font-size: 12.5px; padding: 6px 16px; background: #1a1a1a; color: #f4efe4; border: none; border-radius: 4px; cursor: pointer; }
+button:hover { background: #3a382f; }
+input[type=range] { accent-color: #7a6848; }
+</style>
+</head>
+<body>
+<h1>Active-play demos</h1>
+<div class="sub">Left: sweep the cursor through the glint (no click). Right: click the shooting star, then pick a wish.</div>
+<div class="wrap">
+
+    <div class="panel">
+        <h2>Stray Stardust</h2>
+        <div class="d">A glint drifts by every few seconds. Sweeping the needle over it collects ~5 pulses of ✦.</div>
+        <canvas id="c1" width="1280" height="860"></canvas>
+        <div class="bar">
+            Collected: <b id="score1">✦0</b>
+            <span style="margin-left:auto">Spawn every</span>
+            <input type="range" id="gap1" min="3" max="22" value="6"><span id="gapv">6s</span>
+        </div>
+    </div>
+
+    <div class="panel">
+        <h2>Falling Star Wish</h2>
+        <div class="d">A rare star streaks across. Catch it and choose one of three blessings.</div>
+        <canvas id="c2" width="1280" height="860"></canvas>
+        <div class="bar">
+            Last wish: <b id="wish2">none yet</b>
+            <button id="summon" style="margin-left:auto">Summon a star</button>
+        </div>
+    </div>
+
+</div>
+<script>
+'use strict';
+// ==================== shared ====================
+function ctx2x(c) { const g = c.getContext('2d'); g.setTransform(2, 0, 0, 2, 0, 0); return g; }   // canvases are 2x
+const W = 640, H = 430;
+
+// ==================== 1. STRAY STARDUST ====================
+const g1 = ctx2x(document.getElementById('c1'));
+let s1 = null, s1Timer = 1.5, s1Score = 0, s1Fx = [], m1 = { x: -99, y: -99 };
+document.getElementById('c1').addEventListener('mousemove', e => {
+    const r = e.target.getBoundingClientRect();
+    m1.x = e.clientX - r.left; m1.y = e.clientY - r.top;
+});
+document.getElementById('gap1').addEventListener('input', e => document.getElementById('gapv').textContent = e.target.value + 's');
+
+function s1Spawn() {
+    const a = Math.random() * 6.283, sp = 16 + Math.random() * 12;
+    s1 = { x: 60 + Math.random() * (W - 120), y: 60 + Math.random() * (H - 120),
+           vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, age: 0, tw: Math.random() * 6.28 };
+}
+function s1Tick(dt, t) {
+    if (!s1) { s1Timer -= dt; if (s1Timer <= 0) s1Spawn(); }
+    else {
+        s1.age += dt; s1.x += s1.vx * dt; s1.y += s1.vy * dt;
+        if (s1.age > 12 || s1.x < 14 || s1.x > W - 14 || s1.y < 14 || s1.y > H - 14) { s1 = null; s1Timer = +document.getElementById('gap1').value; }
+        else if (Math.hypot(m1.x - s1.x, m1.y - s1.y) < 26) {
+            s1Score += 120; document.getElementById('score1').textContent = '✦' + s1Score.toLocaleString();
+            s1Fx.push({ x: s1.x, y: s1.y, age: 0 });
+            s1 = null; s1Timer = +document.getElementById('gap1').value;
+        }
+    }
+    for (let i = s1Fx.length - 1; i >= 0; i--) { s1Fx[i].age += dt; if (s1Fx[i].age > 0.55) s1Fx.splice(i, 1); }
+
+    g1.fillStyle = '#f4efe4'; g1.fillRect(0, 0, W, H);
+    g1.fillStyle = '#1a1a1a'; g1.beginPath(); g1.arc(W/2, H/2, 9, 0, 7); g1.fill();   // a little Maw for context
+    g1.strokeStyle = 'rgba(100,90,80,0.15)'; g1.beginPath(); g1.arc(W/2, H/2, 84, 0, 7); g1.stroke();
+    if (s1) {
+        const fi = Math.min(1, s1.age / 0.6), fo = Math.min(1, (12 - s1.age) / 1.5);
+        const a = fi * fo * (0.65 + 0.35 * Math.sin(t * 5 + s1.tw));
+        const r = 5 + Math.sin(t * 3 + s1.tw) * 1.2;
+        const gl = g1.createRadialGradient(s1.x, s1.y, 0, s1.x, s1.y, r * 4);
+        gl.addColorStop(0, `rgba(201,162,74,${(a * 0.4).toFixed(3)})`); gl.addColorStop(1, 'rgba(201,162,74,0)');
+        g1.fillStyle = gl; g1.beginPath(); g1.arc(s1.x, s1.y, r * 4, 0, 7); g1.fill();
+        g1.strokeStyle = `rgba(180,140,60,${a.toFixed(3)})`; g1.lineWidth = 1.4; g1.lineCap = 'round';
+        g1.beginPath();
+        g1.moveTo(s1.x - r, s1.y); g1.lineTo(s1.x + r, s1.y);
+        g1.moveTo(s1.x, s1.y - r); g1.lineTo(s1.x, s1.y + r);
+        g1.stroke();
+        g1.fillStyle = `rgba(255,240,200,${a.toFixed(3)})`; g1.beginPath(); g1.arc(s1.x, s1.y, 1.8, 0, 7); g1.fill();
+    }
+    for (const fx of s1Fx) {
+        const p = fx.age / 0.55;
+        g1.strokeStyle = `rgba(201,162,74,${(1 - p).toFixed(3)})`; g1.lineWidth = 1.5;
+        g1.beginPath(); g1.arc(fx.x, fx.y, 4 + p * 22, 0, 7); g1.stroke();
+        g1.fillStyle = `rgba(26,26,26,${(1 - p).toFixed(3)})`; g1.font = "600 13px 'Segoe UI',sans-serif"; g1.textAlign = 'center';
+        g1.fillText('+✦120', fx.x, fx.y - 18 - p * 20);
+    }
+}
+
+// ==================== 2. FALLING STAR WISH ====================
+const g2 = ctx2x(document.getElementById('c2'));
+let star = null, starTimer = 3, wishes = null, chosen = '';
+const WISHES = [
+    { t: 'Bright Tail',  d: 'Next comet pays double' },
+    { t: 'Warm Current', d: '+50% stardust for 60s' },
+    { t: 'Small Gift',   d: 'A burst of stardust, now' },
+];
+document.getElementById('c2').addEventListener('mousedown', e => {
+    const r = e.target.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+    if (wishes) {                                        // choosing a wish
+        wishes.forEach((wb, i) => {
+            if (x > wb.x && x < wb.x + wb.w && y > wb.y && y < wb.y + wb.h) {
+                chosen = WISHES[i].t + ' - ' + WISHES[i].d;
+                document.getElementById('wish2').textContent = chosen;
+                wishes = null;
+            }
+        });
+        return;
+    }
+    if (star && Math.hypot(x - star.x, y - star.y) < 42) {   // caught the star
+        star = null;
+        const bw = 168, bh = 74, gap = 18, total = 3 * bw + 2 * gap, x0 = (W - total) / 2;
+        wishes = WISHES.map((w, i) => ({ x: x0 + i * (bw + gap), y: H / 2 - bh / 2, w: bw, h: bh }));
+    }
+});
+document.getElementById('summon').addEventListener('click', () => { if (!star && !wishes) starTimer = 0.01; });
+
+function starTick(dt, t) {
+    if (!star && !wishes) { starTimer -= dt; if (starTimer <= 0) {
+        const fromLeft = Math.random() < 0.5;
+        star = { x: fromLeft ? -20 : W + 20, y: 40 + Math.random() * (H * 0.4),
+                 vx: (fromLeft ? 1 : -1) * (150 + Math.random() * 70), vy: 55 + Math.random() * 40, trail: [] };
+    } }
+    if (star) {
+        star.x += star.vx * dt; star.y += star.vy * dt;
+        star.trail.unshift({ x: star.x, y: star.y }); if (star.trail.length > 26) star.trail.pop();
+        if (star.x < -40 || star.x > W + 40 || star.y > H + 40) { star = null; starTimer = 8 + Math.random() * 5; }
+    }
+
+    g2.fillStyle = '#efe6d2'; g2.fillRect(0, 0, W, H);
+    // a few fixed twinkles
+    for (let i = 0; i < 14; i++) {
+        const sx = (i * 97 % W), sy = (i * 61 % H), a = 0.15 + 0.2 * (0.5 + 0.5 * Math.sin(t * 1.6 + i));
+        g2.fillStyle = `rgba(180,150,80,${a.toFixed(2)})`; g2.beginPath(); g2.arc(sx, sy, 1.6, 0, 7); g2.fill();
+    }
+    if (star) {
+        star.trail.forEach((p, i) => {
+            const k = 1 - i / star.trail.length;
+            g2.fillStyle = `rgba(201,162,74,${(k * 0.6).toFixed(3)})`;
+            g2.beginPath(); g2.arc(p.x, p.y, k * 4.5, 0, 7); g2.fill();
+        });
+        g2.fillStyle = '#fff4d8'; g2.beginPath(); g2.arc(star.x, star.y, 5, 0, 7); g2.fill();
+        g2.strokeStyle = 'rgba(60,80,70,0.5)'; g2.lineWidth = 1.4;
+        g2.beginPath(); g2.arc(star.x, star.y, 15 + Math.sin(t * 6) * 2.5, 0, 7); g2.stroke();
+    }
+    if (wishes) {
+        g2.fillStyle = 'rgba(40,38,30,0.25)'; g2.fillRect(0, 0, W, H);
+        g2.textAlign = 'center';
+        g2.fillStyle = '#f4efe4'; g2.font = "italic 15px Georgia,serif";
+        g2.fillText('The star waits. Make a wish.', W / 2, H / 2 - 64);
+        wishes.forEach((wb, i) => {
+            g2.fillStyle = '#fffdf8'; g2.strokeStyle = '#1a1a1a'; g2.lineWidth = 1.4;
+            g2.beginPath(); g2.roundRect(wb.x, wb.y, wb.w, wb.h, 8); g2.fill(); g2.stroke();
+            g2.fillStyle = '#1a1a1a'; g2.font = "600 14px Georgia,serif";
+            g2.fillText(WISHES[i].t, wb.x + wb.w / 2, wb.y + 28);
+            g2.fillStyle = '#6b6558'; g2.font = "12px 'Segoe UI',sans-serif";
+            g2.fillText(WISHES[i].d, wb.x + wb.w / 2, wb.y + 50);
+        });
+    }
+}
+
+// ==================== loop ====================
+let last = 0;
+(function loop(ms) {
+    const t = ms / 1000, dt = Math.min(t - last, 0.05); last = t;
+    s1Tick(dt, t); starTick(dt, t);
+    requestAnimationFrame(loop);
+})(0);
+</script>
+</body>
+</html>

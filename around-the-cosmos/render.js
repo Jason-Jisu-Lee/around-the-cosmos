@@ -394,29 +394,30 @@ function drawReticle(x, y, s, g = ctx) {
 }
 
 let cometLayerHad = true;   // whether the overlay held anything last frame (starts true so the first frame clears)
+function drawCometBody(g, c, t) {
+    for (let i=0; i<14; i++) {
+        const f=i/14;
+        g.beginPath(); g.arc(c.x-c.vx*f*0.45, c.y-c.vy*f*0.45,(1-f)*4,0,Math.PI*2);
+        g.fillStyle=`rgba(60,80,70,${(1-f)*0.22})`; g.fill();
+    }
+    g.beginPath(); g.arc(c.x,c.y,6,0,Math.PI*2); g.fillStyle='#2a2a2a'; g.fill();
+    g.beginPath(); g.arc(c.x,c.y,16+3*Math.sin(t*6),0,Math.PI*2);
+    g.strokeStyle='rgba(60,80,70,0.28)'; g.lineWidth=1.5; g.stroke();
+    if (Math.hypot(winMx-c.x, winMy-c.y) < COMET_HOVER_R) {
+        drawReticle(c.x, c.y, 18 + Math.sin(t*4)*1.5, g);
+        g.fillStyle='rgba(60,80,70,0.9)'; g.font="600 12px 'Segoe UI',sans-serif";
+        g.textAlign='center'; g.textBaseline='alphabetic';
+        g.fillText('Comet', c.x, c.y - 28);
+    }
+}
 function drawComet(t) {
-    const has = !!G.comet || cometFx.length > 0;
+    const has = !!G.comet || cometFx.length > 0 || (typeof swarmActive === 'function' && swarmActive());
     if (!has && !cometLayerHad) return;   // idle: skip the full-window clear entirely
     cometLayerHad = has;
     const g = cometCtx;
     g.clearRect(0, 0, innerWidth, innerHeight);
-    const c = G.comet;
-    if (c) {
-        for (let i=0; i<14; i++) {
-            const f=i/14;
-            g.beginPath(); g.arc(c.x-c.vx*f*0.45, c.y-c.vy*f*0.45,(1-f)*4,0,Math.PI*2);
-            g.fillStyle=`rgba(60,80,70,${(1-f)*0.22})`; g.fill();
-        }
-        g.beginPath(); g.arc(c.x,c.y,6,0,Math.PI*2); g.fillStyle='#2a2a2a'; g.fill();
-        g.beginPath(); g.arc(c.x,c.y,16+3*Math.sin(t*6),0,Math.PI*2);
-        g.strokeStyle='rgba(60,80,70,0.28)'; g.lineWidth=1.5; g.stroke();
-        if (Math.hypot(winMx-c.x, winMy-c.y) < COMET_HOVER_R) {
-            drawReticle(c.x, c.y, 18 + Math.sin(t*4)*1.5, g);
-            g.fillStyle='rgba(60,80,70,0.9)'; g.font="600 12px 'Segoe UI',sans-serif";
-            g.textAlign='center'; g.textBaseline='alphabetic';
-            g.fillText('Comet', c.x, c.y - 28);
-        }
-    }
+    if (G.comet) drawCometBody(g, G.comet, t);
+    if (typeof swarmComets !== 'undefined') for (const c of swarmComets) drawCometBody(g, c, t);
     for (const fx of cometFx) {
         const a = Math.max(0, 1 - fx.age/fx.maxAge);
         g.beginPath(); g.arc(fx.x, fx.y, 14 + (1-a)*42, 0, Math.PI*2);

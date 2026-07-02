@@ -12,6 +12,7 @@ function loop(ts) {
     lastSave += dt;
     if (lastSave >= 20) { lastSave=0; saveGame(); }
     draw(gameClock);
+    drawStray(gameClock);
     drawVortexLayer();
     drawComet(gameClock);
     drawFrontpage();
@@ -55,12 +56,11 @@ canvas.addEventListener('mouseleave', () => { cosmoOver = false; });
 const COMET_CATCH_R = 48;
 window.addEventListener('mousemove', e => { winMx = e.clientX; winMy = e.clientY; });
 window.addEventListener('mousedown', e => {
-    if (!G.comet) return;
+    if (!G.comet && !swarmActive()) return;
     // never catch through an open tutorial (the first comet IS catchable in its 2s pre-tutorial window)
     if (typeof tutorialActive !== 'undefined' && tutorialActive) return;
     if (e.target.closest('button, input, label, a, .upgrade-card, .acc-node, #observatory, #settings-panel, #upg-pop, #cosmo-card, .acc-confirm, #accretion-screen')) return;
-    const dx = e.clientX - G.comet.x, dy = e.clientY - G.comet.y;
-    if (dx*dx + dy*dy < COMET_CATCH_R*COMET_CATCH_R) { catchComet(); e.stopPropagation(); }
+    if (tryCatchCometAt(e.clientX, e.clientY, COMET_CATCH_R)) e.stopPropagation();
 }, true);
 
 document.getElementById('mute-btn').addEventListener('click', () => {

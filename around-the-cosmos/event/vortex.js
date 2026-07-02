@@ -3,8 +3,13 @@
 const VTAU = Math.PI * 2;
 
 const VX = {
-    SPAWN_MIN: 105,        // 1:45 between vortexes (avg ~2:05)
-    SPAWN_MAX: 145,        // 2:25
+    SPAWN_MIN: 125,        // 2:05 between vortexes
+    SPAWN_MAX: 175,        // 2:55
+    STEAL_TICK: 0.3,       // the vortex steals every 0.3s...
+    STEAL_MIN: 0.02,       // ...2-5% (random) of the stardust held when it spawned
+    STEAL_MAX: 0.05,
+    MOTE_EVERY: 0.2,       // a stolen-stardust mote streams Maw -> vortex every 0.2s
+    MOTE_DUR: 0.55,        // each mote's travel time
     FIRST_DELAY: 2 * 60,   // the first vortex of a session appears 2 min later than the usual cadence
     FADE_IN:   1.0,
     STAY:      5.0,
@@ -23,7 +28,11 @@ let vortexBitmap = null, vortexBitmapDiscR = 0;
 let vortexTimer = VX.FIRST_DELAY + VX.SPAWN_MIN + Math.random() * (VX.SPAWN_MAX - VX.SPAWN_MIN);
 const vortexFx = [];
 const VTX = { active:false, phase:'idle', t:0, fade:0, spin:0, spinRate:0,
-              stayLeft:0, hold:0, shrink:0, holding:false, cx:0, cy:0, R:0, grabR:0, flash:0 };
+              stayLeft:0, hold:0, shrink:0, holding:false, cx:0, cy:0, R:0, grabR:0, flash:0,
+              stealBase:0, stolen:0, stealT:0, moteT:0, motes:[] };   // the theft state
+
+// spending is locked while the vortex feeds (buyUpgrade + the identity hold + the card styling read this)
+function vortexStealing(){ return VTX.active && (VTX.phase === 'in' || VTX.phase === 'stay'); }
 
 let vortexLayer = null, vortexCtx = null;
 
@@ -141,11 +150,12 @@ function vortexSpawn(){
     pickVortexSpot();
     VTX.active = true; VTX.phase = 'in'; VTX.t = 0; VTX.fade = 0; VTX.spin = Math.random()*VTAU;
     VTX.stayLeft = VX.STAY; VTX.hold = 0; VTX.shrink = 0; VTX.holding = false; VTX.flash = 0;
+    VTX.stealBase = G.dust; VTX.stolen = 0; VTX.stealT = 0; VTX.moteT = 0; VTX.motes.length = 0;
     if (typeof SoundSystem !== 'undefined' && SoundSystem.sfxVortexAppear) SoundSystem.sfxVortexAppear();
 }
 
 function endVortex(){
-    VTX.active = false; VTX.phase = 'idle'; VTX.holding = false;
+    VTX.active = false; VTX.phase = 'idle'; VTX.holding = false; VTX.motes.length = 0;
     const kin = (typeof distantKinSpawnMult === 'function') ? distantKinSpawnMult() : 1;   // dwarf Distant Kin identity: sooner
     vortexTimer = (VX.SPAWN_MIN + Math.random() * (VX.SPAWN_MAX - VX.SPAWN_MIN)) * kin;
 }
@@ -154,10 +164,10 @@ function vortexTick(dt){
     for (let i = vortexFx.length-1; i >= 0; i--){ vortexFx[i].age += dt; if (vortexFx[i].age >= vortexFx[i].maxAge) vortexFx.splice(i,1); }
 
     if (!VTX.active){
-        // the FIRST vortex ever appears at the 2:00 mark of the universe clock (tutorial pacing);
+        // the FIRST vortex ever appears at the 7:00 mark of the universe clock (tutorial pacing);
         // tutSeen.vortex is the persistent "a vortex has ever appeared" marker (set by its tutorial)
         if (typeof G !== 'undefined' && G.tutSeen && !G.tutSeen.vortex) {
-            if (G.universeTime >= 120 && !anyEventActive()) vortexSpawn();
+            if (G.universeTime >= 420 && !anyEventActive()) vortexSpawn();
             return;
         }
         vortexTimer -= dt;
@@ -180,10 +190,21 @@ function vortexTick(dt){
             VTX.hold += dt;
             if (VTX.hold >= VX.HOLD){ VTX.hold = VX.HOLD; startAbsorb(); }
         } else {
-            VTX.hold = 0;
-            VTX.stayLeft -= dt;
-            if (VTX.stayLeft <= 0){ VTX.phase = 'out'; VTX.t = 0; }
+            VTX.hold = 0;   // NO expiry: the vortex stays (and keeps feeding) until dispelled
         }
+        // the theft: every STEAL_TICK, 2-5% of the stardust held at spawn leaves the Maw
+        VTX.stealT += dt;
+        while (VTX.stealT >= VX.STEAL_TICK){
+            VTX.stealT -= VX.STEAL_TICK;
+            const amt = Math.min(G.dust, Math.round(VTX.stealBase * (VX.STEAL_MIN + Math.random()*(VX.STEAL_MAX - VX.STEAL_MIN))));
+            if (amt > 0){
+                G.dust -= amt; VTX.stolen += amt;
+                G.floatingTexts.push({ x:CX, y:CY - 26, text:'-✦'+fmtNum(amt), age:0, maxAge:1.0, size:13 });
+            }
+        }
+        // the stolen stardust visibly streams Maw -> vortex
+        VTX.moteT += dt;
+        while (VTX.moteT >= VX.MOTE_EVERY){ VTX.moteT -= VX.MOTE_EVERY; VTX.motes.push({ p:0, w: 0.6 + Math.random()*0.8 }); }
         const target = VTX.holding ? (VTX.hold / VX.HOLD) : 0;
         const rate = VTX.holding ? 7 : 16;
         VTX.shrink += (target - VTX.shrink) * Math.min(1, dt*rate);
@@ -204,6 +225,12 @@ function vortexTick(dt){
         VTX.spinRate = VX.SPIN_MAX;
         VTX.spin += VTX.spinRate * dt;
         if (VTX.t >= VX.FADE_OUT) endVortex();
+    }
+
+    // advance the steal motes in every phase so in-flight ones finish during absorb/out
+    for (let i = VTX.motes.length - 1; i >= 0; i--){
+        VTX.motes[i].p += dt / VX.MOTE_DUR;
+        if (VTX.motes[i].p >= 1) VTX.motes.splice(i, 1);
     }
 }
 
@@ -243,6 +270,20 @@ function drawVortexLayer(){
             const dotR = Math.max(2, R*0.055*(1 + VTX.shrink*0.55));
             g.fillStyle = '#15130f'; g.beginPath(); g.arc(cx, cy, dotR, 0, VTAU); g.fill();
             g.restore();
+
+            // stolen stardust: little gold glints flying Maw -> vortex center
+            if (VTX.motes.length){
+                const L = (typeof mawScreen === 'function') ? mawScreen() : { x: innerWidth/2, y: innerHeight/2 };
+                for (const m of VTX.motes){
+                    const e = m.p * m.p * (3 - 2 * m.p);                     // ease in-out along the flight
+                    const x = L.x + (cx - L.x) * e, y = L.y + (cy - L.y) * e;
+                    const a = Math.sin(m.p * Math.PI) * 0.9;
+                    g.fillStyle = `rgba(201,162,74,${(a).toFixed(3)})`;
+                    g.beginPath(); g.arc(x, y, 1.6 + m.w, 0, VTAU); g.fill();
+                    g.fillStyle = `rgba(255,240,200,${(a*0.7).toFixed(3)})`;
+                    g.beginPath(); g.arc(x, y, 0.9, 0, VTAU); g.fill();
+                }
+            }
 
             if (VTX.flash > 0){
                 const f = VTX.flash;

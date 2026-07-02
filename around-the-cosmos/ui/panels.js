@@ -70,6 +70,7 @@ function wireIdentityHold(card, u, holdBar) {
     const start = (e) => {
         if (e && e.cancelable) e.preventDefault();
         if (timer) return;
+        if (typeof vortexStealing === 'function' && vortexStealing()) return;   // vortex lock: no spending
         const l = G.upgrades[u.id];
         if (l >= u.maxLevel) return;                       // already chosen
         if (identityLockedBy(u)) return;                   // another identity locked it
@@ -226,6 +227,13 @@ function updateCards() {
             if (ref._glowLow !== low) { ref.card.classList.toggle('afterglow-low', low); ref._glowLow = low; }
             if (ref._fr !== fr) { ref.drain.style.transform = `scaleX(${fr})`; ref._fr = fr; }
         }
+    }
+    // vortex lock: while it feeds, every card reads visually blocked (and buyUpgrade refuses anyway)
+    const vlock = typeof vortexStealing === 'function' && vortexStealing();
+    if (updateCards._vlock !== vlock) {
+        updateCards._vlock = vlock;
+        document.getElementById('main-upgrades').classList.toggle('vortex-lock', vlock);
+        document.getElementById('upgrades-list').classList.toggle('vortex-lock', vlock);
     }
     renderUpgPop();   // keep the hovered card's popup live (no-op when none is open)
 }
