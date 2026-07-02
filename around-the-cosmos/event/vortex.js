@@ -167,11 +167,11 @@ function vortexTick(dt){
         // the FIRST vortex ever appears at the 7:00 mark of the universe clock (tutorial pacing);
         // tutSeen.vortex is the persistent "a vortex has ever appeared" marker (set by its tutorial)
         if (typeof G !== 'undefined' && G.tutSeen && !G.tutSeen.vortex) {
-            if (G.universeTime >= 420 && !anyEventActive()) vortexSpawn();
+            if (G.universeTime >= 420) vortexSpawn();
             return;
         }
         vortexTimer -= dt;
-        if (vortexTimer <= 0 && !anyEventActive()) vortexSpawn();
+        if (vortexTimer <= 0) vortexSpawn();
         return;
     }
 

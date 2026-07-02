@@ -8,7 +8,8 @@ function randCometGap() {
 const COMET_SPEEDS = [1.0, 1.5, 2.0];
 const cometFx = [];
 
-// No two events overlap. Each event checks this before spawning (its own flag is still off then).
+// LEGACY (2026-07-02): events now OVERLAP FREELY - comet, swarm, vortex and stray stardust can all
+// be on screen at once, and nothing checks this before spawning anymore. Kept for reference/BIGROCK.
 function anyEventActive() {
     return !!G.comet
         || swarmActive()
@@ -91,13 +92,13 @@ function cometTick(dt) {
         if (cometFx[i].age >= cometFx[i].maxAge) cometFx.splice(i, 1);
     }
 
-    // swarm: countdown -> trigger (respects no-overlap; waits for the comet tutorial to have run)
+    // swarm: countdown -> trigger (waits only for the comet tutorial; overlaps anything)
     swarmTimer -= dt;
     if (swarmTimer <= 0) {
-        if (!anyEventActive() && G.tutSeen && G.tutSeen.comet) {
+        if (G.tutSeen && G.tutSeen.comet) {
             swarmTimer = SWARM_GAP_MIN + Math.random() * (SWARM_GAP_MAX - SWARM_GAP_MIN);
             triggerCometSwarm();
-        } else swarmTimer = 5;   // blocked (event on screen / too early) -> retry shortly
+        } else swarmTimer = 5;   // too early (pre-tutorial) -> retry shortly
     }
     for (let i = swarmPending.length - 1; i >= 0; i--) {
         swarmPending[i] -= dt;
@@ -121,6 +122,6 @@ function cometTick(dt) {
         // the FIRST comet ever holds until the 20s mark of the universe clock (tutorial pacing);
         // tutSeen.comet is the persistent "a comet has ever appeared" marker (set by its tutorial)
         const firstGate = (G.tutSeen && G.tutSeen.comet) || G.universeTime >= 20;
-        if (G.cometTimer <= 0 && firstGate && !anyEventActive()) spawnComet();
+        if (G.cometTimer <= 0 && firstGate) spawnComet();
     }
 }

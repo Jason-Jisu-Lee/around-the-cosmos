@@ -191,16 +191,6 @@ function checkTutorials() {
         return;
     }
 
-    // Pacing notice (~20k stardust): a single centered box, no spotlight.
-    if (!G.tutSeen.pacing && G.runDust >= 20000) {
-        G.tutSeen.pacing = true;
-        if (typeof saveGame === 'function') saveGame();
-        startTutorial([
-            { center: true, okay: 'Alright',
-              body: "Progress is slow at first. Keep going!" },
-        ]);
-        return;
-    }
     if (!G.tutSeen.identity && G.runDust >= TUT_IDENTITY_AT && document.querySelector('.upg-identity')) {
         G.tutSeen.identity = true;
         if (typeof saveGame === 'function') saveGame();
