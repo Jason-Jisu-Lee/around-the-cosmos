@@ -1,5 +1,11 @@
 "use strict";
 
+// Every upgrade has:
+//   desc()  - ONE plain sentence: what the upgrade does. No numbers-per-level narration, no metaphor
+//             (metaphor lives in `flavor`). The popup shows it under the flavor divider.
+//   now(l)  - the total bonus AT level l, as a short string. The popup renders it twice:
+//             "Now: now(currentLevel)" (hidden at level 0) and "Next: now(currentLevel+1)" (hidden at max).
+//             So the current and next bonus are always visible without packing numbers into desc.
 const UPGRADES = [
   {
     id: "touch",
@@ -8,7 +14,8 @@ const UPGRADES = [
     section: "MAIN",
     costs: [10, 50, 120, 250, 580, 1000, 1850, 3000],
     flavor: "Maw stirs, drawing a slow, steady breath of light.",
-    desc: () => "+5 ✦ generated every second, per level.",
+    desc: () => "Maw generates stardust every second.",
+    now: (l) => `+${5 * l} ✦ per second`,
     unlock: () => true,
   },
   {
@@ -18,7 +25,8 @@ const UPGRADES = [
     section: "MAIN",
     costs: [1200, 2200, 3600, 6300, 10000],
     flavor: "Each breath reaches deeper, and takes more.",
-    desc: () => "+10 ✦ generated every second, per level.",
+    desc: () => "Adds stardust to every pulse.",
+    now: (l) => `+${10 * l} ✦ per second`,
     unlock: () => lvl("touch") >= 6,
   },
   {
@@ -28,8 +36,8 @@ const UPGRADES = [
     section: "MAIN",
     costs: [2500, 4500, 8000, 13000, 22000],
     flavor: "Catch the light, and Maw keeps its warmth a while.",
-    desc: (l) =>
-      `For <b>60s</b> after catching a comet, every pulse gains <b>+${20 * l || 20}</b> ✦ (+20 / level). Catching another comet refreshes the timer.`,
+    desc: () => "After catching a comet, every pulse pays extra for 60s. Catching another comet refreshes the timer.",
+    now: (l) => `+${20 * l} ✦ per pulse for 60s`,
     unlock: () => lvl("touch") >= 6,
   },
   {
@@ -39,15 +47,8 @@ const UPGRADES = [
     section: "MAIN",
     costs: [2500, 6000, 13000, 27000, 55000, 110000, 220000, 430000],
     flavor: "Now and then Maw draws a deeper breath, and takes twice as much.",
-    desc: (l) => {
-      const cur = l >= 1 ? 13 - l : 12;
-      let s = `Every <b>${cur}th</b> breath becomes a <b>Deep Breath</b> worth <b>×${deepBreathMult().toFixed(1)}</b> a normal pulse.`;
-      if (l >= 1 && l < 8)
-        s += `<br><b>Next level:</b> every ${12 - l}th breath.`;
-      else if (l === 0)
-        s += `<br>Each level triggers it one breath sooner, down to every 5th.`;
-      return s;
-    },
+    desc: () => "Some pulses become Deep Breaths and pay multiplied. Each level makes them more frequent.",
+    now: (l) => `every ${13 - l}th pulse pays x${deepBreathMult().toFixed(1)}`,
     unlock: () => G.runDust >= 10000,
   },
   {
@@ -60,12 +61,8 @@ const UPGRADES = [
       290000, 450000, 700000, 1100000, 1700000,
     ],
     flavor: "Each deep breath reaches further down, into the dark Maw keeps.",
-    desc: (l) => {
-      const mult = 2 + 0.2 * l;
-      let s = `Empowers <b>Deep Breath</b>: +0.2× per level. Deep Breaths currently pay <b>×${mult.toFixed(1)}</b> a normal pulse.`;
-      if (l < 15) s += `<br><b>Next level:</b> ×${(mult + 0.2).toFixed(1)}.`;
-      return s;
-    },
+    desc: () => "Raises the Deep Breath multiplier.",
+    now: (l) => `Deep Breaths pay x${(2 + 0.2 * l).toFixed(1)}`,
     unlock: () => G.runDust >= 10000,
   },
   {
@@ -74,16 +71,9 @@ const UPGRADES = [
     maxLevel: 5,
     section: "MAIN",
     costs: [12000, 35000, 120000, 475000, 1850000],
-    flavor: "Let your own gathered weight do some of the pulling.",
-    desc: (l) => {
-      const sum = orbiterPayoutSum();
-      let s =
-        `+1% of all orbiter payout added to every pulse, per level.` +
-        `<br><b>Current bonus:</b> +✦${fmtNum(Math.round(0.01 * l * sum))} per pulse`;
-      if (l < 5)
-        s += `<br><b>Next level:</b> +✦${fmtNum(Math.round(0.01 * (l + 1) * sum))} per pulse`;
-      return s;
-    },
+    flavor: "Let the gathered weight do some of the pulling.",
+    desc: () => "Adds a share of total orbiter payout to every pulse.",
+    now: (l) => `+${l}% = +✦${fmtNum(Math.round(0.01 * l * orbiterPayoutSum()))} per pulse`,
     unlock: () => G.runDust >= 50000,
   },
   {
@@ -93,8 +83,8 @@ const UPGRADES = [
     section: "MAIN",
     costs: [14000, 27000, 57000, 150000, 365000],
     flavor: "Tune the whole quiet system until it hums.",
-    desc: () =>
-      "+10% to every orbiter’s payout, per level. Also lights Maw’s glow.",
+    desc: () => "Every orbiter pays more. Also lights Maw's glow.",
+    now: (l) => `+${10 * l}% orbiter payout`,
     unlock: () => G.runDust >= 50000,
   },
   {
@@ -103,9 +93,9 @@ const UPGRADES = [
     maxLevel: 1,
     section: "DUST PARTICLES",
     costs: [100],
-    flavor: "The first grain of dust to settle into Maw’s quiet orbit.",
-    desc: () =>
-      "Adds your first dust particle on the inner orbit. +10 base payout per orbit.",
+    flavor: "The first grain of dust to settle into Maw's quiet orbit.",
+    desc: () => "Adds the first dust particle on the inner orbit.",
+    now: () => `✦10 base payout per orbit`,
     unlock: () => lvl("touch") >= 2,
   },
   {
@@ -114,8 +104,8 @@ const UPGRADES = [
     maxLevel: 4,
     section: "DUST PARTICLES",
     costs: [600, 1500, 4000, 9200],
-    desc: () =>
-      "+1 dust particle in the clump, up to 5 (+10 base payout each).",
+    desc: () => "Adds one dust particle per level, up to 5 total.",
+    now: (l) => `+${l} extra particle${l === 1 ? "" : "s"}`,
     unlock: () => lvl("dust") >= 1,
   },
   {
@@ -124,7 +114,8 @@ const UPGRADES = [
     maxLevel: 5,
     section: "DUST PARTICLES",
     costs: [200, 800, 2500, 5600, 14500],
-    desc: () => "+10 to every dust particle’s payout, per level.",
+    desc: () => "Every dust particle pays more.",
+    now: (l) => `+${10 * l} ✦ per particle per orbit`,
     unlock: () => lvl("dust") >= 1,
   },
   {
@@ -134,7 +125,8 @@ const UPGRADES = [
     section: "DUST PARTICLES",
     costs: [250, 1000, 3000, 7500, 16000],
     mult: (lvl) => 1 + 0.2 * lvl,
-    desc: () => "+20% dust orbit speed, per level.",
+    desc: () => "Dust orbits faster, so it pays more often.",
+    now: (l) => `+${20 * l}% orbit speed`,
     unlock: () => lvl("dust") >= 1,
   },
   {
@@ -146,8 +138,8 @@ const UPGRADES = [
     group: "dust",
     costs: [10000, 23000, 48000, 90000, 170000],
     flavor: "Grains collide and stick - the first step toward worlds.",
-    desc: (l) =>
-      `+${15 * (l || 1)} ✦ to each dust particle, and +${50 * (l || 1)} to the Asteroid's base payout.`,
+    desc: () => "Every dust particle pays more, and the Asteroid's base payout rises.",
+    now: (l) => `+${15 * l} ✦ per particle, +${50 * l} to the Asteroid`,
     unlock: () => G.runDust >= 50000,
   },
   {
@@ -159,8 +151,8 @@ const UPGRADES = [
     group: "dust",
     costs: [10000, 23000, 48000, 90000, 170000],
     flavor: "Past the frost line, the grains gather ice.",
-    desc: (l) =>
-      `+${5 * (l || 1)} ✦ to each dust particle, and +${150 * (l || 1)} to the Moon's base payout. The grains gain a frost rim.`,
+    desc: () => "Every dust particle pays more, and the Moon's base payout rises. The grains gain a frost rim.",
+    now: (l) => `+${5 * l} ✦ per particle, +${150 * l} to the Moon`,
     unlock: () => G.runDust >= 50000,
   },
   {
@@ -172,7 +164,8 @@ const UPGRADES = [
     group: "dust",
     costs: [10000, 23000, 48000, 90000, 170000],
     flavor: "Heavier, darker grains that carry more each pass.",
-    desc: (l) => `Dust particle payout x${(1 + 0.15 * (l || 1)).toFixed(2)}.`,
+    desc: () => "Multiplies dust payout.",
+    now: (l) => `x${(1 + 0.15 * l).toFixed(2)} dust payout`,
     unlock: () => G.runDust >= 50000,
   },
   {
@@ -184,7 +177,8 @@ const UPGRADES = [
     group: "dust",
     costs: [15000, 40000, 100000],
     flavor: "The swarm winds into a tightening whirl.",
-    desc: (l) => `+${8 * (l || 1)}% dust payout. Starts at 0%, reaches full after 10 minutes. Restarts every universe.`,
+    desc: () => "Bonus dust payout. Starts at 0% each universe, reaches full after 10 minutes.",
+    now: (l) => `up to +${8 * l}% dust payout`,
     unlock: () => G.runDust >= 50000,
   },
   {
@@ -196,7 +190,8 @@ const UPGRADES = [
     group: "dust",
     costs: [15000, 40000, 100000],
     flavor: "Starlight drags the grains inward, one by one, into Maw.",
-    desc: (l) => `Every ~${9 - (l || 1) * 2}s a grain spirals into Maw for a x${4 + 2 * (l || 1)} payout lump; the swarm sheds it, then regrows it.`,
+    desc: () => "A grain regularly falls into Maw and pays a big lump, then grows back.",
+    now: (l) => `every ${9 - 2 * l}s, a x${4 + 2 * l} payout lump`,
     unlock: () => G.runDust >= 50000,
   },
   {
@@ -206,8 +201,8 @@ const UPGRADES = [
     section: "ASTEROID",
     costs: [2000],
     flavor: "A wandering chunk of old rock, heavy and slow.",
-    desc: () =>
-      "Adds the asteroid on a wider, slower orbit. +50 base payout per orbit.",
+    desc: () => "Adds the asteroid on a wider, slower orbit.",
+    now: () => `✦50 base payout per orbit`,
     unlock: () => G.runDust >= 5000,
   },
   {
@@ -216,7 +211,8 @@ const UPGRADES = [
     maxLevel: 5,
     section: "ASTEROID",
     costs: [2500, 4500, 10500, 24000, 58000],
-    desc: () => "+50 to the asteroid’s payout, per level.",
+    desc: () => "The asteroid pays more.",
+    now: (l) => `+${50 * l} ✦ per orbit`,
     unlock: () => lvl("asteroid") >= 1,
   },
   {
@@ -226,7 +222,8 @@ const UPGRADES = [
     section: "ASTEROID",
     costs: [3000, 6000, 13000, 28000, 62000],
     mult: (lvl) => 1 + 0.2 * lvl,
-    desc: () => "+20% asteroid orbit speed, per level.",
+    desc: () => "The asteroid orbits faster, so it pays more often.",
+    now: (l) => `+${20 * l}% orbit speed`,
     unlock: () => lvl("asteroid") >= 1,
   },
   {
@@ -236,12 +233,8 @@ const UPGRADES = [
     section: "ASTEROID",
     costs: [3500, 11000, 26000, 60000, 135000],
     flavor: "Reforge the rock into denser, richer stuff.",
-    desc: (l) => {
-      const top = ASTEROID_COMP.mult.length - 1;
-      return l >= top
-        ? `Composition: ${ASTEROID_COMP.names[top]}. Asteroid payout x${ASTEROID_COMP.mult[top]}.`
-        : `Reforge ${ASTEROID_COMP.names[l]} to ${ASTEROID_COMP.names[l + 1]}. Asteroid payout x${ASTEROID_COMP.mult[l + 1]}.`;
-    },
+    desc: () => "Reforges the asteroid into richer material. Multiplies its payout.",
+    now: (l) => `${ASTEROID_COMP.names[l]}: x${ASTEROID_COMP.mult[l]} payout`,
     unlock: () => lvl("asteroid") >= 1,
   },
   {
@@ -253,8 +246,8 @@ const UPGRADES = [
     group: "asteroid",
     costs: [12000, 26000, 52000, 95000, 170000],
     flavor: "A loose heap of gravel, bound only by its own faint gravity.",
-    desc: (l) =>
-      `+${40 * (l || 1)} ✦ to the Asteroid for each dust particle you own.`,
+    desc: () => "The asteroid pays more for every dust particle owned.",
+    now: (l) => `+${40 * l} ✦ per dust particle`,
     unlock: () => lvl("asteroid") >= 1 && G.runDust >= 100000,
   },
   {
@@ -266,8 +259,8 @@ const UPGRADES = [
     group: "asteroid",
     costs: [12000, 26000, 52000, 95000, 170000],
     flavor: "Veins of iron ring with Maw's every beat.",
-    desc: (l) =>
-      `+${15 * (l || 1)} ✦ to every Maw pulse, added after Gravitational Pull.`,
+    desc: () => "Adds stardust to every Maw pulse.",
+    now: (l) => `+${15 * l} ✦ per pulse`,
     unlock: () => lvl("asteroid") >= 1 && G.runDust >= 100000,
   },
   {
@@ -279,8 +272,8 @@ const UPGRADES = [
     group: "asteroid",
     costs: [20000, 50000, 120000],
     flavor: "The rock keeps shedding debris that rains inward.",
-    desc: (l) =>
-      `Comets arrive ${Math.round((1 - Math.pow(0.85, l || 1)) * 100)}% sooner. No orbit payout of its own.`,
+    desc: () => "Comets appear more often. No payout of its own.",
+    now: (l) => `comets arrive ${Math.round((1 - Math.pow(0.85, l)) * 100)}% sooner`,
     unlock: () => lvl("asteroid") >= 1 && G.runDust >= 100000,
   },
   {
@@ -292,8 +285,8 @@ const UPGRADES = [
     group: "asteroid",
     costs: [12000, 26000, 52000, 95000, 170000],
     flavor: "Skip the smelter. Sell the raw shine to passing comets.",
-    desc: (l) =>
-      `The Asteroid gives up its Composition bonus; comet windfall x${(1 + 0.15 * (l || 1)).toFixed(2)}.`,
+    desc: () => "Comets pay more, but the asteroid's Composition multiplier turns off.",
+    now: (l) => `comet windfall x${(1 + 0.15 * l).toFixed(2)}`,
     unlock: () => lvl("asteroid") >= 1 && G.runDust >= 100000,
   },
   {
@@ -305,8 +298,8 @@ const UPGRADES = [
     group: "asteroid",
     costs: [20000, 50000, 120000],
     flavor: "Wind up on the deep gravity, then let go.",
-    desc: (l) =>
-      `Winds up over 6 orbits, then slingshots for a x${2 + (l || 1)} payout burst.`,
+    desc: () => "Every 6 orbits the asteroid slings around Maw and pays a burst.",
+    now: (l) => `x${2 + l} payout burst every 6 orbits`,
     unlock: () => lvl("asteroid") >= 1 && G.runDust >= 100000,
   },
   {
@@ -316,8 +309,8 @@ const UPGRADES = [
     section: "MOON",
     costs: [10000],
     flavor: "A pale companion, heavy enough to hold its own slow circle.",
-    desc: () =>
-      "Adds the moon on the widest, slowest orbit. Pays 200 per orbit at base, scaled by its lunar phase (x0.75 at the new moon up to x1.25 at the full). Whatever the payout reads when it completes an orbit is what it pays.",
+    desc: () => "Adds the moon on a wide, slow orbit. Its payout follows the lunar phase: low at the new moon, high at the full.",
+    now: () => `✦200 base payout per orbit`,
     unlock: () => G.runDust >= 32000,
   },
   {
@@ -326,7 +319,8 @@ const UPGRADES = [
     maxLevel: 5,
     section: "MOON",
     costs: [15000, 50000, 150000, 330000, 600000],
-    desc: () => "+200 to the moon’s base payout, per level.",
+    desc: () => "The moon pays more.",
+    now: (l) => `+${200 * l} ✦ per orbit`,
     unlock: () => lvl("moon") >= 1,
   },
   {
@@ -336,7 +330,8 @@ const UPGRADES = [
     section: "MOON",
     costs: [20000, 80000, 200000, 385000, 700000],
     mult: (lvl) => 1 + 0.2 * lvl,
-    desc: () => "+20% moon orbit speed, per level.",
+    desc: () => "The moon orbits faster, so it pays more often.",
+    now: (l) => `+${20 * l}% orbit speed`,
     unlock: () => lvl("moon") >= 1,
   },
   {
@@ -346,8 +341,8 @@ const UPGRADES = [
     section: "MOON",
     costs: [12000, 28000, 55000, 90000, 175000],
     flavor: "Learn the tides the moon answers to, and widen them.",
-    desc: (l) =>
-      `Moon payout swings x${(0.75 + 0.1 * l).toFixed(2)} at the new moon to x${(1.25 + 0.1 * l).toFixed(2)} at the full moon. Each level adds +0.10 to both ends.`,
+    desc: () => "Raises both ends of the moon's phase swing.",
+    now: (l) => `x${(0.75 + 0.1 * l).toFixed(2)} new moon .. x${(1.25 + 0.1 * l).toFixed(2)} full moon`,
     unlock: () => lvl("moon") >= 1,
   },
   {
@@ -359,7 +354,8 @@ const UPGRADES = [
     group: "moon",
     costs: [15000, 32000, 64000, 120000, 220000],
     flavor: "A brighter face throws back more of the light.",
-    desc: (l) => `Moon payout x${(1 + 0.10 * (l || 1)).toFixed(2)}.`,
+    desc: () => "Multiplies moon payout.",
+    now: (l) => `x${(1 + 0.10 * l).toFixed(2)} moon payout`,
     unlock: () => lvl("moon") >= 1 && G.runDust >= 150000,
   },
   {
@@ -371,7 +367,8 @@ const UPGRADES = [
     group: "moon",
     costs: [15000, 32000, 64000, 120000, 220000],
     flavor: "When the moon runs full, its tides pull with Maw.",
-    desc: (l) => `Up to +${20 * (l || 1)} ✦ to every Maw pulse, strongest at the full moon and fading to nothing at the new.`,
+    desc: () => "Adds stardust to every pulse, scaled by the phase: full amount at the full moon, zero at the new.",
+    now: (l) => `up to +${20 * l} ✦ per pulse`,
     unlock: () => lvl("moon") >= 1 && G.runDust >= 150000,
   },
   {
@@ -383,7 +380,8 @@ const UPGRADES = [
     group: "moon",
     costs: [30000, 70000, 150000],
     flavor: "Now and then the moon slides across Maw and swallows the light.",
-    desc: (l) => `Every ${6 - (l || 1)} orbits the moon eclipses Maw for a x10 payout burst. Higher levels eclipse more often.`,
+    desc: () => "The moon regularly eclipses Maw and pays a burst.",
+    now: (l) => `x10 payout burst every ${6 - l} orbits`,
     unlock: () => lvl("moon") >= 1 && G.runDust >= 150000,
   },
   {
@@ -396,9 +394,11 @@ const UPGRADES = [
     costs: [30000],
     flavor: "Every long while the moon holds still at the far edge of its wander.",
     desc: () => {
+      const owned = lvl("standstill") >= 1;
       const left = (typeof standstillOrbitsLeft === "function") ? standstillOrbitsLeft() : 16;
-      return `After 16 orbits the moon reaches a standstill and pays x40 payout, once. Orbits left until Burst: ${left}.`;
+      return "The moon pays a huge burst every 16 orbits." + (owned ? ` Orbits left: ${left}.` : "");
     },
+    now: () => `x40 payout burst every 16 orbits`,
     unlock: () => lvl("moon") >= 1 && G.runDust >= 150000,
   },
   {
@@ -410,7 +410,8 @@ const UPGRADES = [
     group: "moon",
     costs: [15000, 32000, 64000, 120000, 220000],
     flavor: "Deepen the gamble: nothing at the new, everything at the full.",
-    desc: (l) => `Widens the phase swing: pays near 0 at the new moon and up to x${(1.25 + 0.15 * (l || 1)).toFixed(2)} the base at the full. Average payout is unchanged.`,
+    desc: () => "Widens the moon's phase swing on both ends. Average payout stays the same.",
+    now: (l) => `x${Math.max(0, 0.75 + 0.1 * lvl("moonphase") - 0.15 * l).toFixed(2)} new moon .. x${(1.25 + 0.1 * lvl("moonphase") + 0.15 * l).toFixed(2)} full moon`,
     unlock: () => lvl("moon") >= 1 && G.runDust >= 150000,
   },
   {
@@ -420,8 +421,8 @@ const UPGRADES = [
     section: "DWARF PLANET",
     costs: [50000],
     flavor: "A captured world settles into the widest, calmest orbit.",
-    desc: () =>
-      "Brings the Dwarf Planet into orbit on the widest ring. The slowest body, but each long pass pays +800 stardust, more than any other.",
+    desc: () => "Adds the Dwarf Planet on the widest ring. The slowest body, with the biggest single payout.",
+    now: () => `✦800 base payout per orbit`,
     unlock: () =>
       typeof singularityLevel === "function" && singularityLevel() >= 1,
   },
@@ -431,7 +432,8 @@ const UPGRADES = [
     maxLevel: 5,
     section: "DWARF PLANET",
     costs: [50000, 130000, 320000, 700000, 1200000],
-    desc: () => "+800 to the Dwarf Planet's payout, per level.",
+    desc: () => "The Dwarf Planet pays more.",
+    now: (l) => `+${800 * l} ✦ per orbit`,
     unlock: () => lvl("dwarf") >= 1,
   },
   {
@@ -441,8 +443,8 @@ const UPGRADES = [
     section: "DWARF PLANET",
     costs: [120000, 300000, 700000],
     flavor: "Each slow lap settles a little more stardust into its orbit.",
-    desc: (l) =>
-      `The Dwarf Planet's payout grows +0.3% every orbit, up to +${[0, 15, 30, 50][l || 1]}%. The ramp resets when the universe collapses.`,
+    desc: () => "Dwarf payout grows +0.3% every orbit, up to a cap. Restarts every universe.",
+    now: (l) => `cap +${[0, 15, 30, 50][l]}%`,
     unlock: () => lvl("dwarf") >= 1,
   },
   {
@@ -451,8 +453,8 @@ const UPGRADES = [
     maxLevel: 2,
     section: "DWARF PLANET",
     costs: [250000, 700000],
-    desc: () =>
-      "Spawns a Trojan companion that pays 1/8 of the Dwarf Planet's income.",
+    desc: () => "Adds a companion on the Dwarf Planet's orbit. Each pays 1/8 of its payout.",
+    now: (l) => `${l} companion${l === 1 ? "" : "s"}`,
     unlock: () => lvl("dwarf") >= 1,
   },
   {
@@ -464,7 +466,8 @@ const UPGRADES = [
     group: "dwarf",
     costs: [80000],
     flavor: "Ember slows to a crawl, and each pass lands with far more weight.",
-    desc: () => `Half orbit speed, but x2.05 payout. Per-orbit payout nearly doubles (feeding the pulse through Gravitational Pull) while income per minute barely changes.`,
+    desc: () => "Half orbit speed, double payout. Bigger single payouts, near-same income per minute.",
+    now: () => `x0.5 speed, x2.05 payout`,
     unlock: () => lvl("dwarf") >= 1 && G.runDust >= 200000,
   },
   {
@@ -476,7 +479,8 @@ const UPGRADES = [
     group: "dwarf",
     costs: [60000, 140000, 300000],
     flavor: "A cold kinship with the deep cosmos calls the Vortex in.",
-    desc: (l) => `The Vortex arrives ${Math.round((1 - Math.pow(0.8, l || 1)) * 100)}% sooner and pays x${(1 + 0.25 * (l || 1)).toFixed(2)}. No orbit payout of its own.`,
+    desc: () => "The Vortex appears sooner and pays more. No payout of its own.",
+    now: (l) => `Vortex ${Math.round((1 - Math.pow(0.8, l)) * 100)}% sooner, pays x${(1 + 0.25 * l).toFixed(2)}`,
     unlock: () => lvl("dwarf") >= 1 && G.runDust >= 200000,
   },
   {
@@ -488,7 +492,8 @@ const UPGRADES = [
     group: "dwarf",
     costs: [60000, 140000, 300000],
     flavor: "The slow world rewards a slow, patient universe.",
-    desc: (l) => `Dwarf payout climbs +0.3% every orbit, up to +${10 * (l || 1)}%. Resets on Accretion.`,
+    desc: () => "Dwarf payout grows +0.3% every orbit, up to a cap. Restarts every universe.",
+    now: (l) => `cap +${10 * l}%`,
     unlock: () => lvl("dwarf") >= 1 && G.runDust >= 200000,
   },
   {
@@ -500,7 +505,8 @@ const UPGRADES = [
     group: "dwarf",
     costs: [60000, 140000, 300000],
     flavor: "Ember banks the cold, then lets it go all at once.",
-    desc: (l) => `Banks a ${Math.round(20 * (l || 1))}% share of every Maw pulse and releases the whole hoard each time Ember passes. Little orbit payout of its own.`,
+    desc: () => "Banks a share of every pulse. Ember pays out the whole bank each time it passes the top.",
+    now: (l) => `banks ${20 * l}% of every pulse`,
     unlock: () => lvl("dwarf") >= 1 && G.runDust >= 200000,
   },
   {
@@ -512,7 +518,8 @@ const UPGRADES = [
     group: "dwarf",
     costs: [60000, 140000, 300000],
     flavor: "Ember's mass steadies every orbit in the system.",
-    desc: (l) => `+${5 * (l || 1)}% to every orbiter's payout, this one and every future orbiter alike.`,
+    desc: () => "Every orbiter pays more, present and future.",
+    now: (l) => `+${5 * l}% all orbiter payout`,
     unlock: () => lvl("dwarf") >= 1 && G.runDust >= 200000,
   },
   {
@@ -521,8 +528,8 @@ const UPGRADES = [
     maxLevel: 3,
     section: "COMETS",
     costs: [30, 80, 200],
-    bonus: (lvl) => 1 + 0.25 * lvl,
-    desc: (lvl) => `Comet windfall x${(1 + 0.25 * lvl).toFixed(2)}.`,
+    desc: () => "Comets pay more when caught.",
+    now: (l) => `comet windfall x${(1 + 0.25 * l).toFixed(2)}`,
     unlock: () => false,
   },
 ];

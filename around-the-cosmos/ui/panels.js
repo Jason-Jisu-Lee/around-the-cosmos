@@ -93,8 +93,17 @@ const upgPop = document.getElementById('upg-pop');
 function showUpgPop(u, cardEl) {
     const l = G.upgrades[u.id];
     const flavor = typeof u.flavor === 'function' ? u.flavor(l) : u.flavor;
-    upgPop.innerHTML = (flavor ? `<div class="upg-pop-flavor">${flavor}</div>` : '')
+    let html = (flavor ? `<div class="upg-pop-flavor">${flavor}</div>` : '')
         + `<div class="upg-pop-fn">${u.desc(l)}</div>`;
+    // Now / Next rows: the total bonus at the owned level and at the next one (u.now(l)),
+    // so what the upgrade provides - and will provide - is always visible.
+    if (u.now) {
+        let rows = '';
+        if (l > 0)          rows += `<div class="upg-pop-stat"><span class="upg-pop-k">Now</span><span class="upg-pop-v">${u.now(l)}</span></div>`;
+        if (l < u.maxLevel) rows += `<div class="upg-pop-stat"><span class="upg-pop-k">Next</span><span class="upg-pop-v">${u.now(l + 1)}</span></div>`;
+        if (rows) html += `<div class="upg-pop-stats">${rows}</div>`;
+    }
+    upgPop.innerHTML = html;
     upgPop.style.display = 'block';
     const r = cardEl.getBoundingClientRect();
     const pw = upgPop.offsetWidth, ph = upgPop.offsetHeight;

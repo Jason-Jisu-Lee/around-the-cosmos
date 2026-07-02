@@ -380,6 +380,14 @@ body {
     margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid rgba(244,240,232,0.16);
 }
 #upg-pop .upg-pop-fn  { font-size: 0.9em; }
+/* Now / Next bonus rows under the effect text */
+#upg-pop .upg-pop-stats {
+    margin-top: 9px; padding-top: 8px; border-top: 1px solid rgba(244,240,232,0.16);
+    display: flex; flex-direction: column; gap: 3px; font-size: 0.86em;
+}
+#upg-pop .upg-pop-stat { display: flex; justify-content: space-between; align-items: baseline; gap: 14px; }
+#upg-pop .upg-pop-k { opacity: 0.55; font-weight: 800; font-size: 0.8em; letter-spacing: 0.09em; text-transform: uppercase; }
+#upg-pop .upg-pop-v { font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; }
 
 /* Soft modern font (Nunito) across the upgrade UI - cost/level/accordion/popup/toggle.
    (.upg-name is excluded so its Baloo 2 rounded font applies - the Demo-3 name treatment.) */
