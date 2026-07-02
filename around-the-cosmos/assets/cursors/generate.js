@@ -34,19 +34,27 @@ function inPoly(x, y, poly) {
 }
 
 // A slim triangle: tip top-left, two base corners down-right. Clean straight edges.
-const N = 32, INK = [26, 26, 26];
+// Two variants: the ink needle (the game) and a light parchment one (the dark front page,
+// where the ink needle is invisible).
+const N = 32;
 const TRI = [[3, 3], [22.5, 14], [14, 22.5]];
+const VARIANTS = [
+    { file: 'needle.png',       ink: [26, 26, 26] },
+    { file: 'needle-light.png', ink: [232, 226, 210] },
+];
 
 // Supersampled coverage → smooth alpha, one flat color.
 const S = 6;
-const out = Buffer.alloc(N * N * 4);
-for (let py = 0; py < N; py++) for (let px = 0; px < N; px++) {
-    let cov = 0;
-    for (let sy = 0; sy < S; sy++) for (let sx = 0; sx < S; sx++)
-        if (inPoly(px + (sx + 0.5) / S, py + (sy + 0.5) / S, TRI)) cov++;
-    const o = (py * N + px) * 4;
-    out[o] = INK[0]; out[o + 1] = INK[1]; out[o + 2] = INK[2];
-    out[o + 3] = Math.round((cov / (S * S)) * 255);
+for (const { file, ink } of VARIANTS) {
+    const out = Buffer.alloc(N * N * 4);
+    for (let py = 0; py < N; py++) for (let px = 0; px < N; px++) {
+        let cov = 0;
+        for (let sy = 0; sy < S; sy++) for (let sx = 0; sx < S; sx++)
+            if (inPoly(px + (sx + 0.5) / S, py + (sy + 0.5) / S, TRI)) cov++;
+        const o = (py * N + px) * 4;
+        out[o] = ink[0]; out[o + 1] = ink[1]; out[o + 2] = ink[2];
+        out[o + 3] = Math.round((cov / (S * S)) * 255);
+    }
+    fs.writeFileSync(path.join(__dirname, file), encodePNG(N, out));
+    console.log('wrote ' + file + ' (32x32, hotspot 3,3)');
 }
-fs.writeFileSync(path.join(__dirname, 'needle.png'), encodePNG(N, out));
-console.log('wrote needle.png (32x32, hotspot 3,3)');

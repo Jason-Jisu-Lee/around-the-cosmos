@@ -25,37 +25,60 @@ function startTutorial(steps) {
     _renderTutStep();
 }
 
+// Each step is either target-anchored ({getRect, body}) or a centered notice ({center:true, body})
+// with no spotlight (the whole screen dims). The callout box (.tut-pop) holds ONLY the message,
+// centered; the confirm button (.tut-ok, label via step.okay, default "Okay") sits BELOW the box,
+// horizontally centered on it.
 function _renderTutStep() {
     const layer = document.getElementById('tutorial');
     layer.style.display = 'block'; layer.innerHTML = '';
     const step = _tutSteps[_tutIndex];
-    const r = step.getRect();
-    if (!r) { endTutorial(); return; }                 // target gone -> bail gracefully
     const pad = 10;
+    let r = null;
 
-    // the frost "hole": a transparent box whose huge box-shadow dims everything around it
-    const hole = document.createElement('div'); hole.className = 'tut-hole';
-    hole.style.left = (r.left - pad) + 'px'; hole.style.top = (r.top - pad) + 'px';
-    hole.style.width = (r.width + pad * 2) + 'px'; hole.style.height = (r.height + pad * 2) + 'px';
-    layer.appendChild(hole);
+    if (step.center) {
+        const dim = document.createElement('div'); dim.className = 'tut-dim';
+        layer.appendChild(dim);
+    } else {
+        r = step.getRect();
+        if (!r) { endTutorial(); return; }             // target gone -> bail gracefully
+        // the frost "hole": a transparent box whose huge box-shadow dims everything around it
+        const hole = document.createElement('div'); hole.className = 'tut-hole';
+        hole.style.left = (r.left - pad) + 'px'; hole.style.top = (r.top - pad) + 'px';
+        hole.style.width = (r.width + pad * 2) + 'px'; hole.style.height = (r.height + pad * 2) + 'px';
+        layer.appendChild(hole);
+    }
 
     const pop = document.createElement('div'); pop.className = 'tut-pop';
-    pop.innerHTML = `<div class="tut-body">${step.body}</div><div class="tut-row"><button class="tut-ok">Okay</button></div>`;
+    pop.innerHTML = `<div class="tut-body">${step.body}</div>`;
     layer.appendChild(pop);
-    pop.querySelector('.tut-ok').addEventListener('click', _nextTutStep);
+    const ok = document.createElement('button'); ok.className = 'tut-ok';
+    ok.textContent = step.okay || 'Okay';
+    layer.appendChild(ok);
+    ok.addEventListener('click', _nextTutStep);
 
-    // place the tooltip beside the target (flip / clamp to stay on-screen)
+    // place the callout: beside the target (flip / clamp on-screen), or dead center for a notice
     const pw = pop.offsetWidth, ph = pop.offsetHeight, gap = 20;
-    let left = r.left - pw - gap, side = 'left';
-    if (left < 12) { left = r.right + gap; side = 'right'; }
-    if (left + pw > innerWidth - 12) left = innerWidth - pw - 12;
-    const top = Math.max(12, Math.min(r.top + r.height / 2 - ph / 2, innerHeight - ph - 12));
+    let left, top, side = 'left';
+    if (step.center) {
+        left = Math.round((innerWidth - pw) / 2);
+        top  = Math.round((innerHeight - ph) / 2) - 28;
+    } else {
+        left = r.left - pw - gap;
+        if (left < 12) { left = r.right + gap; side = 'right'; }
+        if (left + pw > innerWidth - 12) left = innerWidth - pw - 12;
+        top = Math.max(12, Math.min(r.top + r.height / 2 - ph / 2, innerHeight - ph - 12));
+    }
     pop.style.left = left + 'px'; pop.style.top = top + 'px';
+    ok.style.left = Math.round(left + pw / 2 - ok.offsetWidth / 2) + 'px';
+    ok.style.top  = Math.min(top + ph + 14, innerHeight - ok.offsetHeight - 12) + 'px';
 
-    const dot = document.createElement('div'); dot.className = 'tut-dot';
-    dot.style.left = (side === 'left' ? r.left - 5 : r.right - 6) + 'px';
-    dot.style.top = (r.top + r.height / 2 - 5) + 'px';
-    layer.appendChild(dot);
+    if (!step.center) {
+        const dot = document.createElement('div'); dot.className = 'tut-dot';
+        dot.style.left = (side === 'left' ? r.left - 5 : r.right - 6) + 'px';
+        dot.style.top = (r.top + r.height / 2 - 5) + 'px';
+        layer.appendChild(dot);
+    }
 }
 
 function _nextTutStep() {
@@ -76,6 +99,8 @@ addEventListener('resize', () => { if (tutorialActive) _renderTutStep(); });
 // about them before they can engage. Walks: identity cards -> the Accretion progress card.
 const TUT_IDENTITY_AT = 50000;
 
+let _cometEnteredAt = -1;   // gameClock when the first comet ever entered the screen (its tutorial fires 1.2s later)
+
 // synthetic viewport rects for the two window-space events (the tutorial hole needs left/top/right/width/height)
 function _cometTutRect() {
     const c = G.comet; if (!c) return null;
@@ -92,18 +117,24 @@ function checkTutorials() {
     if (tutorialActive) return;
     if (!G.tutSeen) G.tutSeen = {};
 
-    // First comet ever: fires once the comet is well inside the viewport (it spawns off-screen),
-    // freezing it mid-flight under the spotlight. tutSeen.comet also marks "a comet has ever
-    // appeared" (comet.js uses it to summon the first vortex 30s after this one).
+    // First comet ever: fires 1.2s AFTER the comet enters the screen (it spawns off-screen), so
+    // it is seen flying before the freeze holds it under the spotlight. Catching is blocked until
+    // this tutorial is done (main.js). tutSeen.comet also marks "a comet has ever appeared"
+    // (comet.js uses it to summon the first vortex 30s after this one).
     const c = G.comet;
-    if (!G.tutSeen.comet && c && c.x > 80 && c.x < innerWidth - 80 && c.y > 80 && c.y < innerHeight - 80) {
-        G.tutSeen.comet = true;
-        if (typeof saveGame === 'function') saveGame();
-        startTutorial([
-            { getRect: _cometTutRect,
-              body: "A comet! Click it for a windfall of stardust. One passes every so often." },
-        ]);
-        return;
+    if (!G.tutSeen.comet) {
+        if (c && c.x > 20 && c.x < innerWidth - 20 && c.y > 20 && c.y < innerHeight - 20) {
+            if (_cometEnteredAt < 0) _cometEnteredAt = gameClock;
+            if (gameClock - _cometEnteredAt >= 1.2) {
+                G.tutSeen.comet = true;
+                if (typeof saveGame === 'function') saveGame();
+                startTutorial([
+                    { getRect: _cometTutRect,
+                      body: "A comet! Click it for a windfall of stardust. One passes every so often." },
+                ]);
+                return;
+            }
+        } else if (!c) _cometEnteredAt = -1;
     }
 
     // First vortex ever: fires once it is fully faded in (the linger timer is frozen while reading).
@@ -112,7 +143,18 @@ function checkTutorials() {
         if (typeof saveGame === 'function') saveGame();
         startTutorial([
             { getRect: _vortexTutRect,
-              body: "A vortex! Press and hold it until it collapses into a huge windfall. One wanders in rarely." },
+              body: "A vortex! Hold it until it collapses into a huge windfall. Hold soon, it leaves quickly. One wanders in rarely." },
+        ]);
+        return;
+    }
+
+    // Pacing notice (~20k stardust): a single centered box, no spotlight.
+    if (!G.tutSeen.pacing && G.runDust >= 20000) {
+        G.tutSeen.pacing = true;
+        if (typeof saveGame === 'function') saveGame();
+        startTutorial([
+            { center: true, okay: 'Alright',
+              body: "Progress is slowest at the start. It speeds up with every upgrade." },
         ]);
         return;
     }
