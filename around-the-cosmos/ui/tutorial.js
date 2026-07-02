@@ -154,7 +154,7 @@ function checkTutorials() {
         if (typeof saveGame === 'function') saveGame();
         startTutorial([
             { center: true, okay: 'Alright',
-              body: "Progress is slowest at the start. It speeds up with every upgrade." },
+              body: "Progress is slowest in the beginning." },
         ]);
         return;
     }
