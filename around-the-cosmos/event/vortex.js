@@ -3,8 +3,8 @@
 const VTAU = Math.PI * 2;
 
 const VX = {
-    SPAWN_MIN: 120,        // 2:00 between vortexes
-    SPAWN_MAX: 160,        // 2:40
+    SPAWN_MIN: 105,        // 1:45 between vortexes (avg ~2:05)
+    SPAWN_MAX: 145,        // 2:25
     FIRST_DELAY: 2 * 60,   // the first vortex of a session appears 2 min later than the usual cadence
     FADE_IN:   1.0,
     STAY:      5.0,
