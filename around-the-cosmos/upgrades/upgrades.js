@@ -111,7 +111,7 @@ const UPGRADES = [
     name: "Dust Particle Payout",
     maxLevel: 20,
     section: "DUST PARTICLES",
-    costs: [150, 600, 1800, 4500, 11000, 19000, 32000, 54000, 92000, 155000, 260000, 440000, 750000, 1250000, 2100000, 3600000, 6100000, 10500000, 17500000, 30000000],
+    costs: [150, 450, 1100, 2800, 6500, 12000, 21000, 37000, 65000, 110000, 190000, 320000, 550000, 930000, 1600000, 2700000, 4600000, 7800000, 13500000, 23000000],
     flavor: "Even dust learns to carry more than its weight.",
     now: (l) => `+${10 * l} ✦ per particle`,
     unlock: () => lvl("dust") >= 1,
