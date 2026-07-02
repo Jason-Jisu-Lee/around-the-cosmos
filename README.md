@@ -1,38 +1,43 @@
 # Around the Cosmos
 
-An idle/incremental game. A dark center (the Lacuna) is orbited by bodies — dust
-particles, an asteroid, a moon — that pay stardust (✦) each time they complete an
-orbit. Click to earn stardust, spend it on upgrades, and catch comets for extra.
+A calm idle/incremental game by **2ndIntelligentWorld**.
 
-Vanilla JS + Canvas. No build step, no framework, no dependencies.
+A small dark center — the **Maw** — generates stardust (✦) with every slow pulse.
+Orbiters circle it and pay each time they complete an orbit. Universes collapse,
+and begin again.
+
+Pure vanilla JS + Canvas. No build step, no framework, no dependencies.
 
 ## Run it
 
-The game is in `around-the-cosmos/`. Serve that folder over HTTP (browsers block audio on `file://`):
+The game is in `around-the-cosmos/`. Serve that folder over HTTP (browsers restrict audio and fetch on `file://`):
 
 ```bash
 cd around-the-cosmos
 python -m http.server 3000
 ```
 
-Then open http://localhost:3000.
+Then open http://localhost:3000 and press START.
 
-## How it works
+## The loop
 
-1. Click the sky to earn stardust. Buy Star Touch to earn more per click.
-2. Buy Dust Particles — orbiters that pay on every orbit.
-3. Unlock the Asteroid and the Moon, plus payout/speed upgrades for each.
-4. Gravitational Pull adds a share of your orbiter income to every click. Resonance boosts all orbiter payout.
-5. Pulse auto-clicks for you once Star Touch is maxed.
-6. Catch comets for bursts of stardust.
+1. **Cosmic Pulse** makes the Maw generate stardust every second. This is an idle game, not a clicker — clicking never harvests.
+2. Buy orbiters: the **dust particle** swarm, the **Asteroid**, the **Moon**, and later the **Dwarf Planet** "Ember". Each has payout/speed upgrades plus a unique mechanic (Composition, Lunar Phases, Trojan Companions...).
+3. Every orbiter has **5 identity upgrades — pick 2 per universe** (hold to choose). They reset on Accretion, so every universe plays differently.
+4. Stay a little active: sweep up **stray stardust**, click **comets** (and rare 8-comet **swarms**), and hold down the **vortex** before it steals your stardust.
+5. **Accrete**: collapse the universe into **Mass**, spend it on permanent upgrades, and capture new orbiters along the **Singularity** line.
 
-Hover a body for its stats; click it to pin a card.
+The published demo ends at the "Finish Demo" gate on the Mass page; the full game is headed to Steam under the same title.
+
+## Repo layout
+
+- `around-the-cosmos/` — the game. `index.html` + plain script files; see `CLAUDE.md` in that folder for the full architecture and `PROGRESSION.md` for the upgrade tree.
+- Branches: `main` is current, `stable/v.N` are frozen known-good snapshots, `playtest/*` / `feature/*` are working branches.
 
 ## Debug
 
-Add `?debug` to the URL for a panel (inject stardust, speed multiplier, force comets, reset). It doesn't appear in normal play.
+Add `?debug` to the URL for a panel: inject stardust, speed multiplier, force-spawn comets / swarms / the vortex / stray stardust, identity granters, undo, reset. It never appears in normal play.
 
-## Docs
+## Credits
 
-- `around-the-cosmos/CLAUDE.md` — architecture and mechanics.
-- `around-the-cosmos/PROGRESSION.md` — early-game flow and the full upgrade tree.
+Music: "lolurio Free Sci-fi Music" (free asset). Everything else by 2ndIntelligentWorld.
