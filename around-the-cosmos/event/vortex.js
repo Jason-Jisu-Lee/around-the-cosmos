@@ -164,10 +164,12 @@ function vortexTick(dt){
     for (let i = vortexFx.length-1; i >= 0; i--){ vortexFx[i].age += dt; if (vortexFx[i].age >= vortexFx[i].maxAge) vortexFx.splice(i,1); }
 
     if (!VTX.active){
-        // the FIRST vortex ever appears at the 7:00 mark of the universe clock (tutorial pacing);
-        // tutSeen.vortex is the persistent "a vortex has ever appeared" marker (set by its tutorial)
+        // the FIRST vortex ever appears at the 7:00 mark of the universe clock (tutorial pacing),
+        // and only AFTER the comet + stray tutorials are done - so its own tutorial (which fires
+        // the frame it becomes grabbable, before any steal tick can land) can never queue behind
+        // another popup. tutSeen.vortex is the persistent "has ever appeared" marker.
         if (typeof G !== 'undefined' && G.tutSeen && !G.tutSeen.vortex) {
-            if (G.universeTime >= 420) vortexSpawn();
+            if (G.universeTime >= 420 && G.tutSeen.comet && G.tutSeen.stray) vortexSpawn();
             return;
         }
         vortexTimer -= dt;

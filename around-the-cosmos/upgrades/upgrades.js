@@ -94,7 +94,7 @@ const UPGRADES = [
     flavor: "Every world begins as something too small to notice.",
     desc: () => "Adds the first dust particle on the inner orbit.",
     now: () => `✦10 base payout per orbit`,
-    unlock: () => lvl("touch") >= 2,
+    unlock: () => lvl("touch") >= 2 && !!(G.tutSeen && G.tutSeen.dust),   // populates together with its tutorial (quiet-sky rule)
   },
   {
     id: "dustcount",
@@ -137,7 +137,7 @@ const UPGRADES = [
     costs: [10000, 23000, 48000, 90000, 170000],
     flavor: "Collide, cling, become. It is how every world starts.",
     now: (l) => `+${15 * l} ✦ per particle, +${50 * l} ✦ to the Asteroid`,
-    unlock: () => G.runDust >= 50000,
+    unlock: () => G.runDust >= 50000 && !!(G.tutSeen && G.tutSeen.identity),   // populates together with the identity tutorial (quiet-sky rule)
   },
   {
     id: "iceMantles",
@@ -149,7 +149,7 @@ const UPGRADES = [
     costs: [10000, 23000, 48000, 90000, 170000],
     flavor: "Beyond the frost line, the grains wear armor of ice.",
     now: (l) => `+${5 * l} ✦ per particle, +${150 * l} ✦ to the Moon`,
-    unlock: () => G.runDust >= 50000,
+    unlock: () => G.runDust >= 50000 && !!(G.tutSeen && G.tutSeen.identity),   // populates together with the identity tutorial (quiet-sky rule)
   },
   {
     id: "denser",
@@ -161,7 +161,7 @@ const UPGRADES = [
     costs: [10000, 23000, 48000, 90000, 170000],
     flavor: "Dark hearts in little stones.",
     now: (l) => `x${(1 + 0.15 * l).toFixed(2)} dust payout`,
-    unlock: () => G.runDust >= 50000,
+    unlock: () => G.runDust >= 50000 && !!(G.tutSeen && G.tutSeen.identity),   // populates together with the identity tutorial (quiet-sky rule)
   },
   {
     id: "dustdevil",
@@ -177,7 +177,7 @@ const UPGRADES = [
       const frac = (typeof dustDevilFrac === "function") ? dustDevilFrac() : 0;
       return `+${(20 * l * frac).toFixed(1)}% dust payout (max +${20 * l}%)`;
     },
-    unlock: () => G.runDust >= 50000,
+    unlock: () => G.runDust >= 50000 && !!(G.tutSeen && G.tutSeen.identity),   // populates together with the identity tutorial (quiet-sky rule)
   },
   {
     id: "prdrag",
@@ -190,7 +190,7 @@ const UPGRADES = [
     flavor: "Light itself betrays the grains, and walks them into the dark.",
     desc: () => "One grain falls into Maw, pays, then grows back.",
     now: (l) => `every ${9 - 2 * l}s: x${4 + 2 * l} a single particle's payout`,
-    unlock: () => G.runDust >= 50000,
+    unlock: () => G.runDust >= 50000 && !!(G.tutSeen && G.tutSeen.identity),   // populates together with the identity tutorial (quiet-sky rule)
   },
   {
     id: "asteroid",

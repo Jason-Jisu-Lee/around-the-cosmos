@@ -99,6 +99,17 @@ addEventListener('resize', () => { if (tutorialActive) _renderTutStep(); });
 // about them before they can engage. Walks: identity cards -> the Accretion progress card.
 const TUT_IDENTITY_AT = 50000;
 
+// "Quiet sky" gate for PANEL tutorials (dust / identity): they wait until no event is on screen,
+// so they can never fire back-to-back with an event tutorial. Their cards populate together with
+// the tutorial (the unlocks require the tutSeen flag), never before it. A feeding vortex counts
+// as busy - coherent, since spending is locked while it feeds anyway.
+function _skyBusy() {
+    return !!G.comet
+        || (typeof swarmActive === 'function' && swarmActive())
+        || (typeof VTX !== 'undefined' && VTX.active)
+        || (typeof stray !== 'undefined' && stray && G.tutSeen && !G.tutSeen.stray);   // first-ever glint = its tutorial is imminent
+}
+
 let _cometSpawnClock = -1;   // gameClock when the first comet ever spawned (its tutorial fires 2s later - it stays catchable meanwhile)
 
 // synthetic viewport rects for window-space targets (the tutorial hole needs left/top/right/width/height)
@@ -135,13 +146,14 @@ function checkTutorials() {
         return;
     }
 
-    // Dust Particle available for the first time ever: point at its card.
-    if (!G.tutSeen.dust && lvl('touch') >= 2 && document.querySelector('[data-upg="dust"]')) {
+    // Dust Particle available for the first time ever: the card POPULATES TOGETHER WITH its
+    // tutorial (its unlock requires tutSeen.dust) - and only under a quiet sky, so this popup
+    // can never chain behind an event tutorial.
+    if (!G.tutSeen.dust && lvl('touch') >= 2 && !_skyBusy()) {
         G.tutSeen.dust = true;
         if (typeof saveGame === 'function') saveGame();
-        if (typeof sectionOpen !== 'undefined' && sectionOpen['DUST PARTICLES'] === false) {
-            sectionOpen['DUST PARTICLES'] = true; if (typeof buildPanels === 'function') buildPanels();
-        }
+        if (typeof sectionOpen !== 'undefined') sectionOpen['DUST PARTICLES'] = true;
+        if (typeof buildPanels === 'function') buildPanels();   // the card appears NOW, with its tutorial
         startTutorial([
             { getRect: () => { const f = document.querySelector('[data-upg="dust"]'); if (f) f.scrollIntoView({ block: 'nearest' }); return _combinedRect('[data-upg="dust"]'); },
               body: "You have enough mass to attract dust particles. Try spawning one for more stardust!" },
@@ -191,12 +203,14 @@ function checkTutorials() {
         return;
     }
 
-    if (!G.tutSeen.identity && G.runDust >= TUT_IDENTITY_AT && document.querySelector('.upg-identity')) {
+    // Identity upgrades: the cards POPULATE TOGETHER WITH their tutorial (the dust-identity
+    // unlocks require tutSeen.identity), and only under a quiet sky - requirement met + busy
+    // sky = the cards simply wait; they never appear unexplained.
+    if (!G.tutSeen.identity && G.runDust >= TUT_IDENTITY_AT && !_skyBusy()) {
         G.tutSeen.identity = true;
         if (typeof saveGame === 'function') saveGame();
-        if (typeof sectionOpen !== 'undefined' && sectionOpen['DUST PARTICLES'] === false) {
-            sectionOpen['DUST PARTICLES'] = true; if (typeof buildPanels === 'function') buildPanels();
-        }
+        if (typeof sectionOpen !== 'undefined') sectionOpen['DUST PARTICLES'] = true;
+        if (typeof buildPanels === 'function') buildPanels();   // the identity cards appear NOW, with their tutorial
         startTutorial([
             { getRect: () => { const f = document.querySelector('.upg-identity'); if (f) f.scrollIntoView({ block: 'nearest' }); return _combinedRect('.upg-identity'); },
               body: "You can only choose 2 out of 5 identity upgrades per Universe. Choose wisely! (Click & Hold to choose)" },
