@@ -101,7 +101,7 @@ const UPGRADES = [
     name: "Dust Particle Count",
     maxLevel: 4,
     section: "DUST PARTICLES",
-    costs: [600, 1500, 4000, 9200],
+    costs: [300, 1000, 4000, 9200],
     flavor: "Where one grain settles, others follow.",
     now: (l) => `${1 + l} particles total`,
     unlock: () => lvl("dust") >= 1,
