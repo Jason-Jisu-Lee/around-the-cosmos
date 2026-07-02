@@ -75,9 +75,47 @@ addEventListener('resize', () => { if (tutorialActive) _renderTutStep(); });
 // Fires the moment the dust identities appear (their unlock = runDust >= 50k), so the player learns
 // about them before they can engage. Walks: identity cards -> the Accretion progress card.
 const TUT_IDENTITY_AT = 50000;
+
+// synthetic viewport rects for the two window-space events (the tutorial hole needs left/top/right/width/height)
+function _cometTutRect() {
+    const c = G.comet; if (!c) return null;
+    const R = 36;
+    return { left: c.x - R, top: c.y - R, right: c.x + R, width: R * 2, height: R * 2 };
+}
+function _vortexTutRect() {
+    if (typeof VTX === 'undefined' || !VTX.active) return null;
+    const R = VTX.R * 1.08;
+    return { left: VTX.cx - R, top: VTX.cy - R, right: VTX.cx + R, width: R * 2, height: R * 2 };
+}
+
 function checkTutorials() {
     if (tutorialActive) return;
     if (!G.tutSeen) G.tutSeen = {};
+
+    // First comet ever: fires once the comet is well inside the viewport (it spawns off-screen),
+    // freezing it mid-flight under the spotlight. tutSeen.comet also marks "a comet has ever
+    // appeared" (comet.js uses it to summon the first vortex 30s after this one).
+    const c = G.comet;
+    if (!G.tutSeen.comet && c && c.x > 80 && c.x < innerWidth - 80 && c.y > 80 && c.y < innerHeight - 80) {
+        G.tutSeen.comet = true;
+        if (typeof saveGame === 'function') saveGame();
+        startTutorial([
+            { getRect: _cometTutRect,
+              body: "A comet! Click it for a windfall of stardust. One passes every so often." },
+        ]);
+        return;
+    }
+
+    // First vortex ever: fires once it is fully faded in (the linger timer is frozen while reading).
+    if (!G.tutSeen.vortex && typeof VTX !== 'undefined' && VTX.active && VTX.phase === 'stay') {
+        G.tutSeen.vortex = true;
+        if (typeof saveGame === 'function') saveGame();
+        startTutorial([
+            { getRect: _vortexTutRect,
+              body: "A vortex! Press and hold it until it collapses into a huge windfall. One wanders in rarely." },
+        ]);
+        return;
+    }
     if (!G.tutSeen.identity && G.runDust >= TUT_IDENTITY_AT && document.querySelector('.upg-identity')) {
         G.tutSeen.identity = true;
         if (typeof saveGame === 'function') saveGame();

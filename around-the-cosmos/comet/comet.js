@@ -31,6 +31,12 @@ function spawnComet() {
     const speedMult = COMET_SPEEDS[Math.random()*COMET_SPEEDS.length|0];
     const spd = Math.max(WW,HH) / CFG.COMET_LIFE * 1.1 * speedMult;
     G.comet = { x, y, vx:dx/d*spd, vy:dy/d*spd, life:CFG.COMET_LIFE, speedMult };
+
+    // The first comet ever also summons the first vortex ever ~30s later (tutorial pacing) -
+    // instead of the usual first-vortex wait of ~5-6 min. tutSeen.comet/.vortex double as the
+    // persistent "has ever appeared" markers (set by their tutorials in ui/tutorial.js).
+    if (G.tutSeen && !G.tutSeen.comet && !G.tutSeen.vortex && typeof vortexTimer !== 'undefined')
+        vortexTimer = 30;
 }
 
 function catchComet() {
