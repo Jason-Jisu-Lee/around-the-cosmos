@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Front page - 10 design candidates</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
+body { font-family: Georgia, serif; background: #f4efe4; color: #1a1a1a; }
+
+/* ---------- switcher chrome ---------- */
+#switch {
+    position: fixed; top: 14px; left: 50%; transform: translateX(-50%); z-index: 500;
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(26,26,26,0.85); color: #f4efe4; border-radius: 999px;
+    padding: 7px 14px; font-family: 'Nunito', sans-serif; font-size: 12px;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.25);
+}
+#switch button {
+    background: none; border: none; color: #f4efe4; cursor: pointer;
+    font-family: 'Nunito', sans-serif; font-size: 12px; font-weight: 800;
+    width: 22px; height: 22px; border-radius: 50%; opacity: 0.55;
+}
+#switch button:hover { opacity: 1; }
+#switch button.on { background: #c9a24a; color: #1a1a1a; opacity: 1; }
+#switch .arrow { font-size: 14px; width: 26px; }
+#dname { min-width: 170px; text-align: center; font-weight: 700; letter-spacing: 0.04em; color: #e8dfc9; }
+
+/* ---------- shared design shell ---------- */
+.design { position: fixed; inset: 0; display: none; }
+.design.on { display: block; }
+.design canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.credit { font-family: 'Nunito', sans-serif; }
+
+/* =========== 1. PARCHMENT OBSERVATORY =========== */
+#d1 { background: #f4efe4; }
+#d1 .mid { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; pointer-events: none; }
+#d1 h1 { font-weight: 500; font-size: 44px; letter-spacing: 0.14em; }
+#d1 .sub { font-style: italic; color: #8a8272; font-size: 15px; height: 22px; }
+#d1 .row { display: flex; gap: 16px; margin-top: 26px; pointer-events: auto; }
+#d1 .btn {
+    font-family: Georgia, serif; font-size: 16px; letter-spacing: 0.12em;
+    padding: 12px 40px; background: none; border: 1px solid #1a1a1a; border-radius: 2px;
+    cursor: pointer; transition: all 0.2s;
+}
+#d1 .btn:hover { background: #1a1a1a; color: #f4efe4; }
+
+/* =========== 2. INK ECLIPSE =========== */
+#d2 { background: #14120f; }
+#d2 .disc {
+    position: absolute; left: 50%; top: 50%; transform: translate(-50%,-52%);
+    width: 74vh; height: 74vh; border-radius: 50%; background: #f4efe4;
+    box-shadow: inset -7vh -4vh 0 0 #14120f, 0 0 120px rgba(244,239,228,0.14);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+}
+#d2 h1 { font-size: 40px; letter-spacing: 0.1em; font-weight: 500; color: #14120f; }
+#d2 .sub { color: #8a8272; font-style: italic; font-size: 14px; height: 20px; }
+#d2 .row { display: flex; gap: 44px; margin-top: 24px; }
+#d2 .btn {
+    background: none; border: none; cursor: pointer; font-family: Georgia, serif;
+    font-size: 17px; letter-spacing: 0.22em; color: #14120f;
+    padding: 4px 2px; border-bottom: 2px solid #c9a24a; transition: all 0.2s;
+}
+#d2 .btn:hover { letter-spacing: 0.3em; }
+
+/* =========== 3. ORBITAL MENU =========== */
+#d3 { background: #f4efe4; }
+#d3 .core { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); text-align: center; }
+#d3 h1 { font-size: 34px; letter-spacing: 0.12em; font-weight: 500; }
+#d3 .sub { color: #8a8272; font-style: italic; margin-top: 8px; font-size: 14px; height: 20px; }
+#d3 .maw { width: 22px; height: 22px; background: #1a1a1a; border-radius: 50%; margin: 18px auto 0; animation: d3pulse 2s infinite ease-in-out; }
+@keyframes d3pulse { 50% { transform: scale(1.18); } }
+#d3 .orb {
+    position: absolute; transform: translate(-50%,-50%);
+    font-family: Georgia, serif; font-size: 15px; letter-spacing: 0.14em;
+    background: #fffdf8; border: 1.5px solid #1a1a1a; border-radius: 999px;
+    padding: 10px 26px; cursor: pointer; box-shadow: 0 2px 10px rgba(90,80,60,0.15);
+    transition: background 0.2s, color 0.2s;
+}
+#d3 .orb:hover { background: #1a1a1a; color: #f4efe4; }
+
+/* =========== 4. STAR CHART =========== */
+#d4 { background: #efe9da;
+    background-image: linear-gradient(rgba(90,110,130,0.14) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(90,110,130,0.14) 1px, transparent 1px);
+    background-size: 56px 56px; }
+#d4 .frame { position: absolute; inset: 26px; border: 2px solid rgba(60,70,84,0.55); }
+#d4 .cap {
+    position: absolute; left: 64px; bottom: 74px; max-width: 430px;
+    background: #efe9da; border: 1.5px solid rgba(60,70,84,0.65); padding: 26px 30px;
+}
+#d4 .fig { font-family: 'Nunito', sans-serif; font-size: 11px; letter-spacing: 0.28em; color: #5a6e82; margin-bottom: 10px; }
+#d4 h1 { font-size: 30px; font-weight: 500; letter-spacing: 0.06em; margin-bottom: 6px; }
+#d4 .sub { font-style: italic; color: #7d7666; font-size: 13.5px; height: 19px; }
+#d4 .row { display: flex; gap: 12px; margin-top: 20px; }
+#d4 .btn {
+    font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 12px; letter-spacing: 0.2em;
+    padding: 10px 26px; background: none; border: 1.5px solid #3c4654; color: #3c4654;
+    cursor: pointer; transition: all 0.2s;
+}
+#d4 .btn:hover { background: #3c4654; color: #efe9da; }
+#d4 svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+/* =========== 5. TYPOGRAPHIC VOID =========== */
+#d5 { background: #f4efe4; }
+#d5 .big {
+    position: absolute; left: 6vw; top: 50%; transform: translateY(-54%);
+    font-family: 'Baloo 2', Georgia, serif; font-weight: 700; line-height: 0.94;
+    font-size: 15vw; letter-spacing: -0.01em; user-select: none;
+}
+#d5 .dot { display: inline-block; width: 0.16em; height: 0.16em; background: #1a1a1a; border-radius: 50%; margin-left: 0.05em; animation: d5b 2.2s infinite ease-in-out; }
+@keyframes d5b { 50% { transform: scale(1.35); } }
+#d5 .corner { position: absolute; right: 7vw; bottom: 9vh; text-align: right; }
+#d5 .sub { color: #8a8272; font-style: italic; font-size: 14px; margin-bottom: 14px; height: 20px; }
+#d5 .btn {
+    display: block; margin-left: auto; margin-top: 10px; background: none; border: none; cursor: pointer;
+    font-family: Georgia, serif; font-size: 22px; letter-spacing: 0.08em; color: #1a1a1a;
+}
+#d5 .btn::before { content: '→ '; opacity: 0; transition: opacity 0.15s; }
+#d5 .btn:hover::before { opacity: 1; }
+
+/* =========== 6. PULSE TERMINAL =========== */
+#d6 { background: #0d0b08; }
+#d6::after { content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: repeating-linear-gradient(transparent 0 2px, rgba(0,0,0,0.28) 2px 4px); }
+#d6 .term { position: absolute; left: 50%; top: 46%; transform: translate(-50%,-50%);
+    font-family: 'Consolas', 'Courier New', monospace; color: #d8a24a; font-size: 19px; line-height: 2.1;
+    text-shadow: 0 0 8px rgba(216,162,74,0.45); white-space: pre; }
+#d6 .opt { cursor: pointer; opacity: 0.85; }
+#d6 .opt:hover { opacity: 1; text-shadow: 0 0 14px rgba(216,162,74,0.9); }
+#d6 .cur { animation: d6blink 1s steps(1) infinite; }
+@keyframes d6blink { 50% { opacity: 0; } }
+
+/* =========== 7. PAPER CUTOUT =========== */
+#d7 { background: #e9e2d0; }
+#d7 .layer { position: absolute; left: 50%; border-radius: 50%; transform: translateX(-50%); }
+#d7 .l1 { width: 260vh; height: 260vh; top: 34vh; background: #f4efe4; box-shadow: 0 -14px 34px rgba(90,80,60,0.24); }
+#d7 .l2 { width: 220vh; height: 220vh; top: 48vh; background: #e6dcc4; box-shadow: 0 -14px 30px rgba(90,80,60,0.22); }
+#d7 .l3 { width: 180vh; height: 180vh; top: 64vh; background: #d8cbab; box-shadow: 0 -14px 26px rgba(90,80,60,0.22); }
+#d7 .hole { position: absolute; left: 50%; top: 26vh; transform: translateX(-50%);
+    width: 12vh; height: 12vh; border-radius: 50%; background: #1a1a1a;
+    box-shadow: inset 0 5px 14px rgba(0,0,0,0.8), 0 3px 0 rgba(255,255,255,0.65); }
+#d7 .head { position: absolute; left: 50%; top: 8vh; transform: translateX(-50%); text-align: center; }
+#d7 h1 { font-size: 38px; font-weight: 500; letter-spacing: 0.12em; }
+#d7 .sub { font-style: italic; color: #8a8272; margin-top: 8px; font-size: 14px; height: 20px; }
+#d7 .tab {
+    position: absolute; font-family: Georgia, serif; font-size: 16px; letter-spacing: 0.14em;
+    padding: 14px 40px 22px; background: #fffdf8; border: none; border-radius: 8px 8px 0 0;
+    cursor: pointer; box-shadow: 0 -6px 16px rgba(90,80,60,0.2); transition: transform 0.2s;
+}
+#d7 .tab:hover { transform: translate(-50%, -10px) rotate(var(--r)); }
+#d7 .t1 { left: calc(50% - 130px); top: 52vh;   transform: translate(-50%,0) rotate(-3deg); --r: -3deg; }
+#d7 .t2 { left: calc(50% + 130px); top: 53.5vh; transform: translate(-50%,0) rotate(2.5deg); --r: 2.5deg; }
+
+/* =========== 8. THE SLOW ZOOM =========== */
+#d8 { background: #0b0d12; }
+#d8 .mid { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; pointer-events: none; }
+#d8 h1 { color: #e8e2d2; font-weight: 400; font-size: 34px; letter-spacing: 0.55em; text-indent: 0.55em;
+    opacity: 0; animation: d8in 2.4s 0.5s forwards ease-out; }
+@keyframes d8in { to { opacity: 1; letter-spacing: 0.34em; text-indent: 0.34em; } }
+#d8 .sub { color: rgba(232,226,210,0.55); font-style: italic; font-size: 14px; height: 20px;
+    opacity: 0; animation: d8fade 1.6s 1.6s forwards; }
+#d8 .row { display: flex; gap: 22px; margin-top: 30px; pointer-events: auto;
+    opacity: 0; animation: d8fade 1.6s 2.1s forwards; }
+@keyframes d8fade { to { opacity: 1; } }
+#d8 .btn { background: none; border: 1px solid rgba(232,226,210,0.4); color: #e8e2d2;
+    font-family: Georgia, serif; font-size: 15px; letter-spacing: 0.2em; padding: 12px 38px;
+    cursor: pointer; transition: all 0.25s; }
+#d8 .btn:hover { border-color: #c9a24a; color: #c9a24a; box-shadow: 0 0 24px rgba(201,162,74,0.2); }
+
+/* =========== 9. MUSEUM PLACARD =========== */
+#d9 { background: #e6e2da; }
+#d9::before { content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse 60% 50% at 50% 42%, rgba(255,252,240,0.9), transparent 70%); }
+#d9 .card {
+    position: absolute; left: 50%; top: 50%; transform: translate(-50%,-52%);
+    width: 460px; background: #fbf9f4; padding: 44px 48px 38px;
+    box-shadow: 0 14px 44px rgba(50,45,35,0.22), 0 2px 6px rgba(50,45,35,0.12);
+}
+#d9 h1 { font-size: 27px; font-weight: 500; letter-spacing: 0.04em; }
+#d9 .meta { font-family: 'Nunito', sans-serif; font-size: 12px; letter-spacing: 0.14em; color: #8a8272; margin-top: 8px; text-transform: uppercase; }
+#d9 .desc { font-size: 14.5px; line-height: 1.65; color: #4c463a; margin-top: 18px; font-style: italic; min-height: 46px; }
+#d9 hr { border: none; border-top: 1px solid #ddd5c2; margin: 24px 0 20px; }
+#d9 .row { display: flex; gap: 12px; }
+#d9 .btn {
+    flex: 1; font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 12px; letter-spacing: 0.22em;
+    padding: 12px 0; cursor: pointer; border: none; transition: all 0.2s;
+    background: linear-gradient(#cbb26a, #b39548); color: #2c2718;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), 0 2px 5px rgba(50,45,35,0.25);
+}
+#d9 .btn.ghost { background: none; border: 1.5px solid #b8b0a0; color: #6b6558; box-shadow: none; }
+#d9 .btn:hover { filter: brightness(1.06); }
+
+/* =========== 10. GRAVITY WELL =========== */
+#d10 { background: #f4efe4; }
+#d10 .mid { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; pointer-events: none; }
+#d10 h1 { font-size: 42px; font-weight: 500; letter-spacing: 0.13em; text-shadow: 0 2px 0 rgba(255,255,255,0.7); }
+#d10 .sub { font-style: italic; color: #8a8272; font-size: 14px; height: 20px; }
+#d10 .row { display: flex; gap: 16px; margin-top: 130px; pointer-events: auto; }
+#d10 .btn {
+    font-family: Georgia, serif; font-size: 16px; letter-spacing: 0.12em; padding: 12px 38px;
+    background: #fffdf8; border: 1.5px solid #1a1a1a; border-radius: 4px; cursor: pointer;
+    box-shadow: 0 3px 0 #1a1a1a; transition: all 0.12s;
+}
+#d10 .btn:hover { transform: translateY(2px); box-shadow: 0 1px 0 #1a1a1a; }
+</style>
+</head>
+<body>
+
+<nav id="switch">
+    <button class="arrow" id="prev">&#9664;</button>
+    <span id="pills"></span>
+    <button class="arrow" id="next">&#9654;</button>
+    <span id="dname"></span>
+</nav>
+
+<!-- 1 -->
+<section class="design" id="d1">
+    <canvas></canvas>
+    <div class="mid">
+        <h1>AROUND THE COSMOS</h1>
+        <div class="sub" data-sub>a quiet idle cosmos</div>
+        <div class="row">
+            <button class="btn" data-start>START</button>
+            <button class="btn" data-about>ABOUT</button>
+        </div>
+    </div>
+</section>
+
+<!-- 2 -->
+<section class="design" id="d2">
+    <div class="disc">
+        <h1>AROUND THE COSMOS</h1>
+        <div class="sub" data-sub></div>
+        <div class="row">
+            <button class="btn" data-start>START</button>
+            <button class="btn" data-about>ABOUT</button>
+        </div>
+    </div>
+</section>
+
+<!-- 3 -->
+<section class="design" id="d3">
+    <div class="core">
+        <h1>AROUND THE COSMOS</h1>
+        <div class="sub" data-sub>the menu is in orbit</div>
+        <div class="maw"></div>
+    </div>
+    <button class="orb" id="orbStart" data-start>START</button>
+    <button class="orb" id="orbAbout" data-about>ABOUT</button>
+</section>
+
+<!-- 4 -->
+<section class="design" id="d4">
+    <svg id="chart"></svg>
+    <div class="frame"></div>
+    <div class="cap">
+        <div class="fig">CHART No. 1 · OBSERVED 2026</div>
+        <h1>Around the Cosmos</h1>
+        <div class="sub" data-sub>a survey of one small hungry void</div>
+        <div class="row">
+            <button class="btn" data-start>START</button>
+            <button class="btn" data-about>ABOUT</button>
+        </div>
+    </div>
+</section>
+
+<!-- 5 -->
+<section class="design" id="d5">
+    <div class="big">AROUND<br>THE<br>COSMOS<span class="dot"></span></div>
+    <div class="corner">
+        <div class="sub" data-sub></div>
+        <button class="btn" data-start>Start</button>
+        <button class="btn" data-about>About</button>
+    </div>
+</section>
+
+<!-- 6 -->
+<section class="design" id="d6">
+    <div class="term" id="term"></div>
+</section>
+
+<!-- 7 -->
+<section class="design" id="d7">
+    <div class="layer l1"></div>
+    <div class="layer l2"></div>
+    <div class="layer l3"></div>
+    <div class="hole"></div>
+    <div class="head">
+        <h1>AROUND THE COSMOS</h1>
+        <div class="sub" data-sub></div>
+    </div>
+    <button class="tab t1" data-start>START</button>
+    <button class="tab t2" data-about>ABOUT</button>
+</section>
+
+<!-- 8 -->
+<section class="design" id="d8">
+    <canvas></canvas>
+    <div class="mid">
+        <h1>AROUND THE COSMOS</h1>
+        <div class="sub" data-sub></div>
+        <div class="row">
+            <button class="btn" data-start>START</button>
+            <button class="btn" data-about>ABOUT</button>
+        </div>
+    </div>
+</section>
+
+<!-- 9 -->
+<section class="design" id="d9">
+    <div class="card">
+        <h1>Around the Cosmos</h1>
+        <div class="meta">2026 &middot; Idle simulation &middot; canvas on parchment</div>
+        <div class="desc" data-sub>A small dark maw generates stardust with every slow pulse. Orbiters circle. Universes collapse, and begin again.</div>
+        <hr>
+        <div class="row">
+            <button class="btn" data-start>START</button>
+            <button class="btn ghost" data-about>ABOUT</button>
+        </div>
+    </div>
+</section>
+
+<!-- 10 -->
+<section class="design" id="d10">
+    <canvas></canvas>
+    <div class="mid">
+        <h1>AROUND THE COSMOS</h1>
+        <div class="sub" data-sub>the grid feels the pull. so will the stardust</div>
+        <div class="row">
+            <button class="btn" data-start>START</button>
+            <button class="btn" data-about>ABOUT</button>
+        </div>
+    </div>
+</section>
+
+<script>
+'use strict';
+const NAMES = ['Parchment Observatory','Ink Eclipse','Orbital Menu','Star Chart','Typographic Void',
+               'Pulse Terminal','Paper Cutout','The Slow Zoom','Museum Placard','Gravity Well'];
+const N = 10;
+let cur = 0;
+
+// ---------- switcher ----------
+const pills = document.getElementById('pills');
+for (let i = 0; i < N; i++) {
+    const b = document.createElement('button'); b.textContent = i + 1;
+    b.addEventListener('click', () => show(i)); pills.appendChild(b);
+}
+document.getElementById('prev').addEventListener('click', () => show((cur + N - 1) % N));
+document.getElementById('next').addEventListener('click', () => show((cur + 1) % N));
+addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft') show((cur + N - 1) % N);
+    if (e.key === 'ArrowRight') show((cur + 1) % N);
+});
+function show(i) {
+    cur = i;
+    document.querySelectorAll('.design').forEach((d, k) => d.classList.toggle('on', k === i));
+    pills.querySelectorAll('button').forEach((b, k) => b.classList.toggle('on', k === i));
+    document.getElementById('dname').textContent = (i + 1) + '. ' + NAMES[i];
+    if (i === 5) d6start();
+    if (i === 7) d8restart();
+}
+
+// ---------- shared Start / About behaviour ----------
+const CREDIT = 'By 2ndIntelligentWorld';
+document.querySelectorAll('.design').forEach(sec => {
+    const sub = sec.querySelector('[data-sub]');
+    sec.querySelectorAll('[data-about]').forEach(b => b.addEventListener('click', () => {
+        if (!sub) return;
+        const keep = sub.dataset.orig ?? (sub.dataset.orig = sub.textContent);
+        sub.textContent = sub.textContent === CREDIT ? keep : CREDIT;
+        sub.classList.add('credit'); if (sub.textContent !== CREDIT) sub.classList.remove('credit');
+    }));
+    sec.querySelectorAll('[data-start]').forEach(b => b.addEventListener('click', () => {
+        if (sec.id === 'd10') { d10fall(); return; }
+        b.animate([{ opacity: 1 }, { opacity: 0.2 }, { opacity: 1 }], { duration: 320 });
+        if (sub && sub.dataset.orig) { sub.textContent = sub.dataset.orig; sub.classList.remove('credit'); }
+        if (sub) { const k = sub.textContent; sub.textContent = '(loads the game)'; setTimeout(() => { if (sub.textContent === '(loads the game)') sub.textContent = k; }, 900); }
+    }));
+});
+
+function sizeCanvas(c) {
+    const dpr = devicePixelRatio || 1;
+    c.width = innerWidth * dpr; c.height = innerHeight * dpr;
+    const g = c.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    return g;
+}
+
+// ---------- 1: parchment observatory (orbit rings + gold twinkles) ----------
+const c1 = document.querySelector('#d1 canvas'); let g1;
+const d1stars = Array.from({ length: 26 }, () => ({ x: Math.random(), y: Math.random(), p: Math.random() * 6.28, s: 1 + Math.random() * 1.6 }));
+function d1tick(t) {
+    g1 = g1 || sizeCanvas(c1);
+    const W = innerWidth, H = innerHeight, cx = W / 2, cy = H / 2;
+    g1.clearRect(0, 0, W, H);
+    for (const s of d1stars) {
+        const a = 0.18 + 0.3 * (0.5 + 0.5 * Math.sin(t * 1.4 + s.p));
+        g1.fillStyle = `rgba(180,150,80,${a.toFixed(3)})`;
+        g1.beginPath(); g1.arc(s.x * W, s.y * H, s.s, 0, 7); g1.fill();
+    }
+    for (let i = 0; i < 3; i++) {
+        const r = 90 + i * 62;
+        g1.strokeStyle = 'rgba(100,90,80,0.18)'; g1.lineWidth = 1;
+        g1.beginPath(); g1.arc(cx, cy, r, 0, 7); g1.stroke();
+        const a = t * (0.5 - i * 0.13) + i * 2.2;
+        g1.fillStyle = '#7a6a55';
+        g1.beginPath(); g1.arc(cx + Math.cos(a) * r, cy + Math.sin(a) * r, 3.4 + i * 1.6, 0, 7); g1.fill();
+    }
+    g1.fillStyle = '#1a1a1a';
+    g1.beginPath(); g1.arc(cx, cy, 9 * (1 + 0.06 * Math.sin(t * 1.8)), 0, 7); g1.fill();
+}
+
+// ---------- 3: orbital menu (Start/About orbit the title) ----------
+let d3a = 0, d3prev = 0, d3hover = false;
+['orbStart', 'orbAbout'].forEach(id => {
+    const el = document.getElementById(id);
+    el.addEventListener('mouseenter', () => d3hover = true);
+    el.addEventListener('mouseleave', () => d3hover = false);
+});
+function d3tick(t) {
+    const dt = Math.min(t - d3prev, 0.1); d3prev = t;
+    if (!d3hover) d3a += dt * 0.35;
+    const cx = innerWidth / 2, cy = innerHeight / 2, R = Math.min(innerWidth, innerHeight) * 0.34;
+    const s = document.getElementById('orbStart'), ab = document.getElementById('orbAbout');
+    s.style.left = (cx + Math.cos(d3a) * R) + 'px';          s.style.top = (cy + Math.sin(d3a) * R * 0.62) + 'px';
+    ab.style.left = (cx + Math.cos(d3a + Math.PI) * R) + 'px'; ab.style.top = (cy + Math.sin(d3a + Math.PI) * R * 0.62) + 'px';
+}
+
+// ---------- 4: star chart constellation (built once) ----------
+(function () {
+    const svg = document.getElementById('chart');
+    const pts = [[0.62,0.2],[0.7,0.3],[0.8,0.26],[0.76,0.42],[0.66,0.52],[0.56,0.44],[0.87,0.5],[0.6,0.66],[0.48,0.28]];
+    let html = '';
+    const seg = [[0,1],[1,2],[2,3],[3,4],[4,5],[5,0],[3,6],[4,7],[0,8]];
+    for (const [a, b] of seg)
+        html += `<line x1="${pts[a][0]*100}%" y1="${pts[a][1]*100}%" x2="${pts[b][0]*100}%" y2="${pts[b][1]*100}%" stroke="rgba(60,70,84,0.4)" stroke-width="1" stroke-dasharray="4 5"/>`;
+    pts.forEach((p, i) => {
+        html += `<circle cx="${p[0]*100}%" cy="${p[1]*100}%" r="${i ? 3 : 6}" fill="${i ? '#3c4654' : '#1a1a1a'}"/>`;
+        html += `<circle cx="${p[0]*100}%" cy="${p[1]*100}%" r="${(i ? 8 : 13)}" fill="none" stroke="rgba(60,70,84,0.35)"/>`;
+    });
+    svg.innerHTML = html;
+})();
+
+// ---------- 6: pulse terminal (typing) ----------
+let d6timer = null;
+function d6start() {
+    const el = document.getElementById('term');
+    clearTimeout(d6timer); el.innerHTML = '';
+    const lines = ['maw boot v0.9 .. ok', 'orbiters: none. stardust: 10', '', 'AROUND THE COSMOS', ''];
+    let li = 0, ch = 0, out = '';
+    (function type() {
+        if (li < lines.length) {
+            if (ch <= lines[li].length) {
+                out = out.slice(0, out.lastIndexOf('\n') + 1) + lines[li].slice(0, ch);
+                el.textContent = out; ch++;
+                d6timer = setTimeout(type, 26);
+            } else { out += '\n'; li++; ch = 0; d6timer = setTimeout(type, li === 3 ? 350 : 120); }
+        } else {
+            el.innerHTML = out.replace(/\n/g, '<br>') +
+                `<span class="opt" id="t-start">&gt; START</span><br>` +
+                `<span class="opt" id="t-about">&gt; ABOUT</span><span class="cur">_</span><br><span id="t-out"></span>`;
+            document.getElementById('t-start').addEventListener('click', () => {
+                document.getElementById('t-out').textContent = 'loading cosmos ...';
+                setTimeout(() => document.getElementById('t-out').textContent = '', 900);
+            });
+            document.getElementById('t-about').addEventListener('click', () => {
+                const o = document.getElementById('t-out');
+                o.textContent = o.textContent === CREDIT ? '' : CREDIT;
+            });
+        }
+    })();
+}
+
+// ---------- 8: slow zoom starfield ----------
+const c8 = document.querySelector('#d8 canvas'); let g8;
+let d8s = [];
+function d8restart() {
+    // restart the CSS entrance animations
+    const sec = document.getElementById('d8');
+    sec.querySelectorAll('h1, .sub, .row').forEach(e => { e.style.animation = 'none'; void e.offsetWidth; e.style.animation = ''; });
+}
+function d8tick(t) {
+    g8 = g8 || sizeCanvas(c8);
+    const W = innerWidth, H = innerHeight, cx = W / 2, cy = H / 2;
+    if (!d8s.length) d8s = Array.from({ length: 170 }, () => ({ a: Math.random() * 6.28, r: Math.random(), s: 0.5 + Math.random() }));
+    g8.fillStyle = '#0b0d12'; g8.fillRect(0, 0, W, H);
+    const RM = Math.hypot(W, H) / 2;
+    for (const s of d8s) {
+        s.r += 0.0006 * s.s;                       // slow outward drift = camera pushing in
+        if (s.r > 1) s.r = 0.02;
+        const rr = Math.pow(s.r, 1.6) * RM;
+        const x = cx + Math.cos(s.a) * rr, y = cy + Math.sin(s.a) * rr;
+        const al = Math.min(0.85, 0.15 + s.r * 1.1);
+        g8.fillStyle = `rgba(226,218,196,${al.toFixed(3)})`;
+        g8.beginPath(); g8.arc(x, y, 0.6 + s.r * 1.7, 0, 7); g8.fill();
+    }
+    g8.fillStyle = '#c9a24a';
+    g8.beginPath(); g8.arc(cx, cy, 2.6 + 0.5 * Math.sin(t * 2), 0, 7); g8.fill();
+}
+
+// ---------- 10: gravity well grid ----------
+const c10 = document.querySelector('#d10 canvas'); let g10;
+let d10mx = -9999, d10my = -9999, d10fallT = -1;
+document.getElementById('d10').addEventListener('mousemove', e => { d10mx = e.clientX; d10my = e.clientY; });
+function d10fall() { d10fallT = performance.now() / 1000; }
+function d10tick(t) {
+    g10 = g10 || sizeCanvas(c10);
+    const W = innerWidth, H = innerHeight, cx = W / 2, cy = H / 2 - 20;
+    g10.clearRect(0, 0, W, H);
+    const GAP = 34;
+    const fall = d10fallT > 0 ? Math.min(1, (t - d10fallT) / 1.4) : 0;
+    if (fall >= 1) d10fallT = -1;
+    for (let x = GAP / 2; x < W; x += GAP) for (let y = GAP / 2; y < H; y += GAP) {
+        let px = x, py = y;
+        const dxm = d10mx - x, dym = d10my - y, dm = Math.hypot(dxm, dym);
+        if (dm < 180 && dm > 1) { const k = (1 - dm / 180) * 14; px += dxm / dm * k; py += dym / dm * k; }
+        if (fall > 0) { const e = fall * fall; px += (cx - px) * e; py += (cy - py) * e; }
+        const dc = Math.hypot(x - cx, y - cy);
+        const a = Math.max(0.1, 0.38 - dc / Math.max(W, H) * 0.3) * (1 - fall * 0.5);
+        g10.fillStyle = `rgba(122,106,85,${a.toFixed(3)})`;
+        g10.beginPath(); g10.arc(px, py, 1.6, 0, 7); g10.fill();
+    }
+    g10.fillStyle = '#1a1a1a';
+    g10.beginPath(); g10.arc(cx, cy, 11 + fall * 10, 0, 7); g10.fill();
+}
+
+// ---------- master loop (animates only the visible design) ----------
+addEventListener('resize', () => { g1 = g8 = g10 = null; });
+(function loop(ms) {
+    const t = ms / 1000;
+    if (cur === 0) d1tick(t);
+    if (cur === 2) d3tick(t);
+    if (cur === 7) d8tick(t);
+    if (cur === 9) d10tick(t);
+    requestAnimationFrame(loop);
+})(0);
+
+show(0);
+</script>
+</body>
+</html>
