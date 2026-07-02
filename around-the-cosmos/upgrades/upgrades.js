@@ -184,7 +184,7 @@ const UPGRADES = [
     group: "dust",
     costs: [15000, 40000, 100000],
     flavor: "The swarm winds into a tightening whirl.",
-    desc: (l) => `Dust payout spins up over ~10 minutes in a universe to +${8 * (l || 1)}%, then holds. Resets on Accretion.`,
+    desc: (l) => `+${8 * (l || 1)}% dust payout. Starts at 0%, reaches full after 10 minutes. Restarts every universe.`,
     unlock: () => G.runDust >= 50000,
   },
   {
