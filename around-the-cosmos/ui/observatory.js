@@ -3,7 +3,7 @@
 let statsSig = null;
 let statEls  = {};
 
-function buildStats(showOrbiter, showComet, showVortex, showPlayed) {
+function buildStats(showOrbiter, showComet, showPlayed) {
     const list = document.getElementById('stats-list');
     list.innerHTML = ''; statEls = {};
     const mk = label => {
@@ -24,7 +24,6 @@ function buildStats(showOrbiter, showComet, showVortex, showPlayed) {
     }
     { const r = mkPop('Total income / min'); statEls.totalMin = r.val; statEls.totalMinPop = r.pop; }
     if (showComet)   { const r = mkPop('Comet Value');         statEls.comet   = r.val; statEls.cometPop   = r.pop; }
-    if (showVortex)  { const r = mkPop('Vortex Value');        statEls.vortex  = r.val; statEls.vortexPop  = r.pop; }
     { const r = mkPop('Total Stardust Collected'); statEls.total = r.val; statEls.totalPop = r.pop; }
     statEls.time   = mk('Time on Current Universe');
     if (showPlayed) statEls.played = mk('Total time played');
@@ -47,9 +46,10 @@ function updateObservatory() {
     }
     const cometVal = Math.round((10 * pulseVal + orbiterSum) * brighterTailsMult());
 
-    const showOrbiter = totalOrbiters >= 1, showComet = G.cometSeen, showVortex = G.vortexSeen, showPlayed = G.massEarned > 0;
-    const sig = (showOrbiter ? 'O' : '') + (showComet ? 'C' : '') + (showVortex ? 'V' : '') + (showPlayed ? 'P' : '');
-    if (sig !== statsSig) { buildStats(showOrbiter, showComet, showVortex, showPlayed); statsSig = sig; }
+    // (the Vortex Value row was removed 2026-07-02 - dispelling pays nothing now, so there is no value to show)
+    const showOrbiter = totalOrbiters >= 1, showComet = G.cometSeen, showPlayed = G.massEarned > 0;
+    const sig = (showOrbiter ? 'O' : '') + (showComet ? 'C' : '') + (showPlayed ? 'P' : '');
+    if (sig !== statsSig) { buildStats(showOrbiter, showComet, showPlayed); statsSig = sig; }
 
     if (statEls.orbiter) {
         setStatTxt(statEls.orbiter, '✦' + fmtNum(orbiterSum));
@@ -63,11 +63,6 @@ function updateObservatory() {
     if (statEls.comet) {
         setStatTxt(statEls.comet, '✦' + fmtNum(cometVal));
         setStatHtml(statEls.cometPop, `Scales with pulse and orbiters.`);
-    }
-    if (statEls.vortex) {
-        const RM = (typeof VX !== 'undefined') ? VX.REWARD_MULT : 10;
-        setStatTxt(statEls.vortex, '✦' + fmtNum(cometVal * RM));
-        setStatHtml(statEls.vortexPop, `Scales with comet value.`);
     }
     setStatTxt(statEls.total, '✦' + fmtNum(G.runDust));
     setStatHtml(statEls.totalPop, 'All stardust earned in the current universe (resets on prestige).');

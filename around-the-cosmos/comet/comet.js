@@ -7,6 +7,7 @@ function randCometGap() {
 
 const COMET_SPEEDS = [1.0, 1.5, 2.0];
 const cometFx = [];
+const cometFirstAt = 80 + Math.random() * 20;   // the first comet ever arrives at an 80-100s universe mark
 
 // LEGACY (2026-07-02): events now OVERLAP FREELY - comet, swarm, vortex and stray stardust can all
 // be on screen at once, and nothing checks this before spawning anymore. Kept for reference/BIGROCK.
@@ -23,7 +24,8 @@ function afterglowActive() { return lvl('afterglow') > 0 && gameClock < afterglo
 function afterglowFrac()   { return Math.max(0, (afterglowUntil - gameClock) / AFTERGLOW_DUR); }
 
 // builds one comet body flying in from a random edge, aimed loosely at Maw
-function newCometObj() {
+// (forceSpeed overrides the random speed pick - the swarm uses it)
+function newCometObj(forceSpeed) {
     const WW = innerWidth, HH = innerHeight;
     const side = Math.random()*4|0, r = Math.random();
     const x = side<2 ? (side?WW+40:-40) : r*WW;
@@ -31,7 +33,7 @@ function newCometObj() {
     const L = mawScreen();
     const tx = L.x + (Math.random()-0.5)*WW*0.4, ty = L.y + (Math.random()-0.5)*HH*0.4;
     const dx = tx-x, dy = ty-y, d = Math.hypot(dx,dy) || 1;
-    const speedMult = COMET_SPEEDS[Math.random()*COMET_SPEEDS.length|0];
+    const speedMult = forceSpeed || COMET_SPEEDS[Math.random()*COMET_SPEEDS.length|0];
     const spd = Math.max(WW,HH) / CFG.COMET_LIFE * 1.1 * speedMult;
     return { x, y, vx:dx/d*spd, vy:dy/d*spd, life:CFG.COMET_LIFE, speedMult };
 }
@@ -72,8 +74,8 @@ function tryCatchCometAt(x, y, R) {
     return false;
 }
 
-// ---- Comet swarm: a rare event - 8 comets pouring in 0.2-0.4s apart, every 2.5-4 min ----
-const SWARM_COUNT = 8, SWARM_GAP_MIN = 150, SWARM_GAP_MAX = 240;
+// ---- Comet swarm: a rare event - 13 fast, glowing comets pouring in 0.2-0.4s apart ----
+const SWARM_COUNT = 13, SWARM_GAP_MIN = 140, SWARM_GAP_MAX = 200;
 let swarmTimer = SWARM_GAP_MIN + Math.random() * (SWARM_GAP_MAX - SWARM_GAP_MIN);
 const swarmComets = [];   // live swarm comets (same body shape as G.comet)
 let swarmPending = [];    // per-comet countdowns until each of the 8 spawns
@@ -92,17 +94,22 @@ function cometTick(dt) {
         if (cometFx[i].age >= cometFx[i].maxAge) cometFx.splice(i, 1);
     }
 
-    // swarm: countdown -> trigger (waits only for the comet tutorial; overlaps anything)
+    // swarm: countdown -> trigger (waits for the comet tutorial; a feeding vortex blocks NEW events)
     swarmTimer -= dt;
     if (swarmTimer <= 0) {
-        if (G.tutSeen && G.tutSeen.comet) {
+        if (G.tutSeen && G.tutSeen.comet && !(typeof VTX !== 'undefined' && VTX.active)) {
             swarmTimer = SWARM_GAP_MIN + Math.random() * (SWARM_GAP_MAX - SWARM_GAP_MIN);
             triggerCometSwarm();
-        } else swarmTimer = 5;   // too early (pre-tutorial) -> retry shortly
+        } else swarmTimer = 5;   // blocked (pre-tutorial / vortex up) -> retry shortly
     }
     for (let i = swarmPending.length - 1; i >= 0; i--) {
         swarmPending[i] -= dt;
-        if (swarmPending[i] <= 0) { swarmPending.splice(i, 1); swarmComets.push(newCometObj()); }
+        if (swarmPending[i] <= 0) {
+            swarmPending.splice(i, 1);
+            const c = newCometObj(Math.random() < 0.5 ? 1.75 : 2);   // swarm comets are FAST...
+            c.glow = true;                                            // ...and lit up slightly
+            swarmComets.push(c);
+        }
     }
     for (let i = swarmComets.length - 1; i >= 0; i--) {
         const c = swarmComets[i];
@@ -119,9 +126,10 @@ function cometTick(dt) {
         }
     } else {
         G.cometTimer -= dt;
-        // the FIRST comet ever holds until the 20s mark of the universe clock (tutorial pacing);
-        // tutSeen.comet is the persistent "a comet has ever appeared" marker (set by its tutorial)
-        const firstGate = (G.tutSeen && G.tutSeen.comet) || G.universeTime >= 20;
-        if (G.cometTimer <= 0 && firstGate) spawnComet();
+        // the FIRST comet ever holds until an 80-100s mark of the universe clock (tutorial pacing);
+        // tutSeen.comet is the persistent "a comet has ever appeared" marker (set by its tutorial).
+        // A feeding vortex blocks NEW spawns (whatever is already flying keeps flying).
+        const firstGate = (G.tutSeen && G.tutSeen.comet) || G.universeTime >= cometFirstAt;
+        if (G.cometTimer <= 0 && firstGate && !(typeof VTX !== 'undefined' && VTX.active)) spawnComet();
     }
 }

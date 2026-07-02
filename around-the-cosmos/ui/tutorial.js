@@ -86,10 +86,13 @@ function _nextTutStep() {
     if (_tutIndex >= _tutSteps.length) endTutorial(); else _renderTutStep();
 }
 
+let lastTutEndClock = -999;   // gameClock when the last tutorial closed (drives the between-tutorials gap)
+
 function endTutorial() {
     const layer = document.getElementById('tutorial');
     if (layer) { layer.style.display = 'none'; layer.innerHTML = ''; }
     tutorialActive = false; _tutSteps = null;
+    lastTutEndClock = (typeof gameClock !== 'undefined') ? gameClock : -999;
 }
 
 addEventListener('resize', () => { if (tutorialActive) _renderTutStep(); });
@@ -129,9 +132,14 @@ function _vortexTutRect() {
     return { left: VTX.cx - R, top: VTX.cy - R, right: VTX.cx + R, width: R * 2, height: R * 2 };
 }
 
+const TUT_GAP = 8;   // seconds of live play required between tutorials - no back-to-back popups
+
 function checkTutorials() {
     if (tutorialActive) return;
     if (!G.tutSeen) G.tutSeen = {};
+    if (gameClock - lastTutEndClock < TUT_GAP) return;   // breathe between tutorials (the stray glint
+    // waits indefinitely, the comet defers to the next one, and the first vortex's SPAWN respects
+    // this gap too - so nothing is ever lost to the pause)
 
     // Intro (very first start ever): the Maw, then the Cosmic Pulse card.
     if (!G.tutSeen.intro) {

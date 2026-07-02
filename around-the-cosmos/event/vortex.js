@@ -3,11 +3,11 @@
 const VTAU = Math.PI * 2;
 
 const VX = {
-    SPAWN_MIN: 125,        // 2:05 between vortexes
-    SPAWN_MAX: 175,        // 2:55
-    STEAL_TICK: 0.3,       // the vortex steals every 0.3s...
-    STEAL_MIN: 0.02,       // ...2-5% (random) of the stardust held when it spawned
-    STEAL_MAX: 0.05,
+    SPAWN_MIN: 160,        // 2:40 between vortexes
+    SPAWN_MAX: 215,        // 3:35
+    STEAL_TICK: 0.2,       // the vortex steals every 0.2s...
+    STEAL_MIN: 0.04,       // ...4-6% (random) of the stardust held when it spawned
+    STEAL_MAX: 0.06,
     MOTE_EVERY: 0.2,       // a stolen-stardust mote streams Maw -> vortex every 0.2s
     MOTE_DUR: 0.55,        // each mote's travel time
     FIRST_DELAY: 2 * 60,   // the first vortex of a session appears 2 min later than the usual cadence
@@ -116,6 +116,7 @@ function ensureVortexBitmap(){
 
 function vortexInteractive(){ return VTX.active && VTX.phase === 'stay'; }
 
+// LEGACY (2026-07-02): dispelling no longer pays anything - kept only for reference.
 function vortexReward(){
     let combined = 0;
     for (const o of ORBITERS) combined += o.list().length * o.payout();
@@ -164,12 +165,13 @@ function vortexTick(dt){
     for (let i = vortexFx.length-1; i >= 0; i--){ vortexFx[i].age += dt; if (vortexFx[i].age >= vortexFx[i].maxAge) vortexFx.splice(i,1); }
 
     if (!VTX.active){
-        // the FIRST vortex ever appears at the 7:00 mark of the universe clock (tutorial pacing),
-        // and only AFTER the comet + stray tutorials are done - so its own tutorial (which fires
-        // the frame it becomes grabbable, before any steal tick can land) can never queue behind
-        // another popup. tutSeen.vortex is the persistent "has ever appeared" marker.
+        // the FIRST vortex ever appears at the 3:30 mark of the universe clock (tutorial pacing),
+        // only AFTER the comet + stray tutorials are done AND clear of the post-tutorial gap -
+        // so its own tutorial (which fires the frame it becomes grabbable, before any steal tick
+        // can land) can never queue behind another popup. tutSeen.vortex = "has ever appeared".
         if (typeof G !== 'undefined' && G.tutSeen && !G.tutSeen.vortex) {
-            if (G.universeTime >= 420 && G.tutSeen.comet && G.tutSeen.stray) vortexSpawn();
+            const gapOk = typeof lastTutEndClock === 'undefined' || gameClock - lastTutEndClock >= 10;
+            if (G.universeTime >= 210 && G.tutSeen.comet && G.tutSeen.stray && gapOk) vortexSpawn();
             return;
         }
         vortexTimer -= dt;
@@ -238,10 +240,8 @@ function vortexTick(dt){
 
 function startAbsorb(){
     VTX.phase = 'absorb'; VTX.t = 0; VTX.holding = false; VTX.flash = 1;
-    const reward = vortexReward();
-    earn(reward);
-    G.vortexSeen = true;   // gates the observatory's Vortex Value row - only after the first successful grab
-    vortexFx.push({ x:VTX.cx, y:VTX.cy, text:'+✦'+fmtNum(reward), age:0, maxAge:2.0 });
+    // NO reward (changed 2026-07-02): dispelling only STOPS the theft - what was stolen stays stolen.
+    G.vortexSeen = true;
     if (typeof SoundSystem !== 'undefined' && SoundSystem.sfxVortexAbsorb) SoundSystem.sfxVortexAbsorb();
 }
 

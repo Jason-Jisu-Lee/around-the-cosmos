@@ -5,13 +5,12 @@
 // of the universe clock and fires its own tutorial (ui/tutorial.js). Independent of the
 // comet/vortex no-overlap rule - it is background texture, not an event.
 const STRAY = {
-    GAP_MIN: 15, GAP_MAX: 22,   // seconds between glints
-    LIFE: 12,                    // drift time before it fades away uncollected
+    GAP_MIN: 10, GAP_MAX: 18,   // seconds between glints
     R: 26,                       // sweep radius (sky-canvas px)
     PULSES: 5,                   // value = ~5 pulses
 };
 
-let strayFirstAt = 90 + Math.random() * 25;   // the first-ever glint's universe-time mark (90-115s)
+const strayFirstAt = 20;   // the first-ever glint appears at the 20s universe mark
 let strayTimer = 0;
 let stray = null;                // { x, y, vx, vy, age, tw }
 const strayFx = [];              // collect sparkles { x, y, age, maxAge }
@@ -40,21 +39,24 @@ function strayTick(dt) {
     for (let i = strayFx.length - 1; i >= 0; i--) { strayFx[i].age += dt; if (strayFx[i].age >= strayFx[i].maxAge) strayFx.splice(i, 1); }
 
     if (!stray) {
-        if (G.tutSeen && !G.tutSeen.stray) {                       // first glint ever: wait for the mark
-            if (G.universeTime >= strayFirstAt) spawnStray();
+        const vortexUp = typeof VTX !== 'undefined' && VTX.active;   // a feeding vortex blocks NEW events
+        if (G.tutSeen && !G.tutSeen.stray) {                          // first glint ever: wait for the mark
+            if (G.universeTime >= strayFirstAt && !vortexUp) spawnStray();
             return;
         }
         strayTimer -= dt;
-        if (strayTimer <= 0) spawnStray();
+        if (strayTimer <= 0 && !vortexUp) spawnStray();
         return;
     }
 
+    // ONE glint at a time, and it NEVER expires - it drifts (bouncing softly off the edges)
+    // until the player sweeps it up. No new glint spawns while this one waits.
     stray.age += dt;
     stray.x += stray.vx * dt; stray.y += stray.vy * dt;
-    if (stray.age >= STRAY.LIFE || stray.x < 16 || stray.x > W - 16 || stray.y < 16 || stray.y > H - 16) {
-        stray = null; strayTimer = strayGap();
-        return;
-    }
+    if (stray.x < 30 && stray.vx < 0) stray.vx = -stray.vx;
+    if (stray.x > W - 30 && stray.vx > 0) stray.vx = -stray.vx;
+    if (stray.y < 30 && stray.vy < 0) stray.vy = -stray.vy;
+    if (stray.y > H - 30 && stray.vy > 0) stray.vy = -stray.vy;
     // the sweep: hovering within R collects (after a beat, so a lucky resting cursor doesn't eat it invisibly)
     if (cosmoOver && stray.age > 0.3 && Math.hypot(cosmoMx - stray.x, cosmoMy - stray.y) < STRAY.R) collectStray();
 }
@@ -63,8 +65,7 @@ function strayTick(dt) {
 function drawStray(t) {
     if (stray) {
         const fadeIn = Math.min(1, stray.age / 0.6);
-        const fadeOut = Math.min(1, (STRAY.LIFE - stray.age) / 1.5);
-        const a = fadeIn * fadeOut * (0.65 + 0.35 * Math.sin(t * 5 + stray.tw));
+        const a = fadeIn * (0.65 + 0.35 * Math.sin(t * 5 + stray.tw));   // no fade-out: it waits until swept
         const x = stray.x, y = stray.y, r = 5 + Math.sin(t * 3 + stray.tw) * 1.2;
         const gl = ctx.createRadialGradient(x, y, 0, x, y, r * 4);
         gl.addColorStop(0, `rgba(201,162,74,${(a * 0.4).toFixed(3)})`);

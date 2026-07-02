@@ -395,12 +395,19 @@ function drawReticle(x, y, s, g = ctx) {
 
 let cometLayerHad = true;   // whether the overlay held anything last frame (starts true so the first frame clears)
 function drawCometBody(g, c, t) {
+    if (c.glow) {   // swarm comets are lit up slightly - a warm halo under the body
+        const gr = g.createRadialGradient(c.x, c.y, 0, c.x, c.y, 24);
+        gr.addColorStop(0, 'rgba(228,180,90,0.45)');
+        gr.addColorStop(1, 'rgba(228,180,90,0)');
+        g.fillStyle = gr; g.beginPath(); g.arc(c.x, c.y, 24, 0, Math.PI*2); g.fill();
+    }
     for (let i=0; i<14; i++) {
         const f=i/14;
         g.beginPath(); g.arc(c.x-c.vx*f*0.45, c.y-c.vy*f*0.45,(1-f)*4,0,Math.PI*2);
-        g.fillStyle=`rgba(60,80,70,${(1-f)*0.22})`; g.fill();
+        g.fillStyle = c.glow ? `rgba(150,110,50,${(1-f)*0.28})` : `rgba(60,80,70,${(1-f)*0.22})`;
+        g.fill();
     }
-    g.beginPath(); g.arc(c.x,c.y,6,0,Math.PI*2); g.fillStyle='#2a2a2a'; g.fill();
+    g.beginPath(); g.arc(c.x,c.y,6,0,Math.PI*2); g.fillStyle = c.glow ? '#3a2c14' : '#2a2a2a'; g.fill();
     g.beginPath(); g.arc(c.x,c.y,16+3*Math.sin(t*6),0,Math.PI*2);
     g.strokeStyle='rgba(60,80,70,0.28)'; g.lineWidth=1.5; g.stroke();
     if (Math.hypot(winMx-c.x, winMy-c.y) < COMET_HOVER_R) {
