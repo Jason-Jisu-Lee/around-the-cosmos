@@ -172,11 +172,11 @@ const UPGRADES = [
     group: "dust",
     costs: [10000, 27000, 67000],
     flavor: "Given time, even dust remembers how to become a storm.",
-    desc: (l) => {
-      const cur = (typeof dustDevilMult === "function") ? Math.round((dustDevilMult() - 1) * 1000) / 10 : 0;
-      return `Dust payout bonus. Climbs from +0% to the max over each universe's first 10 minutes. Right now: +${cur}%.`;
+    desc: () => "Dust payout bonus. Climbs from +0% to the max over the 10 minutes after choosing it. Resets every universe.",
+    now: (l) => {
+      const frac = (typeof dustDevilFrac === "function") ? dustDevilFrac() : 0;
+      return `+${(20 * l * frac).toFixed(1)}% dust payout (max +${20 * l}%)`;
     },
-    now: (l) => `up to +${8 * l}% dust payout`,
     unlock: () => G.runDust >= 50000,
   },
   {
@@ -188,8 +188,8 @@ const UPGRADES = [
     group: "dust",
     costs: [10000, 27000, 67000],
     flavor: "Light itself betrays the grains, and walks them into the dark.",
-    desc: () => "A grain falls into Maw, pays, then grows back.",
-    now: (l) => `every ${9 - 2 * l}s, x${4 + 2 * l} payout`,
+    desc: () => "One grain falls into Maw, pays, then grows back.",
+    now: (l) => `every ${9 - 2 * l}s: x${4 + 2 * l} a single particle's payout`,
     unlock: () => G.runDust >= 50000,
   },
   {

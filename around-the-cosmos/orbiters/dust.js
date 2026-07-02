@@ -22,10 +22,17 @@ function dustIdentityPayBonus() { return coagDustBonus() + iceDustBonus(); }
 
 // Denser Grains (plain -> mult): x payout on the swarm; the grains read larger + darker (pebbleR/color below).
 function denserGrainsMult() { return 1 + 0.15 * lvl('denser'); }
-// Dust Devil [SCI][DLY]: payout winds up over ~10 min of universe time to +8%/lvl, resets each universe.
+// Dust Devil [SCI][DLY]: payout winds up over the 10 min AFTER first choosing it, +20%/lvl (max +60%).
+// The ramp is anchored to the FIRST PURCHASE (G.dustDevilStart, armed lazily on the first read after
+// buying, persisted; resets with the universe) - anchoring to universe birth meant a late buy started
+// at full ramp instantly.
 const DUST_DEVIL_TIME = 600;
-function dustDevilFrac() { return lvl('dustdevil') > 0 ? Math.min(1, G.universeTime / DUST_DEVIL_TIME) : 0; }
-function dustDevilMult() { return 1 + 0.08 * lvl('dustdevil') * dustDevilFrac(); }
+function dustDevilFrac() {
+    if (lvl('dustdevil') <= 0) return 0;
+    if (G.dustDevilStart == null || G.dustDevilStart < 0) G.dustDevilStart = G.universeTime;
+    return Math.min(1, Math.max(0, G.universeTime - G.dustDevilStart) / DUST_DEVIL_TIME);
+}
+function dustDevilMult() { return 1 + 0.20 * lvl('dustdevil') * dustDevilFrac(); }
 
 function dustCount()     { return Math.min(5, (lvl('dust') >= 1 ? 1 : 0) + lvl('dustcount')); }
 function orbiterPayout() { return Math.round((10 + 10 * lvl('dustpay') + denseDustBonus() + dustIdentityPayBonus()) * resonanceMult() * denserGrainsMult() * dustDevilMult()); }

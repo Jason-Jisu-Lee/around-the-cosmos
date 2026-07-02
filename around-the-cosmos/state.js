@@ -10,7 +10,7 @@ function createInitialState() {
         dust:10, runDust:0, totalDust:0,
         mass:0, massEarned:0, moonEverOwned:false,
         massUpgrades: blankMassUpgrades(),
-        orbitsCompleted:0, dwarfOrbits:0, taps:0, cometsCaught:0, gameTime:0, universeTime:0,
+        orbitsCompleted:0, dwarfOrbits:0, dustDevilStart:-1, taps:0, cometsCaught:0, gameTime:0, universeTime:0,
         upgrades: { touch:0, surge:0, deepbreath:0, abyssal:0, afterglow:0, pulse:0, gravpull:0, dust:0, dustcount:0, dustpay:0, dustspd:0, coagulation:0, iceMantles:0, denser:0, dustdevil:0, prdrag:0, asteroid:0, astpay:0, astspd:0, astcomp:0, rubblepile:0, ferropulse:0, meteorshower:0, prospector:0, slingshot:0, moon:0, moonpay:0, moonspd:0, moonphase:0, albedo:0, springtide:0, eclipse:0, standstill:0, bloodmoon:0, dwarf:0, dwarfpay:0, dwarftrojan:0, dwarfcompound:0, glacial:0, distantkin:0, longnow:0, storedwinter:0, anchor:0, resonance:0, charm:0 },
         planets:  [],
         clump:    newClump(),
@@ -129,7 +129,7 @@ function saveGame() {
             dust:G.dust, runDust:G.runDust, totalDust:G.totalDust,
             mass:G.mass, massEarned:G.massEarned, moonEverOwned:G.moonEverOwned,
             massUpgrades:{...G.massUpgrades},
-            orbitsCompleted:G.orbitsCompleted, dwarfOrbits:G.dwarfOrbits, taps:G.taps,
+            orbitsCompleted:G.orbitsCompleted, dwarfOrbits:G.dwarfOrbits, dustDevilStart:G.dustDevilStart, taps:G.taps,
             cometsCaught:G.cometsCaught, gameTime:G.gameTime, universeTime:G.universeTime,
             cometSeen:G.cometSeen, vortexSeen:G.vortexSeen, tutSeen:G.tutSeen,
             upgrades:{...G.upgrades},
@@ -147,7 +147,7 @@ function loadGame() {
         G.mass=def('mass',0); G.massEarned=def('massEarned',0);
         G.massUpgrades = Object.assign(blankMassUpgrades(), d.massUpgrades);
         G.moonEverOwned=def('moonEverOwned', (d.upgrades && d.upgrades.moon >= 1) || false);
-        G.orbitsCompleted=def('orbitsCompleted',0); G.dwarfOrbits=def('dwarfOrbits',0); G.taps=def('taps',0);
+        G.orbitsCompleted=def('orbitsCompleted',0); G.dwarfOrbits=def('dwarfOrbits',0); G.dustDevilStart=def('dustDevilStart',-1); G.taps=def('taps',0);
         G.cometsCaught=def('cometsCaught',0); G.gameTime=def('gameTime',0);
         G.universeTime=def('universeTime', G.gameTime);
         G.upgrades = Object.assign({ touch:0, surge:0, deepbreath:0, abyssal:0, afterglow:0, pulse:0, gravpull:0, dust:0, dustcount:0, dustpay:0, dustspd:0, coagulation:0, iceMantles:0, denser:0, dustdevil:0, prdrag:0, asteroid:0, astpay:0, astspd:0, astcomp:0, rubblepile:0, ferropulse:0, meteorshower:0, prospector:0, slingshot:0, moon:0, moonpay:0, moonspd:0, moonphase:0, albedo:0, springtide:0, eclipse:0, standstill:0, bloodmoon:0, dwarf:0, dwarfpay:0, dwarftrojan:0, dwarfcompound:0, glacial:0, distantkin:0, longnow:0, storedwinter:0, anchor:0, resonance:0, charm:0 }, d.upgrades);
