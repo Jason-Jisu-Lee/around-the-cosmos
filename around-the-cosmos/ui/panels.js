@@ -90,8 +90,19 @@ function wireIdentityHold(card, u, holdBar) {
 }
 
 const upgPop = document.getElementById('upg-pop');
+let popUpg = null, popCard = null, popHtml = '';   // the upgrade currently hovered - renderUpgPop keeps its popup LIVE
+
 function showUpgPop(u, cardEl) {
-    const l = G.upgrades[u.id];
+    popUpg = u; popCard = cardEl;
+    renderUpgPop();
+}
+
+// (Re)renders the open popup from current state. Called on hover, after every buy, and each
+// updateCards tick - so the popup updates in real time while the mouse stays on the card
+// (level-ups, live values like Gravitational Pull's ✦/pulse or the Standstill orbit tally).
+function renderUpgPop() {
+    if (!popUpg) return;
+    const u = popUpg, l = G.upgrades[u.id];
     const flavor = typeof u.flavor === 'function' ? u.flavor(l) : u.flavor;
     const desc = u.desc ? u.desc(l) : '';   // desc is optional - pure stat upgrades rely on name + Now/Next alone
     let html = (flavor ? `<div class="upg-pop-flavor">${flavor}</div>` : '')
@@ -104,9 +115,9 @@ function showUpgPop(u, cardEl) {
         if (l < u.maxLevel) rows += `<div class="upg-pop-stat"><span class="upg-pop-k">Next</span><span class="upg-pop-v">${u.now(l + 1)}</span></div>`;
         if (rows) html += `<div class="upg-pop-stats">${rows}</div>`;
     }
-    upgPop.innerHTML = html;
+    if (html !== popHtml) { upgPop.innerHTML = html; popHtml = html; }
     upgPop.style.display = 'block';
-    const r = cardEl.getBoundingClientRect();
+    const r = popCard.getBoundingClientRect();
     const pw = upgPop.offsetWidth, ph = upgPop.offsetHeight;
     let left = r.left - pw - 12;
     if (left < 6) left = r.right + 12;
@@ -115,7 +126,7 @@ function showUpgPop(u, cardEl) {
     upgPop.style.left = left + 'px';
     upgPop.style.top  = top + 'px';
 }
-function hideUpgPop() { upgPop.style.display = 'none'; }
+function hideUpgPop() { popUpg = null; popCard = null; popHtml = ''; upgPop.style.display = 'none'; }
 
 function resetPanelAnimations() { seenUpg.clear(); }
 
@@ -156,6 +167,13 @@ function buildPanels() {
     }
 
     appendPrestigeCards(mainList);
+
+    // A rebuild replaces every card element; re-anchor the open popup to the hovered upgrade's
+    // NEW card (e.g. an identity lock-in rebuilds mid-hover), or hide it if the card is gone.
+    if (popUpg) {
+        const ref = cardRefs.find(r => r.u.id === popUpg.id);
+        if (ref) popCard = ref.card; else hideUpgPop();
+    }
 
     lastVisibleSig = visibleSig();
     firstPanelBuild = false;
@@ -208,4 +226,5 @@ function updateCards() {
             if (ref._fr !== fr) { ref.drain.style.transform = `scaleX(${fr})`; ref._fr = fr; }
         }
     }
+    renderUpgPop();   // keep the hovered card's popup live (no-op when none is open)
 }
