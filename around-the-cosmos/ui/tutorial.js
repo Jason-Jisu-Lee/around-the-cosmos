@@ -31,7 +31,7 @@ function _renderTutStep() {
     const step = _tutSteps[_tutIndex];
     const r = step.getRect();
     if (!r) { endTutorial(); return; }                 // target gone -> bail gracefully
-    const pad = 10, last = _tutIndex === _tutSteps.length - 1;
+    const pad = 10;
 
     // the frost "hole": a transparent box whose huge box-shadow dims everything around it
     const hole = document.createElement('div'); hole.className = 'tut-hole';
@@ -40,7 +40,7 @@ function _renderTutStep() {
     layer.appendChild(hole);
 
     const pop = document.createElement('div'); pop.className = 'tut-pop';
-    pop.innerHTML = `<div class="tut-body">${step.body}</div><div class="tut-row"><button class="tut-ok">${last ? 'Finish' : 'Okay'}</button></div>`;
+    pop.innerHTML = `<div class="tut-body">${step.body}</div><div class="tut-row"><button class="tut-ok">Okay</button></div>`;
     layer.appendChild(pop);
     pop.querySelector('.tut-ok').addEventListener('click', _nextTutStep);
 
