@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>itch.io cover candidates - 630x500</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #efeadd; font-family: Georgia, serif; color: #1a1a1a; padding: 40px 24px 80px; }
+h1 { text-align: center; font-weight: 500; font-size: 24px; letter-spacing: 0.06em; }
+.sub { text-align: center; color: #8a8272; font-style: italic; font-size: 13.5px; margin: 8px 0 34px; }
+.grid { display: flex; flex-wrap: wrap; gap: 30px; justify-content: center; max-width: 1440px; margin: 0 auto; }
+.cell { width: 440px; }
+.cell canvas { width: 440px; height: 349px; display: block; border: 1px solid #cfc8b6; border-radius: 6px; box-shadow: 0 4px 18px rgba(90,80,60,0.14); }
+.bar { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
+.name { font-size: 14.5px; letter-spacing: 0.04em; }
+.dl { font-family: Georgia, serif; font-size: 12.5px; letter-spacing: 0.08em; padding: 7px 18px;
+      background: #1a1a1a; color: #f4efe4; border: none; border-radius: 4px; cursor: pointer; }
+.dl:hover { background: #3a382f; }
+</style>
+</head>
+<body>
+<h1>Cover candidates - itch.io (630 x 500)</h1>
+<div class="sub">Rendered at 2x (1260 x 1000) so they stay crisp. Click Download on the keeper.</div>
+<div class="grid" id="grid"></div>
+
+<script>
+'use strict';
+const W = 1260, H = 1000;   // 2x the itch 630x500
+
+// ---------- shared bits ----------
+function stars(g, n, seedBase, color, area) {
+    let s = seedBase;
+    const rnd = () => { s = (s * 1103515245 + 12345) & 0x7fffffff; return s / 0x7fffffff; };
+    for (let i = 0; i < n; i++) {
+        const x = rnd() * W, y = rnd() * H, r = 1 + rnd() * 2.6, a = 0.2 + rnd() * 0.55;
+        if (area && !area(x, y)) continue;
+        g.fillStyle = color.replace('$a', a.toFixed(2));
+        g.beginPath(); g.arc(x, y, r, 0, 7); g.fill();
+    }
+}
+function ring(g, cx, cy, r, style, w) {
+    g.strokeStyle = style; g.lineWidth = w || 2;
+    g.beginPath(); g.arc(cx, cy, r, 0, 7); g.stroke();
+}
+function title(g, x, y, size, color, spacing, text) {
+    g.save();
+    g.fillStyle = color; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.font = `400 ${size}px Georgia, serif`;
+    text = text || 'AROUND THE COSMOS';
+    // manual letterspacing
+    const chars = [...text];
+    let total = 0;
+    for (const ch of chars) total += g.measureText(ch).width + spacing;
+    total -= spacing;
+    let cx = x - total / 2;
+    for (const ch of chars) { const w = g.measureText(ch).width; g.fillText(ch, cx + w / 2, y); cx += w + spacing; }
+    g.restore();
+}
+
+// ---------- designs ----------
+const DESIGNS = [
+{ name: '1. The Slow Zoom (matches the front page)', file: 'cover-1-slow-zoom', draw(g) {
+    g.fillStyle = '#0b0d12'; g.fillRect(0, 0, W, H);
+    // zooming starfield: radial streak field
+    let s = 77;
+    const rnd = () => { s = (s * 1103515245 + 12345) & 0x7fffffff; return s / 0x7fffffff; };
+    const cx = W / 2, cy = H / 2 - 40;
+    for (let i = 0; i < 240; i++) {
+        const a = rnd() * 6.283, rr = Math.pow(rnd(), 1.5) * (W * 0.62) + 26;
+        const x = cx + Math.cos(a) * rr, y = cy + Math.sin(a) * rr * 0.86;
+        const al = Math.min(0.85, 0.12 + rr / (W * 0.6));
+        g.fillStyle = `rgba(226,218,196,${al.toFixed(2)})`;
+        g.beginPath(); g.arc(x, y, 1 + rr / (W * 0.28), 0, 7); g.fill();
+    }
+    // the gold dot + soft glow
+    const gl = g.createRadialGradient(cx, cy, 0, cx, cy, 130);
+    gl.addColorStop(0, 'rgba(201,162,74,0.5)'); gl.addColorStop(1, 'rgba(201,162,74,0)');
+    g.fillStyle = gl; g.beginPath(); g.arc(cx, cy, 130, 0, 7); g.fill();
+    g.fillStyle = '#c9a24a'; g.beginPath(); g.arc(cx, cy, 8, 0, 7); g.fill();
+    title(g, W / 2, H * 0.70, 64, '#e8e2d2', 26);
+    g.fillStyle = 'rgba(232,226,210,0.55)'; g.font = 'italic 26px Georgia, serif';
+    g.textAlign = 'center'; g.fillText('a quiet idle cosmos', W / 2, H * 0.78);
+    g.fillStyle = 'rgba(232,226,210,0.4)'; g.font = '20px Georgia, serif';
+    g.fillText('By 2ndIntelligentWorld', W / 2, H * 0.93);
+}},
+{ name: '2. Parchment Observatory (the in-game look)', file: 'cover-2-parchment', draw(g) {
+    g.fillStyle = '#f4efe4'; g.fillRect(0, 0, W, H);
+    stars(g, 60, 20260701, 'rgba(180,150,80,$a)');
+    const cx = W / 2, cy = H * 0.40;
+    for (let i = 0; i < 3; i++) {
+        const r = 130 + i * 92;
+        ring(g, cx, cy, r, 'rgba(100,90,80,0.22)', 2.5);
+        const a = 1.1 + i * 2.1;
+        g.fillStyle = ['#8a8782', '#7a6a55', '#8f9498'][i];
+        g.beginPath(); g.arc(cx + Math.cos(a) * r, cy + Math.sin(a) * r, 9 + i * 5, 0, 7); g.fill();
+    }
+    g.fillStyle = '#1a1a1a'; g.beginPath(); g.arc(cx, cy, 26, 0, 7); g.fill();
+    title(g, W / 2, H * 0.76, 62, '#1a1a1a', 22);
+    g.fillStyle = '#8a8272'; g.font = 'italic 26px Georgia, serif'; g.textAlign = 'center';
+    g.fillText('a quiet idle cosmos', W / 2, H * 0.84);
+}},
+{ name: '3. Ink Eclipse', file: 'cover-3-eclipse', draw(g) {
+    g.fillStyle = '#14120f'; g.fillRect(0, 0, W, H);
+    stars(g, 90, 4242, 'rgba(226,218,196,$a)');
+    const cx = W / 2, cy = H * 0.42, R = 300;
+    const glow = g.createRadialGradient(cx, cy, R * 0.8, cx, cy, R * 1.7);
+    glow.addColorStop(0, 'rgba(244,239,228,0.18)'); glow.addColorStop(1, 'rgba(244,239,228,0)');
+    g.fillStyle = glow; g.beginPath(); g.arc(cx, cy, R * 1.7, 0, 7); g.fill();
+    g.fillStyle = '#f4efe4'; g.beginPath(); g.arc(cx, cy, R, 0, 7); g.fill();
+    g.fillStyle = '#14120f'; g.beginPath(); g.arc(cx + R * 0.34, cy - R * 0.20, R * 0.94, 0, 7); g.fill();
+    title(g, W / 2, H * 0.79, 58, '#f4efe4', 24);
+    g.fillStyle = 'rgba(201,162,74,0.9)'; g.font = 'italic 25px Georgia, serif'; g.textAlign = 'center';
+    g.fillText('a quiet idle cosmos', W / 2, H * 0.87);
+}},
+{ name: '4. Typographic Void', file: 'cover-4-typographic', draw(g) {
+    g.fillStyle = '#f4efe4'; g.fillRect(0, 0, W, H);
+    g.fillStyle = '#1a1a1a'; g.textAlign = 'left'; g.textBaseline = 'alphabetic';
+    g.font = '700 218px "Baloo 2", Georgia, serif';
+    g.fillText('AROUND', 60, 280);
+    g.fillText('THE', 60, 510);
+    g.fillText('COSMOS', 60, 740);
+    const m = g.measureText('COSMOS');
+    g.beginPath(); g.arc(60 + m.width + 62, 712, 34, 0, 7); g.fill();   // the Maw as the full stop
+    g.fillStyle = '#8a8272'; g.font = 'italic 30px Georgia, serif';
+    g.fillText('a quiet idle cosmos  ·  By 2ndIntelligentWorld', 64, 900);
+}},
+{ name: '5. Star Chart', file: 'cover-5-chart', draw(g) {
+    g.fillStyle = '#efe9da'; g.fillRect(0, 0, W, H);
+    g.strokeStyle = 'rgba(90,110,130,0.16)'; g.lineWidth = 2;
+    for (let x = 0; x < W; x += 110) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, H); g.stroke(); }
+    for (let y = 0; y < H; y += 110) { g.beginPath(); g.moveTo(0, y); g.lineTo(W, y); g.stroke(); }
+    g.strokeStyle = 'rgba(60,70,84,0.6)'; g.lineWidth = 4; g.strokeRect(36, 36, W - 72, H - 72);
+    const pts = [[0.64,0.20],[0.74,0.30],[0.85,0.25],[0.80,0.44],[0.68,0.52],[0.57,0.42],[0.90,0.52],[0.62,0.66]];
+    g.strokeStyle = 'rgba(60,70,84,0.5)'; g.lineWidth = 2; g.setLineDash([8, 10]);
+    const seg = [[0,1],[1,2],[2,3],[3,4],[4,5],[5,0],[3,6],[4,7]];
+    for (const [a, b] of seg) { g.beginPath(); g.moveTo(pts[a][0]*W, pts[a][1]*H); g.lineTo(pts[b][0]*W, pts[b][1]*H); g.stroke(); }
+    g.setLineDash([]);
+    pts.forEach((p, i) => {
+        g.fillStyle = i ? '#3c4654' : '#1a1a1a';
+        g.beginPath(); g.arc(p[0]*W, p[1]*H, i ? 7 : 13, 0, 7); g.fill();
+        ring(g, p[0]*W, p[1]*H, i ? 17 : 28, 'rgba(60,70,84,0.4)', 2);
+    });
+    g.fillStyle = '#efe9da'; g.fillRect(70, H - 340, 620, 250);
+    g.strokeStyle = 'rgba(60,70,84,0.65)'; g.lineWidth = 3; g.strokeRect(70, H - 340, 620, 250);
+    g.fillStyle = '#5a6e82'; g.font = '600 21px "Segoe UI", sans-serif'; g.textAlign = 'left';
+    g.fillText('C H A R T  No. 1   ·   O B S E R V E D  2 0 2 6', 102, H - 288);
+    g.fillStyle = '#1a1a1a'; g.font = '400 52px Georgia, serif';
+    g.fillText('Around the Cosmos', 100, H - 218);
+    g.fillStyle = '#7d7666'; g.font = 'italic 24px Georgia, serif';
+    g.fillText('a survey of one small hungry void', 102, H - 160);
+}},
+{ name: '6. Gravity Well', file: 'cover-6-gravity', draw(g) {
+    g.fillStyle = '#f4efe4'; g.fillRect(0, 0, W, H);
+    const cx = W / 2, cy = H * 0.44, GAP = 56;
+    for (let x = GAP / 2; x < W; x += GAP) for (let y = GAP / 2; y < H; y += GAP) {
+        const dx = cx - x, dy = cy - y, d = Math.hypot(dx, dy);
+        const pull = Math.min(30, 5200 / Math.max(60, d));
+        const px = x + dx / (d || 1) * pull, py = y + dy / (d || 1) * pull;
+        const a = Math.max(0.10, 0.42 - d / Math.max(W, H) * 0.36);
+        g.fillStyle = `rgba(122,106,85,${a.toFixed(2)})`;
+        g.beginPath(); g.arc(px, py, 3.4, 0, 7); g.fill();
+    }
+    g.fillStyle = '#1a1a1a'; g.beginPath(); g.arc(cx, cy, 34, 0, 7); g.fill();
+    title(g, W / 2, H * 0.78, 60, '#1a1a1a', 22);
+    g.fillStyle = '#8a8272'; g.font = 'italic 25px Georgia, serif'; g.textAlign = 'center';
+    g.fillText('everything falls in, eventually', W / 2, H * 0.86);
+}},
+];
+
+// ---------- build the grid ----------
+const grid = document.getElementById('grid');
+function renderAll() {
+    grid.innerHTML = '';
+    for (const d of DESIGNS) {
+        const cell = document.createElement('div'); cell.className = 'cell';
+        const c = document.createElement('canvas'); c.width = W; c.height = H;
+        d.draw(c.getContext('2d'));
+        const bar = document.createElement('div'); bar.className = 'bar';
+        const nm = document.createElement('span'); nm.className = 'name'; nm.textContent = d.name;
+        const b = document.createElement('button'); b.className = 'dl'; b.textContent = 'Download';
+        b.addEventListener('click', () => {
+            const a = document.createElement('a');
+            a.download = d.file + '-1260x1000.png';
+            a.href = c.toDataURL('image/png');
+            a.click();
+        });
+        bar.appendChild(nm); bar.appendChild(b);
+        cell.appendChild(c); cell.appendChild(bar);
+        grid.appendChild(cell);
+    }
+}
+// Baloo 2 is used by design 4 - re-render once fonts are ready so it doesn't fall back
+renderAll();
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(renderAll);
+const link = document.createElement('link');
+link.rel = 'stylesheet';
+link.href = 'https://fonts.googleapis.com/css2?family=Baloo+2:wght@700&display=swap';
+document.head.appendChild(link);
+</script>
+</body>
+</html>
