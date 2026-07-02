@@ -56,8 +56,8 @@ const UPGRADES = [
     maxLevel: 15,
     section: "MAIN",
     costs: [
-      3000, 5000, 8000, 13000, 20000, 31000, 49000, 77000, 120000, 185000,
-      290000, 450000, 700000, 1100000, 1700000,
+      4000, 6500, 10000, 17000, 26000, 40000, 64000, 100000, 155000, 240000,
+      375000, 585000, 910000, 1430000, 2210000,
     ],
     flavor: "Each deep breath reaches further down, into the dark Maw keeps.",
     now: (l) => `Deep Breaths pay x${(2 + 0.2 * l).toFixed(1)}`,

@@ -175,7 +175,7 @@ function checkTutorials() {
         if (typeof saveGame === 'function') saveGame();
         startTutorial([
             { getRect: _vortexTutRect,
-              body: "A vortex! Hold it until it collapses into a huge windfall. Hold soon, it leaves quickly. One wanders in rarely." },
+              body: "A mysterious vortex appears. Click and hold it to collapse it into lots of stardust!" },
         ]);
         return;
     }
@@ -186,7 +186,7 @@ function checkTutorials() {
         if (typeof saveGame === 'function') saveGame();
         startTutorial([
             { center: true, okay: 'Alright',
-              body: "Progress is slowest in the beginning." },
+              body: "Progress is slow at first. Keep going!" },
         ]);
         return;
     }
@@ -198,7 +198,7 @@ function checkTutorials() {
         }
         startTutorial([
             { getRect: () => { const f = document.querySelector('.upg-identity'); if (f) f.scrollIntoView({ block: 'nearest' }); return _combinedRect('.upg-identity'); },
-              body: "These are Identity Upgrades: powerful, often with a synergy component. You can only choose two per orbiter (hold to choose) until the next Accretion." },
+              body: "You can only choose 2 out of 5 identity upgrades per Universe. Choose wisely! (Click & Hold to choose)" },
             { getRect: () => { const e = document.getElementById('accretion-btn'); if (!e || e.style.display === 'none') return null; e.scrollIntoView({ block: 'nearest' }); return e.getBoundingClientRect(); },
               body: "This shows Accretion progress. Accretion resets all progress in this Universe and grants Mass based on total Stardust collected. Mass buys permanent, powerful upgrades. Accrete when progress slows down." },
         ]);

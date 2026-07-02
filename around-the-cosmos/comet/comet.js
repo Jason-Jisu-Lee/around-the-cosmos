@@ -42,6 +42,10 @@ function catchComet() {
     earn(windfall);
     cometFx.push({ x:c.x, y:c.y, text:'+✦'+fmtNum(windfall), age:0, maxAge:1.5 });
     G.cometsCaught++; G.cometSeen = true; SoundSystem.sfxComet();
+    // catching one proves the player knows comets - never show the comet tutorial after a catch
+    // (without this, sniping the first comet inside its 2s pre-tutorial window kept deferring
+    // the tutorial to a later comet, which read as a bug)
+    if (G.tutSeen && !G.tutSeen.comet) { G.tutSeen.comet = true; saveGame(); }
     afterglowUntil = gameClock + AFTERGLOW_DUR;   // Afterglow: arm/refresh the per-pulse bonus window
     G.comet = null; G.cometTimer = randCometGap();
 }
