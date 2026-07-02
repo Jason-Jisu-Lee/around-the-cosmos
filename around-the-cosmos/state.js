@@ -88,7 +88,7 @@ function earn(amount, x, y, big) {
     }
 }
 
-const ACCRETION_THRESHOLD = 500000;   // runDust for the FIRST accretion (at zero lifetime Mass) - anchors the whole curve
+const ACCRETION_THRESHOLD = 320000;   // runDust for the FIRST accretion (at zero lifetime Mass) - anchors the whole curve
 const FIRST_GRANT = 3;                 // Mass granted at that first accretion (also the accrete floor)
 const MASS_LIFE_K = 0.02;             // each lifetime Mass raises the runDust needed per Mass by 2% - difficulty scales with lifetime Mass
 // DIMINISHING returns (square root), anchored so the FIRST accretion lands at exactly ACCRETION_THRESHOLD runDust = FIRST_GRANT Mass:
