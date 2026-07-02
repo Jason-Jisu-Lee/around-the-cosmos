@@ -6,13 +6,15 @@ let gameClock = 0, paused = false;
 function loop(ts) {
     const dt = Math.min((ts-lastTs)/1000, 0.1);
     lastTs = ts;
-    const frozen = (typeof accreting !== 'undefined' && accreting) || paused || (typeof tutorialActive !== 'undefined' && tutorialActive);
+    const frozen = (typeof accreting !== 'undefined' && accreting) || paused || (typeof tutorialActive !== 'undefined' && tutorialActive)
+        || (typeof frontpageActive !== 'undefined' && frontpageActive);
     if (!frozen) { gameClock += dt; tickWithDebug(dt); if (typeof checkTutorials === 'function') checkTutorials(); }
     lastSave += dt;
     if (lastSave >= 20) { lastSave=0; saveGame(); }
     draw(gameClock);
     drawVortexLayer();
     drawComet(gameClock);
+    drawFrontpage();
     updateUI(ts);
     updateCosmoTip();
     requestAnimationFrame(loop);
@@ -77,7 +79,7 @@ const _BOOT_EVENTS = ['pointerdown', 'touchstart', 'mousedown', 'keydown', 'clic
 const _bootAudio = () => {
     SoundSystem.boot(); SoundSystem.startMusic();
     SoundSystem.setMusicVolume(_savedVols.mv); SoundSystem.setSfxVolume(_savedVols.sv);
-    if (paused) SoundSystem.stopMusic();
+    if (paused || (typeof frontpageActive !== 'undefined' && frontpageActive)) SoundSystem.stopMusic();   // the front page is silent - START starts the music
     _BOOT_EVENTS.forEach(ev => window.removeEventListener(ev, _bootAudio));
 };
 _BOOT_EVENTS.forEach(ev => window.addEventListener(ev, _bootAudio));
@@ -98,6 +100,6 @@ window.addEventListener('resize', resize);
 window.addEventListener('beforeunload', saveGame);
 document.getElementById('reset-btn').addEventListener('click', resetGame);
 loadGame(); resize(); buildPanels(); initDebug(); _savedVols=initSettings();
-vortexInit();
+vortexInit(); initFrontpage();
 initDraggable(document.getElementById('observatory'));
 requestAnimationFrame(ts => { lastTs=ts; requestAnimationFrame(loop); });

@@ -655,3 +655,41 @@ body {
 /* secondary action - clearly a button, just quieter than the primary (not a hidden text link) */
 .acc-btn-ghost { width: 100%; background: #fbf8f1; border: 1.5px solid #ddd3bd; color: #6b6150; border-radius: 11px; padding: 11px; font: 800 13px 'Nunito'; letter-spacing: 0.04em; cursor: pointer; transition: border-color 0.12s, color 0.12s, background 0.12s; }
 .acc-btn-ghost:hover { border-color: #b5a98c; color: #1a1a1a; background: #fff; }
+
+/* ===== Front page ("The Slow Zoom") - shown on load + via the settings FRONT PAGE button ===== */
+#frontpage { position: fixed; inset: 0; z-index: 300; background: #0b0d12; display: none; }
+#frontpage.show { display: block; }
+#front-stars { position: absolute; inset: 0; width: 100%; height: 100%; }
+.front-credit {
+    position: absolute; top: 20px; right: 26px; z-index: 1;
+    color: rgba(232,226,210,0.55); font-family: Georgia, serif; font-style: italic;
+    font-size: 13px; letter-spacing: 0.08em;
+}
+.front-mid {
+    position: absolute; inset: 0; z-index: 1;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.front-title {
+    color: #e8e2d2; font-family: Georgia, serif; font-weight: 400;
+    font-size: 34px; letter-spacing: 0.55em; text-indent: 0.55em; margin: 0;
+    opacity: 0;
+}
+#frontpage.show .front-title { animation: front-title-in 2.4s 0.5s forwards ease-out; }
+@keyframes front-title-in { to { opacity: 1; letter-spacing: 0.34em; text-indent: 0.34em; } }
+#front-start {
+    margin-top: 46px; background: none; border: 1px solid rgba(232,226,210,0.4); color: #e8e2d2;
+    font-family: Georgia, serif; font-size: 15px; letter-spacing: 0.2em; padding: 12px 46px;
+    cursor: pointer; transition: all 0.25s; opacity: 0;
+}
+#frontpage.show #front-start { animation: front-fade 1.6s 2.1s forwards; }
+@keyframes front-fade { to { opacity: 1; } }
+#front-start:hover { border-color: #c9a24a; color: #c9a24a; box-shadow: 0 0 24px rgba(201,162,74,0.2); }
+
+/* the settings MENU button back to the front page */
+#front-page-btn {
+    width: 100%; margin-top: 6px; background: none; border: 1px solid var(--border);
+    color: var(--text-faint); border-radius: 2px; padding: 6px 0;
+    font-size: 10px; letter-spacing: 0.12em; cursor: pointer;
+    font-family: 'Segoe UI', sans-serif; transition: all 0.12s;
+}
+#front-page-btn:hover { color: var(--text-dim); border-color: var(--border2); }
