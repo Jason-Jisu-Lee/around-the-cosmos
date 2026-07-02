@@ -5,7 +5,7 @@ const SND = { ctx:null, master:null, musicBus:null, sfxBus:null, limiter:null, m
 function audioBoot() {
     if (SND.ctx) { if (SND.ctx.state === 'suspended') SND.ctx.resume(); return; }
     SND.ctx = new (window.AudioContext || window.webkitAudioContext)();
-    SND.master = mkGain(0.75); SND.musicBus = mkGain(0.5712); SND.sfxBus = mkGain(0.8262);
+    SND.master = mkGain(1.0); SND.musicBus = mkGain(0.5712); SND.sfxBus = mkGain(0.8262);   // master raised 0.75 -> 1.0 (+33%): 75% sliders were too quiet; the limiter still stops clipping
     SND.limiter = SND.ctx.createDynamicsCompressor();
     SND.limiter.threshold.value = -2;
     SND.limiter.knee.value = 0;
@@ -58,5 +58,5 @@ function reverb(len = 2.4) {
 
 function setMusicVolume(pct) { if (SND.ctx) SND.musicBus.gain.setTargetAtTime(0.5712*pct/75, SND.ctx.currentTime, 0.1); }
 function setSfxVolume(pct)   { if (SND.ctx) SND.sfxBus.gain.setTargetAtTime(0.8262*pct/75, SND.ctx.currentTime, 0.1); }
-function toggleMute() { if (!SND.ctx) return true; SND.muted=!SND.muted; SND.master.gain.setTargetAtTime(SND.muted?0:0.75, SND.ctx.currentTime, 0.15); return SND.muted; }
+function toggleMute() { if (!SND.ctx) return true; SND.muted=!SND.muted; SND.master.gain.setTargetAtTime(SND.muted?0:1.0, SND.ctx.currentTime, 0.15); return SND.muted; }
 function isMuted()    { return SND.muted; }
