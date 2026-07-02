@@ -24,6 +24,7 @@ function visibleSig() {
 function makeCard(u) {
     const card = document.createElement('div');
     card.className = 'upgrade-card' + (u.identity ? ' upg-identity' : '');
+    card.dataset.upg = u.id;   // tutorial spotlights target cards via [data-upg="<id>"]
 
     if (!firstPanelBuild && !seenUpg.has(u.id)) {
         card.classList.add('upg-new');

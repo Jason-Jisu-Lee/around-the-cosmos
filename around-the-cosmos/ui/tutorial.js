@@ -99,9 +99,14 @@ addEventListener('resize', () => { if (tutorialActive) _renderTutStep(); });
 // about them before they can engage. Walks: identity cards -> the Accretion progress card.
 const TUT_IDENTITY_AT = 50000;
 
-let _cometEnteredAt = -1;   // gameClock when the first comet ever entered the screen (its tutorial fires 1.2s later)
+let _cometSpawnClock = -1;   // gameClock when the first comet ever spawned (its tutorial fires 2s later - it stays catchable meanwhile)
 
-// synthetic viewport rects for the two window-space events (the tutorial hole needs left/top/right/width/height)
+// synthetic viewport rects for window-space targets (the tutorial hole needs left/top/right/width/height)
+function _mawTutRect() {
+    const r = canvas.getBoundingClientRect(), R = 46;
+    const x = r.left + CX, y = r.top + CY;
+    return { left: x - R, top: y - R, right: x + R, width: R * 2, height: R * 2 };
+}
 function _cometTutRect() {
     const c = G.comet; if (!c) return null;
     const R = 36;
@@ -117,15 +122,42 @@ function checkTutorials() {
     if (tutorialActive) return;
     if (!G.tutSeen) G.tutSeen = {};
 
-    // First comet ever: fires 1.2s AFTER the comet enters the screen (it spawns off-screen), so
-    // it is seen flying before the freeze holds it under the spotlight. Catching is blocked until
-    // this tutorial is done (main.js). tutSeen.comet also marks "a comet has ever appeared"
-    // (comet.js uses it to summon the first vortex 30s after this one).
+    // Intro (very first start ever): the Maw, then the Cosmic Pulse card.
+    if (!G.tutSeen.intro) {
+        G.tutSeen.intro = true;
+        if (typeof saveGame === 'function') saveGame();
+        startTutorial([
+            { getRect: _mawTutRect, okay: 'Next',
+              body: "A new entity is born in the cosmos..." },
+            { getRect: () => _combinedRect('[data-upg="touch"]'),
+              body: "Collect stardust." },
+        ]);
+        return;
+    }
+
+    // Dust Particle available for the first time ever: point at its card.
+    if (!G.tutSeen.dust && lvl('touch') >= 2 && document.querySelector('[data-upg="dust"]')) {
+        G.tutSeen.dust = true;
+        if (typeof saveGame === 'function') saveGame();
+        if (typeof sectionOpen !== 'undefined' && sectionOpen['DUST PARTICLES'] === false) {
+            sectionOpen['DUST PARTICLES'] = true; if (typeof buildPanels === 'function') buildPanels();
+        }
+        startTutorial([
+            { getRect: () => { const f = document.querySelector('[data-upg="dust"]'); if (f) f.scrollIntoView({ block: 'nearest' }); return _combinedRect('[data-upg="dust"]'); },
+              body: "You have enough mass to attract dust particles. Try spawning one for more stardust!" },
+        ]);
+        return;
+    }
+
+    // First comet ever: fires 2s AFTER it spawns - it flies (and stays CATCHABLE, main.js) until
+    // the freeze holds it under the spotlight. tutSeen.comet also marks "a comet has ever appeared"
+    // (comet.js holds the first spawn until the 20s universe mark).
     const c = G.comet;
     if (!G.tutSeen.comet) {
-        if (c && c.x > 20 && c.x < innerWidth - 20 && c.y > 20 && c.y < innerHeight - 20) {
-            if (_cometEnteredAt < 0) _cometEnteredAt = gameClock;
-            if (gameClock - _cometEnteredAt >= 1.2) {
+        if (c) {
+            if (_cometSpawnClock < 0) _cometSpawnClock = gameClock;
+            const onScreen = c.x > 20 && c.x < innerWidth - 20 && c.y > 20 && c.y < innerHeight - 20;
+            if (gameClock - _cometSpawnClock >= 2 && onScreen) {
                 G.tutSeen.comet = true;
                 if (typeof saveGame === 'function') saveGame();
                 startTutorial([
@@ -134,7 +166,7 @@ function checkTutorials() {
                 ]);
                 return;
             }
-        } else if (!c) _cometEnteredAt = -1;
+        } else _cometSpawnClock = -1;
     }
 
     // First vortex ever: fires once it is fully faded in (the linger timer is frozen while reading).

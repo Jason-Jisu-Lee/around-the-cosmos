@@ -154,6 +154,12 @@ function vortexTick(dt){
     for (let i = vortexFx.length-1; i >= 0; i--){ vortexFx[i].age += dt; if (vortexFx[i].age >= vortexFx[i].maxAge) vortexFx.splice(i,1); }
 
     if (!VTX.active){
+        // the FIRST vortex ever appears at the 2:15 mark of the universe clock (tutorial pacing);
+        // tutSeen.vortex is the persistent "a vortex has ever appeared" marker (set by its tutorial)
+        if (typeof G !== 'undefined' && G.tutSeen && !G.tutSeen.vortex) {
+            if (G.universeTime >= 135 && !anyEventActive()) vortexSpawn();
+            return;
+        }
         vortexTimer -= dt;
         if (vortexTimer <= 0 && !anyEventActive()) vortexSpawn();
         return;
