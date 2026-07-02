@@ -3,8 +3,8 @@
 const VTAU = Math.PI * 2;
 
 const VX = {
-    SPAWN_MIN: 130,        // 2:10 (was 2:30 - vortexes arrive 20s sooner)
-    SPAWN_MAX: 190,        // 3:10 (was 3:30)
+    SPAWN_MIN: 120,        // 2:00 between vortexes
+    SPAWN_MAX: 160,        // 2:40
     FIRST_DELAY: 2 * 60,   // the first vortex of a session appears 2 min later than the usual cadence
     FADE_IN:   1.0,
     STAY:      5.0,
@@ -154,10 +154,10 @@ function vortexTick(dt){
     for (let i = vortexFx.length-1; i >= 0; i--){ vortexFx[i].age += dt; if (vortexFx[i].age >= vortexFx[i].maxAge) vortexFx.splice(i,1); }
 
     if (!VTX.active){
-        // the FIRST vortex ever appears at the 2:15 mark of the universe clock (tutorial pacing);
+        // the FIRST vortex ever appears at the 2:00 mark of the universe clock (tutorial pacing);
         // tutSeen.vortex is the persistent "a vortex has ever appeared" marker (set by its tutorial)
         if (typeof G !== 'undefined' && G.tutSeen && !G.tutSeen.vortex) {
-            if (G.universeTime >= 135 && !anyEventActive()) vortexSpawn();
+            if (G.universeTime >= 120 && !anyEventActive()) vortexSpawn();
             return;
         }
         vortexTimer -= dt;
