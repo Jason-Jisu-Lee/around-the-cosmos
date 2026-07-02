@@ -200,7 +200,7 @@ function checkTutorials() {
             { getRect: () => { const f = document.querySelector('.upg-identity'); if (f) f.scrollIntoView({ block: 'nearest' }); return _combinedRect('.upg-identity'); },
               body: "You can only choose 2 out of 5 identity upgrades per Universe. Choose wisely! (Click & Hold to choose)" },
             { getRect: () => { const e = document.getElementById('accretion-btn'); if (!e || e.style.display === 'none') return null; e.scrollIntoView({ block: 'nearest' }); return e.getBoundingClientRect(); },
-              body: "This shows Accretion progress. Accretion resets all progress in this Universe and grants Mass based on total Stardust collected. Mass buys permanent, powerful upgrades. Accrete when progress slows down." },
+              body: "This shows how close you are to Accretion which resets all progress and grants Mass based on total stardust collected. Accrete for permanent upgrades!" },
         ]);
     }
 }
