@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Event redesigns - Stray Stardust + Falling Star Wish</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #efeadd; font-family: Georgia, serif; color: #1a1a1a; padding: 34px 22px 70px; }
+h1 { text-align: center; font-weight: 500; font-size: 22px; letter-spacing: 0.05em; }
+.sub { text-align: center; color: #8a8272; font-style: italic; font-size: 13px; margin: 6px 0 26px; }
+h2 { font-weight: 500; font-size: 18px; letter-spacing: 0.04em; max-width: 1380px; margin: 26px auto 12px; border-bottom: 1px solid #cfc8b6; padding-bottom: 6px; }
+.grid { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; max-width: 1420px; margin: 0 auto; }
+.cell { width: 440px; }
+.cell.big { width: 680px; }
+.cell canvas { display: block; width: 100%; background: #f4efe4; border: 1px solid #cfc8b6; border-radius: 8px; box-shadow: 0 3px 12px rgba(90,80,60,0.10); cursor: crosshair; }
+.cap { display: flex; align-items: baseline; gap: 10px; margin-top: 7px; }
+.cap b { font-size: 14px; font-weight: 600; }
+.cap span { font-size: 12px; color: #8a8272; font-style: italic; }
+.cap .score { margin-left: auto; font-style: normal; color: #4c463a; font-variant-numeric: tabular-nums; }
+button.mini { margin-left: auto; font-family: Georgia, serif; font-size: 11.5px; padding: 4px 12px; background: #1a1a1a; color: #f4efe4; border: none; border-radius: 4px; cursor: pointer; }
+.note { max-width: 1380px; margin: 8px auto 0; font-size: 12.5px; color: #6b6558; font-style: italic; }
+</style>
+</head>
+<body>
+<h1>Event redesigns</h1>
+<div class="sub">Section 1: sweep the cursor through each glint. Section 2: click the star, then pick a wish (the game clock pauses during the choice; Small Gift = x10 pulse).</div>
+
+<h2>1 &middot; Stray Stardust - the glint</h2>
+<div class="grid" id="strayGrid"></div>
+
+<h2>2 &middot; Falling Star Wish - star + picker</h2>
+<div class="grid" id="wishGrid"></div>
+<div class="note">All four pause their little world while the wish menu is up, exactly as the game will.</div>
+
+<script>
+'use strict';
+const TAU = Math.PI * 2;
+function mkCell(parent, w, h, name, desc, big) {
+    const cell = document.createElement('div'); cell.className = 'cell' + (big ? ' big' : '');
+    const c = document.createElement('canvas'); c.width = w * 2; c.height = h * 2;
+    c.style.height = (big ? (h * 680 / w) : (h * 440 / w)) + 'px';
+    const g = c.getContext('2d'); g.setTransform(2, 0, 0, 2, 0, 0);
+    const cap = document.createElement('div'); cap.className = 'cap';
+    cap.innerHTML = `<b>${name}</b><span>${desc}</span><span class="score">✦0</span>`;
+    cell.appendChild(c); cell.appendChild(cap); parent.appendChild(cell);
+    return { c, g, scoreEl: cap.querySelector('.score'), cap };
+}
+
+// ================= SECTION 1: STRAY GLINT VARIANTS =================
+const SW = 440, SH = 230;
+const strayDefs = [
+{ name: 'A. Twinkle (current)', desc: '4-point cross, gold halo', draw(g, s, t) {
+    const a = s.alpha, r = 5 + Math.sin(t * 3 + s.tw) * 1.2;
+    halo(g, s.x, s.y, r * 4, a * 0.4);
+    g.strokeStyle = `rgba(180,140,60,${a})`; g.lineWidth = 1.4; g.lineCap = 'round';
+    g.beginPath(); g.moveTo(s.x - r, s.y); g.lineTo(s.x + r, s.y); g.moveTo(s.x, s.y - r); g.lineTo(s.x, s.y + r); g.stroke();
+    dot(g, s.x, s.y, 1.8, `rgba(255,240,200,${a})`);
+}},
+{ name: 'B. Ember Mote', desc: 'a warm spark shedding an ash trail', draw(g, s, t) {
+    const a = s.alpha;
+    s.trail = s.trail || [];
+    if (!s.paused) { s.trail.unshift({ x: s.x, y: s.y }); if (s.trail.length > 16) s.trail.pop(); }
+    s.trail.forEach((p, i) => { const k = 1 - i / 16; dot(g, p.x, p.y, k * 2.2, `rgba(150,110,60,${(a * k * 0.35).toFixed(3)})`); });
+    halo(g, s.x, s.y, 16, a * 0.5);
+    dot(g, s.x, s.y, 3.4, `rgba(120,60,20,${a})`);
+    dot(g, s.x, s.y, 2.0, `rgba(255,180,90,${a})`);
+    dot(g, s.x, s.y, 0.9, `rgba(255,245,220,${a})`);
+}},
+{ name: 'C. Light Petal', desc: 'a leaf of light, fluttering down', draw(g, s, t) {
+    const a = s.alpha, rock = Math.sin(t * 2.2 + s.tw) * 0.7;
+    g.save(); g.translate(s.x, s.y); g.rotate(rock);
+    const grd = g.createLinearGradient(0, -8, 0, 8);
+    grd.addColorStop(0, `rgba(255,235,180,${a})`); grd.addColorStop(1, `rgba(190,140,60,${a})`);
+    g.fillStyle = grd;
+    g.beginPath(); g.moveTo(0, -9); g.quadraticCurveTo(6, 0, 0, 9); g.quadraticCurveTo(-6, 0, 0, -9); g.fill();
+    g.strokeStyle = `rgba(120,90,40,${a * 0.7})`; g.lineWidth = 0.8; g.stroke();
+    g.restore();
+    halo(g, s.x, s.y, 20, a * 0.25);
+}},
+{ name: 'D. Shimmer Cluster', desc: 'a tiny constellation, gathered as one', draw(g, s, t) {
+    const a = s.alpha;
+    for (let i = 0; i < 4; i++) {
+        const aa = t * 0.9 + i * TAU / 4 + s.tw, rr = 8 + Math.sin(t * 1.7 + i) * 2.5;
+        const x = s.x + Math.cos(aa) * rr, y = s.y + Math.sin(aa) * rr * 0.8;
+        const tw = 0.4 + 0.6 * (0.5 + 0.5 * Math.sin(t * 4 + i * 2));
+        dot(g, x, y, 1.6, `rgba(201,162,74,${(a * tw).toFixed(3)})`);
+    }
+    dot(g, s.x, s.y, 1.2, `rgba(255,240,200,${a * 0.8})`);
+    halo(g, s.x, s.y, 18, a * 0.3);
+}},
+{ name: 'E. Dustling', desc: 'a miniature comet drifting on a lazy arc', arc: true, draw(g, s, t) {
+    const a = s.alpha, vx = s.vx, vy = s.vy, sp = Math.hypot(vx, vy) || 1;
+    for (let i = 1; i <= 8; i++) {
+        const k = i / 8;
+        dot(g, s.x - vx / sp * i * 4, s.y - vy / sp * i * 4, (1 - k) * 2.6, `rgba(190,150,80,${(a * (1 - k) * 0.5).toFixed(3)})`);
+    }
+    halo(g, s.x, s.y, 14, a * 0.45);
+    dot(g, s.x, s.y, 2.6, `rgba(240,200,120,${a})`);
+    dot(g, s.x, s.y, 1.2, `rgba(255,250,235,${a})`);
+}},
+{ name: 'F. Star Fragment', desc: 'an ink-edged shard, spinning slowly with a glint sweep', draw(g, s, t) {
+    const a = s.alpha, R = 7.5, rot = t * 0.8 + s.tw;
+    g.save(); g.translate(s.x, s.y); g.rotate(rot);
+    g.beginPath();
+    for (let i = 0; i < 10; i++) {
+        const rr = i % 2 ? R * 0.42 : R, aa = i * Math.PI / 5 - Math.PI / 2;
+        i ? g.lineTo(Math.cos(aa) * rr, Math.sin(aa) * rr) : g.moveTo(Math.cos(aa) * rr, Math.sin(aa) * rr);
+    }
+    g.closePath();
+    g.fillStyle = `rgba(214,178,94,${a})`; g.fill();
+    g.strokeStyle = `rgba(26,26,26,${a * 0.85})`; g.lineWidth = 1.1; g.stroke();
+    const sweep = ((t * 0.7 + s.tw) % 2) - 1;   // a highlight line sweeping across
+    if (sweep > -0.8 && sweep < 0.8) {
+        g.strokeStyle = `rgba(255,250,230,${(a * 0.8 * (1 - Math.abs(sweep) / 0.8)).toFixed(3)})`;
+        g.lineWidth = 1.6; g.beginPath(); g.moveTo(sweep * R, -R); g.lineTo(sweep * R - 3, R); g.stroke();
+    }
+    g.restore();
+}},
+];
+function halo(g, x, y, r, a) {
+    const grd = g.createRadialGradient(x, y, 0, x, y, r);
+    grd.addColorStop(0, `rgba(201,162,74,${a.toFixed(3)})`); grd.addColorStop(1, 'rgba(201,162,74,0)');
+    g.fillStyle = grd; g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill();
+}
+function dot(g, x, y, r, style) { g.fillStyle = style; g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill(); }
+
+const strayCells = strayDefs.map(def => {
+    const cell = mkCell(document.getElementById('strayGrid'), SW, SH, def.name, def.desc);
+    const st = { def, ...cell, s: null, timer: 0.5, fx: [], score: 0, m: { x: -99, y: -99 } };
+    cell.c.addEventListener('mousemove', e => {
+        const r = cell.c.getBoundingClientRect();
+        st.m.x = (e.clientX - r.left) * (SW / r.width); st.m.y = (e.clientY - r.top) * (SH / r.height);
+    });
+    return st;
+});
+function strayTickAll(dt, t) {
+    for (const st of strayCells) {
+        const g = st.g;
+        if (!st.s) { st.timer -= dt; if (st.timer <= 0) {
+            const a = Math.random() * TAU, sp = 14 + Math.random() * 10;
+            st.s = { x: 50 + Math.random() * (SW - 100), y: 45 + Math.random() * (SH - 90),
+                     vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, age: 0, tw: Math.random() * TAU, trail: [] };
+        } }
+        if (st.s) {
+            const s = st.s;
+            s.age += dt;
+            if (st.def.arc) { const turn = 0.35 * dt; const vx = s.vx * Math.cos(turn) - s.vy * Math.sin(turn); s.vy = s.vx * Math.sin(turn) + s.vy * Math.cos(turn); s.vx = vx; }
+            s.x += s.vx * dt; s.y += s.vy * dt;
+            s.alpha = Math.min(1, s.age / 0.6) * Math.min(1, (11 - s.age) / 1.4) * (0.7 + 0.3 * Math.sin(t * 5 + s.tw));
+            if (s.age > 11 || s.x < 12 || s.x > SW - 12 || s.y < 12 || s.y > SH - 12) { st.s = null; st.timer = 2.5; }
+            else if (Math.hypot(st.m.x - s.x, st.m.y - s.y) < 24) {
+                st.score += 120; st.scoreEl.textContent = '✦' + st.score.toLocaleString();
+                st.fx.push({ x: s.x, y: s.y, age: 0 }); st.s = null; st.timer = 2.2;
+            }
+        }
+        for (let i = st.fx.length - 1; i >= 0; i--) { st.fx[i].age += dt; if (st.fx[i].age > 0.55) st.fx.splice(i, 1); }
+        g.fillStyle = '#f4efe4'; g.fillRect(0, 0, SW, SH);
+        dot(g, SW / 2, SH / 2, 7, '#1a1a1a');
+        g.strokeStyle = 'rgba(100,90,80,0.13)'; g.beginPath(); g.arc(SW / 2, SH / 2, 58, 0, TAU); g.stroke();
+        if (st.s) st.def.draw(g, st.s, t);
+        for (const fx of st.fx) {
+            const p = fx.age / 0.55;
+            g.strokeStyle = `rgba(201,162,74,${(1 - p).toFixed(3)})`; g.lineWidth = 1.5;
+            g.beginPath(); g.arc(fx.x, fx.y, 4 + p * 20, 0, TAU); g.stroke();
+        }
+    }
+}
+
+// ================= SECTION 2: FALLING STAR + WISH PICKER =================
+const WW = 680, WH = 340;
+const WISHES = [
+    { t: 'Bright Tail',  d: 'next comet pays double' },
+    { t: 'Warm Current', d: '+50% stardust for 60s' },
+    { t: 'Small Gift',   d: 'x10 pulse, right now' },
+];
+const wishDefs = [
+{ name: '1. Parchment Cards (current)', desc: 'straight streak; three cards mid-screen',
+  star: 'streak', drawPicker(g, w) {
+    g.fillStyle = 'rgba(40,38,30,0.22)'; g.fillRect(0, 0, WW, WH);
+    g.textAlign = 'center'; g.fillStyle = '#f4efe4'; g.font = 'italic 14px Georgia,serif';
+    g.fillText('The star waits. Make a wish.', WW / 2, WH / 2 - 62);
+    const bw = 168, bh = 66, gap = 16, x0 = (WW - 3 * bw - 2 * gap) / 2;
+    w.zones = WISHES.map((_, i) => ({ x: x0 + i * (bw + gap), y: WH / 2 - bh / 2, w: bw, h: bh }));
+    w.zones.forEach((z, i) => {
+        g.fillStyle = '#fffdf8'; g.strokeStyle = '#1a1a1a'; g.lineWidth = 1.3;
+        g.beginPath(); g.roundRect(z.x, z.y, z.w, z.h, 8); g.fill(); g.stroke();
+        g.fillStyle = '#1a1a1a'; g.font = '600 13.5px Georgia,serif'; g.fillText(WISHES[i].t, z.x + z.w / 2, z.y + 26);
+        g.fillStyle = '#6b6558'; g.font = "11px 'Segoe UI',sans-serif"; g.fillText(WISHES[i].d, z.x + z.w / 2, z.y + 46);
+    });
+}},
+{ name: '2. Orbiting Wishes', desc: 'the caught star freezes; three gold orbs circle it - click one',
+  star: 'streak', drawPicker(g, w, t) {
+    g.fillStyle = 'rgba(40,38,30,0.16)'; g.fillRect(0, 0, WW, WH);
+    halo(g, w.px, w.py, 34, 0.5);
+    dot(g, w.px, w.py, 5, '#fff4d8');
+    w.zones = WISHES.map((_, i) => {
+        const a = t * 0.5 + i * TAU / 3, R = 72;
+        return { cx: w.px + Math.cos(a) * R, cy: w.py + Math.sin(a) * R * 0.72, r: 26, orb: true };
+    });
+    w.zones.forEach((z, i) => {
+        halo(g, z.cx, z.cy, 24, 0.4);
+        dot(g, z.cx, z.cy, 11, 'rgba(201,162,74,0.95)');
+        dot(g, z.cx, z.cy, 8.5, '#fffdf8');
+        g.textAlign = 'center'; g.fillStyle = '#f4efe4'; g.font = '600 11.5px Georgia,serif';
+        g.fillText(WISHES[i].t, z.cx, z.cy + 26);
+        g.fillStyle = 'rgba(244,239,228,0.66)'; g.font = "10px 'Segoe UI',sans-serif";
+        g.fillText(WISHES[i].d, z.cx, z.cy + 39);
+    });
+}},
+{ name: '3. Wish Scroll', desc: 'ember star tumbles in; a parchment strip slides from the right',
+  star: 'ember', drawPicker(g, w, t) {
+    g.fillStyle = 'rgba(40,38,30,0.16)'; g.fillRect(0, 0, WW, WH);
+    w.slide = Math.min(1, (w.slide || 0) + 0.08);
+    const sw = 190, x = WW - sw * (w.slide * w.slide * (3 - 2 * w.slide));
+    g.fillStyle = '#f8f3e6'; g.fillRect(x, 0, sw, WH);
+    g.strokeStyle = '#b8ab8c'; g.lineWidth = 1.5; g.beginPath(); g.moveTo(x, 0); g.lineTo(x, WH); g.stroke();
+    g.textAlign = 'left'; g.fillStyle = '#8a8272'; g.font = 'italic 12px Georgia,serif';
+    g.fillText('a wish, then...', x + 18, 34);
+    w.zones = WISHES.map((_, i) => ({ x: x + 8, y: 58 + i * 86, w: sw - 16, h: 72 }));
+    w.zones.forEach((z, i) => {
+        g.strokeStyle = '#d4c9a8'; g.lineWidth = 1; g.strokeRect(z.x, z.y, z.w, z.h);
+        g.fillStyle = '#1a1a1a'; g.font = '600 14px Georgia,serif'; g.fillText(WISHES[i].t, z.x + 12, z.y + 28);
+        g.fillStyle = '#6b6558'; g.font = "11px 'Segoe UI',sans-serif"; g.fillText(WISHES[i].d, z.x + 12, z.y + 50);
+    });
+}},
+{ name: '4. Constellation Choice', desc: 'three faint constellations appear; click one to draw it',
+  star: 'streak', drawPicker(g, w, t) {
+    g.fillStyle = 'rgba(40,38,30,0.30)'; g.fillRect(0, 0, WW, WH);
+    g.textAlign = 'center'; g.fillStyle = '#f4efe4'; g.font = 'italic 14px Georgia,serif';
+    g.fillText('Three signs wait in the sky. Trace one.', WW / 2, 30);
+    const CONS = [
+        [[0,0],[26,-18],[54,-8],[74,-30]],                 // the Tail
+        [[0,0],[20,22],[46,14],[60,38],[34,48]],           // the Current
+        [[0,0],[28,0],[14,-24],[0,0]],                     // the Gift
+    ];
+    w.zones = CONS.map((pts, i) => {
+        const bx = 90 + i * 190, by = WH / 2 + 10;
+        return { pts, bx, by, x: bx - 20, y: by - 50, w: 130, h: 100 };
+    });
+    w.zones.forEach((z, i) => {
+        const glow = 0.5 + 0.5 * Math.sin(t * 2 + i * 2);
+        g.strokeStyle = `rgba(232,220,190,${0.25 + glow * 0.2})`; g.lineWidth = 1; g.setLineDash([3, 6]);
+        g.beginPath(); z.pts.forEach((p, k) => k ? g.lineTo(z.bx + p[0], z.by + p[1]) : g.moveTo(z.bx + p[0], z.by + p[1])); g.stroke();
+        g.setLineDash([]);
+        z.pts.forEach(p => dot(g, z.bx + p[0], z.by + p[1], 2.4, `rgba(232,220,190,${0.5 + glow * 0.4})`));
+        g.fillStyle = 'rgba(244,239,228,0.85)'; g.font = '600 12px Georgia,serif'; g.textAlign = 'center';
+        g.fillText(WISHES[i].t, z.bx + 36, z.by + 44);
+        g.fillStyle = 'rgba(244,239,228,0.55)'; g.font = "10.5px 'Segoe UI',sans-serif";
+        g.fillText(WISHES[i].d, z.bx + 36, z.by + 58);
+    });
+}},
+];
+
+const wishCells = wishDefs.map(def => {
+    const cell = mkCell(document.getElementById('wishGrid'), WW, WH, def.name, def.desc, true);
+    const btn = document.createElement('button'); btn.className = 'mini'; btn.textContent = 'Summon';
+    cell.cap.insertBefore(btn, cell.scoreEl);
+    const st = { def, ...cell, star: null, picker: false, timer: 1.2, twk: [], chosen: '', slideReset: 0 };
+    btn.addEventListener('click', () => { if (!st.star && !st.picker) st.timer = 0.01; });
+    cell.c.addEventListener('mousedown', e => {
+        const r = cell.c.getBoundingClientRect();
+        const x = (e.clientX - r.left) * (WW / r.width), y = (e.clientY - r.top) * (WH / r.height);
+        if (st.picker) {
+            (st.w.zones || []).forEach((z, i) => {
+                const hit = z.orb ? Math.hypot(x - z.cx, y - z.cy) < z.r : (x > z.x && x < z.x + z.w && y > z.y && y < z.y + z.h);
+                if (hit) { st.picker = false; st.scoreEl.textContent = WISHES[i].t + ' ✓'; st.timer = 9 + Math.random() * 4; }
+            });
+            return;
+        }
+        if (st.star && Math.hypot(x - st.star.x, y - st.star.y) < 40) {
+            st.w = { px: st.star.x, py: st.star.y, slide: 0 };
+            st.star = null; st.picker = true;   // <- the game clock pauses here
+        }
+    });
+    return st;
+});
+function wishTickAll(dt, t) {
+    for (const st of wishCells) {
+        const g = st.g, paused = st.picker;   // picker up = this little world is paused
+        if (!paused) {
+            if (!st.star) { st.timer -= dt; if (st.timer <= 0) {
+                const fromLeft = Math.random() < 0.5;
+                st.star = { x: fromLeft ? -16 : WW + 16, y: 30 + Math.random() * (WH * 0.4),
+                            vx: (fromLeft ? 1 : -1) * (120 + Math.random() * 60), vy: 46 + Math.random() * 34,
+                            trail: [], spin: Math.random() * TAU };
+            } }
+            if (st.star) {
+                const s = st.star;
+                if (st.def.star === 'ember') { s.vx *= (1 - 0.12 * dt); s.vy *= (1 - 0.12 * dt); }   // ember drifts slower
+                s.x += s.vx * dt; s.y += s.vy * dt; s.spin += dt * 5;
+                s.trail.unshift({ x: s.x, y: s.y }); if (s.trail.length > 24) s.trail.pop();
+                if (s.x < -30 || s.x > WW + 30 || s.y > WH + 30) { st.star = null; st.timer = 9 + Math.random() * 4; }
+            }
+        }
+        g.fillStyle = '#efe6d2'; g.fillRect(0, 0, WW, WH);
+        for (let i = 0; i < 16; i++) {
+            const sx = (i * 113 % WW), sy = (i * 71 % WH), a = 0.12 + 0.18 * (0.5 + 0.5 * Math.sin(t * 1.5 + i));
+            dot(g, sx, sy, 1.5, `rgba(180,150,80,${a.toFixed(2)})`);
+        }
+        if (st.star) {
+            const s = st.star;
+            s.trail.forEach((p, i) => { const k = 1 - i / s.trail.length; dot(g, p.x, p.y, k * 4, `rgba(201,162,74,${(k * 0.55).toFixed(3)})`); });
+            if (st.def.star === 'ember') {
+                dot(g, s.x, s.y, 7, 'rgba(120,60,20,0.9)');
+                dot(g, s.x, s.y, 4.5, 'rgba(255,180,90,0.95)');
+                dot(g, s.x + Math.cos(s.spin) * 9, s.y + Math.sin(s.spin) * 9, 1.5, 'rgba(255,220,150,0.8)');
+            } else dot(g, s.x, s.y, 4.6, '#fff4d8');
+            g.strokeStyle = 'rgba(60,80,70,0.5)'; g.lineWidth = 1.3;
+            g.beginPath(); g.arc(s.x, s.y, 14 + Math.sin(t * 6) * 2, 0, TAU); g.stroke();
+        }
+        if (st.picker) st.def.drawPicker(g, st.w, t);
+    }
+}
+
+// ================= loop =================
+let last = 0;
+(function loop(ms) {
+    const t = ms / 1000, dt = Math.min(t - last, 0.05); last = t;
+    strayTickAll(dt, t); wishTickAll(dt, t);
+    requestAnimationFrame(loop);
+})(0);
+</script>
+</body>
+</html>
