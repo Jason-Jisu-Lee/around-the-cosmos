@@ -86,9 +86,9 @@ function checkTutorials() {
         }
         startTutorial([
             { getRect: () => { const f = document.querySelector('.upg-identity'); if (f) f.scrollIntoView({ block: 'nearest' }); return _combinedRect('.upg-identity'); },
-              body: "These upgrades determine the identity of an orbiter. You may only choose one for the current Universe. However, you may choose a different one after your Accretion." },
+              body: "These are Identity Upgrades: powerful, often with a synergy component. You can only choose two per orbiter (hold to choose) until the next Accretion." },
             { getRect: () => { const e = document.getElementById('accretion-btn'); if (!e || e.style.display === 'none') return null; e.scrollIntoView({ block: 'nearest' }); return e.getBoundingClientRect(); },
-              body: "This indicates how close you are to perform Accretion, which will reset all of your progress and give you Mass based on total Stardust collected. You should Accrete when your progress is slowing down." },
+              body: "This shows Accretion progress. Accretion resets all progress in this Universe and grants Mass based on total Stardust collected. Mass buys permanent, powerful upgrades. Accrete when progress slows down." },
         ]);
     }
 }

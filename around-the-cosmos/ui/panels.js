@@ -93,8 +93,9 @@ const upgPop = document.getElementById('upg-pop');
 function showUpgPop(u, cardEl) {
     const l = G.upgrades[u.id];
     const flavor = typeof u.flavor === 'function' ? u.flavor(l) : u.flavor;
+    const desc = u.desc ? u.desc(l) : '';   // desc is optional - pure stat upgrades rely on name + Now/Next alone
     let html = (flavor ? `<div class="upg-pop-flavor">${flavor}</div>` : '')
-        + `<div class="upg-pop-fn">${u.desc(l)}</div>`;
+        + (desc ? `<div class="upg-pop-fn">${desc}</div>` : '');
     // Now / Next rows: the total bonus at the owned level and at the next one (u.now(l)),
     // so what the upgrade provides - and will provide - is always visible.
     if (u.now) {
