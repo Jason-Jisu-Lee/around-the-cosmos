@@ -82,6 +82,8 @@ function fmtSci(n) {
 }
 
 function earn(amount, x, y, big) {
+    // Warm Current starwish: every earning is boosted while the buff runs
+    if (typeof wishIncomeMult === 'function') amount = Math.round(amount * wishIncomeMult());
     G.dust += amount; G.runDust += amount; G.totalDust += amount;
     if (x !== undefined) {
         G.floatingTexts.push({ x, y, text:'+✦'+fmtNum(amount), age:0, maxAge:big?1.6:1.1, size:big?22:14 });

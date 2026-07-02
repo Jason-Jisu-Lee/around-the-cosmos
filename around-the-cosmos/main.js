@@ -7,7 +7,8 @@ function loop(ts) {
     const dt = Math.min((ts-lastTs)/1000, 0.1);
     lastTs = ts;
     const frozen = (typeof accreting !== 'undefined' && accreting) || paused || (typeof tutorialActive !== 'undefined' && tutorialActive)
-        || (typeof frontpageActive !== 'undefined' && frontpageActive);
+        || (typeof frontpageActive !== 'undefined' && frontpageActive)
+        || (typeof wishChoosing !== 'undefined' && wishChoosing);   // the starwish picker pauses the game
     if (!frozen) { gameClock += dt; tickWithDebug(dt); if (typeof checkTutorials === 'function') checkTutorials(); }
     lastSave += dt;
     if (lastSave >= 20) { lastSave=0; saveGame(); }
@@ -15,6 +16,7 @@ function loop(ts) {
     drawStray(gameClock);
     drawVortexLayer();
     drawComet(gameClock);
+    drawWishLayer(gameClock);
     drawFrontpage();
     updateUI(ts);
     updateCosmoTip();
@@ -102,6 +104,6 @@ window.addEventListener('resize', resize);
 window.addEventListener('beforeunload', saveGame);
 document.getElementById('reset-btn').addEventListener('click', resetGame);
 loadGame(); resize(); buildPanels(); initDebug(); _savedVols=initSettings();
-vortexInit(); initFrontpage();
+vortexInit(); wishInit(); initFrontpage();
 initDraggable(document.getElementById('observatory'));
 requestAnimationFrame(ts => { lastTs=ts; requestAnimationFrame(loop); });

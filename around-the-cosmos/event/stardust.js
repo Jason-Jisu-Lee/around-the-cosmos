@@ -18,6 +18,7 @@ const strayFx = [];              // collect sparkles { x, y, age, maxAge }
 function strayGap() { return STRAY.GAP_MIN + Math.random() * (STRAY.GAP_MAX - STRAY.GAP_MIN); }
 function strayValue() { return Math.max(10, Math.round(STRAY.PULSES * pulseValue())); }
 
+const STRAY_KINDS = ['twinkle', 'cluster', 'dustling'];   // designs A / D / E - one picked at random per glint
 function spawnStray() {
     let x, y, tries = 0;
     do {
@@ -25,7 +26,8 @@ function spawnStray() {
         y = 50 + Math.random() * Math.max(1, H - 100);
     } while (Math.hypot(x - CX, y - CY) < 90 && ++tries < 30);   // keep off Maw itself
     const a = Math.random() * Math.PI * 2, s = 14 + Math.random() * 10;
-    stray = { x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, age: 0, tw: Math.random() * 6.28 };
+    stray = { x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, age: 0, tw: Math.random() * 6.28,
+              kind: STRAY_KINDS[Math.random() * STRAY_KINDS.length | 0] };
 }
 
 function collectStray() {
@@ -52,6 +54,12 @@ function strayTick(dt) {
     // ONE glint at a time, and it NEVER expires - it drifts (bouncing softly off the edges)
     // until the player sweeps it up. No new glint spawns while this one waits.
     stray.age += dt;
+    if (stray.kind === 'dustling') {   // the mini-comet drifts on a lazy arc
+        const turn = 0.35 * dt;
+        const vx = stray.vx * Math.cos(turn) - stray.vy * Math.sin(turn);
+        stray.vy = stray.vx * Math.sin(turn) + stray.vy * Math.cos(turn);
+        stray.vx = vx;
+    }
     stray.x += stray.vx * dt; stray.y += stray.vy * dt;
     if (stray.x < 30 && stray.vx < 0) stray.vx = -stray.vx;
     if (stray.x > W - 30 && stray.vx > 0) stray.vx = -stray.vx;
@@ -61,23 +69,51 @@ function strayTick(dt) {
     if (cosmoOver && stray.age > 0.3 && Math.hypot(cosmoMx - stray.x, cosmoMy - stray.y) < STRAY.R) collectStray();
 }
 
-// drawn on the sky canvas, after draw() (main loop) - a 4-point twinkle with a soft gold halo
+// drawn on the sky canvas, after draw() (main loop) - three looks, one picked per glint:
+// 'twinkle' (4-point cross), 'cluster' (a tiny constellation), 'dustling' (a mini-comet)
+function _strayHalo(x, y, r, a) {
+    const gl = ctx.createRadialGradient(x, y, 0, x, y, r);
+    gl.addColorStop(0, `rgba(201,162,74,${a.toFixed(3)})`);
+    gl.addColorStop(1, 'rgba(201,162,74,0)');
+    ctx.fillStyle = gl; ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill();
+}
 function drawStray(t) {
     if (stray) {
         const fadeIn = Math.min(1, stray.age / 0.6);
         const a = fadeIn * (0.65 + 0.35 * Math.sin(t * 5 + stray.tw));   // no fade-out: it waits until swept
-        const x = stray.x, y = stray.y, r = 5 + Math.sin(t * 3 + stray.tw) * 1.2;
-        const gl = ctx.createRadialGradient(x, y, 0, x, y, r * 4);
-        gl.addColorStop(0, `rgba(201,162,74,${(a * 0.4).toFixed(3)})`);
-        gl.addColorStop(1, 'rgba(201,162,74,0)');
-        ctx.fillStyle = gl; ctx.beginPath(); ctx.arc(x, y, r * 4, 0, 7); ctx.fill();
-        ctx.strokeStyle = `rgba(180,140,60,${a.toFixed(3)})`; ctx.lineWidth = 1.4; ctx.lineCap = 'round';
-        ctx.beginPath();
-        ctx.moveTo(x - r, y); ctx.lineTo(x + r, y);
-        ctx.moveTo(x, y - r); ctx.lineTo(x, y + r);
-        ctx.stroke();
-        ctx.fillStyle = `rgba(255,240,200,${a.toFixed(3)})`;
-        ctx.beginPath(); ctx.arc(x, y, 1.8, 0, 7); ctx.fill();
+        const x = stray.x, y = stray.y;
+        if (stray.kind === 'cluster') {
+            for (let i = 0; i < 4; i++) {
+                const aa = t * 0.9 + i * Math.PI / 2 + stray.tw, rr = 8 + Math.sin(t * 1.7 + i) * 2.5;
+                const px = x + Math.cos(aa) * rr, py = y + Math.sin(aa) * rr * 0.8;
+                const tw = 0.4 + 0.6 * (0.5 + 0.5 * Math.sin(t * 4 + i * 2));
+                ctx.fillStyle = `rgba(201,162,74,${(a * tw).toFixed(3)})`;
+                ctx.beginPath(); ctx.arc(px, py, 1.6, 0, 7); ctx.fill();
+            }
+            ctx.fillStyle = `rgba(255,240,200,${(a * 0.8).toFixed(3)})`;
+            ctx.beginPath(); ctx.arc(x, y, 1.2, 0, 7); ctx.fill();
+            _strayHalo(x, y, 18, a * 0.3);
+        } else if (stray.kind === 'dustling') {
+            const sp = Math.hypot(stray.vx, stray.vy) || 1;
+            for (let i = 1; i <= 8; i++) {
+                const k = i / 8;
+                ctx.fillStyle = `rgba(190,150,80,${(a * (1 - k) * 0.5).toFixed(3)})`;
+                ctx.beginPath(); ctx.arc(x - stray.vx / sp * i * 4, y - stray.vy / sp * i * 4, (1 - k) * 2.6, 0, 7); ctx.fill();
+            }
+            _strayHalo(x, y, 14, a * 0.45);
+            ctx.fillStyle = `rgba(240,200,120,${a.toFixed(3)})`; ctx.beginPath(); ctx.arc(x, y, 2.6, 0, 7); ctx.fill();
+            ctx.fillStyle = `rgba(255,250,235,${a.toFixed(3)})`; ctx.beginPath(); ctx.arc(x, y, 1.2, 0, 7); ctx.fill();
+        } else {   // twinkle
+            const r = 5 + Math.sin(t * 3 + stray.tw) * 1.2;
+            _strayHalo(x, y, r * 4, a * 0.4);
+            ctx.strokeStyle = `rgba(180,140,60,${a.toFixed(3)})`; ctx.lineWidth = 1.4; ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(x - r, y); ctx.lineTo(x + r, y);
+            ctx.moveTo(x, y - r); ctx.lineTo(x, y + r);
+            ctx.stroke();
+            ctx.fillStyle = `rgba(255,240,200,${a.toFixed(3)})`;
+            ctx.beginPath(); ctx.arc(x, y, 1.8, 0, 7); ctx.fill();
+        }
     }
     for (const fx of strayFx) {
         const p = fx.age / fx.maxAge, a = 1 - p;

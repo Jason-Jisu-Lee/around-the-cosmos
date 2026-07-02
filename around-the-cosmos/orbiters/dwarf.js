@@ -24,8 +24,9 @@ function longNowCap()           { return 0.10 * lvl('longnow'); }               
 function longNowFrac()          { return longNowCap() > 0 ? Math.min(1, 0.003 * G.dwarfOrbits / longNowCap()) : 0; }   // progress toward the cap (drives the halo)
 function longNowMult()          { return lvl('longnow') > 0 ? 1 + Math.min(longNowCap(), 0.003 * G.dwarfOrbits) : 1; } // [DLY] +0.3%/orbit up to 10%/level, resets each universe (G.dwarfOrbits)
 function anchorMult()           { return 1 + 0.05 * lvl('anchor'); }                   // [SYN][SCI] +5%/lvl to EVERY orbiter (folded into resonanceMult in registry.js)
-function distantKinSpawnMult()  { return Math.pow(0.8, lvl('distantkin')); }           // [SYN][EVT] Vortex sooner...
-function distantKinRewardMult() { return 1 + 0.25 * lvl('distantkin'); }               // ...and worth more
+// Distant Kin (redesigned 2026-07-02, the vortex is hostile now): dispelling a vortex pays a
+// bounty of x10 pulse per level (read by startAbsorb in event/vortex.js).
+function distantKinDispelPulses() { return 10 * lvl('distantkin'); }
 
 // [SYN][EVT] Stored Winter: banks a share of each Maw pulse, releases the whole hoard on Ember's pass.
 let dwarfStore = 0;

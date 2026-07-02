@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=272">
+    <link rel="stylesheet" href="style.css?v=273">
 </head>
 <body>
     <div id="app">
@@ -69,6 +69,9 @@
 
     <!-- Comet overlay - full-window, above the panels (pointer-events:none); the comet is drawn here so it can fly over the side panels and stay clickable -->
     <canvas id="comet-layer"></canvas>
+
+    <!-- Falling Star Wish overlay (star + constellation picker; pointer-events auto only while choosing) -->
+    <canvas id="wish-layer"></canvas>
 
     <!-- Observatory - draggable stats panel, default bottom-left; floats over the left column -->
     <div id="observatory"><div id="stats-list"></div></div>
@@ -155,49 +158,50 @@
     </div>
 
     <!-- Core -->
-    <script src="config.js?v=272"></script>
-    <script src="state.js?v=272"></script>
+    <script src="config.js?v=273"></script>
+    <script src="state.js?v=273"></script>
 
     <!-- Sound (engine + effects + music) -->
-    <script src="sound/core.js?v=272"></script>
-    <script src="sound/effects/sfx.js?v=272"></script>
-    <script src="sound/music/tracks.js?v=272"></script>
-    <script src="sound/sound.js?v=272"></script>
+    <script src="sound/core.js?v=273"></script>
+    <script src="sound/effects/sfx.js?v=273"></script>
+    <script src="sound/music/tracks.js?v=273"></script>
+    <script src="sound/sound.js?v=273"></script>
 
     <!-- Orbiters (one component per type) -->
-    <script src="orbiters/registry.js?v=272"></script>
-    <script src="orbiters/dust.js?v=272"></script>
-    <script src="orbiters/asteroid.js?v=272"></script>
-    <script src="orbiters/moon.js?v=272"></script>
-    <script src="orbiters/dwarf.js?v=272"></script>
+    <script src="orbiters/registry.js?v=273"></script>
+    <script src="orbiters/dust.js?v=273"></script>
+    <script src="orbiters/asteroid.js?v=273"></script>
+    <script src="orbiters/moon.js?v=273"></script>
+    <script src="orbiters/dwarf.js?v=273"></script>
 
     <!-- Upgrades -->
-    <script src="upgrades/upgrades.js?v=272"></script>
-    <script src="upgrades/mass.js?v=272"></script>
+    <script src="upgrades/upgrades.js?v=273"></script>
+    <script src="upgrades/mass.js?v=273"></script>
 
     <!-- Render + simulation -->
-    <script src="assets/click-effects/effects.js?v=272"></script>
-    <script src="render.js?v=272"></script>
-    <script src="stars.js?v=272"></script>
-    <script src="comet/comet.js?v=272"></script>
-    <script src="event/vortex.js?v=272"></script>
-    <script src="event/stardust.js?v=272"></script>
-    <script src="simulation.js?v=272"></script>
+    <script src="assets/click-effects/effects.js?v=273"></script>
+    <script src="render.js?v=273"></script>
+    <script src="stars.js?v=273"></script>
+    <script src="comet/comet.js?v=273"></script>
+    <script src="event/vortex.js?v=273"></script>
+    <script src="event/stardust.js?v=273"></script>
+    <script src="event/wish.js?v=273"></script>
+    <script src="simulation.js?v=273"></script>
 
     <!-- UI -->
-    <script src="ui/panels.js?v=272"></script>
-    <script src="ui/observatory.js?v=272"></script>
-    <script src="ui/hud.js?v=272"></script>
-    <script src="ui/cosmo.js?v=272"></script>
-    <script src="ui/mass-tree.js?v=272"></script>
-    <script src="ui/accretion-fx.js?v=272"></script>
-    <script src="ui/accretion.js?v=272"></script>
-    <script src="ui/tutorial.js?v=272"></script>
-    <script src="ui/frontpage.js?v=272"></script>
+    <script src="ui/panels.js?v=273"></script>
+    <script src="ui/observatory.js?v=273"></script>
+    <script src="ui/hud.js?v=273"></script>
+    <script src="ui/cosmo.js?v=273"></script>
+    <script src="ui/mass-tree.js?v=273"></script>
+    <script src="ui/accretion-fx.js?v=273"></script>
+    <script src="ui/accretion.js?v=273"></script>
+    <script src="ui/tutorial.js?v=273"></script>
+    <script src="ui/frontpage.js?v=273"></script>
 
     <!-- App -->
-    <script src="settings.js?v=272"></script>
-    <script src="debug.js?v=272"></script>
-    <script src="main.js?v=272"></script>
+    <script src="settings.js?v=273"></script>
+    <script src="debug.js?v=273"></script>
+    <script src="main.js?v=273"></script>
 </body>
 </html>

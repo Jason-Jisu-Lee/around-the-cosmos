@@ -45,7 +45,8 @@ function payCometCatch(c) {
     let combined = 0;
     for (const o of ORBITERS) combined += o.list().length * o.payout();
     const prospector = (typeof prospectorCometMult === 'function') ? prospectorCometMult() : 1;   // asteroid Prospector's Cut identity
-    const windfall = Math.round((10 * pulseValue() + combined) * (c.speedMult || 1) * brighterTailsMult() * prospector);
+    const wishTail = (typeof wishCometMultTake === 'function') ? wishCometMultTake() : 1;         // Bright Tail starwish: consumed by THIS catch
+    const windfall = Math.round((10 * pulseValue() + combined) * (c.speedMult || 1) * brighterTailsMult() * prospector * wishTail);
     earn(windfall);
     cometFx.push({ x:c.x, y:c.y, text:'+✦'+fmtNum(windfall), age:0, maxAge:1.5 });
     G.cometsCaught++; G.cometSeen = true; SoundSystem.sfxComet();

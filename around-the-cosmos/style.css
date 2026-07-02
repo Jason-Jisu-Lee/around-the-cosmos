@@ -708,3 +708,6 @@ body {
 /* Vortex lock: while a vortex feeds, stardust cannot be spent - every card reads blocked */
 .vortex-lock .upgrade-card { opacity: 0.45; filter: grayscale(0.55); pointer-events: none; }
 .vortex-lock .upgrade-card.can-afford { border-color: var(--border); }
+
+/* Falling Star Wish overlay - above the comet layer; clickable only while the picker is up */
+#wish-layer { position: fixed; inset: 0; z-index: 65; pointer-events: none; cursor: var(--cursor); }

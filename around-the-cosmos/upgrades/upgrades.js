@@ -467,9 +467,9 @@ const UPGRADES = [
     identity: true,
     group: "dwarf",
     costs: [80000, 185000, 400000],
-    flavor: "Ember calls, and something far away turns to listen.",
+    flavor: "Ember knows the thief, and claims a bounty from its wake.",
     desc: () => "No payout of its own.",
-    now: (l) => `Vortex ${Math.round((1 - Math.pow(0.8, l)) * 100)}% sooner, pays x${(1 + 0.25 * l).toFixed(2)}`,
+    now: (l) => `dispelling a vortex pays x${10 * l} pulse`,
     unlock: () => lvl("dwarf") >= 1 && G.runDust >= 200000,
   },
   {

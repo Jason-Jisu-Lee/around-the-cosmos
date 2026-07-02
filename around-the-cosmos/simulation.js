@@ -52,6 +52,7 @@ function tick(dt) {
     cometTick(dt);
     vortexTick(dt);
     strayTick(dt);
+    wishTick(dt);
 
     for (let i = G.particles.length-1; i >= 0; i--) {
         const pt = G.particles[i];

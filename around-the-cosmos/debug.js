@@ -33,6 +33,7 @@ function initDebug() {
     btn('Spawn Vortex', () => { if (typeof vortexSpawn === 'function' && !VTX.active) vortexSpawn(); });
     btn('Spawn Swarm',  () => { if (typeof triggerCometSwarm === 'function') triggerCometSwarm(); });
     btn('Spawn Stray',  () => { if (typeof spawnStray === 'function') spawnStray(); });
+    btn('Spawn Wish',   () => { if (typeof spawnWishStar === 'function' && !wishStar && !wishChoosing) { G.tutSeen.wishSpawned = true; spawnWishStar(); } });
     btn('Reset',       () => { localStorage.clear(); if (typeof accreting !== 'undefined') accreting = false; G=createInitialState(); resetPanelAnimations(); buildPanels(); });
 
     const speedRow = document.createElement('div');

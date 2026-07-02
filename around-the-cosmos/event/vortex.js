@@ -157,8 +157,7 @@ function vortexSpawn(){
 
 function endVortex(){
     VTX.active = false; VTX.phase = 'idle'; VTX.holding = false; VTX.motes.length = 0;
-    const kin = (typeof distantKinSpawnMult === 'function') ? distantKinSpawnMult() : 1;   // dwarf Distant Kin identity: sooner
-    vortexTimer = (VX.SPAWN_MIN + Math.random() * (VX.SPAWN_MAX - VX.SPAWN_MIN)) * kin;
+    vortexTimer = VX.SPAWN_MIN + Math.random() * (VX.SPAWN_MAX - VX.SPAWN_MIN);
 }
 
 function vortexTick(dt){
@@ -240,8 +239,15 @@ function vortexTick(dt){
 
 function startAbsorb(){
     VTX.phase = 'absorb'; VTX.t = 0; VTX.holding = false; VTX.flash = 1;
-    // NO reward (changed 2026-07-02): dispelling only STOPS the theft - what was stolen stays stolen.
+    // NO base reward (2026-07-02): dispelling only STOPS the theft - what was stolen stays stolen.
+    // EXCEPTION: the dwarf Distant Kin identity pays a bounty per dispelled vortex (x10 pulse/lvl).
     G.vortexSeen = true;
+    const kinPulses = (typeof distantKinDispelPulses === 'function') ? distantKinDispelPulses() : 0;
+    if (kinPulses > 0) {
+        const amt = Math.max(kinPulses, kinPulses * pulseValue());
+        earn(amt);
+        vortexFx.push({ x: VTX.cx, y: VTX.cy, text: '+✦' + fmtNum(amt), age: 0, maxAge: 2.0 });
+    }
     if (typeof SoundSystem !== 'undefined' && SoundSystem.sfxVortexAbsorb) SoundSystem.sfxVortexAbsorb();
 }
 
