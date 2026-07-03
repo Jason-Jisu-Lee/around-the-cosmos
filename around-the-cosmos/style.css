@@ -382,7 +382,7 @@ body {
     border-left-color: rgba(26,26,26,0.82);
 }
 /* Two areas in the popup: flavor "description" on top, the actual "Effect" below. */
-#upg-pop .upg-pop-flavor {
+#upg-pop .upg-pop-flavor { text-align: center;
     font-style: italic; opacity: 0.72; font-size: 0.82em; line-height: 1.45;
     margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid rgba(244,240,232,0.16);
 }

@@ -206,7 +206,7 @@ function checkTutorials() {
         if (typeof saveGame === 'function') saveGame();
         startTutorial([
             { getRect: _vortexTutRect,
-              body: "A vortex is stealing stardust! Upgrades are locked while it feeds. Click and hold it until it collapses!" },
+              body: "A vortex! It's stealing stardust! Click and hold until it collapses" },
         ]);
         return;
     }
