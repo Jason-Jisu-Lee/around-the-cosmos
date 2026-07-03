@@ -45,13 +45,15 @@ function rollWishOffers() {
     ];
 }
 
-function spawnWishStar() {
+// speed varies +-20% per star; the FIRST star ever flies noticeably slower (slow=true, x0.65 fixed)
+function spawnWishStar(slow) {
     const fromLeft = Math.random() < 0.5;
+    const k = slow ? 0.65 : (0.9 + Math.random() * 0.4);
     wishStar = {
         x: fromLeft ? -20 : innerWidth + 20,
         y: 40 + Math.random() * (innerHeight * 0.35),
-        vx: (fromLeft ? 1 : -1) * (innerWidth / 7) * (0.9 + Math.random() * 0.4),
-        vy: innerHeight / 12 * (0.8 + Math.random() * 0.6),
+        vx: (fromLeft ? 1 : -1) * (innerWidth / 7) * k,
+        vy: innerHeight / 12 * (slow ? 0.7 : (0.8 + Math.random() * 0.6)),
         trail: [], frozen: false,
     };
 }
@@ -71,7 +73,7 @@ function wishTick(dt) {
     if (!wishStar) {
         const vortexUp = typeof VTX !== 'undefined' && VTX.active;   // a feeding vortex blocks NEW events
         if (G.tutSeen && !G.tutSeen.wishSpawned) {                    // first star ever: the 120s mark
-            if (G.universeTime >= WISH.FIRST_AT && !vortexUp) { G.tutSeen.wishSpawned = true; saveGame(); spawnWishStar(); }
+            if (G.universeTime >= WISH.FIRST_AT && !vortexUp) { G.tutSeen.wishSpawned = true; saveGame(); spawnWishStar(true); }
             return;
         }
         wishTimer -= dt;

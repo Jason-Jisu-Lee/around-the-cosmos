@@ -38,7 +38,8 @@ function newCometObj(forceSpeed) {
     return { x, y, vx:dx/d*spd, vy:dy/d*spd, life:CFG.COMET_LIFE, speedMult };
 }
 
-function spawnComet() { G.comet = newCometObj(); }
+// the first comet ever is always x1 speed (easy first catch); after that the random 1/1.5/2 pick
+function spawnComet() { G.comet = newCometObj((G.tutSeen && !G.tutSeen.comet) ? 1 : undefined); }
 
 // pays the windfall + all catch side effects for any comet body (the regular one or a swarm one)
 function payCometCatch(c) {
