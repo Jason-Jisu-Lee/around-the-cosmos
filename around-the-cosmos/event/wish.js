@@ -14,7 +14,6 @@ const WISH = { FIRST_AT: 120, GAP_MIN: 75, GAP_MAX: 115, CATCH_R: 44 };
 let wishLayer = null, wishCtx = null;
 let wishStar = null;            // { x,y,vx,vy,trail[],frozen }
 let wishChoosing = false;       // freezes the game while the picker is up
-let wishPendingTut = false;     // clicked the first star ever -> tutorial first, picker after
 let wishTimer = 0;
 let wishOffers = null;          // the 3 rolled offers [{name, val, desc, apply}]
 const wishFx = [];              // rising +✦ floats on the overlay
@@ -62,13 +61,24 @@ function wishGap() { return WISH.GAP_MIN + Math.random() * (WISH.GAP_MAX - WISH.
 
 function wishTick(dt) {
     for (let i = wishFx.length - 1; i >= 0; i--) { wishFx[i].age += dt; if (wishFx[i].age >= wishFx[i].maxAge) wishFx.splice(i, 1); }
-
-    // clicked the first star ever: its tutorial just closed -> open the picker now
-    if (wishPendingTut && (typeof tutorialActive === 'undefined' || !tutorialActive)) {
-        wishPendingTut = false; openWishChoice();
-        return;
-    }
     if (wishChoosing) return;
+
+    // First star ever: comet-style tutorial 1.5s after spawn, freezing it mid-flight (clicking it
+    // before that just opens the picker and counts as learned). Waits for the tutorial gap.
+    if (G.tutSeen && !G.tutSeen.wish && wishStar && !wishStar.frozen) {
+        if (wishStar.tutAt == null) wishStar.tutAt = gameClock + 1.5;
+        const onScreen = wishStar.x > 60 && wishStar.x < innerWidth - 60 && wishStar.y > 20 && wishStar.y < innerHeight - 80;
+        const gapOk = typeof lastTutEndClock === 'undefined' || gameClock - lastTutEndClock >= 8;
+        if (gameClock >= wishStar.tutAt && onScreen && gapOk && (typeof tutorialActive === 'undefined' || !tutorialActive)) {
+            G.tutSeen.wish = true; saveGame();
+            const R = 42;
+            startTutorial([{
+                getRect: () => wishStar ? ({ left: wishStar.x - R, top: wishStar.y - R, right: wishStar.x + R, width: R * 2, height: R * 2 }) : null,
+                body: 'A Falling Star! Choose your starwish',
+            }]);
+            return;
+        }
+    }
 
     if (!wishStar) {
         const vortexUp = typeof VTX !== 'undefined' && VTX.active;   // a feeding vortex blocks NEW events
@@ -200,14 +210,7 @@ function wishInit() {
         e.stopPropagation();
         wishStar.frozen = true;
         rollWishOffers();
-        if (G.tutSeen && !G.tutSeen.wish) {   // first catch ever: tutorial first, picker right after
-            G.tutSeen.wish = true; saveGame();
-            wishPendingTut = true;
-            const s = wishStar, R = 42;
-            startTutorial([{
-                getRect: () => ({ left: s.x - R, top: s.y - R, right: s.x + R, width: R * 2, height: R * 2 }),
-                body: 'A Falling Star! Choose your starwish',
-            }]);
-        } else openWishChoice();
+        if (G.tutSeen && !G.tutSeen.wish) { G.tutSeen.wish = true; saveGame(); }   // catching early counts as learned
+        openWishChoice();
     }, true);
 }
