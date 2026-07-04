@@ -1,12 +1,12 @@
 'use strict';
 
 // Stray stardust: a tiny drifting glint on the sky. SWEEPING the cursor over it collects it -
-// no click. Worth ~5 pulses. Spawns every 15-22s; the first one ever waits for a 90-115s mark
+// no click. Worth ~5 pulses. Spawns every 6-14s; the first one ever waits for the 20s mark
 // of the universe clock and fires its own tutorial (ui/tutorial.js). Independent of the
 // comet/vortex no-overlap rule - it is background texture, not an event.
 const STRAY = {
-    GAP_MIN: 10, GAP_MAX: 18,   // seconds between glints
-    R: 30,                       // sweep radius (sky-canvas px; matches the bigger glint)
+    GAP_MIN: 6, GAP_MAX: 14,    // seconds between glints
+    R: 45,                       // sweep radius (sky-canvas px; matches the bigger glint)
     PULSES: 5,                   // value = ~5 pulses
 };
 
@@ -77,12 +77,13 @@ function _strayHalo(x, y, r, a) {
     gl.addColorStop(1, 'rgba(201,162,74,0)');
     ctx.fillStyle = gl; ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill();
 }
-const STRAY_SCALE = 1.7;   // the glint must read clearly bigger than a background star
+const STRAY_SCALE = 2.55;    // the glint must read clearly bigger than a background star
+const STRAY_BRIGHT = 1.15;   // slight brightness lift on every look (alphas clamp at 1)
 function drawStray(t) {
     if (stray) {
         const S = STRAY_SCALE;
         const fadeIn = Math.min(1, stray.age / 0.6);
-        const a = fadeIn * (0.65 + 0.35 * Math.sin(t * 5 + stray.tw));   // no fade-out: it waits until swept
+        const a = Math.min(1, fadeIn * (0.65 + 0.35 * Math.sin(t * 5 + stray.tw)) * STRAY_BRIGHT);   // no fade-out: it waits until swept
         const x = stray.x, y = stray.y;
         if (stray.kind === 'cluster') {
             for (let i = 0; i < 4; i++) {
@@ -127,7 +128,7 @@ function drawStray(t) {
 // window-space rect for the tutorial spotlight (null when no glint is up)
 function strayTutRect() {
     if (!stray) return null;
-    const r = canvas.getBoundingClientRect(), R = 34;
+    const r = canvas.getBoundingClientRect(), R = 50;
     const x = r.left + stray.x, y = r.top + stray.y;
     return { left: x - R, top: y - R, right: x + R, width: R * 2, height: R * 2 };
 }
