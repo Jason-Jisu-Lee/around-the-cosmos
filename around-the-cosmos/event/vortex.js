@@ -5,9 +5,9 @@ const VTAU = Math.PI * 2;
 const VX = {
     SPAWN_MIN: 160,        // 2:40 between vortexes
     SPAWN_MAX: 215,        // 3:35
-    STEAL_TICK: 0.2,       // the vortex steals every 0.2s...
-    STEAL_MIN: 0.04,       // ...4-6% (random) of the stardust held when it spawned
-    STEAL_MAX: 0.06,
+    STEAL_TICK: 0.3,       // the vortex steals every 0.3s...
+    STEAL_MIN: 0.03,       // ...3-5% (random) of the stardust held when it spawned
+    STEAL_MAX: 0.05,
     MOTE_EVERY: 0.2,       // a stolen-stardust mote streams Maw -> vortex every 0.2s
     MOTE_DUR: 0.55,        // each mote's travel time
     FIRST_DELAY: 2 * 60,   // the first vortex of a session appears 2 min later than the usual cadence

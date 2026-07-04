@@ -9,7 +9,7 @@
 // First star ever at the 120s universe mark (G.tutSeen.wishSpawned marks "has appeared");
 // afterwards every 75-115s. A feeding vortex blocks new stars. The first CLICK ever fires
 // the `wish` tutorial ("A Falling Star! Choose your starwish"), then the picker opens.
-const WISH = { FIRST_AT: 120, GAP_MIN: 75, GAP_MAX: 115, CATCH_R: 44 };
+const WISH = { FIRST_AT: 120, GAP_MIN: 70, GAP_MAX: 90, CATCH_R: 44 };
 
 let wishLayer = null, wishCtx = null;
 let wishStar = null;            // { x,y,vx,vy,trail[],frozen }
