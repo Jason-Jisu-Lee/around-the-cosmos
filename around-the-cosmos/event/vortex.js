@@ -13,6 +13,8 @@ const VX = {
     FIRST_DELAY: 2 * 60,   // the first vortex of a session appears 2 min later than the usual cadence
     FADE_IN:   1.0,
     HOLD:      3.0,
+    STAY:      5.0,        // seconds of FEEDING before it leaves on its own (countdown pauses while held)
+    FADE_OUT:  0.9,        // the natural leave: fades out, steals nothing more, no reward
     ABSORB:    0.8,
     SPIN_MAX:  1.1,
     RENDER_R:  150,
@@ -26,7 +28,7 @@ let vortexTimer = VX.FIRST_DELAY + VX.SPAWN_MIN + Math.random() * (VX.SPAWN_MAX 
 const vortexFx = [];
 const VTX = { active:false, phase:'idle', t:0, fade:0, spin:0, spinRate:0,
               hold:0, shrink:0, holding:false, cx:0, cy:0, R:0, grabR:0, flash:0,
-              stealBase:0, stolen:0, stealT:0, moteT:0, motes:[] };   // the theft state
+              stealBase:0, stolen:0, stealT:0, moteT:0, motes:[], stayT:0 };   // the theft state; stayT = fed time toward the 5s leave
 
 // spending is locked while the vortex feeds (buyUpgrade + the identity hold + the card styling read this)
 function vortexStealing(){ return VTX.active && (VTX.phase === 'in' || VTX.phase === 'stay'); }
@@ -139,7 +141,7 @@ function vortexSpawn(){
     pickVortexSpot();
     VTX.active = true; VTX.phase = 'in'; VTX.t = 0; VTX.fade = 0; VTX.spin = Math.random()*VTAU;
     VTX.hold = 0; VTX.shrink = 0; VTX.holding = false; VTX.flash = 0;
-    VTX.stealBase = G.dust; VTX.stolen = 0; VTX.stealT = 0; VTX.moteT = 0; VTX.motes.length = 0;
+    VTX.stealBase = G.dust; VTX.stolen = 0; VTX.stealT = 0; VTX.moteT = 0; VTX.motes.length = 0; VTX.stayT = 0;
     if (typeof SoundSystem !== 'undefined' && SoundSystem.sfxVortexAppear) SoundSystem.sfxVortexAppear();
 }
 
@@ -181,12 +183,16 @@ function vortexTick(dt){
             VTX.hold += dt;
             if (VTX.hold >= VX.HOLD){ VTX.hold = VX.HOLD; startAbsorb(); }
         } else {
-            VTX.hold = 0;   // NO expiry: the vortex stays (and keeps feeding) until dispelled
+            VTX.hold = 0;
         }
         // the theft: every STEAL_TICK, 2-5% of the stardust held at spawn leaves the Maw.
         // PAUSED while the player HOLDS the disc - actively collapsing it stops the drain
         // (releasing early resumes it; the timers don't accumulate during the hold).
         if (!VTX.holding){
+            // it leaves on its own after VX.STAY seconds of FEEDING (the countdown, like the
+            // theft, pauses during a hold - an active hold can never be cut short by the leave)
+            VTX.stayT += dt;
+            if (VTX.stayT >= VX.STAY){ VTX.phase = 'out'; VTX.t = 0; return; }
             VTX.stealT += dt;
             while (VTX.stealT >= VX.STEAL_TICK){
                 VTX.stealT -= VX.STEAL_TICK;
@@ -205,6 +211,13 @@ function vortexTick(dt){
         VTX.shrink += (target - VTX.shrink) * Math.min(1, dt*rate);
         VTX.spinRate = VX.SPIN_MAX * (1 + VTX.shrink*2.4);
         VTX.spin += VTX.spinRate * dt;
+    }
+    else if (VTX.phase === 'out'){
+        // the natural leave: a quiet fade - no flash, no reward, the theft is already over
+        VTX.fade = 1 - vxSmooth(0, VX.FADE_OUT, VTX.t);
+        VTX.shrink += (0 - VTX.shrink) * Math.min(1, dt*6);
+        VTX.spin += VTX.spinRate * dt;
+        if (VTX.t >= VX.FADE_OUT) endVortex();
     }
     else if (VTX.phase === 'absorb'){
         VTX.shrink = Math.min(1, 0.92 + 0.08*Math.min(1, VTX.t/0.32));
