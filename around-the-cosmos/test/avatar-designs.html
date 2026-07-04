@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Avatar candidates - 512x512</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #efeadd; font-family: Georgia, serif; color: #1a1a1a; padding: 40px 24px 70px; }
+h1 { text-align: center; font-weight: 500; font-size: 22px; }
+.sub { text-align: center; color: #8a8272; font-style: italic; font-size: 13px; margin: 6px 0 30px; }
+.grid { display: flex; flex-wrap: wrap; gap: 26px; justify-content: center; max-width: 1200px; margin: 0 auto; }
+.cell { width: 210px; text-align: center; }
+.cell canvas.big { width: 210px; height: 210px; border-radius: 12px; border: 1px solid #cfc8b6; box-shadow: 0 4px 14px rgba(90,80,60,0.12); }
+.row { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 8px; }
+.row canvas { border-radius: 50%; border: 1px solid #cfc8b6; }
+.name { font-size: 13.5px; margin-top: 8px; }
+button { margin-top: 7px; font-family: Georgia, serif; font-size: 12px; padding: 6px 16px; background: #1a1a1a; color: #f4efe4; border: none; border-radius: 4px; cursor: pointer; }
+button:hover { background: #3a382f; }
+</style>
+</head>
+<body>
+<h1>Avatar candidates</h1>
+<div class="sub">512 x 512. The little circles show how each reads at avatar size.</div>
+<div class="grid" id="grid"></div>
+<script>
+'use strict';
+const S = 512, TAU = Math.PI * 2;
+function halo(g, x, y, r, rgb, a) {
+    const gr = g.createRadialGradient(x, y, 0, x, y, r);
+    gr.addColorStop(0, `rgba(${rgb},${a})`); gr.addColorStop(1, `rgba(${rgb},0)`);
+    g.fillStyle = gr; g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill();
+}
+const DESIGNS = [
+{ name: '1. The Maw (parchment)', file: 'avatar-1-maw-parchment', draw(g) {
+    g.fillStyle = '#f4efe4'; g.fillRect(0, 0, S, S);
+    [[100,120,7],[400,90,5],[430,390,6],[85,410,4]].forEach(([x,y,r]) => {
+        g.fillStyle = 'rgba(180,150,80,0.5)'; g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill();
+    });
+    g.strokeStyle = 'rgba(100,90,80,0.35)'; g.lineWidth = 5;
+    g.beginPath(); g.arc(S/2, S/2, 175, 0, TAU); g.stroke();
+    g.fillStyle = '#7a6a55'; g.beginPath(); g.arc(S/2 + 175*Math.cos(-0.9), S/2 + 175*Math.sin(-0.9), 20, 0, TAU); g.fill();
+    g.fillStyle = '#1a1a1a'; g.beginPath(); g.arc(S/2, S/2, 78, 0, TAU); g.fill();
+}},
+{ name: '2. The Maw (dark)', file: 'avatar-2-maw-dark', draw(g) {
+    g.fillStyle = '#0b0d12'; g.fillRect(0, 0, S, S);
+    [[90,110,6],[420,80,5],[440,400,7],[70,420,4],[250,60,4]].forEach(([x,y,r]) => {
+        g.fillStyle = 'rgba(226,218,196,0.55)'; g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill();
+    });
+    halo(g, S/2, S/2, 240, '201,162,74', 0.5);
+    g.fillStyle = '#c9a24a'; g.beginPath(); g.arc(S/2, S/2, 60, 0, TAU); g.fill();
+    g.fillStyle = '#fff4d8'; g.beginPath(); g.arc(S/2, S/2, 34, 0, TAU); g.fill();
+}},
+{ name: '3. Ink Eclipse', file: 'avatar-3-eclipse', draw(g) {
+    g.fillStyle = '#14120f'; g.fillRect(0, 0, S, S);
+    halo(g, S/2, S/2, 300, '244,239,228', 0.28);
+    g.fillStyle = '#f4efe4'; g.beginPath(); g.arc(S/2, S/2, 165, 0, TAU); g.fill();
+    g.fillStyle = '#14120f'; g.beginPath(); g.arc(S/2 + 62, S/2 - 38, 155, 0, TAU); g.fill();
+}},
+{ name: '4. Star Fragment', file: 'avatar-4-star', draw(g) {
+    g.fillStyle = '#f4efe4'; g.fillRect(0, 0, S, S);
+    halo(g, S/2, S/2, 300, '201,162,74', 0.35);
+    g.save(); g.translate(S/2, S/2); g.rotate(-0.25);
+    g.beginPath();
+    for (let i = 0; i < 10; i++) {
+        const r = i % 2 ? 78 : 172, a = i * Math.PI / 5 - Math.PI / 2;
+        i ? g.lineTo(Math.cos(a)*r, Math.sin(a)*r) : g.moveTo(Math.cos(a)*r, Math.sin(a)*r);
+    }
+    g.closePath();
+    g.fillStyle = '#d6b25e'; g.fill();
+    g.strokeStyle = '#1a1a1a'; g.lineWidth = 10; g.lineJoin = 'round'; g.stroke();
+    g.restore();
+}},
+{ name: '5. Orbit Mark (minimal)', file: 'avatar-5-orbit', draw(g) {
+    g.fillStyle = '#0b0d12'; g.fillRect(0, 0, S, S);
+    g.strokeStyle = 'rgba(232,226,210,0.8)'; g.lineWidth = 9;
+    g.beginPath(); g.ellipse(S/2, S/2, 195, 108, -0.5, 0, TAU); g.stroke();
+    g.fillStyle = '#c9a24a'; g.beginPath(); g.arc(S/2, S/2, 52, 0, TAU); g.fill();
+    const a = 0.85, x = S/2 + 195*Math.cos(a)*Math.cos(-0.5) - 108*Math.sin(a)*Math.sin(-0.5),
+          y = S/2 + 195*Math.cos(a)*Math.sin(-0.5) + 108*Math.sin(a)*Math.cos(-0.5);
+    g.fillStyle = '#f4efe4'; g.beginPath(); g.arc(x, y, 20, 0, TAU); g.fill();
+}},
+];
+const grid = document.getElementById('grid');
+for (const d of DESIGNS) {
+    const cell = document.createElement('div'); cell.className = 'cell';
+    const c = document.createElement('canvas'); c.width = S; c.height = S; c.className = 'big';
+    d.draw(c.getContext('2d'));
+    cell.appendChild(c);
+    const row = document.createElement('div'); row.className = 'row';
+    for (const sz of [64, 40]) {
+        const m = document.createElement('canvas'); m.width = m.height = sz;
+        m.getContext('2d').drawImage(c, 0, 0, sz, sz);
+        row.appendChild(m);
+    }
+    cell.appendChild(row);
+    const nm = document.createElement('div'); nm.className = 'name'; nm.textContent = d.name;
+    cell.appendChild(nm);
+    const b = document.createElement('button'); b.textContent = 'Download';
+    b.addEventListener('click', () => {
+        const a = document.createElement('a');
+        a.download = d.file + '-512.png'; a.href = c.toDataURL('image/png'); a.click();
+    });
+    cell.appendChild(b);
+    grid.appendChild(cell);
+}
+</script>
+</body>
+</html>
