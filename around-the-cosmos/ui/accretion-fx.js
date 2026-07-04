@@ -13,7 +13,7 @@ function runAccretionFx(onDone) {
     const X = fx.getContext('2d');
     const r = canvas.getBoundingClientRect();
     const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
-    const scl = r.width / canvas.width;
+    const scl = r.width / canvas.clientWidth;   // clientWidth, NOT .width: the backing store is dpr-scaled
     const toWin = p => ({ x: r.left + p.x * scl, y: r.top + p.y * scl });
 
     const clamp = (v, a, b) => v < a ? a : v > b ? b : v;

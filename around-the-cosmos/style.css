@@ -151,10 +151,14 @@ body {
 #dust-icon  { font-size: 30px; }
 
 #sky-section { flex: 1; position: relative; min-width: 0; }
+/* NOTE: a <canvas> is a replaced element - inset:0 alone does NOT stretch it; without an explicit
+   CSS size it displays at its intrinsic (attribute) size, which is dpr-scaled by the JS. On Retina
+   (dpr 2) that made every full-window overlay draw at 2x position (wish picker off-screen right,
+   vortex hold hit-test missing the visible disc). Every overlay canvas MUST carry width/height 100%. */
 /* Vortex event overlay - full window, above the app but below the comet/observatory; press/hold is a window handler */
-#vortex-layer { position: fixed; inset: 0; z-index: 40; pointer-events: none; }
+#vortex-layer { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 40; pointer-events: none; }
 /* Comet overlay - full window, above the panels, never blocks clicks (catch is a window handler) */
-#comet-layer { position: fixed; inset: 0; z-index: 60; pointer-events: none; }
+#comet-layer { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 60; pointer-events: none; }
 #sky { display: block; width: 100%; height: 100%; cursor: url(assets/cursors/needle.png?v=63) 3 3, default; }
 
 #right-col { width: 308px; flex-shrink: 0; padding: 22px 16px; display: flex; flex-direction: column; min-height: 0; }
@@ -482,7 +486,7 @@ body {
    faintly behind, and no star canvas (the real sky is what shows through). */
 #accretion-screen.browse { background: rgba(244,240,232,0.8); }
 #accretion-screen.browse #acc-stars { display: none; }
-#acc-stars { position: absolute; inset: 0; z-index: 0; pointer-events: none; }   /* background stars */
+#acc-stars { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }   /* background stars */
 /* keep all UI above the star canvas */
 .acc-masshdr, .acc-tabs, .acc-stage { position: relative; z-index: 1; }
 .acc-return {
@@ -597,7 +601,7 @@ body {
 .acc-sealed { font-size: 12px; color: #c1b79f; font-style: italic; letter-spacing: 0.04em; padding-left: 4px; }
 
 /* Absorption animation overlay canvas (Implosion & Rebirth) */
-#accretion-fx { display: none; position: fixed; inset: 0; z-index: 110; pointer-events: none; }
+#accretion-fx { display: none; position: fixed; inset: 0; width: 100%; height: 100%; z-index: 110; pointer-events: none; }
 
 /* Accretion confirmation modal - themed (Nunito + parchment), not an OS warning box.
    Top-level fixed (shown over the live game directly from the Accretion button). */
@@ -710,7 +714,7 @@ body {
 .vortex-lock .upgrade-card.can-afford { border-color: var(--border); }
 
 /* Falling Star Wish overlay - above the comet layer; clickable only while the picker is up */
-#wish-layer { position: fixed; inset: 0; z-index: 65; pointer-events: none; cursor: var(--cursor); }
+#wish-layer { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 65; pointer-events: none; cursor: var(--cursor); }
 
 /* Small-window hint: shown while the window is too cramped (main.js updateSizeHint) */
 #size-hint {
