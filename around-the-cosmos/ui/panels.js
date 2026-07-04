@@ -11,8 +11,11 @@ function upgradeVisible(u) { return u.unlock ? u.unlock() : false; }
 
 function isShown(u) {
     if (!upgradeVisible(u)) return false;
-    const maxed = G.upgrades[u.id] >= u.maxLevel;
-    return !maxed || showCompleted || !G.moonEverOwned;
+    // locked-out identities (the group's picks are taken) count as completed too, so
+    // "Hide completed" clears them away with the maxed cards
+    const done = G.upgrades[u.id] >= u.maxLevel
+        || (!!u.identity && typeof identityLockedBy === 'function' && !!identityLockedBy(u));
+    return !done || showCompleted || !G.moonEverOwned;
 }
 
 function visibleSig() {
