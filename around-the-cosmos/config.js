@@ -16,11 +16,3 @@ for (let i = 0; i < CFG.MAX_PLANETS; i++) {
     });
 }
 
-const PHYS = {
-    G:                  6.674e-11,
-    mawRadius:       120e3,
-    mawDensity:      2500,
-    orbitRadius:        200e3,
-    asteroidOrbitRadius:400e3,
-    moonOrbitRadius:    600e3,
-};

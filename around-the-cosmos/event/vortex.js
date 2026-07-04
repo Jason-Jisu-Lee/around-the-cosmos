@@ -12,13 +12,10 @@ const VX = {
     MOTE_DUR: 0.55,        // each mote's travel time
     FIRST_DELAY: 2 * 60,   // the first vortex of a session appears 2 min later than the usual cadence
     FADE_IN:   1.0,
-    STAY:      5.0,
     HOLD:      3.0,
     ABSORB:    0.8,
-    FADE_OUT:  2.0,
     SPIN_MAX:  1.1,
     RENDER_R:  150,
-    REWARD_MULT: 4,
     GRAB_FRAC: 1.15,
     SIZE_MIN: 0.085,
     SIZE_MAX: 0.125,
@@ -28,7 +25,7 @@ let vortexBitmap = null, vortexBitmapDiscR = 0;
 let vortexTimer = VX.FIRST_DELAY + VX.SPAWN_MIN + Math.random() * (VX.SPAWN_MAX - VX.SPAWN_MIN);
 const vortexFx = [];
 const VTX = { active:false, phase:'idle', t:0, fade:0, spin:0, spinRate:0,
-              stayLeft:0, hold:0, shrink:0, holding:false, cx:0, cy:0, R:0, grabR:0, flash:0,
+              hold:0, shrink:0, holding:false, cx:0, cy:0, R:0, grabR:0, flash:0,
               stealBase:0, stolen:0, stealT:0, moteT:0, motes:[] };   // the theft state
 
 // spending is locked while the vortex feeds (buyUpgrade + the identity hold + the card styling read this)
@@ -116,15 +113,6 @@ function ensureVortexBitmap(){
 
 function vortexInteractive(){ return VTX.active && VTX.phase === 'stay'; }
 
-// LEGACY (2026-07-02): dispelling no longer pays anything - kept only for reference.
-function vortexReward(){
-    let combined = 0;
-    for (const o of ORBITERS) combined += o.list().length * o.payout();
-    const base = Math.round((10 * pulseValue() + combined) * brighterTailsMult());
-    const kin = (typeof distantKinRewardMult === 'function') ? distantKinRewardMult() : 1;   // dwarf Distant Kin identity
-    return Math.max(1, Math.round(base * VX.REWARD_MULT * kin));
-}
-
 function pickVortexSpot(){
     const mn = Math.min(innerWidth, innerHeight);
     VTX.R = mn * (VX.SIZE_MIN + Math.random()*(VX.SIZE_MAX - VX.SIZE_MIN));
@@ -150,7 +138,7 @@ function vortexSpawn(){
     ensureVortexBitmap();
     pickVortexSpot();
     VTX.active = true; VTX.phase = 'in'; VTX.t = 0; VTX.fade = 0; VTX.spin = Math.random()*VTAU;
-    VTX.stayLeft = VX.STAY; VTX.hold = 0; VTX.shrink = 0; VTX.holding = false; VTX.flash = 0;
+    VTX.hold = 0; VTX.shrink = 0; VTX.holding = false; VTX.flash = 0;
     VTX.stealBase = G.dust; VTX.stolen = 0; VTX.stealT = 0; VTX.moteT = 0; VTX.motes.length = 0;
     if (typeof SoundSystem !== 'undefined' && SoundSystem.sfxVortexAppear) SoundSystem.sfxVortexAppear();
 }
@@ -222,14 +210,6 @@ function vortexTick(dt){
         VTX.fade = 1 - vxSmooth(VX.ABSORB-0.28, VX.ABSORB, VTX.t);
         if (VTX.t >= VX.ABSORB) endVortex();
     }
-    else if (VTX.phase === 'out'){
-        const p = Math.min(1, VTX.t / VX.FADE_OUT);
-        VTX.fade = 1 - p*p*(3-2*p);
-        VTX.spinRate = VX.SPIN_MAX;
-        VTX.spin += VTX.spinRate * dt;
-        if (VTX.t >= VX.FADE_OUT) endVortex();
-    }
-
     // advance the steal motes in every phase so in-flight ones finish during absorb/out
     for (let i = VTX.motes.length - 1; i >= 0; i--){
         VTX.motes[i].p += dt / VX.MOTE_DUR;

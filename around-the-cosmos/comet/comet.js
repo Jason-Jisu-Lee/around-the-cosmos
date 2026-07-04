@@ -9,15 +9,6 @@ const COMET_SPEEDS = [1.0, 1.5, 2.0];
 const cometFx = [];
 const cometFirstAt = 80 + Math.random() * 20;   // the first comet ever arrives at an 80-100s universe mark
 
-// LEGACY (2026-07-02): events now OVERLAP FREELY - comet, swarm, vortex and stray stardust can all
-// be on screen at once, and nothing checks this before spawning anymore. Kept for reference/BIGROCK.
-function anyEventActive() {
-    return !!G.comet
-        || swarmActive()
-        || (typeof VTX !== 'undefined' && VTX.active)
-        || (typeof BIGROCK !== 'undefined' && BIGROCK.active);
-}
-
 const AFTERGLOW_DUR = 60;
 let afterglowUntil = -1;
 function afterglowActive() { return lvl('afterglow') > 0 && gameClock < afterglowUntil; }

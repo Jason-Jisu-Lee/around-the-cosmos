@@ -38,7 +38,6 @@ function moonOnOrbit() {
             eclipseCount = 0;
             const pos = moonClumpPos();
             earn(Math.round(moonAvgPayout() * 10), pos.x, pos.y - 16);         // x10 burst (sound-only cue)
-            eclipseFlash = gameClock;
             SoundSystem.sfxComet();
         }
     } else eclipseCount = 0;

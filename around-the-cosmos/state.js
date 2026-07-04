@@ -72,15 +72,6 @@ function fmtNice(n) {
     return (Math.round(n*100)/100).toString();
 }
 
-function fmtSci(n) {
-    if (n === 0) return '0';
-    const exp  = Math.floor(Math.log10(Math.abs(n)));
-    const mant = Math.round(n / Math.pow(10, exp) * 100) / 100;
-    const sup  = '⁰¹²³⁴⁵⁶⁷⁸⁹';
-    const digits = Math.abs(exp).toString().split('').map(d => sup[+d]).join('');
-    return `${mant} × 10${exp < 0 ? '⁻' : ''}${digits}`;
-}
-
 function earn(amount, x, y, big) {
     // Warm Current starwish + Swift Return Mass upgrade: every earning is boosted while they run
     if (typeof wishIncomeMult === 'function') amount = Math.round(amount * wishIncomeMult());
