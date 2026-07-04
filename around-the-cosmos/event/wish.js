@@ -7,9 +7,9 @@
 // (Bright Tail x2-x4 next comet / Warm Current +10-40% stardust for 60s / Small Gift
 // x5-x30 pulse) and the rolled numbers are shown BIG so the choice is informed.
 // First star ever at the 120s universe mark (G.tutSeen.wishSpawned marks "has appeared");
-// afterwards every 75-115s. A feeding vortex blocks new stars. The first CLICK ever fires
+// afterwards every 60-70s. A feeding vortex blocks new stars. The first CLICK ever fires
 // the `wish` tutorial ("A Falling Star! Choose your starwish"), then the picker opens.
-const WISH = { FIRST_AT: 120, GAP_MIN: 70, GAP_MAX: 90, CATCH_R: 44 };
+const WISH = { FIRST_AT: 120, GAP_MIN: 60, GAP_MAX: 70, CATCH_R: 44 };
 
 let wishLayer = null, wishCtx = null;
 let wishStar = null;            // { x,y,vx,vy,trail[],frozen }

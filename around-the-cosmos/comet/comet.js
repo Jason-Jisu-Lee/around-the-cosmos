@@ -68,7 +68,7 @@ function tryCatchCometAt(x, y, R) {
 }
 
 // ---- Comet swarm: a rare event - 19 fast, glowing comets pouring in 0.2-0.4s apart (~5-7s) ----
-const SWARM_COUNT = 19, SWARM_GAP_MIN = 130, SWARM_GAP_MAX = 160;
+const SWARM_COUNT = 19, SWARM_GAP_MIN = 120, SWARM_GAP_MAX = 150;
 let swarmTimer = SWARM_GAP_MIN + Math.random() * (SWARM_GAP_MAX - SWARM_GAP_MIN);
 const swarmComets = [];   // live swarm comets (same body shape as G.comet)
 let swarmPending = [];    // per-comet countdowns until each of the 8 spawns

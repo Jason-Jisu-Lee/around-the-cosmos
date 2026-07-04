@@ -1,11 +1,11 @@
 'use strict';
 
 // Stray stardust: a tiny drifting glint on the sky. SWEEPING the cursor over it collects it -
-// no click. Worth ~5 pulses. Spawns every 3-11s; the first one ever waits for the 20s mark
+// no click. Worth ~5 pulses. Spawns every 7-11s (avg ~9, tight variance); the first one ever waits for the 20s mark
 // of the universe clock and fires its own tutorial (ui/tutorial.js). Independent of the
 // comet/vortex no-overlap rule - it is background texture, not an event.
 const STRAY = {
-    GAP_MIN: 3, GAP_MAX: 11,    // seconds between glints
+    GAP_MIN: 7, GAP_MAX: 11,    // seconds between glints (avg ~9s after the last sweep, tight variance)
     R: 50,                       // sweep radius (sky-canvas px; matches the bigger glint)
     PULSES: 5,                   // value = ~5 pulses
 };
