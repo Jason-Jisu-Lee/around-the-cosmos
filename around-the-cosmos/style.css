@@ -711,3 +711,12 @@ body {
 
 /* Falling Star Wish overlay - above the comet layer; clickable only while the picker is up */
 #wish-layer { position: fixed; inset: 0; z-index: 65; pointer-events: none; cursor: var(--cursor); }
+
+/* Small-window hint: shown while the window is too cramped (main.js updateSizeHint) */
+#size-hint {
+    display: none; position: fixed; top: 56px; left: 50%; transform: translateX(-50%); z-index: 95;
+    background: #fffdf8; border: 1px solid var(--accretion-dim); border-radius: 6px;
+    padding: 8px 18px; font-family: 'Nunito','Segoe UI',sans-serif; font-size: 12.5px; color: #33506a;
+    box-shadow: 0 4px 14px rgba(40,50,70,0.18); pointer-events: none; white-space: nowrap;
+}
+#size-hint.show { display: block; }

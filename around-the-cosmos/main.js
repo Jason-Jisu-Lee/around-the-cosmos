@@ -101,10 +101,15 @@ function initDraggable(el) {
     });
 }
 
-window.addEventListener('resize', resize);
+// Small-window hint: the 3-column layout (2x308px columns + the sky + the ~900px wish picker)
+// gets cramped below ~1100x600 - show a gentle fullscreen nudge while it is.
+function updateSizeHint() {
+    document.getElementById('size-hint').classList.toggle('show', innerWidth < 1100 || innerHeight < 600);
+}
+window.addEventListener('resize', () => { resize(); updateSizeHint(); });
 window.addEventListener('beforeunload', saveGame);
 document.getElementById('reset-btn').addEventListener('click', resetGame);
 loadGame(); resize(); buildPanels(); initDebug(); _savedVols=initSettings();
-vortexInit(); wishInit(); initFrontpage();
+vortexInit(); wishInit(); initFrontpage(); updateSizeHint();
 initDraggable(document.getElementById('observatory'));
 requestAnimationFrame(ts => { lastTs=ts; requestAnimationFrame(loop); });
