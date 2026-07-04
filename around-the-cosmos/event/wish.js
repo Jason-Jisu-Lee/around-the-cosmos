@@ -66,7 +66,7 @@ function wishTick(dt) {
     // First star ever: comet-style tutorial 1.5s after spawn, freezing it mid-flight (clicking it
     // before that just opens the picker and counts as learned). Waits for the tutorial gap.
     if (G.tutSeen && !G.tutSeen.wish && wishStar && !wishStar.frozen) {
-        if (wishStar.tutAt == null) wishStar.tutAt = gameClock + 1.5;
+        if (wishStar.tutAt == null) wishStar.tutAt = gameClock + 1.75;
         const onScreen = wishStar.x > 60 && wishStar.x < innerWidth - 60 && wishStar.y > 20 && wishStar.y < innerHeight - 80;
         const gapOk = typeof lastTutEndClock === 'undefined' || gameClock - lastTutEndClock >= 8;
         if (gameClock >= wishStar.tutAt && onScreen && gapOk && (typeof tutorialActive === 'undefined' || !tutorialActive)) {
