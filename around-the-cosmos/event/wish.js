@@ -75,7 +75,7 @@ function wishTick(dt) {
     // it COUNTS AS THE CATCH (no second click) - Okay goes straight to the wish picker. Clicking the
     // star before the callout also just opens the picker and counts as learned.
     if (G.tutSeen && !G.tutSeen.wish && wishStar && !wishStar.frozen) {
-        if (wishStar.tutAt == null) wishStar.tutAt = gameClock + 1.75;
+        if (wishStar.tutAt == null) wishStar.tutAt = gameClock + 1.61;
         const onScreen = wishStar.x > 60 && wishStar.x < innerWidth - 60 && wishStar.y > 20 && wishStar.y < innerHeight - 80;
         const gapOk = typeof lastTutEndClock === 'undefined' || gameClock - lastTutEndClock >= 8;
         if (gameClock >= wishStar.tutAt && onScreen && gapOk && (typeof tutorialActive === 'undefined' || !tutorialActive)) {
