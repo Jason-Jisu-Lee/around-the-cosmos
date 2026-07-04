@@ -6,7 +6,7 @@
 // comet/vortex no-overlap rule - it is background texture, not an event.
 const STRAY = {
     GAP_MIN: 6, GAP_MAX: 14,    // seconds between glints
-    R: 45,                       // sweep radius (sky-canvas px; matches the bigger glint)
+    R: 50,                       // sweep radius (sky-canvas px; matches the bigger glint)
     PULSES: 5,                   // value = ~5 pulses
 };
 
@@ -77,8 +77,8 @@ function _strayHalo(x, y, r, a) {
     gl.addColorStop(1, 'rgba(201,162,74,0)');
     ctx.fillStyle = gl; ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill();
 }
-const STRAY_SCALE = 2.55;    // the glint must read clearly bigger than a background star
-const STRAY_BRIGHT = 1.15;   // slight brightness lift on every look (alphas clamp at 1)
+const STRAY_SCALE = 2.9;     // the glint must read clearly bigger than a background star
+const STRAY_BRIGHT = 1.3;    // brightness lift on every look (alphas clamp at 1)
 function drawStray(t) {
     if (stray) {
         const S = STRAY_SCALE;
@@ -128,7 +128,7 @@ function drawStray(t) {
 // window-space rect for the tutorial spotlight (null when no glint is up)
 function strayTutRect() {
     if (!stray) return null;
-    const r = canvas.getBoundingClientRect(), R = 50;
+    const r = canvas.getBoundingClientRect(), R = 56;
     const x = r.left + stray.x, y = r.top + stray.y;
     return { left: x - R, top: y - R, right: x + R, width: R * 2, height: R * 2 };
 }
