@@ -14,6 +14,7 @@ const WISH = { FIRST_AT: 120, GAP_MIN: 75, GAP_MAX: 115, CATCH_R: 44 };
 let wishLayer = null, wishCtx = null;
 let wishStar = null;            // { x,y,vx,vy,trail[],frozen }
 let wishChoosing = false;       // freezes the game while the picker is up
+let wishOpenAfterTut = false;   // first star ever: the callout IS the catch - picker opens right after Okay
 let wishTimer = 0;
 let wishOffers = null;          // the 3 rolled offers [{name, val, desc, apply}]
 const wishFx = [];              // rising +✦ floats on the overlay
@@ -61,16 +62,26 @@ function wishGap() { return WISH.GAP_MIN + Math.random() * (WISH.GAP_MAX - WISH.
 
 function wishTick(dt) {
     for (let i = wishFx.length - 1; i >= 0; i--) { wishFx[i].age += dt; if (wishFx[i].age >= wishFx[i].maxAge) wishFx.splice(i, 1); }
+    // first star ever: the callout counted as the catch - open the picker the moment it closes
+    if (wishOpenAfterTut && (typeof tutorialActive === 'undefined' || !tutorialActive)) {
+        wishOpenAfterTut = false;
+        openWishChoice();
+        return;
+    }
     if (wishChoosing) return;
 
-    // First star ever: comet-style tutorial 1.5s after spawn, freezing it mid-flight (clicking it
-    // before that just opens the picker and counts as learned). Waits for the tutorial gap.
+    // First star ever: comet-style callout 1.75s after spawn, freezing it mid-flight. Acknowledging
+    // it COUNTS AS THE CATCH (no second click) - Okay goes straight to the wish picker. Clicking the
+    // star before the callout also just opens the picker and counts as learned.
     if (G.tutSeen && !G.tutSeen.wish && wishStar && !wishStar.frozen) {
         if (wishStar.tutAt == null) wishStar.tutAt = gameClock + 1.75;
         const onScreen = wishStar.x > 60 && wishStar.x < innerWidth - 60 && wishStar.y > 20 && wishStar.y < innerHeight - 80;
         const gapOk = typeof lastTutEndClock === 'undefined' || gameClock - lastTutEndClock >= 8;
         if (gameClock >= wishStar.tutAt && onScreen && gapOk && (typeof tutorialActive === 'undefined' || !tutorialActive)) {
             G.tutSeen.wish = true; saveGame();
+            wishStar.frozen = true;      // the callout IS the catch
+            rollWishOffers();
+            wishOpenAfterTut = true;
             const R = 42;
             startTutorial([{
                 getRect: () => wishStar ? ({ left: wishStar.x - R, top: wishStar.y - R, right: wishStar.x + R, width: R * 2, height: R * 2 }) : null,
