@@ -516,8 +516,10 @@ body {
 .acc-tab:hover { color: #1a1a1a; }
 .acc-tab.on { background: #f4f0e8; color: #1a1a1a; box-shadow: 0 1px 4px rgba(0,0,0,0.12); }
 
-/* tree starts at the TOP (below the header row), fills downward - no vertical centering */
-.acc-stage { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; width: 100%; padding-top: 34px; }
+/* tree starts at the TOP (below the header row), fills downward - no vertical centering.
+   overflow-y: the 5-tier rail runs ~900px tall - on short laptop screens the lower tiers
+   were clipped with no way to reach them (built on a huge monitor, never showed there). */
+.acc-stage { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; width: 100%; padding-top: 34px; overflow-y: auto; min-height: 0; }
 
 .acc-tree { display: flex; flex-direction: column; align-items: center; width: 100%; padding-bottom: 40px; }
 
