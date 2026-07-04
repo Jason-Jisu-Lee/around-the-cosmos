@@ -6,13 +6,13 @@
 // Nothing in any tab is buyable until the matching tier's orbiter has been captured.
 const SINGULARITY = {
   name: 'Singularity',
-  tiers: 8,
+  tiers: 5,   // tiers past 5 removed 2026-07-03
   // tier N (1-based) captures this orbiter and unlocks tier-N upgrades in every tab.
   // demoMax: the demo caps capturable progression here - tier 2 ("Finish Demo") is the published end.
   // The deeper gates (3+) + all placeholder upgrades stay VISIBLE (as sealed "coming soon"), just not buyable.
   demoMax: 2,
-  orbiters: ['Dwarf Planet', 'Finish Demo', 'Ringed Body', 'Gas Giant', 'Pulsar', 'Companion Star', 'Quasar', 'Rogue Star'],
-  costs:    [1, 3, 20, 32, 48, 70, 100, 140],   // tier 2 'Finish Demo' = 3 Mass (clicking it opens the end-of-demo modal, not a normal buy)
+  orbiters: ['Dwarf Planet', 'Finish Demo', 'Ringed Body', 'Gas Giant', 'Pulsar'],
+  costs:    [1, 3, 20, 32, 48],   // tier 2 'Finish Demo' = 3 Mass (clicking it opens the end-of-demo modal, not a normal buy)
   flavor:   'The Maw widens, and one more body falls into its keeping.',
 };
 function singularityLevel()       { return mlvl('singularity'); }

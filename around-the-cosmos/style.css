@@ -566,12 +566,12 @@ body {
 .acc-pop-next { font-size: 12px; color: #8a6f2e; font-weight: 700; margin-top: 5px; }
 
 /* ===== Branching Rail: the Singularity spine + per-tier branches ===== */
-.acc-railwrap { margin: 0 auto; width: fit-content; max-width: 100%; }   /* cards stay page-centred; spine hangs off to the left */
+.acc-railwrap { margin-left: max(12px, calc(50% - 634px)); width: fit-content; max-width: 100%; }   /* the SPINE is pinned at the 3-card-baseline position (gate 208 + gap 100 + half of 3x208+2x14 cards); wider rows grow RIGHT, never re-centering the tree */
 .acc-spinehdr { width: 208px; text-align: center; margin-bottom: 8px; }
 .acc-spinename { display: block; font-size: 15px; font-weight: 800; letter-spacing: 0.12em; color: #4a3d60; text-shadow: 0 1px 7px rgba(74,58,100,0.32); }
 .acc-spinesub { display: block; font-size: 9px; color: #b5a98c; font-style: italic; margin-top: 1px; line-height: 1.25; }
 /* 4 cols: [spine 208][gap 100][cards auto][right spacer 308 = spine+gap] -> cards stay dead-centre, spine sits 100px to its left (clearly separated from the upgrade tree) */
-.acc-rail { display: grid; grid-template-columns: 208px 100px auto 308px; align-items: stretch; }
+.acc-rail { display: grid; grid-template-columns: 208px 100px auto 0; align-items: stretch; }   /* right spacer column collapsed - centering no longer depends on it */
 .acc-gatecell { position: relative; display: flex; justify-content: center; align-items: center; padding: 10px 0; }
 .acc-gatecell.line::before { content: ''; position: absolute; top: 0; bottom: 0; width: 3px; background: #b0a3c8; }
 .acc-gatecell.line.first::before { top: 50%; }    /* rail starts AT the first connected gate - no line above */
