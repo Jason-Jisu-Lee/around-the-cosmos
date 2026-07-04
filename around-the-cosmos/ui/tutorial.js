@@ -164,7 +164,7 @@ function checkTutorials() {
         if (typeof buildPanels === 'function') buildPanels();   // the card appears NOW, with its tutorial
         startTutorial([
             { getRect: () => { const f = document.querySelector('[data-upg="dust"]'); if (f) f.scrollIntoView({ block: 'nearest' }); return _combinedRect('[data-upg="dust"]'); },
-              body: "You have enough mass to attract dust particles. Try spawning one for more stardust!" },
+              body: "You have enough mass to attract dust particles. Try spawning one!" },
         ]);
         return;
     }
