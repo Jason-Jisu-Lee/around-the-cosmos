@@ -183,19 +183,23 @@ function vortexTick(dt){
         } else {
             VTX.hold = 0;   // NO expiry: the vortex stays (and keeps feeding) until dispelled
         }
-        // the theft: every STEAL_TICK, 2-5% of the stardust held at spawn leaves the Maw
-        VTX.stealT += dt;
-        while (VTX.stealT >= VX.STEAL_TICK){
-            VTX.stealT -= VX.STEAL_TICK;
-            const amt = Math.min(G.dust, Math.round(VTX.stealBase * (VX.STEAL_MIN + Math.random()*(VX.STEAL_MAX - VX.STEAL_MIN))));
-            if (amt > 0){
-                G.dust -= amt; VTX.stolen += amt;
-                G.floatingTexts.push({ x:CX, y:CY - 26, text:'-✦'+fmtNum(amt), age:0, maxAge:1.0, size:13 });
+        // the theft: every STEAL_TICK, 2-5% of the stardust held at spawn leaves the Maw.
+        // PAUSED while the player HOLDS the disc - actively collapsing it stops the drain
+        // (releasing early resumes it; the timers don't accumulate during the hold).
+        if (!VTX.holding){
+            VTX.stealT += dt;
+            while (VTX.stealT >= VX.STEAL_TICK){
+                VTX.stealT -= VX.STEAL_TICK;
+                const amt = Math.min(G.dust, Math.round(VTX.stealBase * (VX.STEAL_MIN + Math.random()*(VX.STEAL_MAX - VX.STEAL_MIN))));
+                if (amt > 0){
+                    G.dust -= amt; VTX.stolen += amt;
+                    G.floatingTexts.push({ x:CX, y:CY - 26, text:'-✦'+fmtNum(amt), age:0, maxAge:1.0, size:13 });
+                }
             }
+            // the stolen stardust visibly streams Maw -> vortex (in-flight motes still land during a hold)
+            VTX.moteT += dt;
+            while (VTX.moteT >= VX.MOTE_EVERY){ VTX.moteT -= VX.MOTE_EVERY; VTX.motes.push({ p:0, w: 0.6 + Math.random()*0.8 }); }
         }
-        // the stolen stardust visibly streams Maw -> vortex
-        VTX.moteT += dt;
-        while (VTX.moteT >= VX.MOTE_EVERY){ VTX.moteT -= VX.MOTE_EVERY; VTX.motes.push({ p:0, w: 0.6 + Math.random()*0.8 }); }
         const target = VTX.holding ? (VTX.hold / VX.HOLD) : 0;
         const rate = VTX.holding ? 7 : 16;
         VTX.shrink += (target - VTX.shrink) * Math.min(1, dt*rate);
