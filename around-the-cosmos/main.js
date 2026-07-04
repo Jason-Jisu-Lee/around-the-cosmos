@@ -76,6 +76,7 @@ document.getElementById('pause-overlay').addEventListener('click', () => setPaus
 document.getElementById('show-completed').addEventListener('change', e => {
     showCompleted = !e.target.checked;
     buildPanels();
+    if (typeof saveSettings === 'function') saveSettings();   // the toggle persists across reloads
 });
 
 let _savedVols = { mv:75, sv:75 };
