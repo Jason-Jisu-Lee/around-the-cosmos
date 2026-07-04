@@ -1,6 +1,6 @@
 'use strict';
 
-const MASS_UPG_IDS = ['singularity','denserCore','heavierPulse','firstLight','heavierBodies','denseDust','lunarFavor','brighterTails','cometShower','greaterCollapse'];
+const MASS_UPG_IDS = ['singularity','denserCore','heavierPulse','firstLight','heavierBodies','denseDust','brighterTails','cometShower','generousStars','greaterCollapse','swiftReturn'];
 function blankMassUpgrades() { const o = {}; for (const id of MASS_UPG_IDS) o[id] = 0; return o; }
 
 let G = createInitialState();
@@ -82,8 +82,9 @@ function fmtSci(n) {
 }
 
 function earn(amount, x, y, big) {
-    // Warm Current starwish: every earning is boosted while the buff runs
+    // Warm Current starwish + Swift Return Mass upgrade: every earning is boosted while they run
     if (typeof wishIncomeMult === 'function') amount = Math.round(amount * wishIncomeMult());
+    if (typeof swiftReturnMult === 'function') amount = Math.round(amount * swiftReturnMult());
     G.dust += amount; G.runDust += amount; G.totalDust += amount;
     if (x !== undefined) {
         G.floatingTexts.push({ x, y, text:'+✦'+fmtNum(amount), age:0, maxAge:big?1.6:1.1, size:big?22:14 });

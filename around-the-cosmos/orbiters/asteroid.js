@@ -33,7 +33,7 @@ function prospectorActive()    { return lvl('prospector') > 0; }                
 function prospectorCometMult() { return 1 + 0.15 * lvl('prospector'); }                 // comet windfall x
 function asteroidCompMult()    { return prospectorActive() ? 1 : ASTEROID_COMP.mult[lvl('astcomp')]; }
 
-function asteroidPayout() { return Math.round((50 + 50 * lvl('astpay') + (typeof coagAsteroidBonus === 'function' ? coagAsteroidBonus() : 0) + rubblePileBonus()) * asteroidCompMult() * resonanceMult()); }
+function asteroidPayout() { return Math.round((50 + 50 * lvl('astpay') + (typeof coagAsteroidBonus === 'function' ? coagAsteroidBonus() : 0) + (typeof denseDustAsteroidBonus === 'function' ? denseDustAsteroidBonus() : 0) + rubblePileBonus()) * asteroidCompMult() * resonanceMult()); }
 function asteroidColor()  { return ASTEROID_COMP.colors[lvl('astcomp')]; }
 function asteroidBaseSpeed()      { return 0.88 * upg('astspd').mult(lvl('astspd')); }        // un-modulated (used for display + the observatory average)
 function asteroidSpeed()          { return asteroidBaseSpeed() * slingSpeedMult(); }           // LIVE orbit speed - Slingshot winds it slow then whips it fast

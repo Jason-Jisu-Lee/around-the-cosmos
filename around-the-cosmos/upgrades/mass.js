@@ -24,15 +24,21 @@ const MASS_UPGRADES = [
   { id:'denserCore', cat:'Maw', tier:1, name:'Denser Core', max:5, costs:[1,3,7,13,22],
     flavor:'The core draws a deeper breath.',
     eff:l => `×${(1 + 0.5*l).toFixed(1)} pulse income` },
-  { id:'heavierPulse', cat:'Maw', tier:1, name:'Heavier Pulse', max:5, costs:[2,5,10,18,30],
+  { id:'heavierPulse', cat:'Maw', tier:1, name:'Heavier Pulse', max:5, costs:[3,5,10,18,30],
     flavor:'Each beat carries more weight.',
-    eff:l => `+${10*l} ✦ per pulse` },
+    eff:l => `+${25*l} ✦ per pulse` },
   { id:'firstLight', cat:'Maw', tier:2, name:'First Light', max:3, costs:[4,10,20],
     flavor:'A universe born already glowing.',
     eff:l => l ? `begin with ✦${fmtNum(FIRST_LIGHT[l])}` : 'begin with ✦10' },
   { id:'eventHorizon', cat:'Maw', tier:2, placeholder:true, name:'Event Horizon', max:5, costs:[6,11,18,27,38],
     flavor:'Nothing the core reaches escapes.',
     eff:l => `+${30*(l||1)}% pulse income` },
+  { id:'mawT2b', cat:'Maw', tier:2, placeholder:true, name:'Deeper Hunger', max:3, costs:[7,12,19],
+    flavor:'It learns to want more.',
+    eff:l => `+${20*(l||1)}% pulse income` },
+  { id:'mawT2c', cat:'Maw', tier:2, placeholder:true, name:'Quiet Collapse', max:4, costs:[6,10,16,24],
+    flavor:'It folds inward without a sound.',
+    eff:l => `deep pulses +${25*(l||1)}%` },
   { id:'mawT3', cat:'Maw', tier:3, placeholder:true, name:'Ergosphere', max:5, costs:[12,20,30,42,56],
     flavor:'Even spacetime is dragged along.',
     eff:l => `+${20*(l||1)}% pulse income` },
@@ -56,15 +62,18 @@ const MASS_UPGRADES = [
   { id:'heavierBodies', cat:'Orbiters', tier:1, name:'Heavier Bodies', max:2, costs:[1,6],
     flavor:'Give every orbit more to carry.',
     eff:l => `×${(1 + 0.5*l).toFixed(1)} orbiter payout` },
-  { id:'denseDust', cat:'Orbiters', tier:1, name:'Dense Dust', max:3, costs:[2,6,13],
+  { id:'denseDust', cat:'Orbiters', tier:1, name:'Dense Dust', max:3, costs:[3,5,7],
     flavor:'Each grain packs more in.',
-    eff:l => `+${20*l} base payout per dust particle` },
-  { id:'lunarFavor', cat:'Orbiters', tier:1, name:'Lunar Favor', max:3, costs:[1,4,9],
-    flavor:'The tides run in your favor.',
-    eff:l => `+${10*l}% average moon payout` },
+    eff:l => `+${20*l} per dust particle, +${250*l} to the Asteroid` },
   { id:'swifterOrbits', cat:'Orbiters', tier:2, placeholder:true, name:'Swifter Orbits', max:5, costs:[6,11,18,27,38],
     flavor:'Every body comes around sooner.',
     eff:l => `+${15*(l||1)}% orbiter speed` },
+  { id:'orbitersT2b', cat:'Orbiters', tier:2, placeholder:true, name:'Kindred Orbits', max:3, costs:[7,12,19],
+    flavor:'Bodies that pull for one another.',
+    eff:l => `+${15*(l||1)}% orbiter payout` },
+  { id:'orbitersT2c', cat:'Orbiters', tier:2, placeholder:true, name:'Silent Procession', max:4, costs:[6,10,16,24],
+    flavor:'They pass in perfect order.',
+    eff:l => `every ${6-(l||1)}th orbit pays double` },
   { id:'orbitersT3', cat:'Orbiters', tier:3, placeholder:true, name:'Tidal Lock', max:3, costs:[12,20,30],
     flavor:'Held in a perfect grip.',
     eff:l => `+${10*(l||1)}% orbiter payout` },
@@ -88,12 +97,21 @@ const MASS_UPGRADES = [
   { id:'brighterTails', cat:'Phenomena', tier:1, name:'Brighter Tails', max:4, costs:[1,3,7,13],
     flavor:'Longer, brighter tails.',
     eff:l => `×${(1 + 0.5*l).toFixed(1)} comet payout` },
-  { id:'cometShower', cat:'Phenomena', tier:1, name:'Comet Shower', max:3, costs:[1,4,9],
+  { id:'cometShower', cat:'Phenomena', tier:1, name:'Comet Shower', max:3, costs:[2,4,6],
     flavor:'The quiet sky grows busy.',
     eff:l => l ? `comets ${Math.round((1 - Math.pow(0.85,l))*100)}% sooner` : 'comets at base interval' },
+  { id:'generousStars', cat:'Phenomena', tier:1, name:'Generous Stars', max:1, costs:[3],
+    flavor:'The falling ones give more than they must.',
+    eff:l => l ? 'starwish values ×1.5' : 'starwish values ×1' },
   { id:'meteorShower', cat:'Phenomena', tier:2, placeholder:true, name:'Meteor Shower', max:4, costs:[6,11,18,27],
     flavor:'The sky breaks into falling light.',
     eff:l => `${l||1} meteor${(l||1)===1?'':'s'} per shower` },
+  { id:'phenomenaT2b', cat:'Phenomena', tier:2, placeholder:true, name:'Star Rain', max:3, costs:[7,12,19],
+    flavor:'Stray light falls thicker.',
+    eff:l => `+${20*(l||1)}% stray stardust value` },
+  { id:'phenomenaT2c', cat:'Phenomena', tier:2, placeholder:true, name:'Silent Thunder', max:4, costs:[6,10,16,24],
+    flavor:'A shock felt, never heard.',
+    eff:l => `+${15*(l||1)}% event payout` },
   { id:'phenomenaT3', cat:'Phenomena', tier:3, placeholder:true, name:'Aurora', max:5, costs:[12,20,30,42,56],
     flavor:'Curtains of slow colour.',
     eff:l => `events linger +${20*(l||1)}%` },
@@ -117,9 +135,18 @@ const MASS_UPGRADES = [
   { id:'greaterCollapse', cat:'Eternity', tier:1, name:'Greater Collapse', max:5, costs:[3,7,14,24,38],
     flavor:'Collapse harder; gather more.',
     eff:l => `×${(1 + 0.1*l).toFixed(1)} Mass per accretion` },
+  { id:'swiftReturn', cat:'Eternity', tier:1, name:'Swift Return', max:3, costs:[2,5,9],
+    flavor:'The next universe remembers how to begin.',
+    eff:l => `+${25*l}% income for a new universe's first 2 min` },
   { id:'timeDilation', cat:'Eternity', tier:2, placeholder:true, name:'Time Dilation', max:5, costs:[6,11,18,27,38],
     flavor:'The whole universe runs faster.',
     eff:l => `+${10*(l||1)}% game speed` },
+  { id:'cyclesT2b', cat:'Eternity', tier:2, placeholder:true, name:'Older Light', max:3, costs:[7,12,19],
+    flavor:'Light that has crossed more than one universe.',
+    eff:l => `begin with ${(l||1)} upgrade level${(l||1)===1?'':'s'}` },
+  { id:'cyclesT2c', cat:'Eternity', tier:2, placeholder:true, name:'The Slow Year', max:4, costs:[6,10,16,24],
+    flavor:'Seasons measured in collapses.',
+    eff:l => `+${10*(l||1)}% income late in a universe` },
   { id:'cyclesT3', cat:'Eternity', tier:3, placeholder:true, name:'Eternal Return', max:3, costs:[12,20,30],
     flavor:'Something always carries over.',
     eff:l => `keep ${l||1} upgrade${(l||1)===1?'':'s'} on reset` },
@@ -153,15 +180,18 @@ function massTierNodes(cat, t) { return MASS_UPGRADES.filter(u => u.cat === cat 
 function tierUnlocked(t) { return singularityLevel() >= t; }
 function massNodeVis(u)  { return tierUnlocked(u.tier) ? 'available' : 'locked'; }
 
-function denserCoreMult()      { return 1 + 0.5 * mlvl('denserCore'); }
-function heavierPulseBonus()   { return 10 * mlvl('heavierPulse'); }     // +10 ✦ per pulse per level (added to the pulse base)
-function firstLightDust()      { return FIRST_LIGHT[mlvl('firstLight')]; }
-function heavierBodiesMult()   { return 1 + 0.5 * mlvl('heavierBodies'); }
-function denseDustBonus()      { return 20 * mlvl('denseDust'); }        // +20 base payout per dust particle per level
-function brighterTailsMult()   { return 1 + 0.5 * mlvl('brighterTails'); }
-function cometShowerMult()     { return Math.pow(0.85, mlvl('cometShower')); }
-function greaterCollapseMult() { return 1 + 0.1 * mlvl('greaterCollapse'); }
-function lunarFavorMult()      { return 1 + 0.1 * mlvl('lunarFavor'); }
+function denserCoreMult()          { return 1 + 0.5 * mlvl('denserCore'); }
+function heavierPulseBonus()       { return 25 * mlvl('heavierPulse'); }     // +25 ✦ per pulse per level (added to the pulse base)
+function firstLightDust()          { return FIRST_LIGHT[mlvl('firstLight')]; }
+function heavierBodiesMult()       { return 1 + 0.5 * mlvl('heavierBodies'); }
+function denseDustBonus()          { return 20 * mlvl('denseDust'); }        // +20 base payout per dust particle per level
+function denseDustAsteroidBonus()  { return 250 * mlvl('denseDust'); }       // +250 asteroid base payout per level
+function brighterTailsMult()       { return 1 + 0.5 * mlvl('brighterTails'); }
+function cometShowerMult()         { return Math.pow(0.85, mlvl('cometShower')); }
+function generousStarsMult()       { return mlvl('generousStars') ? 1.5 : 1; }   // starwish values x1.5
+function greaterCollapseMult()     { return 1 + 0.1 * mlvl('greaterCollapse'); }
+function swiftReturnMult()         { return (G.universeTime < 120) ? 1 + 0.25 * mlvl('swiftReturn') : 1; }   // income boost for a new universe's first 2 min
+// (Lunar Favor was removed 2026-07-03; stale save levels are ignored)
 
 function applyMassUniverseStart() {
     G.dust = firstLightDust();

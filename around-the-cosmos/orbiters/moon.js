@@ -21,8 +21,8 @@ function newMoonBody() {
 }
 
 function moonIceBonus()  { return typeof iceMoonBonus === 'function' ? iceMoonBonus() : 0; }   // Ice Mantles (dust identity) feeds the moon
-function moonPayout()    { return Math.round((200 + 200 * lvl('moonpay') + moonIceBonus()) * moonPhaseMult() * resonanceMult() * lunarFavorMult() * albedoMult()); }
-function moonAvgPayout() { return Math.round((200 + 200 * lvl('moonpay') + moonIceBonus()) * (1 + 0.10 * lvl('moonphase')) * resonanceMult() * lunarFavorMult() * albedoMult()); }
+function moonPayout()    { return Math.round((200 + 200 * lvl('moonpay') + moonIceBonus()) * moonPhaseMult() * resonanceMult() * albedoMult()); }
+function moonAvgPayout() { return Math.round((200 + 200 * lvl('moonpay') + moonIceBonus()) * (1 + 0.10 * lvl('moonphase')) * resonanceMult() * albedoMult()); }
 function moonSpeed()        { return 0.663 * upg('moonspd').mult(lvl('moonspd')); }
 function moonOrbitsPerMin() { return 60 * moonSpeed() / PLANET_DEF[2].period; }
 function moonStardustPerMin() { return moonAvgPayout() * moonOrbitsPerMin(); }

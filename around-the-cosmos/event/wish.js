@@ -32,9 +32,10 @@ const WISH_CONS = [   // the three constellation shapes (relative points)
 ];
 
 function rollWishOffers() {
-    const tail = (2 + Math.random() * 2).toFixed(1);          // x2.0 - x4.0
-    const warm = 10 + Math.round(Math.random() * 30);         // +10% - +40%
-    const gift = 5 + Math.round(Math.random() * 25);          // x5 - x30
+    const gs = (typeof generousStarsMult === 'function') ? generousStarsMult() : 1;   // Generous Stars Mass upgrade: x1.5
+    const tail = ((2 + Math.random() * 2) * gs).toFixed(1);          // x2.0 - x4.0 (x3.0 - x6.0 with Generous Stars)
+    const warm = Math.round((10 + Math.random() * 30) * gs);         // +10% - +40%
+    const gift = Math.round((5 + Math.random() * 25) * gs);          // x5 - x30
     wishOffers = [
         { name: 'Bright Tail',  val: 'x' + tail,        desc: 'comet',
           apply() { wishNextCometMult = parseFloat(tail); } },
