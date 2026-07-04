@@ -37,7 +37,7 @@ function rollWishOffers() {
     const warm = Math.round((10 + Math.random() * 30) * gs);         // +10% - +40%
     const gift = Math.round((5 + Math.random() * 25) * gs);          // x5 - x30
     wishOffers = [
-        { name: 'Bright Tail',  val: 'x' + tail,        desc: 'comet',
+        { name: 'Bright Tail',  val: 'x' + tail,        desc: 'next comet',
           apply() { wishNextCometMult = parseFloat(tail); } },
         { name: 'Warm Current', val: '+' + warm + '%',  desc: 'stardust for 60s',
           apply() { wishWarmPct = warm; wishWarmUntil = gameClock + 60; } },
