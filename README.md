@@ -12,3 +12,6 @@ python -m http.server 3000
 ```
 
 Then open http://localhost:3000.
+
+Published on:
+https://secondintelligentworld.itch.io/around-the-cosmos
