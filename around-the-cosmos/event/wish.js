@@ -216,7 +216,7 @@ function wishInit() {
     window.addEventListener('mousedown', e => {
         if (!wishStar || wishStar.frozen || wishChoosing) return;
         if (typeof tutorialActive !== 'undefined' && tutorialActive) return;
-        if (e.target.closest('button, input, label, a, .upgrade-card, .acc-node, #observatory, #settings-panel, #upg-pop, #cosmo-card, .acc-confirm, #accretion-screen')) return;
+        if (e.target.closest('button, input, label, a, .upgrade-card, .acc-node, #observatory, #settings-panel, #upg-pop, .acc-confirm, #accretion-screen')) return;
         const dx = e.clientX - wishStar.x, dy = e.clientY - wishStar.y;
         if (dx * dx + dy * dy > WISH.CATCH_R * WISH.CATCH_R) return;
         e.stopPropagation();

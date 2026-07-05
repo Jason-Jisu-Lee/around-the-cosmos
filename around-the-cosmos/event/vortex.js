@@ -311,7 +311,7 @@ function drawVortexLayer(){
 
 function vortexHitTest(e){
     if (!vortexInteractive()) return false;
-    if (e.target.closest('button, input, label, a, #observatory, #settings-panel, #upg-pop, #cosmo-card, .acc-confirm, #accretion-screen, #debug-panel')) return false;
+    if (e.target.closest('button, input, label, a, #observatory, #settings-panel, #upg-pop, .acc-confirm, #accretion-screen, #debug-panel')) return false;
     const dx = e.clientX - VTX.cx, dy = e.clientY - VTX.cy;
     return dx*dx + dy*dy <= VTX.grabR*VTX.grabR;
 }

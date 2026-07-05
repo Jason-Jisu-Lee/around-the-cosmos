@@ -61,7 +61,7 @@ window.addEventListener('mousedown', e => {
     if (!G.comet && !swarmActive()) return;
     // never catch through an open tutorial (the first comet IS catchable in its 2s pre-tutorial window)
     if (typeof tutorialActive !== 'undefined' && tutorialActive) return;
-    if (e.target.closest('button, input, label, a, .upgrade-card, .acc-node, #observatory, #settings-panel, #upg-pop, #cosmo-card, .acc-confirm, #accretion-screen')) return;
+    if (e.target.closest('button, input, label, a, .upgrade-card, .acc-node, #observatory, #settings-panel, #upg-pop, .acc-confirm, #accretion-screen')) return;
     if (tryCatchCometAt(e.clientX, e.clientY, COMET_CATCH_R)) e.stopPropagation();
 }, true);
 
