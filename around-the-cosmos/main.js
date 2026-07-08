@@ -102,10 +102,16 @@ function initDraggable(el) {
 }
 
 // Small-window hint: the 3-column layout (2x308px columns + the sky + the ~900px wish picker)
-// gets cramped below ~1100x600 - show a gentle fullscreen nudge while it is.
+// gets cramped below ~1100x600 - show a fullscreen nudge (dismissible via "Play anyway") while it is,
+// and hide the floating observatory entirely (body.small-screen) since it covers the playfield.
+let sizeHintDismissed = false;
 function updateSizeHint() {
-    document.getElementById('size-hint').classList.toggle('show', innerWidth < 1100 || innerHeight < 600);
+    const small = innerWidth < 1100 || innerHeight < 600;
+    if (!small) sizeHintDismissed = false;   // a fresh too-small episode warns again
+    document.body.classList.toggle('small-screen', small);
+    document.getElementById('size-hint').classList.toggle('show', small && !sizeHintDismissed);
 }
+document.getElementById('size-hint-ok').addEventListener('click', () => { sizeHintDismissed = true; updateSizeHint(); });
 window.addEventListener('resize', () => { resize(); updateSizeHint(); });
 window.addEventListener('beforeunload', saveGame);
 document.getElementById('reset-btn').addEventListener('click', resetGame);

@@ -718,11 +718,22 @@ body {
 /* Falling Star Wish overlay - above the comet layer; clickable only while the picker is up */
 #wish-layer { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 65; pointer-events: none; cursor: var(--cursor); }
 
-/* Small-window hint: shown while the window is too cramped (main.js updateSizeHint) */
+/* Small-window hint: shown while the window is too cramped (main.js updateSizeHint).
+   Dismissible - the "Play anyway" button hides it for this too-small episode. */
 #size-hint {
     display: none; position: fixed; top: 56px; left: 50%; transform: translateX(-50%); z-index: 95;
     background: #fffdf8; border: 1px solid var(--accretion-dim); border-radius: 6px;
-    padding: 8px 18px; font-family: 'Nunito','Segoe UI',sans-serif; font-size: 12.5px; color: #33506a;
-    box-shadow: 0 4px 14px rgba(40,50,70,0.18); pointer-events: none; white-space: nowrap;
+    padding: 8px 12px 8px 18px; font-family: 'Nunito','Segoe UI',sans-serif; font-size: 12.5px; color: #33506a;
+    box-shadow: 0 4px 14px rgba(40,50,70,0.18); white-space: nowrap;
+    align-items: center; gap: 14px;
 }
-#size-hint.show { display: block; }
+#size-hint.show { display: flex; }
+#size-hint button {
+    border: 1px solid var(--accretion-dim); border-radius: 5px; background: rgba(74,130,168,0.10);
+    color: #33506a; font-family: 'Nunito','Segoe UI',sans-serif; font-size: 12px; font-weight: 700;
+    padding: 4px 12px;
+}
+#size-hint button:hover { background: rgba(74,130,168,0.20); }
+
+/* Too-small window: the floating observatory covers the playfield - remove it entirely. */
+body.small-screen #observatory { display: none !important; }
